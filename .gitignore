@@ -5,6 +5,5 @@
 .wpilib/
 build/
 *.swp
-*.csv*
+*.csv[0-9]*
 *.log
-!plot_csvs.py
