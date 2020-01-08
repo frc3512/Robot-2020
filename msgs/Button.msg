@@ -1,0 +1,2 @@
+int button
+bool pressed

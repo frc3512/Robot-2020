@@ -1,0 +1,38 @@
+cppHeaderFileInclude {
+  \.h$
+  \.hpp$
+  \.inl$
+  \.inc$
+}
+
+cppSrcFileInclude {
+  \.cpp$
+}
+
+modifiableFileExclude {
+  gradle/
+  python/
+  format.py
+  make.py
+}
+
+includeOtherLibs {
+  gtest/
+  frc/
+  hal/
+  rev/
+  units/
+  wpi/
+  cscore\.h$
+}
+
+generatedFileExclude {
+  thirdparty/cpp/drake/
+  thirdparty/include/Eigen/
+  thirdparty/include/drake/
+  thirdparty/include/units/
+  thirdparty/include/unsupported/
+  thirdparty/include/wpi/
+  src/test/cpp/drake/
+  src/test/include/drake/
+}

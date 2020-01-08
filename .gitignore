@@ -1,0 +1,10 @@
+.gradle/
+.project
+.settings/
+.vscode/
+.wpilib/
+build/
+*.swp
+*.csv*
+*.log
+!plot_csvs.py

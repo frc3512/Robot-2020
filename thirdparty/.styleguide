@@ -1,0 +1,35 @@
+cppHeaderFileInclude {
+  \.h$
+  \.hpp$
+  \.inl$
+  \.inc$
+}
+
+cppSrcFileInclude {
+  \.cpp$
+}
+
+licenseUpdateExclude {
+  rev/SparkMax\.cpp$
+}
+
+includeOtherLibs {
+  drake/
+  gtest/
+  hal/
+  rev/
+  units/
+  wpi/
+  cscore\.h$
+}
+
+generatedFileExclude {
+  thirdparty/cpp/drake/
+  thirdparty/include/Eigen/
+  thirdparty/include/drake/
+  thirdparty/include/units/
+  thirdparty/include/unsupported/
+  thirdparty/include/wpi/
+  src/test/cpp/drake/
+  src/test/include/drake/
+}

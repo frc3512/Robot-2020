@@ -1,0 +1,12 @@
+double x1
+double y1
+int buttons1
+double x2
+double y2
+int buttons2
+double x3
+double y3
+int buttons3
+double x4
+double y4
+int buttons4
