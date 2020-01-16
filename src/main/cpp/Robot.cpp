@@ -10,6 +10,7 @@ namespace frc3512 {
 Robot::Robot() : PublishNode("Robot") {
     m_drivetrain.Subscribe(*this);
     m_flywheel.Subscribe(*this);
+    m_turret.Subscribe(*this);
 }
 
 void Robot::DisabledInit() {
