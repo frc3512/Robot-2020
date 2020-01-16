@@ -23,7 +23,6 @@ constexpr double kJoystickDeadband = 0.02;
 }  // namespace Robot
 
 namespace Drivetrain {
-
 // Motor Ports
 constexpr int kLeftMasterPort = 16;
 constexpr int kLeftSlavePort = 1;
@@ -42,7 +41,6 @@ constexpr double kVelocityTolerance = 2.0;   // meters/second
 constexpr double kAngleTolerance = 0.05;     // radians
 
 // Physical Robot Constants
-constexpr auto kWheelbaseWidth = 0.6096_m;
 constexpr auto kLength = 0.9398_m;
 constexpr auto kWidth = 0.990405073902434_m;
 constexpr units::meter_t kWheelRadius = 3_in;
@@ -80,13 +78,6 @@ constexpr double kDpP = (wpi::math::pi * 2.0) / 512.0;
 }  // namespace Flywheel
 
 namespace Turret {
-
-/*
-    Note: The values here are default ones for now.
-
-    We can change these later in the future.
-*/
-
 // Spark Max Port Values
 constexpr int kPort = 0;
 
@@ -95,9 +86,16 @@ constexpr int kRightHallPort = 0;
 constexpr int kLeftHallPort = 1;
 
 // Encoder Values
-constexpr int kEncoderA = 1;
-constexpr int kEncoderB = 0;
+constexpr int kEncoderPort = 8;
+constexpr double kDpP = 1;
 
+// Controller
+constexpr double kV = 0;
+constexpr double kA = 0;
+constexpr auto kMaxV = 1.477996_rad_per_s;
+constexpr auto kMaxA = 7.782482_rad_per_s / 1_s;
+constexpr auto kTx = 0_m;
+constexpr auto kTy = 0_m;
 }  // namespace Turret
 
 constexpr auto kDt = 0.00505_s;

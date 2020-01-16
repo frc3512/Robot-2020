@@ -9,6 +9,7 @@
 #include "communications/PublishNode.hpp"
 #include "subsystems/Drivetrain.hpp"
 #include "subsystems/Flywheel.hpp"
+#include "subsystems/Turret.hpp"
 
 namespace frc3512 {
 
@@ -31,6 +32,7 @@ public:
 private:
     Drivetrain m_drivetrain;
     Flywheel m_flywheel;
+    Turret m_turret;
     frc::Joystick m_driveStick1{kDriveStick1Port};
     frc::Joystick m_driveStick2{kDriveStick2Port};
     frc::Joystick m_appendageStick{kAppendageStickPort};
