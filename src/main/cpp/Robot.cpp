@@ -3,26 +3,54 @@
 #include "Robot.hpp"
 
 #include <frc/DriverStation.h>
+#include <wpi/raw_ostream.h>
 
 namespace frc3512 {
 
-Robot::Robot() : PublishNode("Robot") { m_drivetrain.Subscribe(*this); }
+Robot::Robot() : PublishNode("Robot") {
+    m_drivetrain.Subscribe(*this);
+    m_flywheel.Subscribe(*this);
+}
 
-void Robot::DisabledInit() {}
+void Robot::DisabledInit() {
+    CommandPacket message{"DisabledInit", false};
+    Publish(message);
+}
 
-void Robot::AutonomousInit() {}
+void Robot::AutonomousInit() {
+    CommandPacket message{"AutonomousInit", false};
+    Publish(message);
+}
 
-void Robot::TeleopInit() {}
+void Robot::TeleopInit() {
+    CommandPacket message{"TeleopInit", false};
+    Publish(message);
+    for (int i = 1; i <= 12; i++) {
+        if (m_driveStick1.GetRawButtonPressed(i)) {
+            ButtonPacket message{"DriveStick1", i, true};
+            Publish(message);
+        }
+    }
+}
 
 void Robot::TestInit() {}
 
 void Robot::RobotPeriodic() {}
 
-void Robot::DisabledPeriodic() {}
+void Robot::DisabledPeriodic() {
+    wpi::outs() << "Flywheel: " << m_flywheel.GetAngle().to<double>() << "\n";
+}
 
 void Robot::AutonomousPeriodic() { TeleopPeriodic(); }
 
 void Robot::TeleopPeriodic() {
+    for (int i = 1; i <= 12; i++) {
+        if (m_driveStick1.GetRawButtonPressed(i)) {
+            ButtonPacket message{"DriveStick1", i, true};
+            Publish(message);
+        }
+    }
+
     auto& ds = frc::DriverStation::GetInstance();
     HIDPacket message{"",
                       m_driveStick1.GetX(),

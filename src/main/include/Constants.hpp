@@ -6,12 +6,6 @@
 #include <wpi/math>
 
 namespace frc3512::Constants {
-/**
- * Controller Base
- * NOTE: Default values are used here.
- */
-constexpr int kControllerPrio = 50;
-constexpr auto kDt = 0.00505_s;
 
 namespace Robot {
 /*
@@ -49,4 +43,21 @@ constexpr double kDpP =
 
 }  // namespace Drivetrain
 
+namespace Flywheel {
+constexpr int kLeftPort = 9;
+constexpr int kRightPort = 10;
+constexpr int kEncoderA = 6;
+constexpr int kEncoderB = 7;
+
+constexpr auto kV = 0.00957_V / 1_rad_per_s;
+constexpr auto kA = 0.02206 / 1_rad_per_s / 1.0_s;
+constexpr auto kMaxAngularVelocity = 1000.5_rad_per_s;
+constexpr units::radians_per_second_t kAngularVelocityTolerance = 7.0_rad_per_s;
+
+constexpr double kGearRatio = 2.0;
+constexpr double kDpP = (wpi::math::pi * 2.0) / 512.0;
+}  // namespace Flywheel
+
+constexpr auto kDt = 0.00505_s;
+constexpr int kControllerPrio = 50;
 }  // namespace frc3512::Constants
