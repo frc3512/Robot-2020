@@ -4,11 +4,12 @@
 CC := arm-frc2020-linux-gnueabi-gcc
 CPP := arm-frc2020-linux-gnueabi-g++
 LD := arm-frc2020-linux-gnueabi-g++
+STRIP := arm-frc2020-linux-gnueabi-strip
 
 # Specify defines with -D directives here
 DEFINES :=
 
-VERSION := 2020.1.2
+VERSION := 2020.2.2
 OBJDIR := build/linuxathena
 
 # Specify Linux include paths with -I directives here
@@ -60,6 +61,17 @@ LDFLAGS := \
 	-flto
 
 include mk/Makefile-common
+
+$(OBJDIR)/FRCUserProgram: $(OBJ_C) $(OBJ_CPP) $(OBJ_GEN_CPP) $(OBJ_THIRDPARTY_CC) $(OBJ_THIRDPARTY_CPP)
+	@mkdir -p $(@D)
+	@echo [LD] $@
+ifdef VERBOSE
+	$(LD) -o $@ $+ $(LDFLAGS)
+	$(STRIP) -g $@
+else
+	@$(LD) -o $@ $+ $(LDFLAGS)
+	@$(STRIP) -g $@
+endif
 
 .PHONY: deploy
 deploy: build

@@ -3,9 +3,16 @@
 import argparse
 import os
 from pathlib import Path
+import re
 import subprocess
 import sys
 from urllib.request import urlretrieve
+
+
+def purge(dir, pattern):
+    for f in os.listdir(dir):
+        if re.search(pattern, f):
+            os.remove(os.path.join(dir, f))
 
 
 def dl_progress(count, block_size, total_size):
@@ -71,7 +78,7 @@ def main():
     OPENCV_URL = WPI_MAVEN_URL + "/edu/wpi/first/thirdparty/frc2020"
     REV_URL = REV_MAVEN_URL + "/com/revrobotics/frc"
 
-    WPI_VERSION = "2020.1.2"
+    WPI_VERSION = "2020.2.2"
 
     if args.target == "build":
         classifier = "linuxathena"
@@ -132,6 +139,11 @@ def main():
         subprocess.run(make_x86_64 + ["clean"])
     elif args.target == "test":
         subprocess.run(make_x86_64 + ["build", f"-j{nproc}"], check=True)
+
+        # Remove old log files
+        purge(".", r"\.csv")
+        purge(".", r"Robot\.log$")
+
         subprocess.run(["build/linuxx86-64/FRCUserProgram"])
 
 

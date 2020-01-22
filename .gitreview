@@ -1,5 +1,0 @@
-[gerrit]
-host=gerrit.frc3512.com
-port=29418
-project=Robot-2020
-defaultbranch=master

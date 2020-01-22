@@ -21,13 +21,14 @@ includeOtherLibs {
   units/
   wpi/
   cscore\.h$
+  units\.h$
 }
 
 generatedFileExclude {
   thirdparty/cpp/drake/
   thirdparty/include/Eigen/
   thirdparty/include/drake/
-  thirdparty/include/units/
+  thirdparty/include/units\.h$
   thirdparty/include/unsupported/
   thirdparty/include/wpi/
   src/test/cpp/drake/

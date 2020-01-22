@@ -5,5 +5,5 @@
 .wpilib/
 build/
 *.swp
-*.csv[0-9]*
+*.csv
 *.log

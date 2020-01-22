@@ -20,10 +20,12 @@ includeOtherLibs {
   gtest/
   frc/
   hal/
+  mockdata/
   rev/
   units/
   wpi/
   cscore\.h$
+  units\.h$
 }
 
 generatedFileExclude {

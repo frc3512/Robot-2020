@@ -39,21 +39,23 @@ for f in files:
         filtered[name] = f
 
 # Plot datasets
-for csv_group in filtered.keys():
-    plt.figure()
-    plt.title(csv_group)
-    filename = filtered[csv_group]
+csv_group = "Drivetrain Positions"
+plt.figure()
+plt.title(csv_group)
+filename = filtered[csv_group]
 
-    # Get labels from first row of file
-    with open(filename) as f:
-        labels = [x.strip('"') for x in f.readline().rstrip().split(",")]
+# Get labels from first row of file
+with open(filename) as f:
+    labels = [x.strip('"') for x in f.readline().rstrip().split(",")]
 
-    # Retrieve data from remaining rows of file
-    print(f"Plotting {filename}")
-    data = np.genfromtxt(filename, delimiter=",", skip_header=1, skip_footer=1)
-    plt.plot(data[:, 0], data[:, 1:])
+# Retrieve data from remaining rows of file
+print(f"Plotting {filename}")
+data = np.genfromtxt(filename, delimiter=",", skip_header=1, skip_footer=1)
+plt.plot(data[:, 1], data[:, 2])
+plt.plot(data[:, 4], data[:, 5])
 
-    # First label is x axis label (time). The remainder are dataset names.
-    plt.xlabel(labels[0])
-    plt.legend(labels[1:])
+# First label is x axis label (time). The remainder are dataset names.
+plt.xlabel("X (m)")
+plt.ylabel("Y (m)")
+plt.legend(["Estimate", "Reference"])
 plt.show()
