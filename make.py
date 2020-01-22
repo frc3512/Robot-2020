@@ -9,6 +9,7 @@ import subprocess
 import sys
 from textwrap import TextWrapper
 from urllib.request import urlretrieve
+import shutil
 
 
 def purge(dir, pattern):
@@ -62,7 +63,7 @@ def dl_progress(count, block_size, total_size):
     sys.stdout.write(f"\r-> {percent}%")
     sys.stdout.flush()
 
-
+    
 def download_file(maven_url, filename, dest_dir):
     """Download file from maven server.
 
@@ -123,6 +124,9 @@ def main():
 
     if not os.path.exists("build/"):
         os.makedirs("build/")
+    
+    if not os.path.exists("deploy/"):
+        os.makedirs("deploy/")
 
     WPI_MAVEN_URL = "https://frcmaven.wpi.edu/artifactory/release"
     REV_MAVEN_URL = "http://www.revrobotics.com/content/sw/max/sdk/maven"
@@ -190,6 +194,15 @@ def main():
         subprocess.run(make_athena + ["build", f"-j{args.jobs}"])
     elif args.target == "deploy":
         subprocess.run(make_athena + ["deploy", f"-j{args.jobs}"])
+        print(f"Checking for files...")
+        files = [os.path.join(dp, f) for dp, dn, fn in os.walk(".deploy") for f in fn]
+        if len(files) == 0:
+            print(f"No files have been found. Building normally...")
+            subprocess.run(make_athena + ["deploy"])
+        else:
+            print(f"Arbitrary files have been found! Copying over...")
+            subprocess.run("rsync","-av",files, "lvuser@10.35.12.2:/home/lvuser")
+            print(f"Done!")
     elif args.target == "clean":
         subprocess.run(make_athena + ["clean"])
         subprocess.run(make_x86_64 + ["clean"])
