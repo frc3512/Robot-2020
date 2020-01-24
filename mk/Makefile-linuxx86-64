@@ -16,6 +16,7 @@ IFLAGS := -Isrc/main/include -Isrc/test/include -Ithirdparty/include \
 	-Ibuild/generated/include -Ibuild/wpilibc-cpp-$(VERSION)-headers \
 	-Ibuild/hal-cpp-$(VERSION)-headers -Ibuild/cscore-cpp-$(VERSION)-headers \
 	-Ibuild/ntcore-cpp-$(VERSION)-headers -Ibuild/wpiutil-cpp-$(VERSION)-headers \
+	-Ibuild/googletest-1.9.0-4-437e100-1-headers \
 	-Ibuild/SparkMax-cpp-1.5.1-headers -Ibuild/SparkMax-driver-1.5.1-headers
 
 # Specify Linux libs with -l directives here
@@ -48,7 +49,8 @@ LDFLAGS := \
 	-Lbuild/SparkMax-driver-1.5.1-linuxx86-64static/linux/x86-64/static \
 	-lSparkMaxDriver \
 	-lpthread \
-	-lgtest
+	-Lbuild/googletest-1.9.0-4-437e100-1-linuxx86-64static/linux/x86-64/static \
+	-lgoogletest
 
 include mk/Makefile-common
 

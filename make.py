@@ -64,8 +64,12 @@ def main():
     parser = argparse.ArgumentParser(description="Builds and deploys FRC C++ programs")
     parser.add_argument(
         "target",
-        choices=["build", "deploy", "clean", "test"],
-        help="'build' compiles the robot program and downloads missing dependencies. 'deploy' compiles the program if it hasn't already and deploys it. 'clean' removes all build artifacts from the build folder. 'test' compiles the robot program and downloads missing dependencies, then runs the tests.",
+        choices=["build", "deploy", "clean", "ci", "test"],
+        help="""'build' compiles the robot program for athena and downloads missing dependencies.
+        'deploy' compiles the program if it hasn't already and deploys it to a roboRIO.
+        'clean' removes all build artifacts from the build folder.
+        'ci' compiles the robot program for x86-64 and downloads missing dependencies.
+        'test' compiles the robot program for x86-64 and downloads missing dependencies, then runs the tests.""",
     )
     args = parser.parse_args()
 
@@ -76,6 +80,7 @@ def main():
     REV_MAVEN_URL = "http://www.revrobotics.com/content/sw/max/sdk/maven"
     WPI_URL = WPI_MAVEN_URL + "/edu/wpi/first"
     OPENCV_URL = WPI_MAVEN_URL + "/edu/wpi/first/thirdparty/frc2020"
+    GTEST_URL = WPI_MAVEN_URL + "/edu/wpi/first/thirdparty/frc2020"
     REV_URL = REV_MAVEN_URL + "/com/revrobotics/frc"
 
     WPI_VERSION = "2020.2.2"
@@ -100,6 +105,8 @@ def main():
             WPI_URL + "/ni-libraries", "runtime", "2020.10.1", classifier, False
         )
         download_lib(WPI_URL + "/ni-libraries", "visa", "2020.10.1", classifier)
+    elif args.target in ["ci", "test"]:
+        download_lib(GTEST_URL, "googletest", "1.9.0-4-437e100-1", classifier + "static")
 
     classifier += "static"
     download_lib(REV_URL, "SparkMax-cpp", "1.5.1", classifier)
@@ -137,6 +144,8 @@ def main():
     elif args.target == "clean":
         subprocess.run(make_athena + ["clean"])
         subprocess.run(make_x86_64 + ["clean"])
+    elif args.target == "ci":
+        subprocess.run(make_x86_64 + ["build", f"-j{nproc}"], check=True)
     elif args.target == "test":
         subprocess.run(make_x86_64 + ["build", f"-j{nproc}"], check=True)
 
@@ -144,7 +153,7 @@ def main():
         purge(".", r"\.csv")
         purge(".", r"Robot\.log$")
 
-        subprocess.run(["build/linuxx86-64/FRCUserProgram"])
+        subprocess.run(["build/linuxx86-64/FRCUserProgram"], check=True)
 
 
 if __name__ == "__main__":
