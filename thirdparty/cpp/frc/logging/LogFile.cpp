@@ -70,3 +70,5 @@ std::string LogFile::CreateFilename(std::time_t time) const {
   return (path + "/" + m_filePrefix + "-" + datetime + "." + m_fileExtension)
       .str();
 }
+
+void LogFile::Flush() { m_file.flush(); }

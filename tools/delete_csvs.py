@@ -12,7 +12,7 @@ files = subprocess.check_output(["ssh", "lvuser@10.35.12.2", "ls"],
 # Maps subsystem name to tuple of csv_group and date and filters for CSV files.
 filtered = {}
 file_rgx = re.compile(
-    r"^\./(?P<name>[A-Za-z ]+)-(?P<date>\d{4}-\d{2}-\d{2}-\d{2}_\d{2}_\d{2})\.csv$"
+    r"^(?P<name>[A-Za-z ]+)-(?P<date>\d{4}-\d{2}-\d{2}-\d{2}_\d{2}_\d{2})\.csv$"
 )
 files = [f for f in files if file_rgx.search(f)]
 
@@ -33,4 +33,5 @@ for f in files:
         csvs_to_delete.append(f)
 
 # Delete list of files from roboRIO
-subprocess.run(["ssh", "lvuser@10.35.12.2", "rm", " ".join(csvs_to_delete)])
+subprocess.run(
+    ["ssh", "lvuser@10.35.12.2", "rm", "-f", " ".join(csvs_to_delete)])

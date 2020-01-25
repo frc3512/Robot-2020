@@ -63,6 +63,11 @@ class LogFile {
    */
   void SetTimeIntervalBeforeRenaming(units::second_t duration);
 
+  /**
+   * Flushes lines written to the log file to disk.
+   */
+  void Flush();
+
   template <typename Value>
   friend LogFile& operator<<(LogFile& file, const Value& value) {
     file.m_file << value;
