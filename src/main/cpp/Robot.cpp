@@ -12,6 +12,7 @@ Robot::Robot() : PublishNode("Robot") {
     m_flywheel.Subscribe(*this);
     m_turret.Subscribe(*this);
     m_intake.Subscribe(*this);
+    m_vision.Subscribe(*this);
 }
 
 void Robot::DisabledInit() {

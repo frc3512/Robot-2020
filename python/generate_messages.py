@@ -329,7 +329,7 @@ def main():
         os.makedirs(f"{args.output}/include/communications")
 
     # Parse schema files
-    var_regex = re.compile(r"(?P<type>\w+)\s+(?P<name>\w+)")
+    var_regex = re.compile(r"(?P<type>[\w:]+)\s+(?P<name>\w+)")
     for filename in msg_files:
         with open(filename, "r") as msgfile:
             member_var_types = ["std::string"]

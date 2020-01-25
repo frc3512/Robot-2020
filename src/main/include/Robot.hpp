@@ -12,6 +12,7 @@
 #include "subsystems/Flywheel.hpp"
 #include "subsystems/Intake.hpp"
 #include "subsystems/Turret.hpp"
+#include "subsystems/Vision.hpp"
 
 namespace frc3512 {
 
@@ -36,6 +37,7 @@ private:
     Flywheel m_flywheel;
     Turret m_turret;
     Intake m_intake;
+    Vision m_vision;
     frc::Joystick m_driveStick1{kDriveStick1Port};
     frc::Joystick m_driveStick2{kDriveStick2Port};
     frc::Joystick m_appendageStick{kAppendageStickPort};

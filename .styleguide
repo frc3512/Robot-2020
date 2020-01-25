@@ -17,12 +17,12 @@ modifiableFileExclude {
 }
 
 includeOtherLibs {
-  gtest/
   frc/
+  gtest/
   hal/
   mockdata/
+  networktables/
   rev/
-  units/
   wpi/
   cscore\.h$
   units\.h$
