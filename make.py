@@ -140,7 +140,7 @@ def main():
     if args.target == "build":
         subprocess.run(make_athena + ["build", f"-j{nproc}"])
     elif args.target == "deploy":
-        subprocess.run(make_athena + ["deploy"])
+        subprocess.run(make_athena + ["deploy", f"-j{nproc}"])
     elif args.target == "clean":
         subprocess.run(make_athena + ["clean"])
         subprocess.run(make_x86_64 + ["clean"])
