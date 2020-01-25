@@ -4,7 +4,9 @@
 
 namespace frc3512 {
 
-Robot::Robot() {}
+Robot::Robot() : PublishNode("Robot") {
+    m_vision.Subscribe(*this);
+}
 
 void Robot::DisabledInit() {}
 
@@ -21,7 +23,6 @@ void Robot::DisabledPeriodic() {}
 void Robot::AutonomousPeriodic() { TeleopPeriodic(); }
 
 void Robot::TeleopPeriodic() {}
-
 }  // namespace frc3512
 
 #ifndef RUNNING_FRC_TESTS

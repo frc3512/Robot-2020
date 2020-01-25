@@ -4,11 +4,13 @@
 
 #include <frc/TimedRobot.h>
 
+#include "communications/PublishNode.hpp"
 #include "Constants.hpp"
+#include "subsystems/Vision.hpp"
 
 namespace frc3512 {
 
-class Robot : public frc::TimedRobot {
+class Robot : public frc::TimedRobot, public PublishNode {
 public:
     Robot();
 
@@ -23,6 +25,7 @@ public:
     void TeleopPeriodic() override;
 
 private:
+    Vision m_vision;
 };
 
 }  // namespace frc3512

@@ -67,13 +67,13 @@ class CSVLogFile {
    */
   template <typename Value, typename... Values>
   void Log(Value value, Values... values) {
-    using std::ratio;
-    using std::ratio_multiply;
     using std::chrono::duration;
     using std::chrono::duration_cast;
     using std::chrono::hours;
     using std::chrono::milliseconds;
     using std::chrono::system_clock;
+    using std::ratio;
+    using std::ratio_multiply;
     using days = duration<int, ratio_multiply<hours::period, ratio<24>>::type>;
 
     system_clock::time_point now = system_clock::now();
