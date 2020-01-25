@@ -8,8 +8,8 @@ if [ $# -ne 1 ] ; then
     exit 1
 fi
 
-ssh $USER@$HOST "rm -f /home/lvuser/FRCUserProgram"
+ssh $USER@$HOST "rm -f /home/lvuser/frcUserProgram"
 ssh $USER@$HOST "killall -q netconsole-host || :"
-scp $1/FRCUserProgram $USER@$HOST:/home/lvuser
-# ssh $USER@$HOST "setcap 'cap_sys_nice=pe' /home/lvuser/FRCUserProgram"
-ssh $USER@$HOST ". /etc/profile.d/natinst-path.sh; chmod a+x /home/lvuser/FRCUserProgram; /usr/local/frc/bin/frcKillRobot.sh -t -r;"
+scp $1/frcUserProgram $USER@$HOST:/home/lvuser
+# ssh $USER@$HOST "setcap 'cap_sys_nice=pe' /home/lvuser/frcUserProgram"
+ssh $USER@$HOST ". /etc/profile.d/natinst-path.sh; chmod a+x /home/lvuser/frcUserProgram; /usr/local/frc/bin/frcKillRobot.sh -t -r;"

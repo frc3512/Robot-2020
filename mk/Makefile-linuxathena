@@ -62,7 +62,7 @@ LDFLAGS := \
 
 include mk/Makefile-common
 
-$(OBJDIR)/FRCUserProgram: $(OBJ_C) $(OBJ_CPP) $(OBJ_GEN_CPP) $(OBJ_THIRDPARTY_CC) $(OBJ_THIRDPARTY_CPP)
+$(OBJDIR)/frcUserProgram: $(OBJ_C) $(OBJ_CPP) $(OBJ_GEN_CPP) $(OBJ_THIRDPARTY_CC) $(OBJ_THIRDPARTY_CPP)
 	@mkdir -p $(@D)
 	@echo [LD] $@
 ifdef VERBOSE

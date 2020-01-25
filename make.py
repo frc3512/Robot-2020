@@ -159,7 +159,7 @@ def main():
         purge(".", r"\.csv")
         purge(".", r"Robot\.log$")
 
-        subprocess.run(["build/linuxx86-64/FRCUserProgram"], check=True)
+        subprocess.run(["build/linuxx86-64/frcUserProgram"], check=True)
 
 
 if __name__ == "__main__":

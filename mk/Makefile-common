@@ -41,7 +41,7 @@ OBJ_THIRDPARTY_CC := $(addprefix $(OBJDIR)/,$(OBJ_THIRDPARTY_CC))
 OBJ_THIRDPARTY_CPP := $(addprefix $(OBJDIR)/,$(OBJ_THIRDPARTY_CPP))
 
 .PHONY: build
-build: $(OBJDIR)/FRCUserProgram
+build: $(OBJDIR)/frcUserProgram
 
 -include $(OBJ_C:.o=.d)
 -include $(OBJ_CPP:.o=.d)
