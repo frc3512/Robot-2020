@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import argparse
+import multiprocessing as mp
 import os
 from pathlib import Path
 import re
@@ -71,6 +72,12 @@ def main():
         'ci' compiles the robot program for x86-64 and downloads missing dependencies.
         'test' compiles the robot program for x86-64 and downloads missing dependencies, then runs the tests.""",
     )
+    parser.add_argument(
+        "-j",
+        dest="jobs",
+        type=int,
+        default=mp.cpu_count(),
+        help="number of jobs to run (default is number of cores)")
     args = parser.parse_args()
 
     if not os.path.exists("build/"):
@@ -85,7 +92,7 @@ def main():
 
     WPI_VERSION = "2020.2.2"
 
-    if args.target == "build":
+    if args.target in ["build", "deploy"]:
         classifier = "linuxathena"
     else:
         classifier = "linuxx86-64"
@@ -133,21 +140,20 @@ def main():
         subprocess.run(["touch", "build/generated"])
         print(" done.")
 
-    nproc = subprocess.check_output("nproc", encoding="utf-8").strip()
     make_athena = ["make", "-f", "mk/Makefile-linuxathena"]
     make_x86_64 = ["make", "-f", "mk/Makefile-linuxx86-64"]
 
     if args.target == "build":
-        subprocess.run(make_athena + ["build", f"-j{nproc}"])
+        subprocess.run(make_athena + ["build", f"-j{args.jobs}"])
     elif args.target == "deploy":
-        subprocess.run(make_athena + ["deploy", f"-j{nproc}"])
+        subprocess.run(make_athena + ["deploy", f"-j{args.jobs}"])
     elif args.target == "clean":
         subprocess.run(make_athena + ["clean"])
         subprocess.run(make_x86_64 + ["clean"])
     elif args.target == "ci":
-        subprocess.run(make_x86_64 + ["build", f"-j{nproc}"], check=True)
+        subprocess.run(make_x86_64 + ["build", f"-j{args.jobs}"], check=True)
     elif args.target == "test":
-        subprocess.run(make_x86_64 + ["build", f"-j{nproc}"], check=True)
+        subprocess.run(make_x86_64 + ["build", f"-j{args.jobs}"], check=True)
 
         # Remove old log files
         purge(".", r"\.csv")
