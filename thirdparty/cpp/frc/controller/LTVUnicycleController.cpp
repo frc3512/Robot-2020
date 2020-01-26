@@ -81,7 +81,7 @@ ChassisSpeeds LTVUnicycleController::Calculate(
   inRobotFrame(0, 1) = std::sin(x(2, 0));
   inRobotFrame(1, 0) = -std::sin(x(2, 0));
   inRobotFrame(1, 1) = std::cos(x(2, 0));
-  auto u = K * inRobotFrame * (r - x);
+  Eigen::Matrix<double, 2, 1> u = K * inRobotFrame * (r - x);
 
   return ChassisSpeeds{
       linearVelocityRef + units::meters_per_second_t{u(0, 0)}, 0_mps,
