@@ -2,6 +2,15 @@
 
 #pragma once
 
+#include <frc/ADXRS450_Gyro.h>
+#include <frc/Encoder.h>
+#include <frc/Notifier.h>
+#include <frc/Solenoid.h>
+#include <frc/Spark.h>
+#include <frc/SpeedControllerGroup.h>
+#include <frc/drive/DifferentialDrive.h>
+#include <rev/CANSparkMax.h>
+
 #include "Constants.hpp"
 #include "communications/PublishNode.hpp"
 #include "subsystems/SubsystemBase.hpp"
@@ -63,34 +72,67 @@ public:
     /**
      * Returns left encoder displacement.
      *
-     * @return displacement
+     * @return left displacement
      */
     double GetLeftDisplacement() const;
 
     /**
      * Returns right encoder displacement.
      *
-     * @return displacement
+     * @return right displacement
      */
     double GetRightDisplacement() const;
 
+    /**
+     * Returns right encoder displacement.
+     *
+     * @return left rate
+     */
     double GetLeftRate() const;
 
+    /**
+     * Returns right encoder displacement.
+     *
+     * @return right rate
+     */
     double GetRightRate() const;
 
+    /**
+     * Resets encoders.
+     */
     void ResetEncoders();
-
-    void EnableController();
-
-    void DisableController();
-
-    bool IsControllerEnabled() const;
 
     void Reset();
 
-    void Iterate();
+    void ProcessMessage(const HIDPacket& message) override;
 
 private:
+    // Left gearbox used in position PID
+    rev::CANSparkMax m_leftSlave{Constants::Drivetrain::kLeftSlavePort,
+                                 rev::CANSparkMax::MotorType::kBrushless};
+    rev::CANSparkMax m_leftMaster{Constants::Drivetrain::kLeftMasterPort,
+                                  rev::CANSparkMax::MotorType::kBrushless};
+    frc::SpeedControllerGroup m_leftGrbx{m_leftMaster, m_leftSlave};
+
+    // Right gearbox used in position PID
+    rev::CANSparkMax m_rightSlave{Constants::Drivetrain::kRightSlavePort,
+                                  rev::CANSparkMax::MotorType::kBrushless};
+    rev::CANSparkMax m_rightMaster{Constants::Drivetrain::kRightMasterPort,
+                                   rev::CANSparkMax::MotorType::kBrushless};
+    frc::SpeedControllerGroup m_rightGrbx{m_rightMaster, m_rightSlave};
+
+    // Left gearbox used in position PID
+    frc::Encoder m_leftEncoder{Constants::Drivetrain::kLeftEncoderA,
+                               Constants::Drivetrain::kLeftEncoderB};
+
+    // Right gearbox used in position PID
+    frc::Encoder m_rightEncoder{Constants::Drivetrain::kRightEncoderA,
+                                Constants::Drivetrain::kRightEncoderB};
+
+    frc::DifferentialDrive m_drive{m_leftGrbx, m_rightGrbx};
+
+    // Gyro used for angle PID
+    frc::ADXRS450_Gyro m_gyro;
 };
 
 }  // namespace frc3512

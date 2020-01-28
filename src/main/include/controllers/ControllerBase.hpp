@@ -33,7 +33,7 @@ public:
     /**
      *  This function will be called asynchronously every 5 ms
      */
-    virtual void Iterate() = 0;
+    virtual void Iterate();
 
 private:
     frc::RTNotifier m_notifier{frc3512::Constants::kControllerPrio,
