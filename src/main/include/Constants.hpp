@@ -96,4 +96,25 @@ constexpr int kWinchPort = 7;
 
 }  // namespace Climber
 
+namespace Drivetrain {
+
+// Motor Ports
+constexpr int kLeftMasterPort = 0;
+constexpr int kLeftSlavePort = 1;
+constexpr int kRightMasterPort = 2;
+constexpr int kRightSlavePort = 3;
+
+// Encoder Ports
+constexpr int kLeftEncoderA = 2;
+constexpr int kLeftEncoderB = 3;
+constexpr int kRightEncoderA = 0;
+constexpr int kRightEncoderB = 1;
+
+// Distance per Pulse
+constexpr units::meter_t kWheelRadius = 3_in;
+constexpr double kDpP =
+    (2.0 * wpi::math::pi * kWheelRadius.to<double>()) / 2048.0;
+
+}  // namespace Drivetrain
+
 }  // namespace frc3512::Constants

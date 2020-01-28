@@ -7,6 +7,8 @@
 
 #include <wpi/raw_ostream.h>
 
+#include <frc/DriverStation.h>
+
 namespace frc3512 {
 
 Robot::Robot() : PublishNode("Robot") {
