@@ -79,6 +79,27 @@ constexpr double kGearRatio = 2.0;
 constexpr double kDpP = (wpi::math::pi * 2.0) / 512.0;
 }  // namespace Flywheel
 
+namespace Turret {
+
+/*
+    Note: The values here are default ones for now.
+
+    We can change these later in the future.
+*/
+
+// Spark Max Port Values
+constexpr int kPort = 0;
+
+// Hall Sensor Ports
+constexpr int kRightHallPort = 0;
+constexpr int kLeftHallPort = 1;
+
+// Encoder Values
+constexpr int kEncoderA = 1;
+constexpr int kEncoderB = 0;
+
+}  // namespace Turret
+
 constexpr auto kDt = 0.00505_s;
 constexpr int kControllerPrio = 50;
 }  // namespace frc3512::Constants
