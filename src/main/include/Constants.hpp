@@ -2,5 +2,14 @@
 
 #pragma once
 
-namespace frc3512 {}    // namespace frc3512
-namespace Constants {}  // namespace Constants
+#include <units/units.h>
+
+namespace frc3512::Constants {
+/**
+ * Controller Base
+ * NOTE: Default values are used here.
+ */
+constexpr int kControllerPrio = 50;
+constexpr auto kDt = 0.00505_s;
+
+}  // namespace frc3512::Constants
