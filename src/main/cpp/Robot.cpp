@@ -2,9 +2,11 @@
 
 #include "Robot.hpp"
 
+#include <frc/DriverStation.h>
+
 namespace frc3512 {
 
-Robot::Robot() {}
+Robot::Robot() : PublishNode("Robot") { m_drivetrain.Subscribe(*this); }
 
 void Robot::DisabledInit() {}
 
@@ -20,7 +22,23 @@ void Robot::DisabledPeriodic() {}
 
 void Robot::AutonomousPeriodic() { TeleopPeriodic(); }
 
-void Robot::TeleopPeriodic() {}
+void Robot::TeleopPeriodic() {
+    auto& ds = frc::DriverStation::GetInstance();
+    HIDPacket message{"",
+                      m_driveStick1.GetX(),
+                      m_driveStick1.GetY(),
+                      ds.GetStickButtons(0),
+                      m_driveStick2.GetX(),
+                      m_driveStick2.GetY(),
+                      ds.GetStickButtons(1),
+                      m_appendageStick.GetX(),
+                      m_appendageStick.GetY(),
+                      ds.GetStickButtons(2),
+                      m_appendageStick2.GetX(),
+                      m_appendageStick2.GetY(),
+                      ds.GetStickButtons(3)};
+    Publish(message);
+}
 
 }  // namespace frc3512
 
