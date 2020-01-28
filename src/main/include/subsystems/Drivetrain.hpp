@@ -2,6 +2,9 @@
 
 #pragma once
 
+#include <frc/SpeedControllerGroup.h>
+#include <rev/CANSparkMax.h>
+
 #include "Constants.hpp"
 #include "communications/PublishNode.hpp"
 #include "subsystems/SubsystemBase.hpp"
@@ -63,27 +66,51 @@ public:
     /**
      * Returns left encoder displacement.
      *
-     * @return displacement
+     * @return left displacement
      */
     double GetLeftDisplacement() const;
 
     /**
      * Returns right encoder displacement.
      *
-     * @return displacement
+     * @return right displacement
      */
     double GetRightDisplacement() const;
 
+    /**
+     * Returns right encoder displacement.
+     *
+     * @return left rate
+     */
     double GetLeftRate() const;
 
+    /**
+     * Returns right encoder displacement.
+     *
+     * @return right rate
+     */
     double GetRightRate() const;
 
+    /**
+     * Resets encoders.
+     */
     void ResetEncoders();
 
+    /**
+     * Enable controller.
+     */
     void EnableController();
 
+    /**
+     * Disable controller.
+     */
     void DisableController();
 
+    /**
+     * Returns if the controller is enabled.
+     *
+     * @return if the controller is enabled
+     */
     bool IsControllerEnabled() const;
 
     void Reset();
@@ -91,6 +118,13 @@ public:
     void Iterate();
 
 private:
+    rev::CANSparkMax m_leftSlave{0, rev::CANSparkMax::MotorType::kBrushless};
+    rev::CANSparkMax m_leftMaster{1, rev::CANSparkMax::MotorType::kBrushless};
+    frc::SpeedControllerGroup m_leftGrbx{m_leftMaster, m_leftSlave};
+
+    rev::CANSparkMax m_rightSlave{0, rev::CANSparkMax::MotorType::kBrushless};
+    rev::CANSparkMax m_rightMaster{1, rev::CANSparkMax::MotorType::kBrushless};
+    frc::SpeedControllerGroup m_rightGrbx{m_rightMaster, m_rightSlave};
 };
 
 }  // namespace frc3512

@@ -8,9 +8,9 @@ Drivetrain::Drivetrain() : PublishNode("Drivetrain") {}
 
 void Drivetrain::Drive(double throttle, double turn, bool isQuickTurn) {}
 
-void Drivetrain::SetLeftManual(double value) {}
+void Drivetrain::SetLeftManual(double value) { m_leftGrbx.Set(value); }
 
-void Drivetrain::SetRightManual(double value) {}
+void Drivetrain::SetRightManual(double value) { m_rightGrbx.Set(value); }
 
 double Drivetrain::GetAngle() const { return 0; }
 
