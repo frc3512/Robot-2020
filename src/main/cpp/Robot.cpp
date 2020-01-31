@@ -11,6 +11,7 @@ Robot::Robot() : PublishNode("Robot") {
     m_drivetrain.Subscribe(*this);
     m_flywheel.Subscribe(*this);
     m_turret.Subscribe(*this);
+    m_intake.Subscribe(*this);
 }
 
 void Robot::DisabledInit() {
@@ -52,6 +53,10 @@ void Robot::TeleopPeriodic() {
     for (int i = 1; i <= 12; i++) {
         if (m_driveStick1.GetRawButtonPressed(i)) {
             ButtonPacket message{"DriveStick1", i, true};
+            Publish(message);
+        }
+        if (m_appendageStick2.GetRawButtonPressed(i)) {
+            ButtonPacket message{"AppendageStick2", i, true};
             Publish(message);
         }
     }

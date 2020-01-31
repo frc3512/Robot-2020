@@ -100,4 +100,24 @@ constexpr auto kTy = 0_m;
 
 constexpr auto kDt = 0.00505_s;
 constexpr int kControllerPrio = 50;
+
+namespace Intake {
+// Arm Motor Port
+constexpr int kArmMotorPort = 6;
+
+// Conveyor Motor Port
+constexpr int kConveyorPort = 7;
+
+// Funnel Motor Port
+constexpr int kFunnelPortLeft = 4;
+constexpr int kFunnelPortRight = 5;
+
+// Proximity Sensor Ports (Digital Inputs)
+constexpr int kLowerSensorPort = 8;
+constexpr int kUpperSensorPort = 9;
+
+// Solenoid Ports
+constexpr int kArmPort = 0;
+}  // namespace Intake
+
 }  // namespace frc3512::Constants
