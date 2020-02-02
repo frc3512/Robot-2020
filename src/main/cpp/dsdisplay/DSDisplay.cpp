@@ -7,7 +7,7 @@
 #include <memory>
 
 #include <frc/Filesystem.h>
-#include <wpi/SmallVector.h>
+#include <wpi/SmallString.h>
 #include <wpi/Twine.h>
 #include <wpi/raw_ostream.h>
 
@@ -19,7 +19,7 @@ DSDisplay::DSDisplay(int port) : m_dsPort(port) {
     m_socket.setBlocking(false);
 
     // Retrieve stored autonomous index
-    wpi::SmallVector<char, 64> path;
+    wpi::SmallString<64> path;
     frc::filesystem::GetOperatingDirectory(path);
     std::ifstream autonModeFile((path + "/autonMode.txt").str());
     if (autonModeFile.is_open()) {
@@ -255,7 +255,7 @@ void DSDisplay::ReceiveFromDS() {
             packet << std::get<0>(m_autonModes[m_curAutonMode]);
 
             // Store newest autonomous choice to file for persistent storage
-            wpi::SmallVector<char, 64> path;
+            wpi::SmallString<64> path;
             frc::filesystem::GetOperatingDirectory(path);
             std::ofstream autonModeFile((path + "/autonMode.txt").str(),
                                         std::fstream::trunc);

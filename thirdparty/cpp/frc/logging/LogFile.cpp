@@ -11,7 +11,7 @@
 #include <ctime>
 
 #include <wpi/FileSystem.h>
-#include <wpi/SmallVector.h>
+#include <wpi/SmallString.h>
 #include <wpi/raw_ostream.h>
 
 #include "frc/Filesystem.h"
@@ -59,7 +59,7 @@ void LogFile::UpdateFilename() {
 }
 
 std::string LogFile::CreateFilename(std::time_t time) const {
-  wpi::SmallVector<char, 64> path;
+  wpi::SmallString<64> path;
   frc::filesystem::GetOperatingDirectory(path);
 
   // Get current date/time, format is YYYY-MM-DD.HH_mm_ss
