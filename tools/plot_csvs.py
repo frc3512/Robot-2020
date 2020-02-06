@@ -1,9 +1,16 @@
 #!/usr/bin/env python3
-"""Finds latest versions of the CSVs for each subsystem, then plots the data."""
+"""Finds latest versions of the CSVs for each subsystem, then plots the data.
+
+If provided, the first argument to this script is a filename regex that
+restricts which CSVs are plotted to those that match the regex.
+"""
+
+import argparse
 import matplotlib.pyplot as plt
 import numpy as np
 import os
 import re
+import sys
 
 
 def num_lines(csv_group):
@@ -16,6 +23,10 @@ def num_lines(csv_group):
 
 # Get list of files in current directory
 files = [os.path.join(dp, f) for dp, dn, fn in os.walk(".") for f in fn]
+
+# Ignore files not matching optional pattern
+if len(sys.argv) > 1:
+    files = [f for f in files if re.search(sys.argv[1], f)]
 
 # Maps subsystem name to tuple of csv_group and date
 filtered = {}
@@ -35,14 +46,15 @@ for f in files:
     # If the file is a CSV with the correct name pattern, add it to the filtered
     # list. Files with newer dates override old ones in lexographic ordering.
     name = match.group("name")
-    if name not in filtered or filtered[name] < name:
-        filtered[name] = f
+    date = match.group("date")
+    if name not in filtered.keys() or filtered[name] < date:
+        filtered[name] = date
 
 # Plot datasets
 for csv_group in filtered.keys():
     plt.figure()
     plt.title(csv_group)
-    filename = filtered[csv_group]
+    filename = csv_group + "-" + filtered[csv_group] + ".csv"
 
     # Get labels from first row of file
     with open(filename) as f:

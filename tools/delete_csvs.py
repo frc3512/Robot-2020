@@ -10,16 +10,14 @@ parser = argparse.ArgumentParser(description="Deletes CSVs from the roboRIO")
 parser.add_argument(
     "--all",
     action="store_true",
-    help="if specified, deletes all CSV files instead of leaving the most recent ones.",
+    help=
+    "if specified, deletes all CSV files instead of leaving the most recent ones.",
 )
 args = parser.parse_args()
 
 # Get list of files in current directory
-files = (
-    subprocess.check_output(["ssh", "lvuser@10.35.12.2", "ls"], encoding="utf-8")
-    .rstrip()
-    .split("\n")
-)
+files = (subprocess.check_output(["ssh", "lvuser@10.35.12.2", "ls"],
+                                 encoding="utf-8").rstrip().split("\n"))
 
 # Maps subsystem name to tuple of csv_group and date and filters for CSV files
 filtered = {}
@@ -48,4 +46,5 @@ else:
             csvs_to_delete.append(f)
 
 # Delete list of files from roboRIO
-subprocess.run(["ssh", "lvuser@10.35.12.2", "rm", "-f", " ".join(csvs_to_delete)])
+subprocess.run(
+    ["ssh", "lvuser@10.35.12.2", "rm", "-f", " ".join(csvs_to_delete)])
