@@ -6,8 +6,11 @@ import re
 import subprocess
 
 # Get list of files in current directory
-files = subprocess.check_output(["ssh", "lvuser@10.35.12.2", "ls"],
-                                encoding="utf-8").rstrip().split("\n")
+files = (
+    subprocess.check_output(["ssh", "lvuser@10.35.12.2", "ls"], encoding="utf-8")
+    .rstrip()
+    .split("\n")
+)
 
 # Maps subsystem name to tuple of csv_group and date and filters for CSV files.
 filtered = {}
@@ -33,5 +36,4 @@ for f in files:
         csvs_to_delete.append(f)
 
 # Delete list of files from roboRIO
-subprocess.run(
-    ["ssh", "lvuser@10.35.12.2", "rm", "-f", " ".join(csvs_to_delete)])
+subprocess.run(["ssh", "lvuser@10.35.12.2", "rm", "-f", " ".join(csvs_to_delete)])
