@@ -30,8 +30,13 @@ def scrub_make_dep_rules():
         with open(filename) as f:
             input = f.read()
 
-        rule_name = input[:input.find(":")]
+        target = input[:input.find(":")]
         dep_string = input[input.find(":") + 1:]
+
+        # Delete the .d file if its target no longer exists
+        if not os.path.exists(target):
+            os.remove(filename)
+            continue
 
         # Extract a list of dependencies. Filenames can be delimited by a '\',
         # '\n', or ' '.
@@ -40,9 +45,9 @@ def scrub_make_dep_rules():
         # Remove nonexistent files from dependency list
         deps = [dep for dep in deps if os.path.exists(dep)]
 
-        # Reconstruct .d file. Add rule name to beginning of list so it gets
+        # Reconstruct .d file. Add target to beginning of list so it gets
         # wrapped.
-        deps.insert(0, rule_name + ":")
+        deps.insert(0, target + ":")
         wrapper = TextWrapper(break_long_words=False, break_on_hyphens=False, width=79 - len(" \\"))
         output = " \\\n ".join(wrapper.wrap(" ".join(deps)))
 
