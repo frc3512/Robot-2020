@@ -7,6 +7,7 @@ from pathlib import Path
 import re
 import subprocess
 import sys
+from textwrap import TextWrapper
 from urllib.request import urlretrieve
 
 
@@ -14,6 +15,41 @@ def purge(dir, pattern):
     for f in os.listdir(dir):
         if re.search(pattern, f):
             os.remove(os.path.join(dir, f))
+
+
+def scrub_make_dep_rules():
+    """Remove GNU Make dependencies that no longer exist from .d files"""
+    # Get list of files in current directory
+    files = [os.path.join(dp, f) for dp, dn, fn in os.walk(".") for f in fn]
+
+    # Filter list to .d files
+    file_rgx = re.compile(r"\.d$")
+    files = [f for f in files if file_rgx.search(f)]
+
+    for filename in files:
+        with open(filename) as f:
+            input = f.read()
+
+        rule_name = input[:input.find(":")]
+        dep_string = input[input.find(":") + 1:]
+
+        # Extract a list of dependencies. Filenames can be delimited by a '\',
+        # '\n', or ' '.
+        deps = list(filter(None, re.split(r"\\|\n| ", dep_string)))
+
+        # Remove nonexistent files from dependency list
+        deps = [dep for dep in deps if os.path.exists(dep)]
+
+        # Reconstruct .d file. Add rule name to beginning of list so it gets
+        # wrapped.
+        deps.insert(0, rule_name + ":")
+        wrapper = TextWrapper(break_long_words=False, break_on_hyphens=False, width=79 - len(" \\"))
+        output = " \\\n ".join(wrapper.wrap(" ".join(deps)))
+
+        # If .d file changed, rewrite it
+        if input != output:
+            with open(filename, "w") as f:
+                f.write(output + "\n")
 
 
 def dl_progress(count, block_size, total_size):
@@ -142,6 +178,8 @@ def main():
 
     make_athena = ["make", "-f", "mk/Makefile-linuxathena"]
     make_x86_64 = ["make", "-f", "mk/Makefile-linuxx86-64"]
+
+    scrub_make_dep_rules()
 
     if args.target == "build":
         subprocess.run(make_athena + ["build", f"-j{args.jobs}"])
