@@ -1,4 +1,4 @@
-// Copyright (c) 2020 FRC Team 3512. All Rights Reserved.
+// Copyright (c) 2016-2020 FRC Team 3512. All Rights Reserved.
 
 #include "dsdisplay/DSDisplay.hpp"
 
@@ -7,6 +7,7 @@
 #include <memory>
 
 #include <frc/Filesystem.h>
+#include <wpi/Path.h>
 #include <wpi/SmallString.h>
 #include <wpi/Twine.h>
 #include <wpi/raw_ostream.h>
@@ -21,7 +22,8 @@ DSDisplay::DSDisplay(int port) : m_dsPort(port) {
     // Retrieve stored autonomous index
     wpi::SmallString<64> path;
     frc::filesystem::GetOperatingDirectory(path);
-    std::ifstream autonModeFile((path + "/autonMode.txt").str());
+    wpi::sys::path::append(path, "autonMode.txt");
+    std::ifstream autonModeFile(wpi::Twine{path}.str());
     if (autonModeFile.is_open()) {
         if (autonModeFile >> m_curAutonMode) {
             wpi::outs() << "dsdisplay: restored auton " << m_curAutonMode
@@ -131,7 +133,7 @@ void DSDisplay::SendToDS() {
     uint16_t dsPort;
 
     {
-        std::lock_guard<std::mutex> lock(m_ipMutex);
+        std::lock_guard lock(m_ipMutex);
         dsIP = m_dsIP;
         dsPort = m_dsPort;
     }
@@ -189,7 +191,7 @@ void DSDisplay::ReceiveFromDS() {
                          m_recvPort) == UdpSocket::Done) {
         if (std::strncmp(m_recvBuffer, "connect\r\n", 9) == 0) {
             {
-                std::lock_guard<std::mutex> lock(m_ipMutex);
+                std::lock_guard lock(m_ipMutex);
                 m_dsIP = m_recvIP;
                 m_dsPort = m_recvPort;
             }
@@ -257,7 +259,8 @@ void DSDisplay::ReceiveFromDS() {
             // Store newest autonomous choice to file for persistent storage
             wpi::SmallString<64> path;
             frc::filesystem::GetOperatingDirectory(path);
-            std::ofstream autonModeFile((path + "/autonMode.txt").str(),
+            wpi::sys::path::append(path, "autonMode.txt");
+            std::ofstream autonModeFile(wpi::Twine{path}.str(),
                                         std::fstream::trunc);
             if (autonModeFile.is_open()) {
                 // Selection is stored as ASCII number in file
