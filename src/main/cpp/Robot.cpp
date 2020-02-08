@@ -9,6 +9,8 @@
 
 #include <frc/DriverStation.h>
 
+#include <wpi/raw_ostream.h>
+
 namespace frc3512 {
 
 Robot::Robot() : PublishNode("Robot") {
