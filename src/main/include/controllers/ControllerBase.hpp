@@ -11,7 +11,7 @@ namespace frc3512 {
 
 /**
  *  A base header file for various subsystem controllers.
- * 
+ *
  *  Its purpose is to serve as a base class for controllers to use from,
  *  which is similar to how the SubsystemBase is used as a base for subsystems.
  */
