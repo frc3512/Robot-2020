@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include <frc/DriverStation.h>
 #include <frc/Joystick.h>
 #include <frc/TimedRobot.h>
 
@@ -9,6 +10,7 @@
 #include "communications/PublishNode.hpp"
 #include "subsystems/Drivetrain.hpp"
 #include "subsystems/Flywheel.hpp"
+#include "subsystems/Climber.hpp"
 
 namespace frc3512 {
 
@@ -29,8 +31,8 @@ public:
     void TeleopPeriodic() override;
 
 private:
+    Climber m_climber;
     Drivetrain m_drivetrain;
-    Flywheel m_flywheel;
     frc::Joystick m_driveStick1{kDriveStick1Port};
     frc::Joystick m_driveStick2{kDriveStick2Port};
     frc::Joystick m_appendageStick{kAppendageStickPort};

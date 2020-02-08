@@ -5,11 +5,14 @@
 #include <frc/DriverStation.h>
 #include <wpi/raw_ostream.h>
 
+#include <wpi/raw_ostream.h>
+
 namespace frc3512 {
 
 Robot::Robot() : PublishNode("Robot") {
     m_drivetrain.Subscribe(*this);
     m_flywheel.Subscribe(*this);
+    m_climber.Subscribe(*this);
 }
 
 void Robot::DisabledInit() {
@@ -70,6 +73,15 @@ void Robot::TeleopPeriodic() {
                       m_appendageStick2.GetY(),
                       ds.GetStickButtons(3)};
     Publish(message);
+
+    if (message.y3 == 1)
+        m_climber.SetElevator(m_appendageStick.GetY());
+    if (message.y3 == -1)
+        m_climber.SetElevator(m_appendageStick.GetY());
+    if (message.x4 == 1)
+        m_climber.SetTransverser(m_appendageStick2.GetX());
+    if (message.x4 == -1)
+        m_climber.SetTransverser(m_appendageStick2.GetX());
 }
 
 }  // namespace frc3512

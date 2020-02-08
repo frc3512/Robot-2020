@@ -13,6 +13,7 @@ namespace Robot {
  */
 
 // Joystick Ports
+
 constexpr int kDriveStick1Port = 0;
 constexpr int kDriveStick2Port = 1;
 constexpr int kAppendageStickPort = 2;
@@ -20,6 +21,7 @@ constexpr int kAppendageStick2Port = 3;
 
 // Joystick axis deadband range
 constexpr double kJoystickDeadband = 0.02;
+
 }  // namespace Robot
 
 namespace Drivetrain {
@@ -81,4 +83,17 @@ constexpr double kDpP = (wpi::math::pi * 2.0) / 512.0;
 
 constexpr auto kDt = 0.00505_s;
 constexpr int kControllerPrio = 50;
+
+namespace Climber {
+
+// Side Elevator Motors
+constexpr int kArmPortL = 4;
+constexpr int kArmPortR = 5;
+// Transverser Motor
+constexpr int kTransverserPort = 6;
+// Wrangler Winch Motor
+constexpr int kWinchPort = 7;
+
+}  // namespace Climber
+
 }  // namespace frc3512::Constants
