@@ -31,8 +31,9 @@ for f in files:
     # If the file is a CSV with the correct name pattern, add it to the filtered
     # list. Files with newer dates override old ones in lexographic ordering.
     name = match.group("name")
-    if name not in filtered or filtered[name] < name:
-        filtered[name] = f
+    date = match.group("date")
+    if name not in filtered.keys() or filtered[name] < date:
+        filtered[name] = date
 
 # Makes list of files to delete
 csvs_to_delete = []
@@ -42,8 +43,12 @@ else:
     for f in files:
         match = file_rgx.search(f)
         name = match.group("name")
-        if filtered[name] != f:
+        if name + "-" + filtered[name] + ".csv" != f:
             csvs_to_delete.append(f)
+
+# Add quotes around filenames so rm doesn't split them apart
+for i in range(len(csvs_to_delete)):
+    csvs_to_delete[i] = f"'{csvs_to_delete[i]}'"
 
 # Delete list of files from roboRIO
 subprocess.run(
