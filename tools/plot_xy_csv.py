@@ -35,14 +35,15 @@ for f in files:
     # If the file is a CSV with the correct name pattern, add it to the filtered
     # list. Files with newer dates override old ones in lexographic ordering.
     name = match.group("name")
-    if name not in filtered or filtered[name] < name:
-        filtered[name] = f
+    date = match.group("date")
+    if name not in filtered.keys() or filtered[name] < date:
+        filtered[name] = date
 
 # Plot datasets
 csv_group = "Drivetrain Positions"
 plt.figure()
 plt.title(csv_group)
-filename = filtered[csv_group]
+filename = csv_group + "-" + filtered[csv_group] + ".csv"
 
 # Get labels from first row of file
 with open(filename) as f:
@@ -52,7 +53,7 @@ with open(filename) as f:
 print(f"Plotting {filename}")
 data = np.genfromtxt(filename, delimiter=",", skip_header=1, skip_footer=1)
 plt.plot(data[:, 1], data[:, 2])
-plt.plot(data[:, 4], data[:, 5])
+plt.plot(data[:, 3], data[:, 4])
 
 # First label is x axis label (time). The remainder are dataset names.
 plt.xlabel("X (m)")
