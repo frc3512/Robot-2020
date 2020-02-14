@@ -23,6 +23,7 @@ Drivetrain::Drivetrain() : PublishNode("Drivetrain") {
 }
 
 void Drivetrain::Drive(double throttle, double turn, bool isQuickTurn) {
+    std::lock_guard lock(m_motorControllerMutex);
     m_drive.CurvatureDrive(throttle, turn, isQuickTurn);
 }
 
@@ -87,15 +88,22 @@ bool Drivetrain::IsControllerEnabled() const {
 }
 
 void Drivetrain::Iterate() {
+    m_controller.SetMeasuredInputs(
+        units::volt_t{m_leftGrbx.Get() *
+                      frc::RobotController::GetInputVoltage()},
+        units::volt_t{m_rightGrbx.Get() *
+                      frc::RobotController::GetInputVoltage()});
     m_controller.SetMeasuredLocalOutputs(GetAngle(), GetLeftPosition(),
                                          GetRightPosition());
     auto now = std::chrono::steady_clock::now();
     m_controller.Update(now - m_lastTime, now - m_startTime);
 
-    // Set motor inputs
-    auto u = m_controller.GetInputs();
-    SetLeftManual(u(0, 0) / 12.0);
-    SetRightManual(u(1, 0) / 12.0);
+    if (!m_controller.IsOpenLoop()) {
+        // Set motor inputs
+        auto u = m_controller.GetInputs();
+        SetLeftManual(u(0, 0) / 12.0);
+        SetRightManual(u(1, 0) / 12.0);
+    }
     m_lastTime = now;
 }
 
@@ -112,9 +120,13 @@ void Drivetrain::ProcessMessage(const CommandPacket& message) {
     if (message.topic == "Robot/AutonomousInit" && !message.reply) {
         Reset();
         EnableController();
+        m_controller.SetOpenLoop(false);
         m_startTime = std::chrono::steady_clock::now();
     }
     if (message.topic == "Robot/TeleopInit" && !message.reply) {
+        m_startTime = std::chrono::steady_clock::now();
+        EnableController();
+        m_controller.SetOpenLoop(true);
         EnablePeriodic();
     }
 }

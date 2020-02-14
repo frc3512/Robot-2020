@@ -54,6 +54,12 @@ void DrivetrainController::Disable() { m_isEnabled = false; }
 
 bool DrivetrainController::IsEnabled() const { return m_isEnabled; }
 
+void DrivetrainController::SetOpenLoop(bool manualControl) {
+    m_isOpenLoop = manualControl;
+}
+
+bool DrivetrainController::IsOpenLoop() const { return m_isOpenLoop; }
+
 void DrivetrainController::SetWaypoints(
     const std::vector<frc::Pose2d>& waypoints) {
     auto plant = frc::IdentifyDrivetrainSystem(
@@ -75,6 +81,11 @@ bool DrivetrainController::AtGoal() const {
                     units::meter_t{m_r(State::kY, 0)},
                     units::radian_t{m_r(State::kHeading, 0)}};
     return m_goal == ref && m_atReferences;
+}
+
+void DrivetrainController::SetMeasuredInputs(units::volt_t leftU,
+                                             units::volt_t rightU) {
+    m_appliedU << leftU.to<double>(), rightU.to<double>();
 }
 
 void DrivetrainController::SetMeasuredLocalOutputs(
@@ -123,94 +134,136 @@ Eigen::Matrix<double, 6, 1> DrivetrainController::EstimatedGlobalOutputs()
 
 void DrivetrainController::Update(units::second_t dt,
                                   units::second_t elapsedTime) {
-    frc::Trajectory::State ref;
-    {
-        std::lock_guard lock(m_trajectoryMutex);
-        ref = m_trajectory.Sample(elapsedTime);
-    }
+    if (!m_isOpenLoop) {
+        frc::Trajectory::State ref;
+        {
+            std::lock_guard lock(m_trajectoryMutex);
+            ref = m_trajectory.Sample(elapsedTime);
+        }
+        auto [vlRef, vrRef] =
+            ToWheelVelocities(ref.velocity, ref.curvature, kWidth);
 
-    auto [vlRef, vrRef] =
-        ToWheelVelocities(ref.velocity, ref.curvature, kWidth);
+        positionLogger.Log(elapsedTime, m_observer.Xhat(State::kX),
+                           m_observer.Xhat(State::kY),
+                           ref.pose.Translation().X().to<double>(),
+                           ref.pose.Translation().Y().to<double>(),
+                           m_localY(LocalOutput::kLeftPosition, 0),
+                           m_localY(LocalOutput::kRightPosition, 0),
+                           m_observer.Xhat(State::kLeftPosition),
+                           m_observer.Xhat(State::kRightPosition),
+                           m_odometer.GetPose().Translation().X().to<double>(),
+                           m_odometer.GetPose().Translation().Y().to<double>());
 
-    positionLogger.Log(elapsedTime, m_observer.Xhat(State::kX),
-                       m_observer.Xhat(State::kY),
-                       ref.pose.Translation().X().to<double>(),
-                       ref.pose.Translation().Y().to<double>(),
-                       m_localY(LocalOutput::kLeftPosition, 0),
-                       m_localY(LocalOutput::kRightPosition, 0),
-                       m_observer.Xhat(State::kLeftPosition),
-                       m_observer.Xhat(State::kRightPosition),
-                       m_odometer.GetPose().Translation().X().to<double>(),
-                       m_odometer.GetPose().Translation().Y().to<double>());
+        angleLogger.Log(elapsedTime, m_localY(LocalOutput::kHeading),
+                        m_observer.Xhat(State::kHeading),
+                        ref.pose.Rotation().Radians().to<double>(),
+                        m_observer.Xhat(State::kAngularVelocityError));
+        velocityLogger.Log(elapsedTime, m_observer.Xhat(State::kLeftVelocity),
+                           m_observer.Xhat(State::kRightVelocity),
+                           vlRef.to<double>(), vrRef.to<double>());
+        voltageLogger.Log(elapsedTime, m_cappedU(Input::kLeftVoltage, 0),
+                          m_cappedU(Input::kRightVoltage, 0),
+                          m_observer.Xhat(State::kLeftVoltageError),
+                          m_observer.Xhat(State::kRightVoltageError),
+                          frc::RobotController::GetInputVoltage());
+        errorCovLogger.Log(
+            elapsedTime, m_observer.P(State::kX, State::kX),
+            m_observer.P(State::kY, State::kY),
+            m_observer.P(State::kHeading, State::kHeading),
+            m_observer.P(State::kLeftVelocity, State::kLeftVelocity),
+            m_observer.P(State::kRightVelocity, State::kRightVelocity),
+            m_observer.P(State::kLeftPosition, State::kLeftPosition),
+            m_observer.P(State::kRightPosition, State::kRightPosition),
+            m_observer.P(State::kLeftVoltageError, State::kLeftVoltageError),
+            m_observer.P(State::kRightVoltageError, State::kRightVoltageError),
+            m_observer.P(State::kAngularVelocityError,
+                         State::kAngularVelocityError));
 
-    angleLogger.Log(elapsedTime, m_localY(LocalOutput::kHeading),
-                    m_observer.Xhat(State::kHeading),
-                    ref.pose.Rotation().Radians().to<double>(),
-                    m_observer.Xhat(State::kAngularVelocityError));
-    velocityLogger.Log(elapsedTime, m_observer.Xhat(State::kLeftVelocity),
-                       m_observer.Xhat(State::kRightVelocity),
-                       m_nextR(State::kLeftVelocity, 0),
-                       m_nextR(State::kRightVelocity, 0), vlRef.to<double>(),
-                       vrRef.to<double>());
-    voltageLogger.Log(elapsedTime, m_cappedU(Input::kLeftVoltage, 0),
-                      m_cappedU(Input::kRightVoltage, 0),
-                      m_observer.Xhat(State::kLeftVoltageError),
-                      m_observer.Xhat(State::kRightVoltageError),
-                      frc::RobotController::GetInputVoltage());
-    errorCovLogger.Log(
-        elapsedTime, m_observer.P(State::kX, State::kX),
-        m_observer.P(State::kY, State::kY),
-        m_observer.P(State::kHeading, State::kHeading),
-        m_observer.P(State::kLeftVelocity, State::kLeftVelocity),
-        m_observer.P(State::kRightVelocity, State::kRightVelocity),
-        m_observer.P(State::kLeftPosition, State::kLeftPosition),
-        m_observer.P(State::kRightPosition, State::kRightPosition),
-        m_observer.P(State::kLeftVoltageError, State::kLeftVoltageError),
-        m_observer.P(State::kRightVoltageError, State::kRightVoltageError),
-        m_observer.P(State::kAngularVelocityError,
-                     State::kAngularVelocityError));
+        m_odometer.Update(
+            units::radian_t{m_localY(LocalOutput::kHeading)},
+            units::meter_t{m_localY(LocalOutput::kLeftPosition)},
+            units::meter_t{m_localY(LocalOutput::kRightPosition)});
+        m_observer.Correct(m_appliedU, m_localY);
 
-    m_odometer.Update(units::radian_t{m_localY(LocalOutput::kHeading)},
-                      units::meter_t{m_localY(LocalOutput::kLeftPosition)},
-                      units::meter_t{m_localY(LocalOutput::kRightPosition)});
-    m_observer.Correct(m_cappedU, m_localY);
+        m_nextR << ref.pose.Translation().X().to<double>(),
+            ref.pose.Translation().Y().to<double>(),
+            ref.pose.Rotation().Radians().to<double>(), vlRef.to<double>(),
+            vrRef.to<double>();
 
-    m_nextR << ref.pose.Translation().X().to<double>(),
-        ref.pose.Translation().Y().to<double>(),
-        ref.pose.Rotation().Radians().to<double>(), vlRef.to<double>(),
-        vrRef.to<double>();
+        // Compute feedforward
+        Eigen::Matrix<double, 5, 1> rdot = (m_nextR - m_r) / dt.to<double>();
+        Eigen::Matrix<double, 10, 1> rAugmented;
+        rAugmented.block<5, 1>(0, 0) = m_r;
+        rAugmented.block<5, 1>(5, 0).setZero();
+        Eigen::Matrix<double, 2, 1> uff = m_B.householderQr().solve(
+            rdot - Dynamics(rAugmented, Eigen::Matrix<double, 2, 1>::Zero())
+                       .block<5, 1>(0, 0));
 
-    // Compute feedforward
-    Eigen::Matrix<double, 5, 1> rdot = (m_nextR - m_r) / dt.to<double>();
-    Eigen::Matrix<double, 10, 1> rAugmented;
-    rAugmented.block<5, 1>(0, 0) = m_r;
-    rAugmented.block<5, 1>(5, 0).setZero();
-    Eigen::Matrix<double, 2, 1> uff = m_B.householderQr().solve(
-        rdot - Dynamics(rAugmented, Eigen::Matrix<double, 2, 1>::Zero())
-                   .block<5, 1>(0, 0));
+        if (m_isEnabled) {
+            m_cappedU = Controller(m_observer.Xhat(), m_nextR) + uff;
+        } else {
+            m_cappedU = Eigen::Matrix<double, 2, 1>::Zero();
+        }
+        ScaleCapU(&m_cappedU);
 
-    if (m_isEnabled) {
-        m_cappedU = Controller(m_observer.Xhat(), m_nextR) + uff;
+        Eigen::Matrix<double, 5, 1> error =
+            m_r - m_observer.Xhat().block<5, 1>(0, 0);
+        m_atReferences = std::abs(error(0, 0)) < kPositionTolerance &&
+                         std::abs(error(1, 0)) < kPositionTolerance &&
+                         std::abs(error(2, 0)) < kAngleTolerance &&
+                         std::abs(error(3, 0)) < kVelocityTolerance &&
+                         std::abs(error(4, 0)) < kVelocityTolerance;
+
+        m_r = m_nextR;
+        m_observer.Predict(m_cappedU, dt);
+
+        if (ref.pose == m_goal) {
+            Disable();
+        } else {
+            Enable();
+        }
     } else {
-        m_cappedU = Eigen::Matrix<double, 2, 1>::Zero();
-    }
-    ScaleCapU(&m_cappedU);
+        positionLogger.Log(elapsedTime, m_observer.Xhat(State::kX),
+                           m_observer.Xhat(State::kY), 0, 0,
+                           m_localY(LocalOutput::kLeftPosition, 0),
+                           m_localY(LocalOutput::kRightPosition, 0),
+                           m_observer.Xhat(State::kLeftPosition),
+                           m_observer.Xhat(State::kRightPosition),
+                           m_odometer.GetPose().Translation().X().to<double>(),
+                           m_odometer.GetPose().Translation().Y().to<double>());
 
-    Eigen::Matrix<double, 5, 1> error =
-        m_r - m_observer.Xhat().block<5, 1>(0, 0);
-    m_atReferences = std::abs(error(0, 0)) < kPositionTolerance &&
-                     std::abs(error(1, 0)) < kPositionTolerance &&
-                     std::abs(error(2, 0)) < kAngleTolerance &&
-                     std::abs(error(3, 0)) < kVelocityTolerance &&
-                     std::abs(error(4, 0)) < kVelocityTolerance;
+        angleLogger.Log(elapsedTime, m_localY(LocalOutput::kHeading),
+                        m_observer.Xhat(State::kHeading), 0,
+                        m_observer.Xhat(State::kAngularVelocityError));
+        velocityLogger.Log(elapsedTime, m_observer.Xhat(State::kLeftVelocity),
+                           m_observer.Xhat(State::kRightVelocity),
+                           m_nextR(State::kLeftVelocity, 0),
+                           m_nextR(State::kRightVelocity, 0));
+        voltageLogger.Log(elapsedTime, m_appliedU(Input::kLeftVoltage, 0),
+                          m_appliedU(Input::kRightVoltage, 0),
+                          m_observer.Xhat(State::kLeftVoltageError),
+                          m_observer.Xhat(State::kRightVoltageError),
+                          frc::RobotController::GetInputVoltage());
+        errorCovLogger.Log(
+            elapsedTime, m_observer.P(State::kX, State::kX),
+            m_observer.P(State::kY, State::kY),
+            m_observer.P(State::kHeading, State::kHeading),
+            m_observer.P(State::kLeftVelocity, State::kLeftVelocity),
+            m_observer.P(State::kRightVelocity, State::kRightVelocity),
+            m_observer.P(State::kLeftPosition, State::kLeftPosition),
+            m_observer.P(State::kRightPosition, State::kRightPosition),
+            m_observer.P(State::kLeftVoltageError, State::kLeftVoltageError),
+            m_observer.P(State::kRightVoltageError, State::kRightVoltageError),
+            m_observer.P(State::kAngularVelocityError,
+                         State::kAngularVelocityError));
 
-    m_r = m_nextR;
-    m_observer.Predict(m_cappedU, dt);
+        m_odometer.Update(
+            units::radian_t{m_localY(LocalOutput::kHeading)},
+            units::meter_t{m_localY(LocalOutput::kLeftPosition)},
+            units::meter_t{m_localY(LocalOutput::kRightPosition)});
+        m_observer.Correct(m_appliedU, m_localY);
 
-    if (ref.pose == m_goal) {
-        Disable();
-    } else {
-        Enable();
+        m_observer.Predict(m_appliedU, dt);
     }
 }
 

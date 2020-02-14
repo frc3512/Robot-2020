@@ -87,12 +87,23 @@ public:
     void Disable();
     bool IsEnabled() const;
 
+    void SetOpenLoop(bool manualControl);
+    bool IsOpenLoop() const;
+
     void SetWaypoints(const std::vector<frc::Pose2d>& waypoints);
 
     /**
      * Returns whether the drivetrain controller is at the goal waypoint.
      */
     bool AtGoal() const;
+
+    /**
+     * Set inputs.
+     *
+     * @param leftU Voltage applied to the left drivetrain
+     * @param rightU Voltage applied to the right drivetrain
+     */
+    void SetMeasuredInputs(units::volt_t leftU, units::volt_t rightU);
 
     /**
      * Set local measurements.
@@ -219,6 +230,11 @@ private:
     // Robot radius
     static constexpr auto rb = kWidth / 2.0;
 
+    static frc::LinearSystem<2, 2, 2> m_plant;
+
+    // The current voltage inputs
+    Eigen::Matrix<double, 2, 1> m_appliedU;
+
     // The current sensor measurements
     Eigen::Matrix<double, 3, 1> m_localY;
     Eigen::Matrix<double, 6, 1> m_globalY;
@@ -267,6 +283,7 @@ private:
 
     bool m_atReferences = false;
     bool m_isEnabled = false;
+    bool m_isOpenLoop = false;
 
     // The loggers that generates the comma separated value files
     frc::CSVLogFile positionLogger{"Drivetrain Positions",
@@ -284,12 +301,9 @@ private:
                                 "Estimated Heading (rad)", "Heading Ref (rad)",
                                 "Angle Error (rad)"};
     frc::CSVLogFile velocityLogger{"Drivetrain Velocities",
-                                   "Measured Left Velocity (m/s)",
-                                   "Measured Right Velocity (m/s)",
                                    "Estimated Left Vel (m/s)",
                                    "Estimated Right Vel (m/s)",
-                                   "Left Vel Ref (m/s)",
-                                   "Right Vel Ref (m/s)"};
+                                   "Left Vel Ref (m/s)", "Right Vel Ref (m/s)"};
     frc::CSVLogFile voltageLogger{
         "Drivetrain Voltages",     "Left Voltage (V)",
         "Right Voltage (V)",       "Left Voltage Error (V)",

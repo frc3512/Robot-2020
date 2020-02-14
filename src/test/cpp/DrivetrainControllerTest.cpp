@@ -19,6 +19,7 @@ TEST(DrivetrainControllerTest, ReachesReference) {
     frc3512::DrivetrainController controller{
         {0.0625, 0.125, 10.0, 0.95, 0.95}, {12.0, 12.0}, kDt};
     controller.Reset(frc::Pose2d{0_m, 0_m, 0_rad});
+    controller.SetOpenLoop(false);
     controller.Enable();
 
     controller.SetMeasuredLocalOutputs(0_rad, 0_m, 0_m);
@@ -27,6 +28,8 @@ TEST(DrivetrainControllerTest, ReachesReference) {
 
     Eigen::Matrix<double, 10, 1> trueXhat =
         Eigen::Matrix<double, 10, 1>::Zero();
+
+    Eigen::Matrix<double, 2, 1> u = Eigen::Matrix<double, 2, 1>::Zero();
 
     auto currentTime = 0_s;
     while (currentTime < 10_s) {
@@ -49,10 +52,12 @@ TEST(DrivetrainControllerTest, ReachesReference) {
         controller.SetMeasuredLocalOutputs(units::radian_t{y(0, 0)},
                                            units::meter_t{y(1, 0)},
                                            units::meter_t{y(2, 0)});
+        controller.SetMeasuredInputs(units::volt_t{u(0, 0)},
+                                     units::volt_t{u(1, 0)});
         controller.Update(kDt, currentTime);
         currentTime += dt;
 
-        Eigen::Matrix<double, 2, 1> u = controller.GetInputs();
+        u = controller.GetInputs();
 
         // Account for battery voltage drop due to current draw
         if constexpr (!kIdealModel) {

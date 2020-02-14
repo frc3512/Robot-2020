@@ -187,6 +187,9 @@ private:
         std::chrono::steady_clock::time_point::min();
     std::chrono::steady_clock::time_point m_startTime =
         std::chrono::steady_clock::time_point::min();
+
+    bool m_manualControl = true;
+    wpi::mutex m_motorControllerMutex;
 };
 
 }  // namespace frc3512
