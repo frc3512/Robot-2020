@@ -86,6 +86,14 @@ public:
      */
     void AutoRightSideShootThreeInit();
 
+    void AutoLeftSideIntakeInit();
+
+    void AutoRightSideIntakeInit();
+
+    void AutoRightSideShootSixInit();
+
+    void AutoTargetZoneShootSixInit();
+
     /**
      * Periodic code for driving towards the allied alliance station from a
      * position on the initializating line aligned with the loading zone during
@@ -117,6 +125,14 @@ public:
      * initializating line aligned with the allied trench run during autonomous.
      */
     void AutoRightSideShootThreePeriodic();
+
+    void AutoLeftSideIntakePeriodic();
+
+    void AutoRightSideIntakePeriodic();
+
+    void AutoRightSideShootSixPeriodic();
+
+    void AutoTargetZoneShootSixPeriodic();
 
 private:
     static constexpr units::meter_t kPathWeaverFudge{-0.343};
