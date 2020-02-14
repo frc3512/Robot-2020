@@ -36,10 +36,31 @@ constexpr int kLeftEncoderB = 1;
 constexpr int kRightEncoderA = 2;
 constexpr int kRightEncoderB = 3;
 
-// Distance per Pulse
+// Controller constants
+constexpr double kPositionTolerance = 0.05;  // meters
+constexpr double kVelocityTolerance = 2.0;   // meters/second
+constexpr double kAngleTolerance = 0.05;     // radians
+
+// Physical Robot Constants
+constexpr auto kWheelbaseWidth = 0.6096_m;
+constexpr auto kLength = 0.9398_m;
+constexpr auto kWidth = 0.990405073902434_m;
 constexpr units::meter_t kWheelRadius = 3_in;
-constexpr double kDpP =
-    (2.0 * wpi::math::pi * kWheelRadius.to<double>()) / 2048.0;
+constexpr double kDriveGearRatio = 1.0 / 1.0;
+
+// System Characterization
+constexpr auto kLinearV = 3.62_V / 1_mps;
+constexpr auto kLinearA = 2.5_V / 1_mps_sq;
+constexpr auto kAngularV = 10.41_V / 1_rad_per_s;
+constexpr auto kAngularA = 1.0_V / 1_rad_per_s / 1_s;
+
+// Drive trapezoid profile constants
+constexpr auto kMaxV = 12_V / kLinearV;  // m/s
+constexpr auto kMaxA = 12_V / kLinearA;  // m/s^2
+
+// Distance per Pulse
+constexpr double kDpP = (2.0 * wpi::math::pi * kWheelRadius.to<double>()) *
+                        kDriveGearRatio / 2048.0;
 
 }  // namespace Drivetrain
 
