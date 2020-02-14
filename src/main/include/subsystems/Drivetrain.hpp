@@ -2,17 +2,21 @@
 
 #pragma once
 
+#include <vector>
+
 #include <frc/ADXRS450_Gyro.h>
 #include <frc/Encoder.h>
-#include <frc/Notifier.h>
+#include <frc/RTNotifier.h>
 #include <frc/Solenoid.h>
 #include <frc/Spark.h>
 #include <frc/SpeedControllerGroup.h>
 #include <frc/drive/DifferentialDrive.h>
 #include <rev/CANSparkMax.h>
+#include <wpi/mutex.h>
 
 #include "Constants.hpp"
 #include "communications/PublishNode.hpp"
+#include "controllers/DrivetrainController.hpp"
 #include "subsystems/SubsystemBase.hpp"
 
 namespace frc3512 {
@@ -50,14 +54,14 @@ public:
      *
      * @return angle in degrees
      */
-    double GetAngle() const;
+    units::radian_t GetAngle() const;
 
     /**
      * Returns gyro angular rate.
      *
      * @return angular rate in degrees per second
      */
-    double GetAngularRate() const;
+    units::radians_per_second_t GetAngularRate() const;
 
     /**
      * Resets gyro.
@@ -74,35 +78,70 @@ public:
      *
      * @return left displacement
      */
-    double GetLeftDisplacement() const;
+    units::meter_t GetLeftPosition() const;
 
     /**
      * Returns right encoder displacement.
      *
      * @return right displacement
      */
-    double GetRightDisplacement() const;
+    units::meter_t GetRightPosition() const;
 
     /**
      * Returns right encoder displacement.
      *
      * @return left rate
      */
-    double GetLeftRate() const;
+    units::meters_per_second_t GetLeftVelocity() const;
 
     /**
      * Returns right encoder displacement.
      *
      * @return right rate
      */
-    double GetRightRate() const;
+    units::meters_per_second_t GetRightVelocity() const;
 
     /**
      * Resets encoders.
      */
     void ResetEncoders();
 
-    void Reset();
+    /**
+     * Resets all sensors and controller.
+     */
+    void Reset(const frc::Pose2d& initialPose = frc::Pose2d());
+
+    /**
+     * Enables the controller.
+     */
+    void EnableController();
+
+    /**
+     * Disables the controller.
+     */
+    void DisableController();
+
+    /**
+     * Returns true if controller is enabled and false if controller is
+     * disabled.
+     *
+     * @return whether or not the controller is enabled
+     */
+    bool IsControllerEnabled() const;
+
+    /**
+     * Runs the control loop.
+     */
+    void Iterate();
+
+    /**
+     * Sets the waypoints for a generated trajectory.
+     *
+     * @param waypoints list of poses
+     */
+    void SetWaypoints(const std::vector<frc::Pose2d>& waypoints);
+
+    void ProcessMessage(const CommandPacket& message) override;
 
     void ProcessMessage(const HIDPacket& message) override;
 
@@ -133,6 +172,19 @@ private:
 
     // Gyro used for angle PID
     frc::ADXRS450_Gyro m_gyro;
+
+    // Controller
+    DrivetrainController m_controller{
+        {0.0625, 0.125, 10.0, 0.95, 0.95}, {12.0, 12.0}, Constants::kDt};
+    frc::RTNotifier m_controllerThread{Constants::kControllerPrio,
+                                       &Drivetrain::Iterate, this};
+    std::chrono::steady_clock::time_point m_lastTime =
+        std::chrono::steady_clock::time_point::min();
+    std::chrono::steady_clock::time_point m_startTime =
+        std::chrono::steady_clock::time_point::min();
+
+    bool m_manualControl = true;
+    wpi::mutex m_motorControllerMutex;
 };
 
 }  // namespace frc3512

@@ -90,7 +90,7 @@ class CSVLogFile {
    *
    * @return The name of the file.
    */
-  const std::string GetFileName() const { return m_logFile.GetFileName(); }
+  std::string GetFileName() const { return m_logFile.GetFileName(); }
 
  private:
   /**
@@ -112,6 +112,7 @@ class CSVLogFile {
       LogValues(values...);
     } else {
       m_logFile << '\n';
+      m_logFile.Flush();
     }
   }
 
@@ -121,7 +122,7 @@ class CSVLogFile {
    * @param text Text to escape.
    * @return The text with all its double quotes escaped.
    */
-  const std::string EscapeDoubleQuotes(wpi::StringRef text) const {
+  std::string EscapeDoubleQuotes(wpi::StringRef text) const {
     std::string textString = text.str();
     for (std::string::size_type i = 0; i < text.size(); i++) {
       if (text[i] == '\"') {

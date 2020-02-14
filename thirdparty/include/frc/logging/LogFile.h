@@ -53,7 +53,7 @@ class LogFile {
    *
    * @return The name of the file.
    */
-  const std::string GetFileName() const;
+  std::string GetFileName() const;
 
   /**
    * Set the time interval after which the file will be renamed in seconds.

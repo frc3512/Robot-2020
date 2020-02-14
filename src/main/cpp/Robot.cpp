@@ -39,6 +39,10 @@ void Robot::RobotPeriodic() {}
 
 void Robot::DisabledPeriodic() {
     wpi::outs() << "Flywheel: " << m_flywheel.GetAngle().to<double>() << "\n";
+    wpi::outs() << "Drivetrain Left: "
+                << m_drivetrain.GetLeftPosition().to<double>() << "\n";
+    wpi::outs() << "Drivetrain Right: "
+                << m_drivetrain.GetRightPosition().to<double>() << "\n";
 }
 
 void Robot::AutonomousPeriodic() { TeleopPeriodic(); }
