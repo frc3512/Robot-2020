@@ -193,7 +193,6 @@ def main():
     if args.target == "build":
         subprocess.run(make_athena + ["build", f"-j{args.jobs}"])
     elif args.target == "deploy":
-        subprocess.run(make_athena + ["deploy", f"-j{args.jobs}"])
         print(f"Checking for files...")
         files = [os.path.join(dp, f) for dp, dn, fn in os.walk(".deploy") for f in fn]
         if len(files) == 0:
@@ -201,7 +200,7 @@ def main():
             subprocess.run(make_athena + ["deploy"])
         else:
             print(f"Arbitrary files have been found! Copying over...")
-            subprocess.run("rsync","-av",files, "lvuser@10.35.12.2:/home/lvuser")
+            subprocess.run(["rsync","-avzhe", "ssh", os.path.join(files), "lvuser@10.35.12.2:/home/lvuser"])
             print(f"Done!")
     elif args.target == "clean":
         subprocess.run(make_athena + ["clean"])
