@@ -36,9 +36,7 @@ void LogFile::Log(const wpi::StringRef& text) { *this << text; }
 
 void LogFile::Logln(const wpi::StringRef& text) { *this << text << '\n'; }
 
-const std::string LogFile::GetFileName() const {
-  return CreateFilename(m_time);
-}
+std::string LogFile::GetFileName() const { return CreateFilename(m_time); }
 
 void LogFile::SetTimeIntervalBeforeRenaming(units::second_t duration) {
   m_timeIntervalBeforeRenaming = duration;
