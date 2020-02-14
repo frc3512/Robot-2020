@@ -16,7 +16,7 @@
 #include <frc/trajectory/constraint/DifferentialDriveVelocitySystemConstraint.h>
 #include <units/units.h>
 
-#include "controllers/NormalizeAngle.hpp"
+#include "controllers/ModulusUtil.hpp"
 
 using namespace frc3512;
 using namespace frc3512::Constants;
