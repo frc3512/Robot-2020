@@ -49,12 +49,12 @@ def scrub_make_dep_rules():
         # wrapped.
         deps.insert(0, target + ":")
         wrapper = TextWrapper(break_long_words=False, break_on_hyphens=False, width=79 - len(" \\"))
-        output = " \\\n ".join(wrapper.wrap(" ".join(deps)))
+        output = " \\\n ".join(wrapper.wrap(" ".join(deps))) + "\n"
 
         # If .d file changed, rewrite it
         if input != output:
             with open(filename, "w") as f:
-                f.write(output + "\n")
+                f.write(output)
 
 
 def dl_progress(count, block_size, total_size):
