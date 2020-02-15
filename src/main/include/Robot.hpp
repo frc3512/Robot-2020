@@ -8,11 +8,9 @@
 
 #include "Constants.hpp"
 #include "communications/PublishNode.hpp"
+#include "subsystems/Climber.hpp"
 #include "subsystems/Drivetrain.hpp"
 #include "subsystems/Flywheel.hpp"
-#include "subsystems/Climber.hpp"
-#include "subsystems/Drivetrain.hpp"
-#include "subsystems/Climber.hpp"
 
 namespace frc3512 {
 
@@ -36,8 +34,7 @@ private:
     Climber m_climber;
     Drivetrain m_drivetrain;
     Flywheel m_flywheel;
-    Climber m_climber;
-    
+
     frc::Joystick m_driveStick1{kDriveStick1Port};
     frc::Joystick m_driveStick2{kDriveStick2Port};
     frc::Joystick m_appendageStick{kAppendageStickPort};

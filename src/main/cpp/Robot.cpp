@@ -5,12 +5,6 @@
 #include <frc/DriverStation.h>
 #include <wpi/raw_ostream.h>
 
-#include <wpi/raw_ostream.h>
-
-#include <frc/DriverStation.h>
-
-#include <wpi/raw_ostream.h>
-
 namespace frc3512 {
 
 Robot::Robot() : PublishNode("Robot") {
@@ -78,14 +72,10 @@ void Robot::TeleopPeriodic() {
                       ds.GetStickButtons(3)};
     Publish(message);
 
-    if (message.y3 == 1)
-        m_climber.SetElevator(m_appendageStick.GetY());
-    if (message.y3 == -1)
-        m_climber.SetElevator(m_appendageStick.GetY());
-    if (message.x4 == 1)
-        m_climber.SetTransverser(m_appendageStick2.GetX());
-    if (message.x4 == -1)
-        m_climber.SetTransverser(m_appendageStick2.GetX());
+    if (message.y3 == 1) m_climber.SetElevator(m_appendageStick.GetY());
+    if (message.y3 == -1) m_climber.SetElevator(m_appendageStick.GetY());
+    if (message.x4 == 1) m_climber.SetTransverser(m_appendageStick2.GetX());
+    if (message.x4 == -1) m_climber.SetTransverser(m_appendageStick2.GetX());
 }
 
 }  // namespace frc3512

@@ -8,27 +8,12 @@
 namespace frc3512::Constants {
 
 namespace Robot {
-/*
- * Joystick and buttons
- */
-
-// Joystick Ports
-
-<<<<<<< HEAD
-||||||| merged common ancestors
-// Joystick Ports
-=======
-// Joystick Ports
-
->>>>>>> Add script for climber subsystem
 constexpr int kDriveStick1Port = 0;
 constexpr int kDriveStick2Port = 1;
 constexpr int kAppendageStickPort = 2;
 constexpr int kAppendageStick2Port = 3;
 
-// Joystick axis deadband range
 constexpr double kJoystickDeadband = 0.02;
-
 }  // namespace Robot
 
 namespace Drivetrain {
@@ -70,7 +55,6 @@ constexpr auto kMaxA = 12_V / kLinearA;  // m/s^2
 // Distance per Pulse
 constexpr double kDpP = (2.0 * wpi::math::pi * kWheelRadius.to<double>()) *
                         kDriveGearRatio / 2048.0;
-
 }  // namespace Drivetrain
 
 namespace Flywheel {
@@ -92,53 +76,19 @@ constexpr auto kDt = 0.00505_s;
 constexpr int kControllerPrio = 50;
 
 namespace Climber {
-
 // Side Elevator Motors
-constexpr int kArmPortL = 4;
-constexpr int kArmPortR = 5;
+constexpr int kArmPortLeft = 2;
+constexpr int kArmPortRight = 3;
 // Transverser Motor
-constexpr int kTransverserPort = 6;
+constexpr int kTransverserPort = 12;
 // Wrangler Winch Motor
-constexpr int kWinchPort = 7;
-
-}  // namespace Climber
-
-namespace Drivetrain {
-
-// Motor Ports
-constexpr int kLeftMasterPort = 0;
-constexpr int kLeftSlavePort = 1;
-constexpr int kRightMasterPort = 2;
-constexpr int kRightSlavePort = 3;
-
-// Encoder Ports
-constexpr int kLeftEncoderA = 2;
-constexpr int kLeftEncoderB = 3;
-constexpr int kRightEncoderA = 0;
-constexpr int kRightEncoderB = 1;
-
-// Distance per Pulse
-constexpr units::meter_t kWheelRadius = 3_in;
-constexpr double kDpP =
-    (2.0 * wpi::math::pi * kWheelRadius.to<double>()) / 2048.0;
-
-}  // namespace Drivetrain
-
-namespace Robot {
-constexpr int kDriveStick1Port = 0;
-constexpr int kDriveStick2Port = 1;
-constexpr int kAppendageStickPort = 2;
-constexpr int kAppendageStick2Port = 3;
-}  // namespace Robot
-
-namespace Climber {
-// Side Elevator Motors
-constexpr int kArmPortL = 4;
-constexpr int kArmPortR = 5;
-// Transverser Motor
-constexpr int kTransverserPort = 6;
-// Wrangler Winch Motor
-constexpr int kWinchPort = 7;
+constexpr int kWinchPort = 13;
+// Wrangler Solenoid
+constexpr int kWranglerSolenoid = 1;
+// Climber Forward Solenoid
+constexpr int kClimbForwardSolenoid = 0;
+// Climber Reverse Solenoid
+constexpr int kClimbReverseSolenoid = 1;
 }  // namespace Climber
 
 }  // namespace frc3512::Constants
