@@ -6,6 +6,7 @@
 #include <frc/TimedRobot.h>
 
 #include "Constants.hpp"
+#include "autonselector/AutonSelector.hpp"
 #include "communications/PublishNode.hpp"
 #include "subsystems/Drivetrain.hpp"
 #include "subsystems/Flywheel.hpp"

@@ -28,7 +28,7 @@ def write_msg_header(
 #include <string>
 
 #include "communications/PacketType.hpp"
-#include "dsdisplay/Packet.hpp"
+#include "autonselector/Packet.hpp"
 
 namespace frc3512 {
 

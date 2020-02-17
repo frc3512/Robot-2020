@@ -1,4 +1,4 @@
-// Copyright (c) 2020 FRC Team 3512. All Rights Reserved.
+// Copyright (c) 2016-2020 FRC Team 3512. All Rights Reserved.
 
 #pragma once
 
@@ -9,57 +9,42 @@
 #include <functional>
 #include <mutex>
 #include <string>
+#include <string_view>
 #include <thread>
 #include <tuple>
 #include <vector>
 
-#include "dsdisplay/Packet.hpp"
-#include "dsdisplay/UdpSocket.hpp"
+#include "autonselector/Packet.hpp"
+#include "autonselector/UdpSocket.hpp"
 
 namespace frc3512 {
-
 /**
  * This class allows you to pack data into an SFML packet and send it to an
  * application on the DriverStation that displays it in a GUI.
  *
  * USAGE:
- * 1) Instantiate DSDisplay with the port on which communications will be
+ * 1) Instantiate AutonSelector with the port on which communications will be
  *    received (probably 1130).
  * 2) Call several variations of AddData().
  * 3) After all data is packed, call SendToDS() to send the data to the Driver
  *    Station.
  */
-class DSDisplay {
+
+class AutonSelector {
 public:
     enum StatusLight : int8_t { active, standby, inactive };
 
-    explicit DSDisplay(int port);
-    ~DSDisplay();
+    explicit AutonSelector(int port);
+    ~AutonSelector();
 
-    DSDisplay(const DSDisplay&) = delete;
-    DSDisplay& operator=(const DSDisplay&) = delete;
-
-    /**
-     * Empties internal packet of data.
-     */
-    void Clear();
-
-    void AddData(std::string ID, StatusLight data);
-    void AddData(std::string ID, bool data);
-    void AddData(std::string ID, int8_t data);
-    void AddData(std::string ID, int32_t data);
-    void AddData(std::string ID, std::string data);
-    void AddData(std::string ID, double data);
-
-    /**
-     * Sends data currently in class's internal packet to Driver Station.
-     */
-    void SendToDS();
+    AutonSelector(const AutonSelector&) = delete;
+    AutonSelector& operator=(const AutonSelector&) = delete;
 
     /**
      * Add an autonomous function.
      */
-    void AddAutoMethod(std::string methodName, std::function<void()> initFunc,
+    void AddAutoMethod(std::string_view methodName,
+                       std::function<void()> initFunc,
                        std::function<void()> periodicFunc);
 
     /**
@@ -84,8 +69,6 @@ public:
 
 private:
     using steady_clock = std::chrono::steady_clock;
-
-    Packet m_packet;
 
     UdpSocket m_socket;  // socket for sending data to Driver Station
     uint32_t m_dsIP;     // IP address of Driver Station
@@ -116,7 +99,7 @@ private:
     std::atomic<bool> m_recvRunning{false};
 
     /**
-     * Calls clear() on the packet automatically after sending it.
+     * Sends the given packet to the Driver Station.
      */
     void SendToDS(Packet& packet);
 
@@ -125,5 +108,4 @@ private:
      */
     void ReceiveFromDS();
 };
-
 }  // namespace frc3512

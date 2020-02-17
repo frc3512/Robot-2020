@@ -1,6 +1,6 @@
 // Copyright (c) 2020 FRC Team 3512. All Rights Reserved.
 
-#include "dsdisplay/UdpSocket.hpp"
+#include "autonselector/UdpSocket.hpp"
 
 #include <fcntl.h>
 #include <sys/socket.h>
@@ -9,7 +9,7 @@
 
 #include <wpi/raw_ostream.h>
 
-#include "dsdisplay/Packet.hpp"
+#include "autonselector/Packet.hpp"
 
 using namespace frc3512;
 
