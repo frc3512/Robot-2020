@@ -81,7 +81,7 @@ private:
 
     std::string m_nodeName;
     std::vector<PublishNode*> m_subList;
-    wpi::circular_buffer<char> m_queue{kNodeQueueSize};
+    wpi::circular_buffer<char, kNodeQueueSize> m_queue;
 
     std::thread m_thread;
     std::atomic<bool> m_isRunning{true};
