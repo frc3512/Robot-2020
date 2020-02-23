@@ -131,7 +131,7 @@ def main():
     GTEST_URL = WPI_MAVEN_URL + "/edu/wpi/first/thirdparty/frc2020"
     REV_URL = REV_MAVEN_URL + "/com/revrobotics/frc"
 
-    WPI_VERSION = "2020.2.2"
+    WPI_VERSION = "2020.3.2"
 
     if args.target in ["build", "deploy"]:
         classifier = "linuxathena"
