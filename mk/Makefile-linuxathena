@@ -9,7 +9,7 @@ STRIP := arm-frc2020-linux-gnueabi-strip
 # Specify defines with -D directives here
 DEFINES :=
 
-VERSION := 2020.2.2
+VERSION := 2020.3.2
 OBJDIR := build/linuxathena
 
 # Specify Linux include paths with -I directives here

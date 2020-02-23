@@ -8,7 +8,7 @@ LD := g++
 # Specify defines with -D directives here
 DEFINES := -DRUNNING_FRC_TESTS
 
-VERSION := 2020.2.2
+VERSION := 2020.3.2
 OBJDIR := build/linuxx86-64
 
 # Specify Linux include paths with -I directives here
