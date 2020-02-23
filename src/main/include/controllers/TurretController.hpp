@@ -105,6 +105,11 @@ public:
     void SetDrivetrainStatus(const Eigen::Matrix<double, 10, 1>& nextXhat);
 
     /**
+     * Returns the projected pose of the turret.
+     */
+    frc::Pose2d GetNextPose() const;
+
+    /**
      * Returns the control loop calculated voltage.
      */
     units::volt_t ControllerVoltage() const;
@@ -204,6 +209,7 @@ private:
 
     frc::Pose2d m_drivetrainNextPoseInGlobal;
     Eigen::Matrix<double, 10, 1> m_drivetrainNextXhat;
+    frc::Pose2d m_turretNextPoseInGlobal;
 
     frc::CSVLogFile positionLogger{
         "Turret Position", "Voltage (V)", "Measured Angle (rad)",

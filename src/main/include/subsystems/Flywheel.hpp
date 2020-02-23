@@ -2,14 +2,18 @@
 
 #pragma once
 
+#include <mutex>
+
 #include <frc/CounterBase.h>
 #include <frc/Encoder.h>
 #include <frc/RTNotifier.h>
 #include <rev/CANSparkMax.h>
 
 #include "Constants.hpp"
+#include "LinearTable.hpp"
 #include "communications/PublishNode.hpp"
 #include "controllers/FlywheelController.hpp"
+#include "controllers/TurretController.hpp"
 #include "subsystems/SubsystemBase.hpp"
 
 namespace frc3512 {
@@ -60,6 +64,12 @@ public:
     void SetGoal(units::radians_per_second_t velocity);
 
     /**
+     * Takes the projected distance of the flywheel to the target and sets an
+     * angular velocity goal determined by the lookup table
+     */
+    void Shoot();
+
+    /**
      * Returns whether or not the controller has reached its goal.
      */
     bool AtGoal();
@@ -74,11 +84,18 @@ public:
      */
     void Reset();
 
-    void ProcessMessage(const ButtonPacket& message) override;
-
     void ProcessMessage(const CommandPacket& message) override;
 
+    void ProcessMessage(const TurretPosePacket& message) override;
+
 private:
+    const frc::Translation3d targetModelCenter =
+        (TurretController::A + TurretController::G) / 2.0;
+    const frc::Pose2d targetPoseInGlobal{targetModelCenter.X(),
+                                         targetModelCenter.Y(),
+                                         units::radian_t{wpi::math::pi}};
+    lookup::unbounded_linear_table<units::meter_t, units::radians_per_second_t>
+        m_table;
     rev::CANSparkMax m_leftGrbx{Constants::Flywheel::kLeftPort,
                                 rev::CANSparkMax::MotorType::kBrushless};
     rev::CANSparkMax m_rightGrbx{Constants::Flywheel::kRightPort,
@@ -91,6 +108,10 @@ private:
     std::chrono::steady_clock::time_point m_lastTime = [] {
         return std::chrono::steady_clock::now();
     }();
+    frc::Pose2d m_nextTurretPose;
+    std::mutex m_poseDataMutex;
+
+    units::meter_t DistanceToTarget(const frc::Pose2d& nextPose);
 };
 
 }  // namespace frc3512
