@@ -44,6 +44,36 @@ TEST(TurretControllerTest, CalculateHeading) {
     EXPECT_EQ(theta, units::radian_t{wpi::math::pi / 4.0});
 }
 
+TEST(TurretControllerTest, CalculateAngularVelocity) {
+    frc3512::TurretController controller;
+    controller.Reset();
+    controller.Enable();
+
+    Eigen::Vector2d targetTranslationInGlobal;
+    targetTranslationInGlobal << 4.0, 2.0;
+
+    Eigen::Vector2d turretTranslationInGlobal;
+    turretTranslationInGlobal << 2.0, 0.0;
+
+    Eigen::Vector2d translationToTargetInGlobal =
+        targetTranslationInGlobal - turretTranslationInGlobal;
+
+    // Moving along x axis
+    Eigen::Vector2d turretVelocityInGlobal;
+    turretVelocityInGlobal << 2.0, 0.0;
+
+    // Component of v perpendicular to target should be 1/std::sqrt(2) * v =
+    // std::sqrt(2)
+    //
+    // Magnitude of translation to target is sqrt(2^2 + 2^2) = 2 sqrt(2)
+    //
+    // Omega = v perp / r to target = std::sqrt(2) / (2 sqrt(2)) = 0.5
+    auto omega = controller.CalculateAngularVelocity(
+        turretVelocityInGlobal, translationToTargetInGlobal);
+
+    EXPECT_EQ(omega, 0.5_rad_per_s);
+}
+
 void RunSimulation(
     frc3512::DrivetrainController& drivetrainController,
     frc3512::TurretController& turretController,

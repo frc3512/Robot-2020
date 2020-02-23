@@ -4,6 +4,7 @@
 
 #include <frc/RobotController.h>
 
+#include "controllers/DrivetrainController.hpp"
 #include "controllers/NormalizeAngle.hpp"
 
 using namespace frc3512;
@@ -100,7 +101,23 @@ void TurretController::UpdateController(units::second_t dt) {
         turretDesiredHeadingInDrivetrain -
         kDrivetrainToTurretFrame.Rotation().Radians();
 
-    SetGoal(turretDesiredHeadingInTurret, 0_rad_per_s);
+    // Find angular velocity reference for this timestep
+    units::meters_per_second_t vl{
+        m_drivetrainNextXhat(DrivetrainController::State::kLeftVelocity)};
+    units::meters_per_second_t vr{
+        m_drivetrainNextXhat(DrivetrainController::State::kRightVelocity)};
+    units::meters_per_second_t v = (vl + vr) / 2.0;
+    units::meters_per_second_t v_x =
+        v * m_drivetrainNextPoseInGlobal.Rotation().Cos();
+    units::meters_per_second_t v_y =
+        v * m_drivetrainNextPoseInGlobal.Rotation().Sin();
+
+    auto turretDesiredAngularVelocity = CalculateAngularVelocity(
+        ToVector2d(v_x, v_y),
+        ToVector2d(targetPoseInGlobal.Translation() -
+                   m_turretNextPoseInGlobal.Translation()));
+
+    SetGoal(turretDesiredHeadingInTurret, turretDesiredAngularVelocity);
 
     // Calculate profiled references to the goal
     frc::TrapezoidProfile<units::radians>::State references = {
@@ -149,6 +166,30 @@ units::radian_t TurretController::CalculateHeading(Eigen::Vector2d target,
                                                    Eigen::Vector2d turret) {
     return units::math::atan2(units::meter_t{target(1) - turret(1)},
                               units::meter_t{target(0) - turret(0)});
+}
+
+units::radians_per_second_t TurretController::CalculateAngularVelocity(
+    Eigen::Vector2d v, Eigen::Vector2d r) {
+    // We want the angular velocity around the target. We know:
+    //
+    // 1) velocity vector of the turret in the global frame
+    // 2) displacement vector from the target to the turret
+    //
+    // v = w x r where v is the velocity vector, w is the angular velocity
+    // vector, and r is the displacement vector from the center of rotation.
+    //
+    // |w| = |v_perp| / |r| where v_perp is the component of v perpendicular to
+    // the displacement vector.
+    //
+    // |w| = |v_perp| / |r|             (1)
+    // v_perp = v - proj_r(v)           (2)
+    // proj_r(v) = v . r / (r . r) * r  (3)
+    //
+    // |w| = |v_perp| / |r|
+    // |w| = |(v - proj_r(v))| / |r|
+    // |w| = |(v - v . r / (r . r) * r| / |r|
+    return units::radians_per_second_t{(v - v.dot(r) / r.dot(r) * r).norm() /
+                                       r.norm()};
 }
 
 void TurretController::Reset() {

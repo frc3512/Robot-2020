@@ -147,6 +147,17 @@ public:
                                      Eigen::Vector2d turret);
 
     /**
+     * Returns the angular velocity the turret should follow to stay pointing at
+     * the target.
+     *
+     * @param v Next timestep's velocity vector of turret in the global frame.
+     * @param r Next timestep's translation from the turret to the target in the
+     *          global frame.
+     */
+    units::radians_per_second_t CalculateAngularVelocity(Eigen::Vector2d v,
+                                                         Eigen::Vector2d r);
+
+    /**
      * Resets any internal state.
      */
     void Reset();
@@ -196,6 +207,13 @@ private:
     Eigen::Matrix<double, 1, 1> m_u;
 
     static Eigen::Vector2d ToVector2d(frc::Translation2d translation);
+
+    template <typename Unit>
+    static Eigen::Vector2d ToVector2d(Unit x, Unit y) {
+        Eigen::Vector2d result;
+        result << x.template to<double>(), y.template to<double>();
+        return result;
+    }
 };
 
 }  // namespace frc3512
