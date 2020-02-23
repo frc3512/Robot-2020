@@ -13,9 +13,11 @@ Vision::Vision() : PublishNode("Vision") {
     m_inst.StartClient("10.35.12.2", 1735);
 }
 
-void Vision::IsLEDOn() { m_ledIsOn.SetBoolean(true); }
+void Vision::TurnLEDOn() { m_ledIsOn.SetBoolean(true); }
 
-void Vision::IsLEDOff() { m_ledIsOn.SetBoolean(false); }
+void Vision::TurnLEDOff() { m_ledIsOn.SetBoolean(false); }
+
+bool Vision::IsLEDOn() const { return !m_ledIsOn.GetBoolean(false); }
 
 void Vision::SubsystemPeriodic() {
     namespace chrono = std::chrono;

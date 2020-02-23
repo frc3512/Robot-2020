@@ -19,9 +19,20 @@ public:
     Vision();
     Vision& operator=(const Vision&) = delete;
 
-    void IsLEDOn();
+    /**
+     * Turns on power to the LED ring light.
+     */
+    void TurnLEDOn();
 
-    void IsLEDOff();
+    /**
+     * Turns off power to the LED ring light.
+     */
+    void TurnLEDOff();
+
+    /**
+     * Returns whether or not the LED ring light is on or off.
+     */
+    bool IsLEDOn() const;
 
     void SubsystemPeriodic() override;
 
