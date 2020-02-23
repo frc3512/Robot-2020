@@ -41,6 +41,8 @@ public:
      */
     void SetGoal(units::radians_per_second_t goal);
 
+    units::radians_per_second_t GetGoal() const;
+
     /**
      * Returns whether or not the goal has been reached.
      */

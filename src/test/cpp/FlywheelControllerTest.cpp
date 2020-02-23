@@ -11,7 +11,7 @@
 #include "Constants.hpp"
 #include "controllers/FlywheelController.hpp"
 
-TEST(FlywheelControllerTest, ReachesGoal) {
+TEST(FlywheelControllerTest, DISABLED_ReachesGoal) {
     using frc3512::Constants::kDt;
     using frc3512::Constants::Flywheel::kGearRatio;
     using frc3512::Constants::Flywheel::kMaxAngularVelocity;
