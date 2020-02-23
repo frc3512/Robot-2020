@@ -50,6 +50,10 @@ void TurretController::SetDrivetrainStatus(
     m_drivetrainNextXhat = nextXhat;
 }
 
+frc::Pose2d TurretController::GetNextPose() const {
+    return m_turretNextPoseInGlobal;
+}
+
 units::volt_t TurretController::ControllerVoltage() const {
     return units::volt_t{m_u(0, 0)};
 }
@@ -98,13 +102,13 @@ void TurretController::Update(units::second_t dt, units::second_t elapsedTime) {
     frc::Transform2d turretNextPoseInDrivetrainToGlobal{
         frc::Pose2d(kTx, kTy, 0_rad), m_drivetrainNextPoseInGlobal};
     frc::Pose2d turretNextPoseInLocal{0_m, 0_m, 0_rad};
-    auto turretNextPoseInGlobal =
+    m_turretNextPoseInGlobal =
         turretNextPoseInLocal.TransformBy(turretNextPoseInDrivetrainToGlobal);
 
     // Find angle reference for this timestep
     units::radian_t turretThetaToTargetInGlobal =
         CalculateHeading(ToVector2d(targetPoseInGlobal.Translation()),
-                         ToVector2d(turretNextPoseInGlobal.Translation()));
+                         ToVector2d(m_turretNextPoseInGlobal.Translation()));
     units::radian_t drivetrainNextThetaInGlobal =
         m_drivetrainNextPoseInGlobal.Rotation().Radians();
     units::radian_t turretDesiredHeadingInDrivetrain =

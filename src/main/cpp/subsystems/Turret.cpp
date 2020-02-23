@@ -5,7 +5,7 @@
 using namespace frc3512;
 using namespace frc3512::Constants::Turret;
 
-Turret::Turret() {
+Turret::Turret() : PublishNode("Turret") {
     m_motor.Set(0);
 #ifndef RUNNING_FRC_TESTS
     m_encoder.SetDistancePerRotation(kDpP);
@@ -50,8 +50,17 @@ void Turret::Iterate() {
     m_controller.SetHardLimitOutputs(GetLeftHallTriggered(),
                                      GetRightHallTriggered());
     m_controller.Update(now - m_lastTime, now.time_since_epoch());
-    SetVoltage(m_controller.ControllerVoltage());
+
     // Set motor input
+    SetVoltage(m_controller.ControllerVoltage());
+
+    auto nextPose = m_controller.GetNextPose();
+    TurretPosePacket message{"TurretPose",
+                             nextPose.Translation().X().to<double>(),
+                             nextPose.Translation().Y().to<double>(),
+                             nextPose.Rotation().Radians().to<double>()};
+    Publish(message);
+
     m_lastTime = now;
 }
 

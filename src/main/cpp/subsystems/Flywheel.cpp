@@ -17,6 +17,8 @@ Flywheel::Flywheel() : PublishNode("Flywheel") {
     m_leftGrbx.SetInverted(false);
     SetGoal(0_rad_per_s);
     Reset();
+
+    m_table.insert(0_m, 5_rad_per_s);
 }
 
 void Flywheel::SetVoltage(units::volt_t voltage) {
@@ -47,6 +49,13 @@ void Flywheel::SetGoal(units::radians_per_second_t velocity) {
     m_controller.SetGoal(velocity);
 }
 
+void Flywheel::Shoot() {
+    std::scoped_lock lock(m_poseDataMutex);
+    auto angularVelocity =
+        m_table.linear_interp(DistanceToTarget(m_nextTurretPose));
+    SetGoal(angularVelocity);
+}
+
 bool Flywheel::AtGoal() { return m_controller.AtGoal(); }
 
 void Flywheel::Iterate() {
@@ -63,43 +72,6 @@ void Flywheel::Reset() {
     m_encoder.Reset();
 }
 
-void Flywheel::ProcessMessage(const ButtonPacket& message) {
-    if (message.topic == "Robot/DriveStick1" && message.button == 5 &&
-        message.pressed) {
-        SetGoal(450.0_rad_per_s);  // 4297.18 RPM
-    } else if (message.topic == "Robot/DriveStick1" && message.button == 3 &&
-               message.pressed) {
-        SetGoal(250.0_rad_per_s);  // 4774.65 RPM
-    } else if (message.topic == "Robot/DriveStick1" && message.button == 6 &&
-               message.pressed) {
-        SetGoal(550.0_rad_per_s);  // 5252.11 RPM
-    } else if (message.topic == "Robot/DriveStick1" && message.button == 4 &&
-               message.pressed) {
-        SetGoal(600.0_rad_per_s);  // 5729.58 RPM
-    } else if (message.topic == "Robot/DriveStick1" && message.button == 7 &&
-               message.pressed) {
-        SetGoal(650.0_rad_per_s);  // 6207.04 RPM
-    } else if (message.topic == "Robot/DriveStick1" && message.button == 8 &&
-               message.pressed) {
-        SetGoal(700.0_rad_per_s);  // 6684.51 RPM
-    } else if (message.topic == "Robot/DriveStick1" && message.button == 9 &&
-               message.pressed) {
-        SetGoal(750.0_rad_per_s);  // 7161.97 RPM
-    } else if (message.topic == "Robot/DriveStick1" && message.button == 10 &&
-               message.pressed) {
-        SetGoal(800.0_rad_per_s);  // 7639.44 RPM
-    } else if (message.topic == "Robot/DriveStick1" && message.button == 11 &&
-               message.pressed) {
-        SetGoal(850.0_rad_per_s);  // 8116.90 RPM
-    } else if (message.topic == "Robot/DriveStick1" && message.button == 12 &&
-               message.pressed) {
-        SetGoal(900.0_rad_per_s);  // 8594.37 RPM
-    } else if (message.topic == "Robot/DriveStick1" && message.button == 2 &&
-               message.pressed) {
-        SetGoal(0_rad_per_s);  // 0 RPM
-    }
-}
-
 void Flywheel::ProcessMessage(const CommandPacket& message) {
     if (message.topic == "Robot/TeleopInit" && !message.reply) {
         Enable();
@@ -108,4 +80,19 @@ void Flywheel::ProcessMessage(const CommandPacket& message) {
     } else if (message.topic == "Robot/DisabledInit" && !message.reply) {
         Disable();
     }
+}
+
+void Flywheel::ProcessMessage(const TurretPosePacket& message) {
+    m_nextTurretPose =
+        frc::Pose2d(units::meter_t{message.x}, units::meter_t{message.y},
+                    units::radian_t{message.heading});
+}
+
+units::meter_t Flywheel::DistanceToTarget(const frc::Pose2d& nextPose) {
+    return units::math::sqrt(units::math::pow<2, units::meter_t>(
+                                 targetPoseInGlobal.Translation().Y() -
+                                 m_nextTurretPose.Translation().Y()) +
+                             units::math::pow<2, units::meter_t>(
+                                 targetPoseInGlobal.Translation().X() -
+                                 m_nextTurretPose.Translation().X()));
 }
