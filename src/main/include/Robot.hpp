@@ -4,6 +4,7 @@
 
 #include <frc/Joystick.h>
 #include <frc/TimedRobot.h>
+#include <frc2/Timer.h>
 
 #include "Constants.hpp"
 #include "autonselector/AutonSelector.hpp"
@@ -21,6 +22,8 @@ using namespace frc3512::Constants::Robot;
 
 class Robot : public frc::TimedRobot, public PublishNode {
 public:
+    enum class State { kIdle, kStartFlywheel, kStartConveyor };
+
     Robot();
 
     void DisabledInit() override;
@@ -37,13 +40,16 @@ private:
     Drivetrain m_drivetrain;
     Flywheel m_flywheel;
     Turret m_turret;
-    Intake m_intake;
+    Intake m_intake{m_flywheel};
     Vision m_vision;
     Climber m_climber;
     frc::Joystick m_driveStick1{kDriveStick1Port};
     frc::Joystick m_driveStick2{kDriveStick2Port};
     frc::Joystick m_appendageStick{kAppendageStickPort};
     frc::Joystick m_appendageStick2{kAppendageStick2Port};
+
+    State m_state = State::kIdle;
+    frc2::Timer m_timer;
 };
 
 }  // namespace frc3512

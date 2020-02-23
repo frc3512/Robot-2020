@@ -5,8 +5,6 @@
 using namespace frc3512;
 using namespace frc3512::Constants::Intake;
 
-Intake::Intake() : PublishNode("Intake") {}
-
 void Intake::Deploy() { m_arm.Set(frc::DoubleSolenoid::kForward); }
 
 void Intake::Stow() { m_arm.Set(frc::DoubleSolenoid::kReverse); }
@@ -18,9 +16,9 @@ bool Intake::IsDeployed() const {
 void Intake::SetArmMotor(ArmMotorDirection armMotorState) {
     std::scoped_lock lock(m_armMotorMutex);
     if (armMotorState == ArmMotorDirection::kIntake) {
-        m_armMotor.Set(0.5);
-    } else if (armMotorState == ArmMotorDirection::kOuttake) {
         m_armMotor.Set(-0.5);
+    } else if (armMotorState == ArmMotorDirection::kOuttake) {
+        m_armMotor.Set(0.5);
     } else {
         m_armMotor.Set(0.0);
     }
@@ -81,8 +79,10 @@ void Intake::ProcessMessage(const CommandPacket& message) {
 }
 
 void Intake::SubsystemPeriodic() {
-    if (IsLowerSensorBlocked() && !IsUpperSensorBlocked()) {
+    if (m_flywheel.GetGoal() > 0_rad_per_s && m_flywheel.AtGoal()) {
         SetConveyor(0.85);
+    } else if (IsLowerSensorBlocked() && !IsUpperSensorBlocked()) {
+        SetConveyor(0.2);
     } else {
         SetConveyor(0.0);
     }

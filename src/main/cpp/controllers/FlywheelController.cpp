@@ -34,6 +34,10 @@ void FlywheelController::SetGoal(units::radians_per_second_t angularVelocity) {
     m_nextR << angularVelocity.to<double>();
 }
 
+units::radians_per_second_t FlywheelController::GetGoal() const {
+    return units::radians_per_second_t(m_nextR(0, 0));
+}
+
 bool FlywheelController::AtGoal() const { return m_atGoal; }
 
 void FlywheelController::SetMeasuredAngularVelocity(
@@ -75,7 +79,8 @@ void FlywheelController::Update(units::second_t dt,
 
     m_lqr.Update(m_observer.Xhat().block<1, 1>(0, 0),
                  m_nextR.block<1, 1>(0, 0));
-    m_u = m_lqr.U();
+    // TODO: Change to U() when an encoder is installed on the flywheel.
+    m_u = m_lqr.Uff();
 
     ScaleCapU(&m_u);
 

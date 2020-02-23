@@ -7,6 +7,7 @@
 #include <frc/CounterBase.h>
 #include <frc/Encoder.h>
 #include <frc/RTNotifier.h>
+#include <frc2/Timer.h>
 #include <rev/CANSparkMax.h>
 
 #include "Constants.hpp"
@@ -64,7 +65,13 @@ public:
     void SetGoal(units::radians_per_second_t velocity);
 
     /**
-     * Returns whether or not the controller has reached its goal.
+     * Returns the current goal of the controller.
+     */
+    units::radians_per_second_t GetGoal() const;
+
+    /**
+     * Takes the projected distance of the flywheel to the target and sets an
+     * angular velocity goal determined by the lookup table
      */
     bool AtGoal() const;
 
@@ -109,7 +116,9 @@ private:
         return std::chrono::steady_clock::now();
     }();
     frc::Pose2d m_nextTurretPose;
-    std::mutex m_poseDataMutex;
+    std::mutex m_controllerMutex;
+
+    frc2::Timer m_timer;
 };
 
 }  // namespace frc3512

@@ -4,12 +4,13 @@
 
 #include <frc/DigitalInput.h>
 #include <frc/DoubleSolenoid.h>
-#include <frc/Timer.h>
+#include <frc2/Timer.h>
 #include <rev/CANSparkMax.h>
 #include <wpi/mutex.h>
 
 #include "Constants.hpp"
 #include "communications/PublishNode.hpp"
+#include "subsystems/Flywheel.hpp"
 #include "subsystems/SubsystemBase.hpp"
 
 namespace frc3512 {
@@ -28,7 +29,8 @@ public:
 
     enum class ArmMotorDirection { kIntake, kOuttake, kIdle };
 
-    Intake();
+    explicit Intake(Flywheel& flywheel)
+        : PublishNode("Intake"), m_flywheel(flywheel) {}
 
     /**
      * Deploys the Intake
@@ -54,7 +56,7 @@ public:
 
     /**
      * Sets the funnel motors to either intake or outtake
-     * @param voltage to set motors forwards or backwards
+     * @param speed voltage to set motors forwards or backwards
      */
     void SetFunnel(double speed);
 
@@ -66,7 +68,7 @@ public:
 
     /**
      * Sets the Conveyor to either intake or outtake
-     * @param voltage to set motors forwards or backwards
+     * @param speed voltage to set motors forwards or backwards
      */
     void SetConveyor(double speed);
 
@@ -94,7 +96,9 @@ public:
 private:
     State m_state = State::kIdle;
 
-    frc::Timer m_conveyorTimer;
+    frc2::Timer m_conveyorTimer;
+
+    Flywheel& m_flywheel;
 
     rev::CANSparkMax m_funnelMotorLeft{Constants::Intake::kFunnelPortLeft,
                                        rev::CANSparkMax::MotorType::kBrushless};
