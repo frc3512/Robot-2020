@@ -84,7 +84,7 @@ public:
     /**
      * Returns whether the drivetrain controller is at the goal waypoint.
      */
-    bool AtGoal();
+    bool AtGoal() const;
 
     /**
      * Set local measurements.

@@ -141,6 +141,11 @@ public:
      */
     void SetWaypoints(const std::vector<frc::Pose2d>& waypoints);
 
+    /**
+     * Returns whether the drivetrain controller is at the goal waypoint.
+     */
+    bool AtGoal() const;
+
     void ProcessMessage(const CommandPacket& message) override;
 
     void ProcessMessage(const HIDPacket& message) override;

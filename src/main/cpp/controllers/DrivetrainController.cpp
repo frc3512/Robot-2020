@@ -74,7 +74,7 @@ void DrivetrainController::SetWaypoints(
         frc::TrajectoryGenerator::GenerateTrajectory(waypoints, config);
 }
 
-bool DrivetrainController::AtGoal() {
+bool DrivetrainController::AtGoal() const {
     frc::Pose2d ref{units::meter_t{m_r(State::kX, 0)},
                     units::meter_t{m_r(State::kY, 0)},
                     units::radian_t{m_r(State::kHeading, 0)}};

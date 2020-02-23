@@ -104,6 +104,8 @@ void Drivetrain::SetWaypoints(const std::vector<frc::Pose2d>& waypoints) {
     m_controller.SetWaypoints(waypoints);
 }
 
+bool Drivetrain::AtGoal() const { return m_controller.AtGoal(); }
+
 void Drivetrain::ProcessMessage(const CommandPacket& message) {
     if (message.topic == "Robot/DisabledInit" && !message.reply) {
         DisableController();
