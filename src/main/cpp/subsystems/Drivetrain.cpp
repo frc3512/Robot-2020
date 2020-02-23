@@ -32,11 +32,11 @@ void Drivetrain::SetLeftManual(double value) { m_leftGrbx.Set(value); }
 void Drivetrain::SetRightManual(double value) { m_rightGrbx.Set(value); }
 
 units::radian_t Drivetrain::GetAngle() const {
-    return units::radian_t{m_gyro.GetAngle()};
+    return units::degree_t{-m_gyro.GetAngle()};
 }
 
 units::radians_per_second_t Drivetrain::GetAngularRate() const {
-    return units::radians_per_second_t{m_gyro.GetRate()};
+    return units::degrees_per_second_t{-m_gyro.GetRate()};
 }
 
 void Drivetrain::ResetGyro() { m_gyro.Reset(); }

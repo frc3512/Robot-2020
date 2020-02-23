@@ -113,11 +113,12 @@ constexpr int kFunnelPortLeft = 4;
 constexpr int kFunnelPortRight = 5;
 
 // Proximity Sensor Ports (Digital Inputs)
-constexpr int kLowerSensorPort = 8;
-constexpr int kUpperSensorPort = 9;
+constexpr int kLowerSensorPort = 5;
+constexpr int kUpperSensorPort = 4;
 
 // Solenoid Ports
-constexpr int kArmPort = 0;
+constexpr int kArmForward = 0;
+constexpr int kArmReverse = 1;
 }  // namespace Intake
 
 }  // namespace frc3512::Constants

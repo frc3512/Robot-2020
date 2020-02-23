@@ -7,18 +7,18 @@ using namespace frc3512::Constants::Intake;
 
 Intake::Intake() : PublishNode("Intake") {}
 
-void Intake::Deploy() { m_arm.Set(true); }
+void Intake::Deploy() { m_arm.Set(frc::DoubleSolenoid::kForward); }
 
-void Intake::Stow() { m_arm.Set(false); }
+void Intake::Stow() { m_arm.Set(frc::DoubleSolenoid::kReverse); }
 
 bool Intake::IsDeployed() const { return m_arm.Get(); }
 
 void Intake::SetArmMotor(ArmMotorDirection armMotorState) {
     std::scoped_lock lock(m_armMotorMutex);
     if (armMotorState == ArmMotorDirection::kIntake) {
-        m_armMotor.Set(1.0);
+        m_armMotor.Set(0.5);
     } else if (armMotorState == ArmMotorDirection::kOuttake) {
-        m_armMotor.Set(-1.0);
+        m_armMotor.Set(-0.5);
     } else {
         m_armMotor.Set(0.0);
     }

@@ -3,7 +3,7 @@
 #pragma once
 
 #include <frc/DigitalInput.h>
-#include <frc/Solenoid.h>
+#include <frc/DoubleSolenoid.h>
 #include <frc/Timer.h>
 #include <rev/CANSparkMax.h>
 #include <wpi/mutex.h>
@@ -110,6 +110,7 @@ private:
     frc::DigitalInput m_upperSensor{Constants::Intake::kUpperSensorPort};
     frc::DigitalInput m_lowerSensor{Constants::Intake::kLowerSensorPort};
 
-    frc::Solenoid m_arm{Constants::Intake::kArmPort};
+    frc::DoubleSolenoid m_arm{Constants::Intake::kArmForward,
+                              Constants::Intake::kArmReverse};
 };
 }  // namespace frc3512
