@@ -84,6 +84,8 @@ public:
 
     void ProcessMessage(const ButtonPacket& message) override;
 
+    void ProcessMessage(const CommandPacket& message) override;
+
     /**
      * Checks for Button Press messages
      */

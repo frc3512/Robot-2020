@@ -62,6 +62,10 @@ void Robot::TeleopPeriodic() {
             ButtonPacket message{"AppendageStick2", i, true};
             Publish(message);
         }
+        if (m_appendageStick2.GetRawButtonReleased(i)) {
+            ButtonPacket message{"AppendageStick2", i, false};
+            Publish(message);
+        }
     }
 
     auto& ds = frc::DriverStation::GetInstance();
