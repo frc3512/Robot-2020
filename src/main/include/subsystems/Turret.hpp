@@ -13,6 +13,8 @@
 
 #include "Constants.hpp"
 #include "controllers/TurretController.hpp"
+#include "subsystems/ControllerSubsystemBase.hpp"
+#include "subsystems/Drivetrain.hpp"
 #include "subsystems/SubsystemBase.hpp"
 
 namespace frc3512 {
@@ -26,9 +28,10 @@ enum TurretState { kIDLE = 0, kMostLeft, KMostRight };
  * Subsystem specifically designed for the Turret (bottom, movable part of the
  * Shooter)
  */
-class Turret : public SubsystemBase {
+class Turret : public ControllerSubsystemBase {
 public:
-    Turret();
+    explicit Turret(Drivetrain& drivetrain);
+
     Turret(const Turret&) = delete;
     Turret& operator=(const Turret&) = delete;
 
@@ -77,16 +80,15 @@ public:
      */
     void DisableController();
 
-    /**
-     * Updates the controller from sensors and the motors from the controller.
-     */
-    void Iterate();
+    void ControllerPeriodic() override;
 
     void DisabledInit() override { DisableController(); }
 
     void AutonomousInit() override { EnableController(); }
 
     void TeleopInit() override { EnableController(); }
+
+    frc::Pose2d GetNextPose() const;
 
 private:
 #ifndef RUNNING_FRC_TESTS
@@ -101,8 +103,6 @@ private:
     rev::CANSparkMax m_motor{Constants::Turret::kPort,
                              rev::CANSparkMax::MotorType::kBrushless};
 
-    frc::RTNotifier m_thread{Constants::kControllerPrio, &Turret::Iterate,
-                             this};
     std::chrono::steady_clock::time_point m_lastTime =
         std::chrono::steady_clock::now();
 
@@ -113,5 +113,7 @@ private:
     std::chrono::steady_clock::time_point m_startTime =
         std::chrono::steady_clock::now();
     TurretController m_controller;
+
+    Drivetrain& m_drivetrain;
 };
 }  // namespace frc3512

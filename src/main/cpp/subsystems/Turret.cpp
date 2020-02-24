@@ -4,7 +4,8 @@
 
 using namespace frc3512;
 
-Turret::Turret() : SubsystemBase("Turret") {
+Turret::Turret(Drivetrain& drivetrain)
+    : ControllerSubsystemBase("Turret"), m_drivetrain(drivetrain) {
     m_motor.Set(0);
 #ifndef RUNNING_FRC_TESTS
     m_encoder.SetDistancePerRotation(TurretController::kDpR);
@@ -31,17 +32,14 @@ units::radian_t Turret::GetAngle() {
 void Turret::EnableController() {
     m_lastTime = std::chrono::steady_clock::now();
     m_controller.Enable();
-    m_thread.StartPeriodic(5_ms);
 }
 
-void Turret::DisableController() {
-    m_controller.Disable();
-    m_thread.Stop();
-}
+void Turret::DisableController() { m_controller.Disable(); }
 
-void Turret::Iterate() {
+void Turret::ControllerPeriodic() {
     auto now = std::chrono::steady_clock::now();
     m_controller.SetMeasuredOutputs(GetAngle());
+    m_controller.SetDrivetrainStatus(m_drivetrain.GetNextXhat());
     m_controller.SetHardLimitOutputs(GetLeftHallTriggered(),
                                      GetRightHallTriggered());
     m_controller.Update(now - m_lastTime, now - m_startTime);
@@ -51,3 +49,5 @@ void Turret::Iterate() {
 
     m_lastTime = now;
 }
+
+frc::Pose2d Turret::GetNextPose() const { return m_controller.GetNextPose(); }

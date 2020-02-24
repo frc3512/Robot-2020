@@ -18,12 +18,19 @@ Robot::Robot() : PublishNode("Robot") {
     m_flywheel.Subscribe(m_turret);
 }
 
-void Robot::DisabledInit() { SubsystemBase::RunAllDisabledInit(); }
+void Robot::DisabledInit() {
+    SubsystemBase::RunAllDisabledInit();
+    ControllerSubsystemBase::Disable();
+}
 
-void Robot::AutonomousInit() { SubsystemBase::RunAllAutonomousInit(); }
+void Robot::AutonomousInit() {
+    SubsystemBase::RunAllAutonomousInit();
+    ControllerSubsystemBase::Enable();
+}
 
 void Robot::TeleopInit() {
     SubsystemBase::RunAllTeleopInit();
+    ControllerSubsystemBase::Enable();
 
     for (int i = 1; i <= 12; i++) {
         if (m_driveStick1.GetRawButtonPressed(i)) {

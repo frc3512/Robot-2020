@@ -37,9 +37,11 @@ public:
     void TeleopPeriodic() override;
 
 private:
+    // The order the subsystems are initialized determines the order the
+    // controllers run in.
     Drivetrain m_drivetrain;
-    Flywheel m_flywheel;
-    Turret m_turret;
+    Turret m_turret{m_drivetrain};
+    Flywheel m_flywheel{m_turret};
     Intake m_intake{m_flywheel};
     Vision m_vision;
     Climber m_climber;

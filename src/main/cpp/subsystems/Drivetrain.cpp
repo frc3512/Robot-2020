@@ -11,7 +11,7 @@
 using namespace frc3512;
 using namespace frc3512::Constants::Robot;
 
-Drivetrain::Drivetrain() : SubsystemBase("Drivetrain") {
+Drivetrain::Drivetrain() : ControllerSubsystemBase("Drivetrain") {
     m_drive.SetDeadband(kJoystickDeadband);
 
     m_leftGrbx.Set(0.0);
@@ -79,13 +79,11 @@ void Drivetrain::Reset(const frc::Pose2d& initialPose) {
 
 void Drivetrain::EnableController() {
     m_lastTime = std::chrono::steady_clock::now();
-    m_controllerThread.StartPeriodic(Constants::kDt);
     m_controller.Enable();
     m_drive.SetSafetyEnabled(false);
 }
 
 void Drivetrain::DisableController() {
-    m_controllerThread.Stop();
     m_controller.Disable();
     m_drive.SetSafetyEnabled(true);
 }
@@ -94,7 +92,7 @@ bool Drivetrain::IsControllerEnabled() const {
     return m_controller.IsEnabled();
 }
 
-void Drivetrain::Iterate() {
+void Drivetrain::ControllerPeriodic() {
     m_controller.SetMeasuredInputs(
         units::volt_t{m_leftGrbx.Get() *
                       frc::RobotController::GetInputVoltage()},
@@ -119,6 +117,10 @@ void Drivetrain::SetWaypoints(const std::vector<frc::Pose2d>& waypoints) {
 }
 
 bool Drivetrain::AtGoal() const { return m_controller.AtGoal(); }
+
+Eigen::Matrix<double, 10, 1> Drivetrain::GetNextXhat() const {
+    return m_controller.GetStates();
+}
 
 void Drivetrain::ProcessMessage(const HIDPacket& message) {
     if (GetRawButton(message, 0, 1)) {

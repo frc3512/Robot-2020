@@ -16,14 +16,14 @@
 
 #include "Constants.hpp"
 #include "controllers/DrivetrainController.hpp"
-#include "subsystems/SubsystemBase.hpp"
+#include "subsystems/ControllerSubsystemBase.hpp"
 
 namespace frc3512 {
 
 /**
  * Provides an interface for this year's drive train.
  */
-class Drivetrain : public SubsystemBase {
+class Drivetrain : public ControllerSubsystemBase {
 public:
     Drivetrain();
     Drivetrain(const Drivetrain&) = delete;
@@ -128,10 +128,7 @@ public:
      */
     bool IsControllerEnabled() const;
 
-    /**
-     * Runs the control loop.
-     */
-    void Iterate();
+    void ControllerPeriodic() override;
 
     /**
      * Sets the waypoints for a generated trajectory.
@@ -144,6 +141,8 @@ public:
      * Returns whether the drivetrain controller is at the goal waypoint.
      */
     bool AtGoal() const;
+
+    Eigen::Matrix<double, 10, 1> GetNextXhat() const;
 
     void DisabledInit() override { DisableController(); }
 
@@ -189,12 +188,10 @@ private:
     // Controller
     DrivetrainController m_controller{
         {0.0625, 0.125, 2.5, 0.95, 0.95}, {12.0, 12.0}, Constants::kDt};
-    frc::RTNotifier m_controllerThread{Constants::kControllerPrio,
-                                       &Drivetrain::Iterate, this};
     std::chrono::steady_clock::time_point m_lastTime =
-        std::chrono::steady_clock::time_point::min();
+        std::chrono::steady_clock::now();
     std::chrono::steady_clock::time_point m_startTime =
-        std::chrono::steady_clock::time_point::min();
+        std::chrono::steady_clock::now();
 
     bool m_manualControl = true;
     wpi::mutex m_motorControllerMutex;

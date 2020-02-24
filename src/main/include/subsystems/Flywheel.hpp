@@ -14,13 +14,15 @@
 #include "LinearTable.hpp"
 #include "controllers/FlywheelController.hpp"
 #include "controllers/TurretController.hpp"
-#include "subsystems/SubsystemBase.hpp"
+#include "subsystems/ControllerSubsystemBase.hpp"
+#include "subsystems/Turret.hpp"
 
 namespace frc3512 {
 
-class Flywheel : public SubsystemBase {
+class Flywheel : public ControllerSubsystemBase {
 public:
-    Flywheel();
+    explicit Flywheel(Turret& turret);
+
     Flywheel(Flywheel&&) = default;
     Flywheel& operator=(Flywheel&&) = default;
 
@@ -81,11 +83,6 @@ public:
     void Shoot();
 
     /**
-     * Updates the controller from sensors and the motors from the controller.
-     */
-    void Iterate();
-
-    /**
      * Resets sensors and the controller.
      */
     void Reset();
@@ -96,7 +93,7 @@ public:
 
     void TeleopInit() override { EnableController(); }
 
-    void ProcessMessage(const TurretPosePacket& message) override;
+    void ControllerPeriodic() override;
 
 private:
     const frc::Translation3d kTargetModelCenter =
@@ -113,8 +110,6 @@ private:
     frc::Encoder m_encoder{Constants::Flywheel::kEncoderA,
                            Constants::Flywheel::kEncoderB};
     FlywheelController m_controller{{80.0}, {12.0}, Constants::kDt};
-    frc::RTNotifier m_thread{Constants::kControllerPrio, &Flywheel::Iterate,
-                             this};
     std::chrono::steady_clock::time_point m_lastTime = [] {
         return std::chrono::steady_clock::now();
     }();
@@ -122,6 +117,8 @@ private:
     std::mutex m_controllerMutex;
 
     frc2::Timer m_timer;
+
+    Turret& m_turret;
 };
 
 }  // namespace frc3512

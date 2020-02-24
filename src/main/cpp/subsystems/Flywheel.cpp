@@ -7,7 +7,8 @@
 using namespace frc3512;
 using namespace std::chrono_literals;
 
-Flywheel::Flywheel() : SubsystemBase("Flywheel") {
+Flywheel::Flywheel(Turret& turret)
+    : ControllerSubsystemBase("Flywheel"), m_turret(turret) {
     m_leftGrbx.Set(0.0);
     m_rightGrbx.Set(0.0);
     m_encoder.SetDistancePerPulse(FlywheelController::kDpP);
@@ -37,13 +38,9 @@ units::radians_per_second_t Flywheel::GetAngularVelocity() {
 void Flywheel::EnableController() {
     m_lastTime = std::chrono::steady_clock::now();
     m_controller.Enable();
-    m_thread.StartPeriodic(5_ms);
 }
 
-void Flywheel::DisableController() {
-    m_controller.Disable();
-    m_thread.Stop();
-}
+void Flywheel::DisableController() { m_controller.Disable(); }
 
 void Flywheel::SetGoal(units::radians_per_second_t velocity) {
     m_controller.SetGoal(velocity);
@@ -66,21 +63,15 @@ bool Flywheel::AtGoal() const {
 void Flywheel::Shoot() {
     std::scoped_lock lock(m_controllerMutex);
     // TODO: Put LUT back
-    /*    auto angularVelocity =
-            m_table.linear_interp(m_nextTurretPose.Translation().Distance(
+    if constexpr (0) {
+        auto turretPose = m_turret.GetNextPose();
+        auto angularVelocity =
+            m_table.linear_interp(turretPose.Translation().Distance(
                 kTargetPoseInGlobal.Translation()));
         SetGoal(angularVelocity);
-    */
-    SetGoal(8_V / 12_V * FlywheelController::kMaxAngularVelocity);
-}
-
-void Flywheel::Iterate() {
-    auto now = std::chrono::steady_clock::now();
-    m_controller.SetMeasuredAngularVelocity(GetAngularVelocity());
-    m_controller.Update(now - m_lastTime, now.time_since_epoch());
-    // Set motor input
-    SetVoltage(m_controller.ControllerVoltage());
-    m_lastTime = now;
+    } else {
+        SetGoal(8_V / 12_V * FlywheelController::kMaxAngularVelocity);
+    }
 }
 
 void Flywheel::Reset() {
@@ -88,8 +79,11 @@ void Flywheel::Reset() {
     m_encoder.Reset();
 }
 
-void Flywheel::ProcessMessage(const TurretPosePacket& message) {
-    m_nextTurretPose =
-        frc::Pose2d(units::meter_t{message.x}, units::meter_t{message.y},
-                    units::radian_t{message.heading});
+void Flywheel::ControllerPeriodic() {
+    auto now = std::chrono::steady_clock::now();
+    m_controller.SetMeasuredAngularVelocity(GetAngularVelocity());
+    m_controller.Update(now - m_lastTime, now.time_since_epoch());
+    // Set motor input
+    SetVoltage(m_controller.ControllerVoltage());
+    m_lastTime = now;
 }
