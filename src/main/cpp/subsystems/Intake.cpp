@@ -11,7 +11,9 @@ void Intake::Deploy() { m_arm.Set(frc::DoubleSolenoid::kForward); }
 
 void Intake::Stow() { m_arm.Set(frc::DoubleSolenoid::kReverse); }
 
-bool Intake::IsDeployed() const { return m_arm.Get(); }
+bool Intake::IsDeployed() const {
+    return m_arm.Get() == frc::DoubleSolenoid::kForward;
+}
 
 void Intake::SetArmMotor(ArmMotorDirection armMotorState) {
     std::scoped_lock lock(m_armMotorMutex);
@@ -43,17 +45,21 @@ bool Intake::IsLowerSensorBlocked() const { return !m_lowerSensor.Get(); }
 
 void Intake::ProcessMessage(const ButtonPacket& message) {
     if (message.topic == "Robot/AppendageStick2" && message.button == 4 &&
-        message.pressed) {
+        message.pressed && !IsUpperSensorBlocked()) {
         SetArmMotor(ArmMotorDirection::kIntake);
+        SetFunnel(0.4);
     } else if (message.topic == "Robot/AppendageStick2" &&
                message.button == 6 && message.pressed) {
         SetArmMotor(ArmMotorDirection::kOuttake);
+        SetFunnel(-0.4);
     } else if (message.topic == "Robot/AppendageStick2" &&
                message.button == 4 && !message.pressed) {
         SetArmMotor(ArmMotorDirection::kIdle);
+        SetFunnel(0.0);
     } else if (message.topic == "Robot/AppendageStick2" &&
                message.button == 6 && !message.pressed) {
         SetArmMotor(ArmMotorDirection::kIdle);
+        SetFunnel(0.0);
     } else if (message.topic == "Robot/AppendageStick2" &&
                message.button == 3 && message.pressed) {
         if (IsDeployed()) {
@@ -64,38 +70,20 @@ void Intake::ProcessMessage(const ButtonPacket& message) {
     }
 }
 
+void Intake::ProcessMessage(const CommandPacket& message) {
+    if (message.topic == "Robot/TeleopInit" && !message.reply) {
+        EnablePeriodic();
+    } else if (message.topic == "Robot/AutonomousInit" && !message.reply) {
+        EnablePeriodic();
+    } else if (message.topic == "Robot/DisabledInit" && !message.reply) {
+        DisablePeriodic();
+    }
+}
+
 void Intake::SubsystemPeriodic() {
-    switch (m_state) {
-        case State::kIdle: {
-            // Wait until intake starts running
-            if (m_armMotor.Get() > 0.25) {
-                SetFunnel(1.0);
-                SetConveyor(-1.0);
-                m_conveyorTimer.Reset();
-                m_conveyorTimer.Start();
-                m_state = State::kDropBalls;
-            }
-            break;
-        }
-        case State::kDropBalls: {
-            // Drop balls until lower proximity sensor is triggered or 2.5
-            // seconds have passed to avoid gaps in balls
-            if (IsLowerSensorBlocked() ||
-                m_conveyorTimer.HasPeriodPassed(2.5)) {
-                m_conveyorTimer.Stop();
-                SetConveyor(1.0);
-                m_state = State::kRaiseBalls;
-            }
-            break;
-        }
-        case State::kRaiseBalls: {
-            // Move balls up conveyor until upper proximity sensor is triggered
-            if (IsUpperSensorBlocked()) {
-                SetConveyor(0.0);
-                SetFunnel(0.0);
-                m_state = State::kIdle;
-            }
-            break;
-        }
+    if (IsLowerSensorBlocked() && !IsUpperSensorBlocked()) {
+        SetConveyor(0.85);
+    } else {
+        SetConveyor(0.0);
     }
 }
