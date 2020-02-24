@@ -70,6 +70,11 @@ public:
     void Shoot();
 
     /**
+     * Returns the current goal of the controller.
+     */
+    units::radians_per_second_t GetGoal() const;
+
+    /**
      * Returns whether or not the controller has reached its goal.
      */
     bool AtGoal();
@@ -109,7 +114,7 @@ private:
         return std::chrono::steady_clock::now();
     }();
     frc::Pose2d m_nextTurretPose;
-    std::mutex m_poseDataMutex;
+    std::mutex m_controllerMutex;
 
     units::meter_t DistanceToTarget(const frc::Pose2d& nextPose);
 };

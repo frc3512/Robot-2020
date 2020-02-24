@@ -50,10 +50,14 @@ void Flywheel::SetGoal(units::radians_per_second_t velocity) {
 }
 
 void Flywheel::Shoot() {
-    std::scoped_lock lock(m_poseDataMutex);
+    std::scoped_lock lock(m_controllerMutex);
     auto angularVelocity =
         m_table.linear_interp(DistanceToTarget(m_nextTurretPose));
     SetGoal(angularVelocity);
+}
+
+units::radians_per_second_t Flywheel::GetGoal() const {
+    return m_controller.AngularVelocityGoal();
 }
 
 bool Flywheel::AtGoal() { return m_controller.AtGoal(); }

@@ -54,7 +54,7 @@ void Robot::DisabledPeriodic() {
 void Robot::AutonomousPeriodic() { TeleopPeriodic(); }
 
 void Robot::TeleopPeriodic() {
-    for (int i = 1; i <= 12; i++) {
+    for (int i = 2; i <= 12; i++) {
         if (m_driveStick1.GetRawButtonPressed(i)) {
             ButtonPacket message{"DriveStick1", i, true};
             Publish(message);
@@ -62,6 +62,49 @@ void Robot::TeleopPeriodic() {
         if (m_appendageStick2.GetRawButtonPressed(i)) {
             ButtonPacket message{"AppendageStick2", i, true};
             Publish(message);
+        }
+    }
+
+    switch (m_state) {
+        // Wait until ball(s) are fully loaded in conveyor and trigger has been
+        // pushed.
+        case State::kIdle: {
+            if (m_appendageStick2.GetRawButtonPressed(1) &&
+                m_intake.IsLowerSensorBlocked()) {
+                m_vision.TurnLEDOn();
+                m_state = State::kTurnOnLED;
+            }
+            break;
+        }
+        // Turn on vision LED.
+        case State::kTurnOnLED: {
+            if (m_vision.IsLEDOn()) {
+                m_flywheel.Shoot();
+                m_state = State::kStartFlywheel;
+            }
+            break;
+        }
+        // Allow the flywheel to spin up to the correct angular velocity.
+        case State::kStartFlywheel: {
+            if (m_flywheel.AtGoal() && m_flywheel.GetGoal() > 5_rad_per_s) {
+                m_intake.SetConveyor(0.85);
+                m_timer.Reset();
+                m_timer.Start();
+                m_state = State::kStartConveyor;
+            }
+            break;
+        }
+        // Feed balls until conveyor is empty and timeout has occurred.
+        case State::kStartConveyor: {
+            if (m_timer.HasPeriodPassed(2.0) &&
+                !m_intake.IsUpperSensorBlocked()) {
+                m_intake.SetConveyor(0.0);
+                m_flywheel.SetGoal(0.0_rad_per_s);
+                m_vision.TurnLEDOff();
+                m_timer.Stop();
+                m_state = State::kIdle;
+            }
+            break;
         }
     }
 
