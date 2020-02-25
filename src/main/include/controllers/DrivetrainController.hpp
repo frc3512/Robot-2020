@@ -216,12 +216,12 @@ private:
     static constexpr double kPositionTolerance = 0.05;  // meters
     static constexpr double kVelocityTolerance = 2.0;   // meters/second
     static constexpr double kAngleTolerance = 0.05;     // radians
-    static constexpr decltype(1_V / 1_mps) kLinearV = 3.62_V / 1_mps;
-    static constexpr decltype(1_V / 1_mps_sq) kLinearA = 2.5_V / 1_mps_sq;
+    static constexpr decltype(1_V / 1_mps) kLinearV = 3.02_V / 1_mps;
+    static constexpr decltype(1_V / 1_mps_sq) kLinearA = 0.642_V / 1_mps_sq;
     static constexpr decltype(1_V / 1_rad_per_s) kAngularV =
-        10.41_V / 1_rad_per_s;
+        1.382_V / 1_rad_per_s;
     static constexpr decltype(1_V / (1_rad_per_s / 1_s)) kAngularA =
-        1.0_V / (1_rad_per_s / 1_s);
+        (0.3398_V / 4.0) / (1_rad_per_s / 1_s);
     static constexpr decltype(1_V / (1_V / 1_mps)) kMaxV =
         12_V / kLinearV;  // m/s
     static constexpr decltype(1_V / (1_V / 1_mps_sq)) kMaxA =
@@ -229,8 +229,6 @@ private:
 
     // Robot radius
     static constexpr auto rb = kWidth / 2.0;
-
-    static frc::LinearSystem<2, 2, 2> m_plant;
 
     // The current voltage inputs
     Eigen::Matrix<double, 2, 1> m_appliedU;

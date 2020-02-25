@@ -13,10 +13,17 @@ using namespace frc3512::Constants::Robot;
 
 Drivetrain::Drivetrain() : PublishNode("Drivetrain") {
     m_drive.SetDeadband(kJoystickDeadband);
+
     m_leftGrbx.Set(0.0);
     m_rightGrbx.Set(0.0);
+
     m_leftGrbx.SetInverted(true);
     m_drive.SetRightSideInverted(false);
+
+    m_leftEncoder.SetSamplesToAverage(10);
+    m_rightEncoder.SetSamplesToAverage(10);
+
+    m_leftEncoder.SetReverseDirection(false);
     m_rightEncoder.SetReverseDirection(true);
     m_leftEncoder.SetDistancePerPulse(DrivetrainController::kDpP);
     m_rightEncoder.SetDistancePerPulse(DrivetrainController::kDpP);
