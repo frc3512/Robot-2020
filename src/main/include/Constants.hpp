@@ -121,4 +121,25 @@ constexpr int kArmForward = 0;
 constexpr int kArmReverse = 1;
 }  // namespace Intake
 
+namespace Climber {
+// Side Elevator Motors
+constexpr int kArmPortLeft = 2;
+constexpr int kArmPortRight = 3;
+
+// Transverser Motor
+constexpr int kTransverserPort = 12;
+
+// Wrangler Winch Motor
+constexpr int kWinchPort = 13;
+
+// Wrangler Solenoid
+constexpr int kWranglerSolenoid = 1;
+
+// Climber Forward Solenoid
+constexpr int kClimbForwardSolenoid = 0;
+
+// Climber Reverse Solenoid
+constexpr int kClimbReverseSolenoid = 1;
+}  // namespace Climber
+
 }  // namespace frc3512::Constants
