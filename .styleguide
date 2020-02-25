@@ -16,6 +16,10 @@ modifiableFileExclude {
   make.py
 }
 
+includeCppSys {
+  experimental/
+}
+
 includeOtherLibs {
   frc/
   gtest/

@@ -50,7 +50,8 @@ LDFLAGS := \
 	-lSparkMaxDriver \
 	-lpthread \
 	-Lbuild/googletest-1.9.0-4-437e100-1-linuxx86-64static/linux/x86-64/static \
-	-lgoogletest
+	-lgoogletest \
+	-lstdc++fs
 
 include mk/Makefile-common
 
