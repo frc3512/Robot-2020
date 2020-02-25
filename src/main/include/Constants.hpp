@@ -2,6 +2,8 @@
 
 #pragma once
 
+#include <frc/I2C.h>
+#include <frc/util/Color.h>
 #include <units/time.h>
 
 namespace frc3512::Constants {
@@ -84,6 +86,7 @@ constexpr int kTraverserPort = 13;
 
 // Solenoid Port
 constexpr int kClimberLock = 3;
+constexpr int kControlPanelArmPort = 2;
 }  // namespace Climber
 
 constexpr auto kDt = 5_ms;
