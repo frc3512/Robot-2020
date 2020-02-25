@@ -138,10 +138,14 @@ void DrivetrainController::Update(units::second_t dt,
                                   units::second_t elapsedTime) {
     if (!m_isOpenLoop) {
         frc::Trajectory::State ref;
-        {
+
+        // Only sample the trajectory if one was created. Otherwise, use the
+        // default Trajectory::State, which is zero-filled.
+        if (m_trajectory.TotalTime() != 0_s) {
             std::lock_guard lock(m_trajectoryMutex);
             ref = m_trajectory.Sample(elapsedTime);
         }
+
         auto [vlRef, vrRef] =
             ToWheelVelocities(ref.velocity, ref.curvature, kWidth);
 
