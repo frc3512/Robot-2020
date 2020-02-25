@@ -15,6 +15,9 @@
 #include "subsystems/Turret.hpp"
 #include "subsystems/Vision.hpp"
 
+#define EXPECT_NEAR_UNITS(val1, val2, eps) \
+    EXPECT_LE(units::math::abs(val1 - val2), eps)
+
 class ClimberTest : public frc3512::SimulatorTest {
 public:
     frc3512::Vision vision;
