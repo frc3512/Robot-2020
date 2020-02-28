@@ -53,7 +53,7 @@ public:
      */
     void LockClimb();
 
-    void ProcessMessage(const ButtonPacket& message);
+    void ProcessMessage(const ButtonPacket& message) override;
 
 private:
     rev::CANSparkMax m_armLeft{frc3512::Constants::Climber::kArmPortLeft,
