@@ -38,7 +38,10 @@ void Robot::TeleopInit() {
     }
 }
 
-void Robot::TestInit() {}
+void Robot::TestInit() {
+    wpi::outs() << "Turret Encoder reset\n";
+    m_turret.ResetEncoder();
+}
 
 void Robot::RobotPeriodic() {}
 
@@ -50,6 +53,7 @@ void Robot::DisabledPeriodic() {
                 << m_drivetrain.GetRightPosition().to<double>() << "\n";
     wpi::outs() << "Drivetrain Gyro: " << m_drivetrain.GetAngle().to<double>()
                 << "\n";
+    wpi::outs() << "Turret: " << m_turret.GetAngle().to<double>() << "\n";
 }
 
 void Robot::AutonomousPeriodic() { TeleopPeriodic(); }

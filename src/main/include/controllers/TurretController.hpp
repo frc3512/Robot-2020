@@ -25,7 +25,8 @@ namespace frc3512 {
 
 class TurretController {
 public:
-    static constexpr double kDpP = 1.0;
+    static constexpr double kGearRatio = 18.0 / 160.0;
+    static constexpr double kDpR = kGearRatio * 2.0 * wpi::math::pi;
 
     // State tolerances in radians and radians/sec respectively.
     static constexpr units::radian_t kAngleTolerance = 0.05_rad;
@@ -169,8 +170,9 @@ public:
     void Reset();
 
 private:
-    static constexpr double kV = 0;
-    static constexpr double kA = 0;
+    static constexpr decltype(1_V / 1_rad_per_s) kV = 4.42_V / 1_rad_per_s;
+    static constexpr decltype(1_V / (1_rad_per_s / 1_s)) kA =
+        0.14_V / (1_rad_per_s / 1_s);
     static constexpr units::radians_per_second_t kMaxV = 1.477996_rad_per_s;
     static constexpr decltype(1_rad_per_s / 1_s) kMaxA =
         7.782482_rad_per_s / 1_s;
@@ -191,18 +193,8 @@ private:
 
     frc::TrapezoidProfile<units::radians>::State m_profiledReference;
 
-    // frc::LinearSystem<2, 1, 1> m_plant = frc::IdentifyPositionSystem(kV, kA);
-    frc::LinearSystem<2, 1, 1> m_plant = [=] {
-        constexpr auto motor = frc::DCMotor::NEO();
-
-        // Arm moment of inertia
-        constexpr auto J = 0.1579_kg_sq_m;
-
-        // Gear ratio
-        constexpr double G = 160.0 / 18.0;
-
-        return frc::SingleJointedArmSystem(motor, J, G);
-    }();
+    frc::LinearSystem<2, 1, 1> m_plant =
+        frc::IdentifyPositionSystem(kV.to<double>(), kA.to<double>());
 
     frc::LinearQuadraticRegulator<2, 1> m_lqr{
         m_plant, {0.01245, 0.109726}, {12.0}, Constants::kDt};

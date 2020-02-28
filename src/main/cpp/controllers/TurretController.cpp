@@ -4,6 +4,8 @@
 
 #include <frc/RobotController.h>
 
+#include "controllers/NormalizeAngle.hpp"
+
 using namespace frc3512;
 using namespace frc3512::Constants::Turret;
 
@@ -124,14 +126,17 @@ void TurretController::Update(units::second_t dt, units::second_t elapsedTime) {
     auto profiledReference = profile.Calculate(Constants::kDt);
     SetReferences(profiledReference.position, profiledReference.velocity);
 
+    m_observer.SetXhat(0, NormalizeAngle(m_observer.Xhat(0)));
     m_lqr.Update(m_observer.Xhat(), m_nextR);
-    if (m_atLeftLimit && m_lqr.U(0) > 0) {
-        m_u << 0;
-    } else if (m_atRightLimit && m_lqr.U(0) < 0) {
-        m_u << 0;
-    } else {
-        m_u << m_lqr.U(0) * 12.0 / frc::RobotController::GetInputVoltage();
-    }
+    // TODO: uncomment this once limit switches are added to the turret because
+    // the absence of limit switches always causes them to return true
+    // (m_atLeftLimit && m_lqr.U(0) > 0) {
+    //    m_u << 0;
+    //} else if (m_atRightLimit && m_lqr.U(0) < 0) {
+    //    m_u << 0;
+    //} else {
+    m_u << m_lqr.U(0) * 12.0 / frc::RobotController::GetInputVoltage();
+    //}
 
     m_atReferences =
         units::math::abs(AngleError()) < kAngleTolerance &&

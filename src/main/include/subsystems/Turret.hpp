@@ -101,6 +101,8 @@ private:
     std::chrono::steady_clock::time_point m_timeSinceLastAngle =
         std::chrono::steady_clock::now();
 
+    std::chrono::steady_clock::time_point m_startTime =
+        std::chrono::steady_clock::now();
     TurretController m_controller;
 };
 }  // namespace frc3512

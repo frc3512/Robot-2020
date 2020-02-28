@@ -16,6 +16,8 @@
 #include <units/units.h>
 #include <wpi/MathExtras.h>
 
+#include "controllers/NormalizeAngle.hpp"
+
 using namespace frc3512;
 using namespace frc3512::Constants;
 
