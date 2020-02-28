@@ -50,7 +50,7 @@ constexpr double kDriveGearRatio = 1.0 / 1.0;
 constexpr auto kLinearV = 3.62_V / 1_mps;
 constexpr auto kLinearA = 2.5_V / 1_mps_sq;
 constexpr auto kAngularV = 10.41_V / 1_rad_per_s;
-constexpr auto kAngularA = 1.0_V / 1_rad_per_s / 1_s;
+constexpr auto kAngularA = 1.0_V / (1_rad_per_s / 1_s);
 
 // Drive trapezoid profile constants
 constexpr auto kMaxV = 12_V / kLinearV;  // m/s
@@ -69,7 +69,7 @@ constexpr int kEncoderA = 6;
 constexpr int kEncoderB = 7;
 
 constexpr auto kV = 0.00957_V / 1_rad_per_s;
-constexpr auto kA = 0.02206 / 1_rad_per_s / 1.0_s;
+constexpr auto kA = 0.02206 / (1_rad_per_s / 1.0_s);
 constexpr auto kMaxAngularVelocity = 1000.5_rad_per_s;
 constexpr units::radians_per_second_t kAngularVelocityTolerance = 7.0_rad_per_s;
 
@@ -93,7 +93,7 @@ constexpr double kDpP = 1;
 constexpr double kV = 0;
 constexpr double kA = 0;
 constexpr auto kMaxV = 1.477996_rad_per_s;
-constexpr auto kMaxA = 7.782482_rad_per_s / 1_s;
+constexpr auto kMaxA = (7.782482_rad_per_s / 1_s);
 constexpr auto kTx = 0_m;
 constexpr auto kTy = 0_m;
 }  // namespace Turret
