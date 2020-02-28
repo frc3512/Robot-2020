@@ -49,7 +49,6 @@ constexpr double kDriveGearRatio = 1.0 / 1.0;
 // System Characterization
 constexpr auto kLinearV = 3.62_V / 1_mps;
 constexpr auto kLinearA = 2.5_V / 1_mps_sq;
-constexpr auto kAngularV = 10.41_V / 1_rad_per_s;
 constexpr auto kAngularA = 1.0_V / (1_rad_per_s / 1_s);
 
 // Drive trapezoid profile constants

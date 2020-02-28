@@ -96,6 +96,7 @@ private:
                                          units::radian_t{wpi::math::pi}};
     lookup::unbounded_linear_table<units::meter_t, units::radians_per_second_t>
         m_table;
+
     rev::CANSparkMax m_leftGrbx{Constants::Flywheel::kLeftPort,
                                 rev::CANSparkMax::MotorType::kBrushless};
     rev::CANSparkMax m_rightGrbx{Constants::Flywheel::kRightPort,
