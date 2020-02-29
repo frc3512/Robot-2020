@@ -52,7 +52,8 @@ void Flywheel::SetGoal(units::radians_per_second_t velocity) {
 void Flywheel::Shoot() {
     std::scoped_lock lock(m_poseDataMutex);
     auto angularVelocity =
-        m_table.linear_interp(DistanceToTarget(m_nextTurretPose));
+        m_table.linear_interp(m_nextTurretPose.Translation().Distance(
+            kTargetPoseInGlobal.Translation()));
     SetGoal(angularVelocity);
 }
 
@@ -86,13 +87,4 @@ void Flywheel::ProcessMessage(const TurretPosePacket& message) {
     m_nextTurretPose =
         frc::Pose2d(units::meter_t{message.x}, units::meter_t{message.y},
                     units::radian_t{message.heading});
-}
-
-units::meter_t Flywheel::DistanceToTarget(const frc::Pose2d& nextPose) {
-    return units::math::sqrt(units::math::pow<2, units::meter_t>(
-                                 targetPoseInGlobal.Translation().Y() -
-                                 m_nextTurretPose.Translation().Y()) +
-                             units::math::pow<2, units::meter_t>(
-                                 targetPoseInGlobal.Translation().X() -
-                                 m_nextTurretPose.Translation().X()));
 }
