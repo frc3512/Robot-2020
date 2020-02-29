@@ -49,6 +49,7 @@ constexpr double kDriveGearRatio = 1.0 / 1.0;
 // System Characterization
 constexpr auto kLinearV = 3.62_V / 1_mps;
 constexpr auto kLinearA = 2.5_V / 1_mps_sq;
+constexpr auto kAngularV = 10.41_V / 1_rad_per_s;
 constexpr auto kAngularA = 1.0_V / (1_rad_per_s / 1_s);
 
 // Drive trapezoid profile constants
@@ -66,14 +67,6 @@ constexpr int kLeftPort = 9;
 constexpr int kRightPort = 10;
 constexpr int kEncoderA = 6;
 constexpr int kEncoderB = 7;
-
-constexpr auto kV = 0.00957_V / 1_rad_per_s;
-constexpr auto kA = 0.02206 / (1_rad_per_s / 1_s);
-constexpr auto kMaxAngularVelocity = 1000.5_rad_per_s;
-constexpr units::radians_per_second_t kAngularVelocityTolerance = 7.0_rad_per_s;
-
-constexpr double kGearRatio = 2.0;
-constexpr double kDpP = (wpi::math::pi * 2.0) / 512.0;
 }  // namespace Flywheel
 
 namespace Turret {

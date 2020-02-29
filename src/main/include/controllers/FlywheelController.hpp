@@ -17,6 +17,7 @@ namespace frc3512 {
 
 class FlywheelController {
 public:
+
     /**
      * Constructs a flywheel controller with the given coefficients.
      *
@@ -102,6 +103,18 @@ public:
     void Reset();
 
 private:
+
+    static constexpr decltype(1_V / 1_rad_per_s) kV = 0.00957_V / 1_rad_per_s;
+    static constexpr decltype(1_V / 1_rad_per_s) kA =
+        0.02206 / (1_rad_per_s / 1_s);
+
+    static constexpr double kDpP = (wpi::math::pi * 2.0) / 512.0;
+    static constexpr units::radians_per_second_t kAngularVelocityTolerance =
+        7.0_rad_per_s;
+
+    static constexpr auto kMaxAngularVelocity = 1000.5_rad_per_s;
+    static constexpr double kGearRatio = 2.0;
+
     // The current sensor measurements.
     Eigen::Matrix<double, 1, 1> m_y;
 
@@ -118,8 +131,7 @@ private:
     }(); */
 
     frc::LinearSystem<1, 1, 1> m_plant =
-        frc::IdentifyVelocitySystem(Constants::Flywheel::kV.to<double>(),
-                                    Constants::Flywheel::kA.to<double>());
+        frc::IdentifyVelocitySystem(kV.to<double>(), kA.to<double>());
 
     frc::LinearSystem<2, 1, 1> m_augmentedPlant = [=] {
         Eigen::Matrix<double, 2, 2> A;
@@ -140,7 +152,7 @@ private:
     }();
 
     frc::KalmanFilter<1, 1, 1> m_observer{
-        m_plant, Constants::kDt, {10.0}, {Constants::Flywheel::kDpP + 0.175}};
+        m_plant, Constants::kDt, {10.0}, {kDpP + 0.175}};
 
     frc::LinearQuadraticRegulator<1, 1> m_lqr;
 
