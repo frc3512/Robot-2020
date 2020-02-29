@@ -44,7 +44,7 @@ public:
     /**
      * Returns whether or not the goal has been reached.
      */
-    bool AtGoal();
+    bool AtGoal() const;
 
     /**
      * Sets the current encoder measurement.

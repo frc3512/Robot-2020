@@ -64,15 +64,15 @@ public:
     void SetGoal(units::radians_per_second_t velocity);
 
     /**
+     * Returns whether or not the controller has reached its goal.
+     */
+    bool AtGoal() const;
+
+    /**
      * Takes the projected distance of the flywheel to the target and sets an
      * angular velocity goal determined by the lookup table
      */
     void Shoot();
-
-    /**
-     * Returns whether or not the controller has reached its goal.
-     */
-    bool AtGoal();
 
     /**
      * Updates the controller from sensors and the motors from the controller.

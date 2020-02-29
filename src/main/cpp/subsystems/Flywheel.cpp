@@ -49,6 +49,8 @@ void Flywheel::SetGoal(units::radians_per_second_t velocity) {
     m_controller.SetGoal(velocity);
 }
 
+bool Flywheel::AtGoal() const { return m_controller.AtGoal(); }
+
 void Flywheel::Shoot() {
     std::scoped_lock lock(m_poseDataMutex);
     auto angularVelocity =
@@ -56,8 +58,6 @@ void Flywheel::Shoot() {
             kTargetPoseInGlobal.Translation()));
     SetGoal(angularVelocity);
 }
-
-bool Flywheel::AtGoal() { return m_controller.AtGoal(); }
 
 void Flywheel::Iterate() {
     auto now = std::chrono::steady_clock::now();

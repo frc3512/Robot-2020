@@ -34,7 +34,7 @@ void FlywheelController::SetGoal(units::radians_per_second_t angularVelocity) {
     m_nextR << angularVelocity.to<double>();
 }
 
-bool FlywheelController::AtGoal() { return m_atGoal; }
+bool FlywheelController::AtGoal() const { return m_atGoal; }
 
 void FlywheelController::SetMeasuredAngularVelocity(
     units::radians_per_second_t angularVelocity) {
