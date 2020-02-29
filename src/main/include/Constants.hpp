@@ -79,7 +79,7 @@ constexpr double kDpP = (wpi::math::pi * 2.0) / 512.0;
 
 namespace Turret {
 // Spark Max Port Values
-constexpr int kPort = 0;
+constexpr int kPort = 8;
 
 // Hall Sensor Ports
 constexpr int kRightHallPort = 0;
