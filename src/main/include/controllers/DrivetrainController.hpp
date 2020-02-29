@@ -197,8 +197,6 @@ private:
     // Robot radius
     static constexpr auto rb = Constants::Drivetrain::kWidth / 2.0;
 
-    static frc::LinearSystem<2, 2, 2> m_plant;
-
     // The current sensor measurements
     Eigen::Matrix<double, 3, 1> m_localY;
     Eigen::Matrix<double, 6, 1> m_globalY;

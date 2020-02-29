@@ -20,13 +20,6 @@ using namespace frc3512;
 using namespace frc3512::Constants;
 using namespace frc3512::Constants::Drivetrain;
 
-frc::LinearSystem<2, 2, 2> DrivetrainController::m_plant =
-    frc::IdentifyDrivetrainSystem(
-        Constants::Drivetrain::kLinearV.to<double>(),
-        Constants::Drivetrain::kLinearA.to<double>(),
-        Constants::Drivetrain::kAngularV.to<double>(),
-        Constants::Drivetrain::kAngularA.to<double>());
-
 DrivetrainController::DrivetrainController(const std::array<double, 5>& Qelems,
                                            const std::array<double, 2>& Relems,
                                            units::second_t dt) {
@@ -64,7 +57,13 @@ bool DrivetrainController::IsEnabled() const { return m_isEnabled; }
 
 void DrivetrainController::SetWaypoints(
     const std::vector<frc::Pose2d>& waypoints) {
-    frc::DrivetrainVelocitySystemConstraint constraint{m_plant, kWidth, 8_V};
+    auto plant = frc::IdentifyDrivetrainSystem(
+        Constants::Drivetrain::kLinearV.to<double>(),
+        Constants::Drivetrain::kLinearA.to<double>(),
+        Constants::Drivetrain::kAngularV.to<double>(),
+        Constants::Drivetrain::kAngularA.to<double>());
+
+    frc::DrivetrainVelocitySystemConstraint constraint{plant, kWidth, 8_V};
     frc::TrajectoryConfig config{kMaxV, kMaxA};
     config.AddConstraint(constraint);
 
@@ -299,11 +298,17 @@ Eigen::Matrix<double, 10, 1> DrivetrainController::Dynamics(
     // constexpr auto k1 = (1 / m + rb * rb / J);
     // constexpr auto k2 = (1 / m - rb * rb / J);
 
+    auto plant = frc::IdentifyDrivetrainSystem(
+        Constants::Drivetrain::kLinearV.to<double>(),
+        Constants::Drivetrain::kLinearA.to<double>(),
+        Constants::Drivetrain::kAngularV.to<double>(),
+        Constants::Drivetrain::kAngularA.to<double>());
+
     Eigen::Matrix<double, 4, 2> B;
-    B.block<2, 2>(0, 0) = m_plant.B();
+    B.block<2, 2>(0, 0) = plant.B();
     B.block<2, 2>(2, 0).setZero();
     Eigen::Matrix<double, 4, 7> A;
-    A.block<2, 2>(0, 0) = m_plant.A();
+    A.block<2, 2>(0, 0) = plant.A();
 
     A.block<2, 2>(2, 0).setIdentity();
     A.block<4, 2>(0, 2).setZero();
