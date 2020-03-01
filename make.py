@@ -127,7 +127,7 @@ def download_lib(maven_url, artifact_name, version, classifier, headers=True):
         download_file(maven_url, filename, "build")
 
 
-def main(argv):
+def main():
     parser = argparse.ArgumentParser(description="Builds and deploys FRC C++ programs")
     parser.add_argument(
         "target",
@@ -152,19 +152,6 @@ def main(argv):
     if not os.path.exists("deploy/"):
         os.makedirs("deploy/")
 
-    args = argv[argv.index("--") + 1:]
-
-    relative_dir = ""
-    recursive = False
-
-    if "--dirs" in argv:
-        dirs_index = argv.index("--dirs")
-        srcs = argv[1:dirs_index]
-        relative_dir = argv[dirs_index + 1]
-        recursive = True
-    else:
-        srcs = argv[1:argv.index("--")]
-
     WPI_MAVEN_URL = "https://frcmaven.wpi.edu/artifactory/release"
     REV_MAVEN_URL = "http://www.revrobotics.com/content/sw/max/sdk/maven"
     WPI_URL = WPI_MAVEN_URL + "/edu/wpi/first"
@@ -175,16 +162,12 @@ def main(argv):
     WPI_VERSION = "2020.3.2"
 
     ssh_target = "%s@%s" % ("lvuser", "10.35.12.2")
-    rsync_cmd = ([
-        "external/rsync/usr/bin/rsync", "-e", "external/ssh/usr/bin/ssh", "-c",
-        "-v", "-z", "--copy-links"
-    ] + srcs + ["%s:%s/%s" % (ssh_target, "/deploy", relative_dir)])
 
     if args.target in ["build", "deploy"]:
         classifier = "linuxathena"
     else:
         classifier = "linuxx86-64"
-
+    
     download_lib(WPI_URL + "/wpilibc", "wpilibc-cpp", WPI_VERSION, classifier)
     download_lib(WPI_URL + "/cameraserver", "cameraserver-cpp", WPI_VERSION, classifier)
     download_lib(WPI_URL + "/ntcore", "ntcore-cpp", WPI_VERSION, classifier)
@@ -244,14 +227,18 @@ def main(argv):
         else:
             print(f"Arbitrary files have been found! Attempting to copy over...")
             print(f"Checking if rsync is installed onto the RoboRio")
+            rsync_cmd = ([
+            "external/rsync/usr/bin/rsync", "-e", "external/ssh/usr/bin/ssh", "-c",
+            "-v", "-z", "--copy-links"
+            ] + files + ["%s:%s/%s" % (ssh_target, "/deploy", "lvuser@10.35.12.2")])
             try:
                 subprocess.check_call(rsync_cmd)
             except subprocess.CalledProcessError as e:
                 if e.returncode == 127:
                     print("Rsync not found! Installing necessary packages...")
-                    download_NIPackage(ssh_target, "")
-                    download_NIPackage(ssh_target, "")
-                    download_NIPackage(ssh_target, "")
+                    download_NIPackage(ssh_target, "libattr1_2.4.47-r0.36_cortexa9-vfpv3.ipk")
+                    download_NIPackage(ssh_target, "libacl1_2.2.52-r0.36_cortexa9-vfpv3.ipk")
+                    download_NIPackage(ssh_target, "rsync_3.1.3-r0.6_cortexa9-vfpv3.ipk")
                     subprocess.check_call(rsync_cmd)
                 else:
                     raise e;
