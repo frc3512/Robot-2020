@@ -24,6 +24,14 @@ namespace frc3512 {
 
 class DrivetrainController {
 public:
+    static constexpr units::meter_t kWheelRadius = 3_in;
+    static constexpr double kDriveGearRatio = 1.0 / 1.0;
+    static constexpr double kDpP =
+        (2.0 * wpi::math::pi * kWheelRadius.to<double>()) * kDriveGearRatio /
+        2048.0;
+    static constexpr units::meter_t kLength = 0.9398_m;
+    static constexpr units::meter_t kWidth = 0.990405073902434_m;
+
     class State {
     public:
         static constexpr int kX = 0;
@@ -194,8 +202,22 @@ public:
         const Eigen::Matrix<double, 2, 1>& u);
 
 private:
+    static constexpr double kPositionTolerance = 0.05;  // meters
+    static constexpr double kVelocityTolerance = 2.0;   // meters/second
+    static constexpr double kAngleTolerance = 0.05;     // radians
+    static constexpr decltype(1_V / 1_mps) kLinearV = 3.62_V / 1_mps;
+    static constexpr decltype(1_V / 1_mps_sq) kLinearA = 2.5_V / 1_mps_sq;
+    static constexpr decltype(1_V / 1_rad_per_s) kAngularV =
+        10.41_V / 1_rad_per_s;
+    static constexpr decltype(1_V / (1_rad_per_s / 1_s)) kAngularA =
+        1.0_V / (1_rad_per_s / 1_s);
+    static constexpr decltype(1_V / (1_V / 1_mps)) kMaxV =
+        12_V / kLinearV;  // m/s
+    static constexpr decltype(1_V / (1_V / 1_mps_sq)) kMaxA =
+        12_V / kLinearA;  // m/s^2
+
     // Robot radius
-    static constexpr auto rb = Constants::Drivetrain::kWidth / 2.0;
+    static constexpr auto rb = kWidth / 2.0;
 
     // The current sensor measurements
     Eigen::Matrix<double, 3, 1> m_localY;

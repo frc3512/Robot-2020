@@ -3,14 +3,13 @@
 #include "subsystems/Turret.hpp"
 
 using namespace frc3512;
-using namespace frc3512::Constants::Turret;
 
 Turret::Turret() : PublishNode("Turret") {
     m_motor.Set(0);
 #ifndef RUNNING_FRC_TESTS
-    m_encoder.SetDistancePerRotation(kDpP);
+    m_encoder.SetDistancePerRotation(TurretController::kDpP);
 #else
-    m_encoder.SetDistancePerPulse(kDpP);
+    m_encoder.SetDistancePerPulse(TurretController::kDpP);
 #endif
     Reset();
     m_lastAngle = units::radian_t{m_encoder.GetDistance()};

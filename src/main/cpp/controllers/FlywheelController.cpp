@@ -8,7 +8,6 @@
 
 using namespace frc3512;
 using namespace frc3512::Constants;
-using namespace frc3512::Constants::Flywheel;
 
 FlywheelController::FlywheelController(const std::array<double, 1>& Qelems,
                                        const std::array<double, 1>& Relems,

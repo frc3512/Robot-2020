@@ -30,31 +30,6 @@ constexpr int kLeftEncoderA = 0;
 constexpr int kLeftEncoderB = 1;
 constexpr int kRightEncoderA = 2;
 constexpr int kRightEncoderB = 3;
-
-// Controller constants
-constexpr double kPositionTolerance = 0.05;  // meters
-constexpr double kVelocityTolerance = 2.0;   // meters/second
-constexpr double kAngleTolerance = 0.05;     // radians
-
-// Physical Robot Constants
-constexpr auto kLength = 0.9398_m;
-constexpr auto kWidth = 0.990405073902434_m;
-constexpr units::meter_t kWheelRadius = 3_in;
-constexpr double kDriveGearRatio = 1.0 / 1.0;
-
-// System Characterization
-constexpr auto kLinearV = 3.62_V / 1_mps;
-constexpr auto kLinearA = 2.5_V / 1_mps_sq;
-constexpr auto kAngularV = 10.41_V / 1_rad_per_s;
-constexpr auto kAngularA = 1.0_V / (1_rad_per_s / 1_s);
-
-// Drive trapezoid profile constants
-constexpr auto kMaxV = 12_V / kLinearV;  // m/s
-constexpr auto kMaxA = 12_V / kLinearA;  // m/s^2
-
-// Distance per Pulse
-constexpr double kDpP = (2.0 * wpi::math::pi * kWheelRadius.to<double>()) *
-                        kDriveGearRatio / 2048.0;
 }  // namespace Drivetrain
 
 namespace Flywheel {
@@ -62,14 +37,6 @@ constexpr int kLeftPort = 9;
 constexpr int kRightPort = 10;
 constexpr int kEncoderA = 6;
 constexpr int kEncoderB = 7;
-
-constexpr auto kV = 0.00957_V / 1_rad_per_s;
-constexpr auto kA = 0.02206 / (1_rad_per_s / 1_s);
-constexpr auto kMaxAngularVelocity = 1000.5_rad_per_s;
-constexpr units::radians_per_second_t kAngularVelocityTolerance = 7.0_rad_per_s;
-
-constexpr double kGearRatio = 2.0;
-constexpr double kDpP = (wpi::math::pi * 2.0) / 512.0;
 }  // namespace Flywheel
 
 namespace Turret {
@@ -82,15 +49,6 @@ constexpr int kLeftHallPort = 1;
 
 // Encoder Values
 constexpr int kEncoderPort = 8;
-constexpr double kDpP = 1;
-
-// Controller
-constexpr double kV = 0;
-constexpr double kA = 0;
-constexpr auto kMaxV = 1.477996_rad_per_s;
-constexpr auto kMaxA = 7.782482_rad_per_s / 1_s;
-constexpr auto kTx = 0_m;
-constexpr auto kTy = 0_m;
 }  // namespace Turret
 
 namespace Intake {

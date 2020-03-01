@@ -25,6 +25,8 @@ namespace frc3512 {
 
 class TurretController {
 public:
+    static constexpr double kDpP = 1.0;
+
     // State tolerances in radians and radians/sec respectively.
     static constexpr units::radian_t kAngleTolerance = 0.05_rad;
     static constexpr units::radians_per_second_t kAngularVelocityTolerance =
@@ -167,6 +169,14 @@ public:
     void Reset();
 
 private:
+    static constexpr double kV = 0;
+    static constexpr double kA = 0;
+    static constexpr units::radians_per_second_t kMaxV = 1.477996_rad_per_s;
+    static constexpr decltype(1_rad_per_s / 1_s) kMaxA =
+        7.782482_rad_per_s / 1_s;
+    static constexpr units::meter_t kTx = 0_m;
+    static constexpr units::meter_t kTy = 0_m;
+
     const frc::Translation3d targetModelCenter = (A + G) / 2.0;
     const frc::Pose2d targetPoseInGlobal{targetModelCenter.X(),
                                          targetModelCenter.Y(),
@@ -176,14 +186,12 @@ private:
     Eigen::Matrix<double, 1, 1> m_y;
     frc::TrapezoidProfile<units::radians>::State m_goal;
 
-    frc::TrapezoidProfile<units::radians>::Constraints m_constraints{
-        Constants::Turret::kMaxV, Constants::Turret::kMaxA};
+    frc::TrapezoidProfile<units::radians>::Constraints m_constraints{kMaxV,
+                                                                     kMaxA};
 
     frc::TrapezoidProfile<units::radians>::State m_profiledReference;
 
-    // frc::LinearSystem<2, 1, 1> m_plant =
-    // frc::IdentifyPositionSystem(Constants::Turret::kV,
-    // Constants::Turret::kA);
+    // frc::LinearSystem<2, 1, 1> m_plant = frc::IdentifyPositionSystem(kV, kA);
     frc::LinearSystem<2, 1, 1> m_plant = [=] {
         constexpr auto motor = frc::DCMotor::NEO();
 

@@ -9,7 +9,6 @@
 #include <frc/RobotController.h>
 
 using namespace frc3512;
-using namespace frc3512::Constants::Drivetrain;
 using namespace frc3512::Constants::Robot;
 
 Drivetrain::Drivetrain() : PublishNode("Drivetrain") {
@@ -19,8 +18,8 @@ Drivetrain::Drivetrain() : PublishNode("Drivetrain") {
     m_leftGrbx.SetInverted(true);
     m_drive.SetRightSideInverted(false);
     m_rightEncoder.SetReverseDirection(true);
-    m_leftEncoder.SetDistancePerPulse(kDpP);
-    m_rightEncoder.SetDistancePerPulse(kDpP);
+    m_leftEncoder.SetDistancePerPulse(DrivetrainController::kDpP);
+    m_rightEncoder.SetDistancePerPulse(DrivetrainController::kDpP);
 }
 
 void Drivetrain::Drive(double throttle, double turn, bool isQuickTurn) {

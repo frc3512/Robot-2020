@@ -5,13 +5,12 @@
 #include <frc/RobotController.h>
 
 using namespace frc3512;
-using namespace frc3512::Constants::Flywheel;
 using namespace std::chrono_literals;
 
 Flywheel::Flywheel() : PublishNode("Flywheel") {
     m_leftGrbx.Set(0.0);
     m_rightGrbx.Set(0.0);
-    m_encoder.SetDistancePerPulse(kDpP);
+    m_encoder.SetDistancePerPulse(FlywheelController::kDpP);
     m_encoder.SetSamplesToAverage(5);
     m_rightGrbx.SetInverted(false);
     m_leftGrbx.SetInverted(false);
@@ -72,7 +71,7 @@ void Flywheel::Shoot() {
                 kTargetPoseInGlobal.Translation()));
         SetGoal(angularVelocity);
     */
-    SetGoal(8_V / 12_V * Constants::Flywheel::kMaxAngularVelocity);
+    SetGoal(8_V / 12_V * FlywheelController::kMaxAngularVelocity);
 }
 
 void Flywheel::Iterate() {

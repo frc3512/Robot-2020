@@ -18,7 +18,6 @@
 
 using namespace frc3512;
 using namespace frc3512::Constants;
-using namespace frc3512::Constants::Drivetrain;
 
 DrivetrainController::DrivetrainController(const std::array<double, 5>& Qelems,
                                            const std::array<double, 2>& Relems,
@@ -58,10 +57,8 @@ bool DrivetrainController::IsEnabled() const { return m_isEnabled; }
 void DrivetrainController::SetWaypoints(
     const std::vector<frc::Pose2d>& waypoints) {
     auto plant = frc::IdentifyDrivetrainSystem(
-        Constants::Drivetrain::kLinearV.to<double>(),
-        Constants::Drivetrain::kLinearA.to<double>(),
-        Constants::Drivetrain::kAngularV.to<double>(),
-        Constants::Drivetrain::kAngularA.to<double>());
+        kLinearV.to<double>(), kLinearA.to<double>(), kAngularV.to<double>(),
+        kAngularA.to<double>());
 
     frc::DrivetrainVelocitySystemConstraint constraint{plant, kWidth, 8_V};
     frc::TrajectoryConfig config{kMaxV, kMaxA};
@@ -299,10 +296,8 @@ Eigen::Matrix<double, 10, 1> DrivetrainController::Dynamics(
     // constexpr auto k2 = (1 / m - rb * rb / J);
 
     auto plant = frc::IdentifyDrivetrainSystem(
-        Constants::Drivetrain::kLinearV.to<double>(),
-        Constants::Drivetrain::kLinearA.to<double>(),
-        Constants::Drivetrain::kAngularV.to<double>(),
-        Constants::Drivetrain::kAngularA.to<double>());
+        kLinearV.to<double>(), kLinearA.to<double>(), kAngularV.to<double>(),
+        kAngularA.to<double>());
 
     Eigen::Matrix<double, 4, 2> B;
     B.block<2, 2>(0, 0) = plant.B();

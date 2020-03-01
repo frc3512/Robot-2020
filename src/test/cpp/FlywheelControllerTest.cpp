@@ -13,8 +13,6 @@
 
 TEST(FlywheelControllerTest, DISABLED_ReachesGoal) {
     using frc3512::Constants::kDt;
-    using frc3512::Constants::Flywheel::kGearRatio;
-    using frc3512::Constants::Flywheel::kMaxAngularVelocity;
 
     frc3512::FlywheelController controller{{80.0}, {12.0}, kDt};
     controller.Reset();
@@ -45,7 +43,8 @@ TEST(FlywheelControllerTest, DISABLED_ReachesGoal) {
         // Account for battery voltage drop due to current draw
         constexpr auto motors = frc::DCMotor::NEO(2);
         units::ampere_t load = motors.Current(
-            units::radians_per_second_t{trueXhat(0, 0) / kGearRatio},
+            units::radians_per_second_t{
+                trueXhat(0, 0) / frc3512::FlywheelController::kGearRatio},
             units::volt_t{u(0, 0)});
         units::volt_t vLoaded = Vbat - load * Rbat - load * Rbat;
         double dsVoltage =
