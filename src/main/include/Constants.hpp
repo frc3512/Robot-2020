@@ -8,10 +8,6 @@
 namespace frc3512::Constants {
 
 namespace Robot {
-/*
- * Joystick and buttons
- */
-
 // Joystick Ports
 constexpr int kDriveStick1Port = 0;
 constexpr int kDriveStick2Port = 1;
@@ -59,7 +55,6 @@ constexpr auto kMaxA = 12_V / kLinearA;  // m/s^2
 // Distance per Pulse
 constexpr double kDpP = (2.0 * wpi::math::pi * kWheelRadius.to<double>()) *
                         kDriveGearRatio / 2048.0;
-
 }  // namespace Drivetrain
 
 namespace Flywheel {
@@ -97,9 +92,6 @@ constexpr auto kMaxA = 7.782482_rad_per_s / 1_s;
 constexpr auto kTx = 0_m;
 constexpr auto kTy = 0_m;
 }  // namespace Turret
-
-constexpr auto kDt = 0.00505_s;
-constexpr int kControllerPrio = 50;
 
 namespace Intake {
 // Arm Motor Port
@@ -142,4 +134,6 @@ constexpr int kClimbForwardSolenoid = 0;
 constexpr int kClimbReverseSolenoid = 1;
 }  // namespace Climber
 
+constexpr auto kDt = 0.00505_s;
+constexpr int kControllerPrio = 50;
 }  // namespace frc3512::Constants
