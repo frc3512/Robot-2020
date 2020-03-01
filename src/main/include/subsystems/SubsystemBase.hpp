@@ -2,38 +2,102 @@
 
 #pragma once
 
-#include <frc/Notifier.h>
+#include <string_view>
+
+#include <wpi/SmallVector.h>
+
+#include "communications/PublishNode.hpp"
 
 namespace frc3512 {
 
 /**
- * A standardized base for subsystems
+ * A standardized base for subsystems implementing pubsub.
  */
-class SubsystemBase {
+class SubsystemBase : public PublishNode {
 public:
     /**
-     * Constructs a SubsystemBase
+     * Constructs a pubsub subsystem.
+     *
+     * @param nodeName Name of pubsub node.
      */
-    SubsystemBase() = default;
+    explicit SubsystemBase(std::string_view nodeName) : PublishNode(nodeName) {
+        m_subsystems.emplace_back(this);
+    }
+
     virtual ~SubsystemBase() = default;
 
     /**
-     * Enables the notifier
+     * Initialization code for disabled mode should go here.
      */
-    void EnablePeriodic();
+    virtual void DisabledInit() {}
 
     /**
-     * Disables the notifier
+     * Initialization code for disabled mode should go here.
      */
-    void DisablePeriodic();
+    virtual void AutonomousInit() {}
 
     /**
-     * This function will be called asynchronously every 20 ms
+     * Initialization code for disabled mode should go here.
      */
-    virtual void SubsystemPeriodic();
+    virtual void TeleopInit() {}
+
+    /**
+     * Periodic code for all modes should go here.
+     */
+    virtual void RobotPeriodic() {}
+
+    /**
+     * Periodic code for disabled mode should go here.
+     */
+    virtual void DisabledPeriodic() {}
+
+    /**
+     * Periodic code for autonomous mode should go here.
+     */
+    virtual void AutonomousPeriodic() {}
+
+    /**
+     * Periodic code for teleop mode should go here.
+     */
+    virtual void TeleopPeriodic() {}
+
+    /**
+     * Call all subsystems's DisabledInit().
+     */
+    static void RunAllDisabledInit();
+
+    /**
+     * Call all subsystems's AutonomousInit().
+     */
+    static void RunAllAutonomousInit();
+
+    /**
+     * Call all subsystems's TeleopInit().
+     */
+    static void RunAllTeleopInit();
+
+    /**
+     * Call all subsystems's RobotPeriodic().
+     */
+    static void RunAllRobotPeriodic();
+
+    /**
+     * Call all subsystems's DisabledPeriodic().
+     */
+    static void RunAllDisabledPeriodic();
+
+    /**
+     * Call all subsystems's AutonomousPeriodic().
+     */
+    static void RunAllAutonomousPeriodic();
+
+    /**
+     * Call all subsystems's TeleopPeriodic().
+     */
+    static void RunAllTeleopPeriodic();
 
 private:
-    frc::Notifier m_notifier{[this] { SubsystemPeriodic(); }};
+    static wpi::SmallVector<SubsystemBase*, 16> m_subsystems;
 };
 
 }  // namespace frc3512

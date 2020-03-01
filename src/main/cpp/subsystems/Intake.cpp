@@ -41,6 +41,16 @@ bool Intake::IsUpperSensorBlocked() const { return !m_upperSensor.Get(); }
 
 bool Intake::IsLowerSensorBlocked() const { return !m_lowerSensor.Get(); }
 
+void Intake::RobotPeriodic() {
+    if (m_flywheel.GetGoal() > 0_rad_per_s && m_flywheel.AtGoal()) {
+        SetConveyor(0.85);
+    } else if (IsLowerSensorBlocked() && !IsUpperSensorBlocked()) {
+        SetConveyor(0.2);
+    } else {
+        SetConveyor(0.0);
+    }
+}
+
 void Intake::ProcessMessage(const ButtonPacket& message) {
     if (message.topic == "Robot/AppendageStick2" && message.button == 4 &&
         message.pressed && !IsUpperSensorBlocked()) {
@@ -65,25 +75,5 @@ void Intake::ProcessMessage(const ButtonPacket& message) {
         } else {
             Deploy();
         }
-    }
-}
-
-void Intake::ProcessMessage(const CommandPacket& message) {
-    if (message.topic == "Robot/TeleopInit" && !message.reply) {
-        EnablePeriodic();
-    } else if (message.topic == "Robot/AutonomousInit" && !message.reply) {
-        EnablePeriodic();
-    } else if (message.topic == "Robot/DisabledInit" && !message.reply) {
-        DisablePeriodic();
-    }
-}
-
-void Intake::SubsystemPeriodic() {
-    if (m_flywheel.GetGoal() > 0_rad_per_s && m_flywheel.AtGoal()) {
-        SetConveyor(0.85);
-    } else if (IsLowerSensorBlocked() && !IsUpperSensorBlocked()) {
-        SetConveyor(0.2);
-    } else {
-        SetConveyor(0.0);
     }
 }

@@ -7,7 +7,7 @@
 using namespace frc3512;
 using namespace std::chrono_literals;
 
-Flywheel::Flywheel() : PublishNode("Flywheel") {
+Flywheel::Flywheel() : SubsystemBase("Flywheel") {
     m_leftGrbx.Set(0.0);
     m_rightGrbx.Set(0.0);
     m_encoder.SetDistancePerPulse(FlywheelController::kDpP);
@@ -34,13 +34,13 @@ units::radians_per_second_t Flywheel::GetAngularVelocity() {
     return units::radians_per_second_t{m_encoder.GetRate()};
 }
 
-void Flywheel::Enable() {
+void Flywheel::EnableController() {
     m_lastTime = std::chrono::steady_clock::now();
     m_controller.Enable();
     m_thread.StartPeriodic(5_ms);
 }
 
-void Flywheel::Disable() {
+void Flywheel::DisableController() {
     m_controller.Disable();
     m_thread.Stop();
 }
@@ -86,16 +86,6 @@ void Flywheel::Iterate() {
 void Flywheel::Reset() {
     m_controller.Reset();
     m_encoder.Reset();
-}
-
-void Flywheel::ProcessMessage(const CommandPacket& message) {
-    if (message.topic == "Robot/TeleopInit" && !message.reply) {
-        Enable();
-    } else if (message.topic == "Robot/AutonomousInit" && !message.reply) {
-        Enable();
-    } else if (message.topic == "Robot/DisabledInit" && !message.reply) {
-        Disable();
-    }
 }
 
 void Flywheel::ProcessMessage(const TurretPosePacket& message) {

@@ -7,7 +7,6 @@
 #include <rev/CANSparkMax.h>
 
 #include "Constants.hpp"
-#include "communications/PublishNode.hpp"
 #include "subsystems/SubsystemBase.hpp"
 
 namespace frc3512 {
@@ -20,9 +19,9 @@ namespace frc3512 {
  * how many robots are hanging on it. To keep the bar level, the transverser can
  * move left or right to equalize the robot weights on each side of the bar.
  */
-class Climber : public SubsystemBase, public PublishNode {
+class Climber : public SubsystemBase {
 public:
-    Climber();
+    Climber() : SubsystemBase("Climber") {}
 
     /**
      *  Sets the transverser speed

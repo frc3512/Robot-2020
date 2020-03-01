@@ -10,26 +10,21 @@ namespace frc3512 {
 Robot::Robot() : PublishNode("Robot") {
     m_drivetrain.Subscribe(*this);
     m_flywheel.Subscribe(*this);
-    m_flywheel.Subscribe(m_turret);
     m_turret.Subscribe(*this);
     m_intake.Subscribe(*this);
     m_vision.Subscribe(*this);
     m_climber.Subscribe(*this);
+
+    m_flywheel.Subscribe(m_turret);
 }
 
-void Robot::DisabledInit() {
-    CommandPacket message{"DisabledInit", false};
-    Publish(message);
-}
+void Robot::DisabledInit() { SubsystemBase::RunAllDisabledInit(); }
 
-void Robot::AutonomousInit() {
-    CommandPacket message{"AutonomousInit", false};
-    Publish(message);
-}
+void Robot::AutonomousInit() { SubsystemBase::RunAllAutonomousInit(); }
 
 void Robot::TeleopInit() {
-    CommandPacket message{"TeleopInit", false};
-    Publish(message);
+    SubsystemBase::RunAllTeleopInit();
+
     for (int i = 1; i <= 12; i++) {
         if (m_driveStick1.GetRawButtonPressed(i)) {
             ButtonPacket message{"DriveStick1", i, true};
@@ -43,9 +38,11 @@ void Robot::TestInit() {
     m_turret.ResetEncoder();
 }
 
-void Robot::RobotPeriodic() {}
+void Robot::RobotPeriodic() { SubsystemBase::RunAllRobotPeriodic(); }
 
 void Robot::DisabledPeriodic() {
+    SubsystemBase::RunAllDisabledPeriodic();
+
     wpi::outs() << "Flywheel: " << m_flywheel.GetAngle().to<double>() << "\n";
     wpi::outs() << "Drivetrain Left: "
                 << m_drivetrain.GetLeftPosition().to<double>() << "\n";
@@ -56,9 +53,11 @@ void Robot::DisabledPeriodic() {
     wpi::outs() << "Turret: " << m_turret.GetAngle().to<double>() << "\n";
 }
 
-void Robot::AutonomousPeriodic() { TeleopPeriodic(); }
+void Robot::AutonomousPeriodic() { SubsystemBase::RunAllAutonomousPeriodic(); }
 
 void Robot::TeleopPeriodic() {
+    SubsystemBase::RunAllTeleopPeriodic();
+
     for (int i = 2; i <= 12; i++) {
         if (m_driveStick1.GetRawButtonPressed(i)) {
             ButtonPacket message{"DriveStick1", i, true};

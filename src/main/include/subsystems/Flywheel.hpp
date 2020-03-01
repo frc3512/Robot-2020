@@ -12,14 +12,13 @@
 
 #include "Constants.hpp"
 #include "LinearTable.hpp"
-#include "communications/PublishNode.hpp"
 #include "controllers/FlywheelController.hpp"
 #include "controllers/TurretController.hpp"
 #include "subsystems/SubsystemBase.hpp"
 
 namespace frc3512 {
 
-class Flywheel : public SubsystemBase, public PublishNode {
+class Flywheel : public SubsystemBase {
 public:
     Flywheel();
     Flywheel(Flywheel&&) = default;
@@ -48,14 +47,14 @@ public:
     units::radians_per_second_t GetAngularVelocity();
 
     /**
-     * Runs the control loop every 0.005 seconds.
+     * Enables the controller.
      */
-    void Enable();
+    void EnableController();
 
     /**
-     * Disables the notifier running the control loop.
+     * Disables the controller.
      */
-    void Disable();
+    void DisableController();
 
     /**
      * Sets the goal of the controller.
@@ -91,7 +90,11 @@ public:
      */
     void Reset();
 
-    void ProcessMessage(const CommandPacket& message) override;
+    void DisabledInit() override { DisableController(); }
+
+    void AutonomousInit() override { EnableController(); }
+
+    void TeleopInit() override { EnableController(); }
 
     void ProcessMessage(const TurretPosePacket& message) override;
 

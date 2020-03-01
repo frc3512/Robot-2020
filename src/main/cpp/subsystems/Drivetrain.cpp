@@ -11,7 +11,7 @@
 using namespace frc3512;
 using namespace frc3512::Constants::Robot;
 
-Drivetrain::Drivetrain() : PublishNode("Drivetrain") {
+Drivetrain::Drivetrain() : SubsystemBase("Drivetrain") {
     m_drive.SetDeadband(kJoystickDeadband);
 
     m_leftGrbx.Set(0.0);
@@ -119,24 +119,6 @@ void Drivetrain::SetWaypoints(const std::vector<frc::Pose2d>& waypoints) {
 }
 
 bool Drivetrain::AtGoal() const { return m_controller.AtGoal(); }
-
-void Drivetrain::ProcessMessage(const CommandPacket& message) {
-    if (message.topic == "Robot/DisabledInit" && !message.reply) {
-        DisableController();
-    }
-    if (message.topic == "Robot/AutonomousInit" && !message.reply) {
-        Reset();
-        EnableController();
-        m_controller.SetOpenLoop(false);
-        m_startTime = std::chrono::steady_clock::now();
-    }
-    if (message.topic == "Robot/TeleopInit" && !message.reply) {
-        m_startTime = std::chrono::steady_clock::now();
-        EnableController();
-        m_controller.SetOpenLoop(true);
-        EnablePeriodic();
-    }
-}
 
 void Drivetrain::ProcessMessage(const HIDPacket& message) {
     if (GetRawButton(message, 0, 1)) {

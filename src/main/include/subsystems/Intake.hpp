@@ -9,7 +9,6 @@
 #include <wpi/mutex.h>
 
 #include "Constants.hpp"
-#include "communications/PublishNode.hpp"
 #include "subsystems/Flywheel.hpp"
 #include "subsystems/SubsystemBase.hpp"
 
@@ -19,7 +18,7 @@ namespace frc3512 {
  * Provides an interface for the robot's intake. It's in front of a funnel and
  * below a conveyor that has proximity sensors on the top and bottom.
  */
-class Intake : public SubsystemBase, public PublishNode {
+class Intake : public SubsystemBase {
 public:
     enum class State {
         kIdle,
@@ -30,7 +29,7 @@ public:
     enum class ArmMotorDirection { kIntake, kOuttake, kIdle };
 
     explicit Intake(Flywheel& flywheel)
-        : PublishNode("Intake"), m_flywheel(flywheel) {}
+        : SubsystemBase("Intake"), m_flywheel(flywheel) {}
 
     /**
      * Deploys the Intake
@@ -84,14 +83,9 @@ public:
      */
     bool IsLowerSensorBlocked() const;
 
+    void RobotPeriodic() override;
+
     void ProcessMessage(const ButtonPacket& message) override;
-
-    void ProcessMessage(const CommandPacket& message) override;
-
-    /**
-     * Checks for Button Press messages
-     */
-    void SubsystemPeriodic() override;
 
 private:
     State m_state = State::kIdle;

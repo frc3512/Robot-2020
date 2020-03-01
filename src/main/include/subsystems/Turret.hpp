@@ -12,7 +12,6 @@
 #include <rev/CANSparkMax.h>
 
 #include "Constants.hpp"
-#include "communications/PublishNode.hpp"
 #include "controllers/TurretController.hpp"
 #include "subsystems/SubsystemBase.hpp"
 
@@ -27,7 +26,7 @@ enum TurretState { kIDLE = 0, kMostLeft, KMostRight };
  * Subsystem specifically designed for the Turret (bottom, movable part of the
  * Shooter)
  */
-class Turret : public SubsystemBase, public PublishNode {
+class Turret : public SubsystemBase {
 public:
     Turret();
     Turret(const Turret&) = delete;
@@ -68,16 +67,26 @@ public:
 
     units::radians_per_second_t GetAngularVelocity();
 
-    void Enable();
+    /**
+     * Enables the controller.
+     */
+    void EnableController();
 
-    void Disable();
+    /**
+     * Disables the controller.
+     */
+    void DisableController();
 
     /**
      * Updates the controller from sensors and the motors from the controller.
      */
     void Iterate();
 
-    void ProcessMessage(const CommandPacket& message) override;
+    void DisabledInit() override { DisableController(); }
+
+    void AutonomousInit() override { EnableController(); }
+
+    void TeleopInit() override { EnableController(); }
 
 private:
 #ifndef RUNNING_FRC_TESTS

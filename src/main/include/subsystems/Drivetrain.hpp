@@ -15,7 +15,6 @@
 #include <wpi/mutex.h>
 
 #include "Constants.hpp"
-#include "communications/PublishNode.hpp"
 #include "controllers/DrivetrainController.hpp"
 #include "subsystems/SubsystemBase.hpp"
 
@@ -24,7 +23,7 @@ namespace frc3512 {
 /**
  * Provides an interface for this year's drive train.
  */
-class Drivetrain : public SubsystemBase, public PublishNode {
+class Drivetrain : public SubsystemBase {
 public:
     Drivetrain();
     Drivetrain(const Drivetrain&) = delete;
@@ -146,7 +145,16 @@ public:
      */
     bool AtGoal() const;
 
-    void ProcessMessage(const CommandPacket& message) override;
+    void DisabledInit() override { DisableController(); }
+
+    void AutonomousInit() override {
+        Reset();
+        EnableController();
+        m_controller.SetOpenLoop(false);
+        m_startTime = std::chrono::steady_clock::now();
+    }
+
+    void TeleopInit() override { m_controller.SetOpenLoop(true); }
 
     void ProcessMessage(const HIDPacket& message) override;
 

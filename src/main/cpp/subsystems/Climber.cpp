@@ -5,8 +5,6 @@
 using namespace frc3512;
 using namespace frc3512::Constants::Climber;
 
-Climber::Climber() : PublishNode("Climber") {}
-
 void Climber::SetTransverser(double speed) { m_transverser.Set(speed); }
 
 void Climber::SetElevator(double speed) {

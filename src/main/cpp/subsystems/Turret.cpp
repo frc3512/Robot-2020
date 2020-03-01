@@ -4,7 +4,7 @@
 
 using namespace frc3512;
 
-Turret::Turret() : PublishNode("Turret") {
+Turret::Turret() : SubsystemBase("Turret") {
     m_motor.Set(0);
 #ifndef RUNNING_FRC_TESTS
     m_encoder.SetDistancePerRotation(TurretController::kDpR);
@@ -28,13 +28,13 @@ units::radian_t Turret::GetAngle() {
     return units::radian_t{-m_encoder.GetDistance()};
 }
 
-void Turret::Enable() {
+void Turret::EnableController() {
     m_lastTime = std::chrono::steady_clock::now();
     m_controller.Enable();
     m_thread.StartPeriodic(5_ms);
 }
 
-void Turret::Disable() {
+void Turret::DisableController() {
     m_controller.Disable();
     m_thread.Stop();
 }
@@ -50,15 +50,4 @@ void Turret::Iterate() {
     SetVoltage(m_controller.ControllerVoltage());
 
     m_lastTime = now;
-}
-
-void Turret::ProcessMessage(const CommandPacket& message) {
-    if (message.topic == "Robot/TeleopInit" && !message.reply) {
-        Enable();
-    } else if (message.topic == "Robot/AutonomousInit" && !message.reply) {
-        m_startTime = std::chrono::steady_clock::now();
-        Enable();
-    } else if (message.topic == "Robot/DisabledInit" && !message.reply) {
-        Disable();
-    }
 }

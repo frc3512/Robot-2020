@@ -1,11 +1,49 @@
-// Copyright (c) 2019-2020 FRC Team 3512. All Rights Reserved.
+// Copyright (c) 2020 FRC Team 3512. All Rights Reserved.
 
 #include "subsystems/SubsystemBase.hpp"
 
 using namespace frc3512;
 
-void SubsystemBase::EnablePeriodic() { m_notifier.StartPeriodic(20_ms); }
+wpi::SmallVector<SubsystemBase*, 16> SubsystemBase::m_subsystems;
 
-void SubsystemBase::DisablePeriodic() { m_notifier.Stop(); }
+void SubsystemBase::RunAllDisabledInit() {
+    for (auto& subsystem : m_subsystems) {
+        subsystem->DisabledInit();
+    }
+}
 
-void SubsystemBase::SubsystemPeriodic() {}
+void SubsystemBase::RunAllAutonomousInit() {
+    for (auto& subsystem : m_subsystems) {
+        subsystem->AutonomousInit();
+    }
+}
+
+void SubsystemBase::RunAllTeleopInit() {
+    for (auto& subsystem : m_subsystems) {
+        subsystem->TeleopInit();
+    }
+}
+
+void SubsystemBase::RunAllRobotPeriodic() {
+    for (auto& subsystem : m_subsystems) {
+        subsystem->RobotPeriodic();
+    }
+}
+
+void SubsystemBase::RunAllDisabledPeriodic() {
+    for (auto& subsystem : m_subsystems) {
+        subsystem->DisabledPeriodic();
+    }
+}
+
+void SubsystemBase::RunAllAutonomousPeriodic() {
+    for (auto& subsystem : m_subsystems) {
+        subsystem->AutonomousPeriodic();
+    }
+}
+
+void SubsystemBase::RunAllTeleopPeriodic() {
+    for (auto& subsystem : m_subsystems) {
+        subsystem->TeleopPeriodic();
+    }
+}

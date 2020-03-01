@@ -9,7 +9,7 @@
 
 using namespace frc3512;
 
-Vision::Vision() : PublishNode("Vision") {
+Vision::Vision() : SubsystemBase("Vision") {
     m_inst.StartClient("10.35.12.2", 1735);
 }
 
@@ -19,7 +19,7 @@ void Vision::TurnLEDOff() { m_ledIsOn.SetBoolean(false); }
 
 bool Vision::IsLEDOn() const { return !m_ledIsOn.GetBoolean(false); }
 
-void Vision::SubsystemPeriodic() {
+void Vision::RobotPeriodic() {
     namespace chrono = std::chrono;
 
     auto latency = static_cast<int64_t>(m_latency.GetDouble(-1) * 1000);
@@ -36,18 +36,5 @@ void Vision::SubsystemPeriodic() {
             "TargetPose", pose[0], pose[1], theta.to<double>(),
             chrono::duration_cast<chrono::microseconds>(timestamp).count()};
         Publish(packet);
-    }
-}
-
-void Vision::ProcessMessage(const ButtonPacket& message) {
-    if (message.topic == "Robot/AppendageStick2" && message.button == 1 &&
-        message.pressed) {
-        IsLEDOn();
-    }
-}
-
-void Vision::ProcessMessage(const CommandPacket& message) {
-    if (message.topic == "Robot/TeleopInit") {
-        EnablePeriodic();
     }
 }

@@ -9,12 +9,11 @@
 #include <networktables/NetworkTableEntry.h>
 #include <networktables/NetworkTableInstance.h>
 
-#include "communications/PublishNode.hpp"
 #include "subsystems/SubsystemBase.hpp"
 
 namespace frc3512 {
 
-class Vision : public SubsystemBase, public PublishNode {
+class Vision : public SubsystemBase {
 public:
     Vision();
     Vision& operator=(const Vision&) = delete;
@@ -34,11 +33,7 @@ public:
      */
     bool IsLEDOn() const;
 
-    void SubsystemPeriodic() override;
-
-    void ProcessMessage(const ButtonPacket& message) override;
-
-    void ProcessMessage(const CommandPacket& message) override;
+    void RobotPeriodic() override;
 
 private:
     nt::NetworkTableInstance m_inst{nt::NetworkTableInstance::GetDefault()};
