@@ -63,6 +63,7 @@ def dl_progress(count, block_size, total_size):
     sys.stdout.write(f"\r-> {percent}%")
     sys.stdout.flush()
 
+
 def download_NIPackage(target, pkg):
     """Download a NI package onto the RoboRio using ssh.
     Keyword arguements:
@@ -85,6 +86,7 @@ def download_NIPackage(target, pkg):
             ["external/ssh/usr/bin/ssh", target, "rm", "/tmp/" + pkg])
     finally:
         subprocess.check_call(["rm", pkg])
+
 
 def download_file(maven_url, filename, dest_dir):
     """Download file from maven server.
@@ -125,7 +127,7 @@ def download_lib(maven_url, artifact_name, version, classifier, headers=True):
         download_file(maven_url, filename, "build")
 
 
-def main():
+def main(argv):
     parser = argparse.ArgumentParser(description="Builds and deploys FRC C++ programs")
     parser.add_argument(
         "target",
@@ -150,6 +152,19 @@ def main():
     if not os.path.exists("deploy/"):
         os.makedirs("deploy/")
 
+    args = argv[argv.index("--") + 1:]
+
+    relative_dir = ""
+    recursive = False
+
+    if "--dirs" in argv:
+        dirs_index = argv.index("--dirs")
+        srcs = argv[1:dirs_index]
+        relative_dir = argv[dirs_index + 1]
+        recursive = True
+    else:
+        srcs = argv[1:argv.index("--")]
+
     WPI_MAVEN_URL = "https://frcmaven.wpi.edu/artifactory/release"
     REV_MAVEN_URL = "http://www.revrobotics.com/content/sw/max/sdk/maven"
     WPI_URL = WPI_MAVEN_URL + "/edu/wpi/first"
@@ -158,6 +173,12 @@ def main():
     REV_URL = REV_MAVEN_URL + "/com/revrobotics/frc"
 
     WPI_VERSION = "2020.3.2"
+
+    ssh_target = "%s@%s" % ("lvuser", "10.35.12.2")
+    rsync_cmd = ([
+        "external/rsync/usr/bin/rsync", "-e", "external/ssh/usr/bin/ssh", "-c",
+        "-v", "-z", "--copy-links"
+    ] + srcs + ["%s:%s/%s" % (ssh_target, "/deploy", relative_dir)])
 
     if args.target in ["build", "deploy"]:
         classifier = "linuxathena"
@@ -221,8 +242,20 @@ def main():
             print(f"No files have been found. Building normally...")
             subprocess.run(make_athena + ["deploy"])
         else:
-            print
-            print(f"Arbitrary files have been found! Copying over...")
+            print(f"Arbitrary files have been found! Attempting to copy over...")
+            print(f"Checking if rsync is installed onto the RoboRio")
+            try:
+                subprocess.check_call(rsync_cmd)
+            except subprocess.CalledProcessError as e:
+                if e.returncode == 127:
+                    print("Rsync not found! Installing necessary packages...")
+                    download_NIPackage(ssh_target, "")
+                    download_NIPackage(ssh_target, "")
+                    download_NIPackage(ssh_target, "")
+                    subprocess.check_call(rsync_cmd)
+                else:
+                    raise e;
+            print(f"Copying over files...")
             subprocess.run(["rsync","-avzhe", "ssh", os.path.join(files), "lvuser@10.35.12.2:/home/lvuser"])
             print(f"Done!")
     elif args.target == "clean":
