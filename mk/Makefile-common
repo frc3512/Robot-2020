@@ -1,9 +1,6 @@
 # Defining VERBOSE before running make (i.e., VERBOSE=1 make) will print all
 # commands ran.
 
-CFLAGS := -O2 -Wall -std=c11
-CPPFLAGS := -O2 -Wall -std=c++17
-
 SRCDIR := src/main
 TESTDIR := src/test
 THIRDPARTYDIR := thirdparty

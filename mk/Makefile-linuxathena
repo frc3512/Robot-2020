@@ -1,6 +1,9 @@
 # Defining VERBOSE before running make (i.e., VERBOSE=1 make) will print all
 # commands ran.
 
+CFLAGS := -O2 -Wall -std=c11
+CPPFLAGS := -O2 -Wall -std=c++17
+
 CC := arm-frc2020-linux-gnueabi-gcc
 CPP := arm-frc2020-linux-gnueabi-g++
 LD := arm-frc2020-linux-gnueabi-g++
