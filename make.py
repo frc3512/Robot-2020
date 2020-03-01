@@ -63,7 +63,29 @@ def dl_progress(count, block_size, total_size):
     sys.stdout.write(f"\r-> {percent}%")
     sys.stdout.flush()
 
-    
+def download_NIPackage(target, pkg):
+    """Download a NI package onto the RoboRio using ssh.
+    Keyword arguements:
+    target -- target to install package onto
+    pkg -- name of package
+    """
+    print(f"Installing NI package ", pkg)
+    PKG_URL = "https://download.ni.com/ni-linux-rt/feeds/2019/arm/cortexa9-vfpv3/" + pkg
+    subprocess.check_call(["wget", PKG_URL, "-O", pkg])
+    try:
+        subprocess.check_call([
+            "external/ssh/usr/bin/scp", "-S", "external/ssh/usr/bin/ssh", pkg,
+            target + ":/tmp/" + pkg
+        ])
+        subprocess.check_call([
+            "external/ssh/usr/bin/ssh", target, "opkg", "install",
+            "/tmp/" + pkg
+        ])
+        subprocess.check_call(
+            ["external/ssh/usr/bin/ssh", target, "rm", "/tmp/" + pkg])
+    finally:
+        subprocess.check_call(["rm", pkg])
+
 def download_file(maven_url, filename, dest_dir):
     """Download file from maven server.
 
@@ -199,6 +221,7 @@ def main():
             print(f"No files have been found. Building normally...")
             subprocess.run(make_athena + ["deploy"])
         else:
+            print
             print(f"Arbitrary files have been found! Copying over...")
             subprocess.run(["rsync","-avzhe", "ssh", os.path.join(files), "lvuser@10.35.12.2:/home/lvuser"])
             print(f"Done!")
