@@ -70,7 +70,7 @@ def download_NIPackage(target, pkg):
     target -- target to install package onto
     pkg -- name of package
     """
-    print(f"Installing NI package ", pkg)
+    print(f"Installing NI package...", pkg)
     PKG_URL = "https://download.ni.com/ni-linux-rt/feeds/2019/arm/cortexa9-vfpv3/" + pkg
     subprocess.check_call(["wget", PKG_URL, "-O", pkg])
     try:
@@ -131,7 +131,7 @@ def main():
     parser = argparse.ArgumentParser(description="Builds and deploys FRC C++ programs")
     parser.add_argument(
         "target",
-        choices=["build", "deploy", "clean", "ci", "test"],
+        choices=["build", "deploy", "copy", "clean", "ci", "test"],
         help="""'build' compiles the robot program for athena and downloads missing dependencies.
         'deploy' compiles the program if it hasn't already and deploys it to a roboRIO.
         'clean' removes all build artifacts from the build folder.
@@ -160,8 +160,15 @@ def main():
     REV_URL = REV_MAVEN_URL + "/com/revrobotics/frc"
 
     WPI_VERSION = "2020.3.2"
+    ROBORIO_USER = "lvuser"
+    ROBORIO_IP_ADDRESS = "10.35.12.2"
+    ROBORIO_TARGET_DIR = "/home/lvuser"
 
-    ssh_target = "%s@%s" % ("lvuser", "10.35.12.2")
+    target_dir = ROBORIO_TARGET_DIR
+    user = ROBORIO_USER
+    ip_address = ROBORIO_IP_ADDRESS
+    ssh_target = "%s@%s" % (user, ip_address)
+    copy_dir = "%s:%s" % (ssh_target, target_dir)
 
     if args.target in ["build", "deploy"]:
         classifier = "linuxathena"
@@ -183,7 +190,6 @@ def main():
             WPI_URL + "/ni-libraries", "runtime", "2020.10.1", classifier, False
         )
         download_lib(WPI_URL + "/ni-libraries", "visa", "2020.10.1", classifier)
-    elif args.target in ["ci", "test"]:
         download_lib(GTEST_URL, "googletest", "1.9.0-4-437e100-1", classifier + "static")
 
     classifier += "static"
@@ -219,32 +225,32 @@ def main():
     if args.target == "build":
         subprocess.run(make_athena + ["build", f"-j{args.jobs}"])
     elif args.target == "deploy":
-        print(f"Checking for files...")
-        files = [os.path.join(dp, f) for dp, dn, fn in os.walk(".deploy") for f in fn]
-        if len(files) == 0:
-            print(f"No files have been found. Building normally...")
-            subprocess.run(make_athena + ["deploy"])
-        else:
-            print(f"Arbitrary files have been found! Attempting to copy over...")
-            print(f"Checking if rsync is installed onto the RoboRio")
-            rsync_cmd = ([
-            "external/rsync/usr/bin/rsync", "-e", "external/ssh/usr/bin/ssh", "-c",
-            "-v", "-z", "--copy-links"
-            ] + files + ["%s:%s/%s" % (ssh_target, "/deploy", "lvuser@10.35.12.2")])
+        subprocess.run(make_athena + ["deploy", f"-j{args.jobs}"])
+    elif args.target == "copy":
+            print(f"Establishing connection to the RoboRIO")
+            subprocess.run(["ssh", ssh_target])
+            print(f"Checking if rsync is installed onto the RoboRIO...")
+            rsync_cmd = ("rsync", "--version")
             try:
                 subprocess.check_call(rsync_cmd)
+                print(f"Command rsync found!")
             except subprocess.CalledProcessError as e:
                 if e.returncode == 127:
-                    print("Rsync not found! Installing necessary packages...")
-                    download_NIPackage(ssh_target, "libattr1_2.4.47-r0.36_cortexa9-vfpv3.ipk")
-                    download_NIPackage(ssh_target, "libacl1_2.2.52-r0.36_cortexa9-vfpv3.ipk")
+                    print("Command rsync not found! Installing necessary packages...")
+                    download_NIPackage(ssh_target, "libattr1_2.4.47-r0.513_cortexa9-vfpv3.ipk")
+                    download_NIPackage(ssh_target, "libacl1_2.2.52-r0.183_cortexa9-vfpv3.ipk")
                     download_NIPackage(ssh_target, "rsync_3.1.3-r0.6_cortexa9-vfpv3.ipk")
                     subprocess.check_call(rsync_cmd)
                 else:
                     raise e;
-            print(f"Copying over files...")
-            subprocess.run(["rsync","-avzhe", "ssh", os.path.join(files), "lvuser@10.35.12.2:/home/lvuser"])
-            print(f"Done!")
+            files = [os.path.join(dp, f) for dp, dn, fn in os.walk("deploy/") for f in fn]
+            print(files)
+            if len(files) > 0:
+                print(f"Files found! Copying over files...")
+                subprocess.run(["rsync", "-vazh", "ssh", "--progress", target_dir, copy_dir])
+            else:
+                print(f"There are no files in the deploy folder.")
+                print(f"Aborting...")
     elif args.target == "clean":
         subprocess.run(make_athena + ["clean"])
         subprocess.run(make_x86_64 + ["clean"])
