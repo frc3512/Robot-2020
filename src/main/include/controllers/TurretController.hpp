@@ -176,8 +176,9 @@ private:
     static constexpr units::radians_per_second_t kMaxV = 1.477996_rad_per_s;
     static constexpr decltype(1_rad_per_s / 1_s) kMaxA =
         7.782482_rad_per_s / 1_s;
-    static constexpr units::meter_t kTx = 0_m;
+    static constexpr units::meter_t kTx = 2_in;
     static constexpr units::meter_t kTy = 0_m;
+    static constexpr units::radian_t kR = wpi::math::pi * 1_rad;
 
     const frc::Translation3d targetModelCenter = (A + G) / 2.0;
     const frc::Pose2d targetPoseInGlobal{targetModelCenter.X(),

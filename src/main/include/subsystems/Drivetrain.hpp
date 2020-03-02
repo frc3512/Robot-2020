@@ -147,10 +147,8 @@ public:
     void DisabledInit() override { DisableController(); }
 
     void AutonomousInit() override {
-        Reset();
         EnableController();
         m_controller.SetOpenLoop(false);
-        m_startTime = std::chrono::steady_clock::now();
     }
 
     void TeleopInit() override { m_controller.SetOpenLoop(true); }

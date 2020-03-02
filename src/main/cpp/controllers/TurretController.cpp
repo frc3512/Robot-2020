@@ -102,7 +102,7 @@ void TurretController::Update(units::second_t dt, units::second_t elapsedTime) {
 
     // Calculate next drivetrain and turret pose in global frame
     frc::Transform2d turretNextPoseInDrivetrainToGlobal{
-        frc::Pose2d(kTx, kTy, 0_rad), m_drivetrainNextPoseInGlobal};
+        frc::Pose2d(kTx, kTy, kR), m_drivetrainNextPoseInGlobal};
     frc::Pose2d turretNextPoseInLocal{0_m, 0_m, 0_rad};
     m_turretNextPoseInGlobal =
         turretNextPoseInLocal.TransformBy(turretNextPoseInDrivetrainToGlobal);
@@ -115,8 +115,10 @@ void TurretController::Update(units::second_t dt, units::second_t elapsedTime) {
         m_drivetrainNextPoseInGlobal.Rotation().Radians();
     units::radian_t turretDesiredHeadingInDrivetrain =
         turretThetaToTargetInGlobal - drivetrainNextThetaInGlobal;
+    units::radian_t turretDesiredHeadingInTurret =
+        turretDesiredHeadingInDrivetrain - kR;
 
-    SetGoal(turretDesiredHeadingInDrivetrain, 0_rad_per_s);
+    SetGoal(turretDesiredHeadingInTurret, 0_rad_per_s);
 
     // Calculate profiled references to the goal
     frc::TrapezoidProfile<units::radians>::State references = {
@@ -126,17 +128,17 @@ void TurretController::Update(units::second_t dt, units::second_t elapsedTime) {
     auto profiledReference = profile.Calculate(Constants::kDt);
     SetReferences(profiledReference.position, profiledReference.velocity);
 
-    m_observer.SetXhat(0, NormalizeAngle(m_observer.Xhat(0)));
     m_lqr.Update(m_observer.Xhat(), m_nextR);
-    // TODO: uncomment this once limit switches are added to the turret because
-    // the absence of limit switches always causes them to return true
-    // (m_atLeftLimit && m_lqr.U(0) > 0) {
-    //    m_u << 0;
-    //} else if (m_atRightLimit && m_lqr.U(0) < 0) {
-    //    m_u << 0;
-    //} else {
-    m_u << m_lqr.U(0) * 12.0 / frc::RobotController::GetInputVoltage();
-    //}
+    if (m_atLeftLimit && m_lqr.U(0) > 0) {
+        m_u << 0;
+    } else if (m_atRightLimit && m_lqr.U(0) < 0) {
+        m_u << 0;
+    } else {
+        Eigen::Matrix<double, 2, 1> error = m_lqr.R() - m_observer.Xhat();
+        error(0, 0) = NormalizeAngle(error(0, 0));
+        m_u << (m_lqr.K() * error + m_lqr.Uff()) * 12.0 /
+                   frc::RobotController::GetInputVoltage();
+    }
 
     m_atReferences =
         units::math::abs(AngleError()) < kAngleTolerance &&

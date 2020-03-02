@@ -50,25 +50,31 @@ public:
      */
     void ResetEncoder();
 
+    /**
+     * Resets the controller
+     */
     void Reset();
 
     /**
-     * Returns the output of the left hall effect
+     * Returns the angle of the turret
      *
-     * @return 'true' means triggered
+     * @return angle in radians
      */
-    bool GetLeftHallTriggered() const;
+    units::radian_t GetAngle() const;
 
     /**
-     * Returns the output of the right hall effect
+     * Returns if encoder is passed the counter-clockwise limit
      *
      * @return 'true' means triggered
      */
-    bool GetRightHallTriggered() const;
+    bool IsPassedCCWLimit() const;
 
-    units::radian_t GetAngle();
-
-    units::radians_per_second_t GetAngularVelocity();
+    /**
+     * Returns if encoder is passed the clockwise limit
+     *
+     * @return 'true' means triggered
+     */
+    bool IsPassedCWLimit() const;
 
     /**
      * Enables the controller.
@@ -96,10 +102,6 @@ private:
 #else
     frc::Encoder m_encoder{0, 1};
 #endif
-
-    frc::DigitalInput m_rightHall{Constants::Turret::kRightHallPort};
-    frc::DigitalInput m_leftHall{Constants::Turret::kLeftHallPort};
-
     rev::CANSparkMax m_motor{Constants::Turret::kPort,
                              rev::CANSparkMax::MotorType::kBrushless};
 
