@@ -182,6 +182,7 @@ private:
 
     // Gyro used for angle PID
     frc::ADXRS450_Gyro m_gyro;
+    units::radian_t m_headingOffset = 0_rad;
 
     // Controller
     DrivetrainController m_controller{

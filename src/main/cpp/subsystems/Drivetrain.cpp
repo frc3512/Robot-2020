@@ -39,7 +39,7 @@ void Drivetrain::SetLeftManual(double value) { m_leftGrbx.Set(value); }
 void Drivetrain::SetRightManual(double value) { m_rightGrbx.Set(value); }
 
 units::radian_t Drivetrain::GetAngle() const {
-    return units::degree_t{-m_gyro.GetAngle()};
+    return units::degree_t{-m_gyro.GetAngle()} + m_headingOffset;
 }
 
 units::radians_per_second_t Drivetrain::GetAngularRate() const {
@@ -75,6 +75,7 @@ void Drivetrain::Reset(const frc::Pose2d& initialPose) {
     m_controller.Reset(initialPose);
     ResetEncoders();
     ResetGyro();
+    m_headingOffset = initialPose.Rotation().Radians();
 }
 
 void Drivetrain::EnableController() {
