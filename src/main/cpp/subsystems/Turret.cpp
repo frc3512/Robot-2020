@@ -14,7 +14,6 @@ Turret::Turret(Drivetrain& drivetrain)
 #else
     m_encoder.SetDistancePerPulse(TurretController::kDpR);
 #endif
-    m_lastAngle = units::radian_t{m_encoder.GetDistance()};
     Reset();
 }
 
