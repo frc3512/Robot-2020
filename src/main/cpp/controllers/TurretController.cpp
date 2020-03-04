@@ -18,7 +18,7 @@ void TurretController::Disable() { m_lqr.Disable(); }
 void TurretController::SetGoal(
     units::radian_t angleGoal,
     units::radians_per_second_t angularVelocityGoal) {
-    m_goal = {angleGoal, angularVelocityGoal};
+    m_goal = {NormalizeAngle(angleGoal), angularVelocityGoal};
 }
 
 void TurretController::SetReferences(units::radian_t angle,
