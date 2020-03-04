@@ -67,12 +67,12 @@ private:
     rev::CANSparkMax m_winch{frc3512::Constants::Climber::kWinchPort,
                              rev::CANSparkMax::MotorType::kBrushless};
 
-    frc::Solenoid m_wranglerSolenoid{
-        frc3512::Constants::Climber::kWranglerSolenoid};
-
     frc::DoubleSolenoid m_climbSole{
         frc3512::Constants::Climber::kClimbForwardSolenoid,
         frc3512::Constants::Climber::kClimbReverseSolenoid};
+
+    frc::Solenoid m_wranglerSolenoid{
+        frc3512::Constants::Climber::kWranglerSolenoid};
 };
 
 }  // namespace frc3512

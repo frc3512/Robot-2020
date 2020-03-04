@@ -100,7 +100,7 @@ private:
 #ifndef RUNNING_FRC_TESTS
     frc::DutyCycleEncoder m_encoder{Constants::Turret::kEncoderPort};
 #else
-    frc::Encoder m_encoder{0, 1};
+    frc::Encoder m_encoder{Constants::Turret::kEncoderPort, 9};
 #endif
     rev::CANSparkMax m_motor{Constants::Turret::kPort,
                              rev::CANSparkMax::MotorType::kBrushless};

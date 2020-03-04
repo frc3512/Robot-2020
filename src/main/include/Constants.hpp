@@ -81,14 +81,14 @@ constexpr int kTransverserPort = 12;
 // Wrangler Winch Motor
 constexpr int kWinchPort = 13;
 
-// Wrangler Solenoid
-constexpr int kWranglerSolenoid = 1;
-
 // Climber Forward Solenoid
-constexpr int kClimbForwardSolenoid = 0;
+constexpr int kClimbForwardSolenoid = 2;
 
 // Climber Reverse Solenoid
-constexpr int kClimbReverseSolenoid = 1;
+constexpr int kClimbReverseSolenoid = 3;
+
+// Wrangler Solenoid
+constexpr int kWranglerSolenoid = 4;
 }  // namespace Climber
 
 constexpr auto kDt = 0.00505_s;
