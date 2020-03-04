@@ -157,8 +157,8 @@ def main():
         download_lib(GTEST_URL, "googletest", "1.9.0-4-437e100-1", classifier + "static")
 
     classifier += "static"
-    download_lib(REV_URL, "SparkMax-cpp", "1.5.1", classifier)
-    download_lib(REV_URL, "SparkMax-driver", "1.5.1", classifier)
+    download_lib(REV_URL, "SparkMax-cpp", "1.5.2", classifier)
+    download_lib(REV_URL, "SparkMax-driver", "1.5.2", classifier)
 
     # Generate pubsub messages
     if (

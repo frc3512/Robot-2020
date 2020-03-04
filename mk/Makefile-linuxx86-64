@@ -20,7 +20,7 @@ IFLAGS := -Isrc/main/include -Isrc/test/include -Ithirdparty/include \
 	-Ibuild/hal-cpp-$(VERSION)-headers -Ibuild/cscore-cpp-$(VERSION)-headers \
 	-Ibuild/ntcore-cpp-$(VERSION)-headers -Ibuild/wpiutil-cpp-$(VERSION)-headers \
 	-Ibuild/googletest-1.9.0-4-437e100-1-headers \
-	-Ibuild/SparkMax-cpp-1.5.1-headers -Ibuild/SparkMax-driver-1.5.1-headers
+	-Ibuild/SparkMax-cpp-1.5.2-headers -Ibuild/SparkMax-driver-1.5.2-headers
 
 # Specify Linux libs with -l directives here
 LDFLAGS := \
@@ -47,9 +47,9 @@ LDFLAGS := \
 	-Lbuild/hal-cpp-$(VERSION)-linuxx86-64/linux/x86-64/shared \
 	-Wl,-rpath,build/hal-cpp-$(VERSION)-linuxx86-64/linux/x86-64/shared \
 	-lwpiHal \
-	-Lbuild/SparkMax-cpp-1.5.1-linuxx86-64static/linux/x86-64/static \
+	-Lbuild/SparkMax-cpp-1.5.2-linuxx86-64static/linux/x86-64/static \
 	-lSparkMax \
-	-Lbuild/SparkMax-driver-1.5.1-linuxx86-64static/linux/x86-64/static \
+	-Lbuild/SparkMax-driver-1.5.2-linuxx86-64static/linux/x86-64/static \
 	-lSparkMaxDriver \
 	-lpthread \
 	-Lbuild/googletest-1.9.0-4-437e100-1-linuxx86-64static/linux/x86-64/static \
