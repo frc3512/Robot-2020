@@ -110,9 +110,8 @@ private:
     frc::Encoder m_encoder{Constants::Flywheel::kEncoderA,
                            Constants::Flywheel::kEncoderB};
     FlywheelController m_controller{{80.0}, {12.0}, Constants::kDt};
-    std::chrono::steady_clock::time_point m_lastTime = [] {
-        return std::chrono::steady_clock::now();
-    }();
+    std::chrono::steady_clock::time_point m_lastTime =
+        std::chrono::steady_clock::now();
     frc::Pose2d m_nextTurretPose;
     std::mutex m_controllerMutex;
 

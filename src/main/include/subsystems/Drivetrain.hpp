@@ -188,8 +188,6 @@ private:
         {0.0625, 0.125, 2.5, 0.95, 0.95}, {12.0, 12.0}, Constants::kDt};
     std::chrono::steady_clock::time_point m_lastTime =
         std::chrono::steady_clock::now();
-    std::chrono::steady_clock::time_point m_startTime =
-        std::chrono::steady_clock::now();
 
     bool m_manualControl = true;
     wpi::mutex m_motorControllerMutex;

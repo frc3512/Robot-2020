@@ -39,6 +39,11 @@ public:
      */
     static void Disable();
 
+    /**
+     * Returns the time at which controllers were enabled.
+     */
+    static std::chrono::steady_clock::time_point GetStartTime();
+
 protected:
     /**
      * This function runs a controller asynchronously every 5 ms.
@@ -51,6 +56,7 @@ protected:
 private:
     static wpi::SmallVector<ControllerSubsystemBase*, 16> m_controllers;
     static frc::RTNotifier m_notifier;
+    static std::chrono::steady_clock::time_point m_startTime;
 
     /**
      * Calls ControllerPeriodic() on each subsystem.

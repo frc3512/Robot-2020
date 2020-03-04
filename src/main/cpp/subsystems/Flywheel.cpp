@@ -82,7 +82,7 @@ void Flywheel::Reset() {
 void Flywheel::ControllerPeriodic() {
     auto now = std::chrono::steady_clock::now();
     m_controller.SetMeasuredAngularVelocity(GetAngularVelocity());
-    m_controller.Update(now - m_lastTime, now.time_since_epoch());
+    m_controller.Update(now - m_lastTime, now - GetStartTime());
     // Set motor input
     SetVoltage(m_controller.ControllerVoltage());
     m_lastTime = now;

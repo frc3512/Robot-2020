@@ -101,7 +101,7 @@ void Drivetrain::ControllerPeriodic() {
     m_controller.SetMeasuredLocalOutputs(GetAngle(), GetLeftPosition(),
                                          GetRightPosition());
     auto now = std::chrono::steady_clock::now();
-    m_controller.Update(now - m_lastTime, now - m_startTime);
+    m_controller.Update(now - m_lastTime, now - GetStartTime());
 
     if (!m_controller.IsOpenLoop()) {
         // Set motor inputs

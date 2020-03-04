@@ -49,7 +49,7 @@ void Turret::ControllerPeriodic() {
 
     m_controller.SetDrivetrainStatus(m_drivetrain.GetNextXhat());
     m_controller.SetHardLimitOutputs(IsPassedCCWLimit(), IsPassedCWLimit());
-    m_controller.Update(now - m_lastTime, now - m_startTime);
+    m_controller.Update(now - m_lastTime, now - GetStartTime());
 
     // Set motor input
     SetVoltage(m_controller.ControllerVoltage());
