@@ -83,30 +83,30 @@ void Robot::TeleopPeriodic() {
     switch (m_state) {
         // Wait until ball(s) are fully loaded in conveyor and trigger has been
         // pushed.
-        case State::kIdle: {
+        case ShootingState::kIdle: {
             if (m_appendageStick2.GetRawButtonPressed(1)) {
                 m_vision.TurnLEDOn();
                 m_flywheel.Shoot();
-                m_state = State::kStartFlywheel;
+                m_state = ShootingState::kStartFlywheel;
             }
             break;
         }
         // Allow the flywheel to spin up to the correct angular velocity.
-        case State::kStartFlywheel: {
+        case ShootingState::kStartFlywheel: {
             if (m_flywheel.AtGoal()) {
                 m_timer.Reset();
                 m_timer.Start();
-                m_state = State::kStartConveyor;
+                m_state = ShootingState::kStartConveyor;
             }
             break;
         }
         // Feed balls until conveyor is empty and timeout has occurred.
-        case State::kStartConveyor: {
+        case ShootingState::kStartConveyor: {
             if (m_timer.HasElapsed(5_s) && !m_intake.IsUpperSensorBlocked()) {
                 m_flywheel.SetGoal(0_rad_per_s);
                 m_vision.TurnLEDOff();
                 m_timer.Stop();
-                m_state = State::kIdle;
+                m_state = ShootingState::kIdle;
             }
             break;
         }

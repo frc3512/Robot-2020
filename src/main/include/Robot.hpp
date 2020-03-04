@@ -22,7 +22,7 @@ using namespace frc3512::Constants::Robot;
 
 class Robot : public frc::TimedRobot, public PublishNode {
 public:
-    enum class State { kIdle, kStartFlywheel, kStartConveyor };
+    enum class ShootingState { kIdle, kStartFlywheel, kStartConveyor };
 
     Robot();
 
@@ -50,7 +50,7 @@ private:
     frc::Joystick m_appendageStick{kAppendageStickPort};
     frc::Joystick m_appendageStick2{kAppendageStick2Port};
 
-    State m_state = State::kIdle;
+    ShootingState m_state = ShootingState::kIdle;
     frc2::Timer m_timer;
 };
 
