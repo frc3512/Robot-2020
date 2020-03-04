@@ -29,7 +29,7 @@ void Vision::RobotPeriodic() {
         std::vector<double> pose = m_pose.GetDoubleArray(-1);
         units::radian_t theta = units::degree_t{pose[2]};
 
-        auto timestamp = chrono::system_clock::now().time_since_epoch();
+        auto timestamp = chrono::steady_clock::now().time_since_epoch();
         timestamp -= chrono::microseconds{latency};
 
         VisionPosePacket packet{
