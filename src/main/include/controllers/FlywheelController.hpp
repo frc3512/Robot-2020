@@ -6,10 +6,9 @@
 #include <frc/controller/LinearQuadraticRegulator.h>
 #include <frc/estimator/KalmanFilter.h>
 #include <frc/logging/CSVLogFile.h>
-#include <frc/system/plant/DCMotor.h>
-#include <frc/system/plant/FlywheelSystem.h>
 #include <frc/system/plant/LinearSystemId.h>
 #include <units/units.h>
+#include <wpi/math>
 
 #include "Constants.hpp"
 
@@ -117,18 +116,6 @@ private:
 
     // The current sensor measurements.
     Eigen::Matrix<double, 1, 1> m_y;
-
-    /* frc::LinearSystem<1, 1, 1> m_plant = [=] {
-        constexpr auto motor = frc::DCMotor::NEO(2);
-
-        // Moment of inertia
-        constexpr auto J = 0.032_kg_sq_m;
-
-        // Gear ratio from motor to output shaft
-        constexpr double G = 2.0;
-
-        return frc::FlywheelSystem(motor, J, G);
-    }(); */
 
     frc::LinearSystem<1, 1, 1> m_plant =
         frc::IdentifyVelocitySystem(kV.to<double>(), kA.to<double>());

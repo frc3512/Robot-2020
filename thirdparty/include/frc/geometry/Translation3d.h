@@ -111,7 +111,9 @@ class Translation3d {
    *
    * @return The sum of the translations.
    */
-  Translation3d operator+(const Translation3d& other) const;
+  constexpr Translation3d operator+(const Translation3d& other) const {
+    return {X() + other.X(), Y() + other.Y(), Z() + other.Z()};
+  }
 
   /**
    * Adds the new translation to the current translation.
@@ -136,7 +138,9 @@ class Translation3d {
    *
    * @return The difference between the two translations.
    */
-  Translation3d operator-(const Translation3d& other) const;
+  constexpr Translation3d operator-(const Translation3d& other) const {
+    return *this + -other;
+  }
 
   /**
    * Subtracts the new translation from the current translation.
@@ -157,7 +161,9 @@ class Translation3d {
    *
    * @return The inverse of the current translation.
    */
-  Translation3d operator-() const;
+  constexpr Translation3d operator-() const {
+    return {-1.0 * m_x, -1.0 * m_y, -1.0 * m_z};
+  }
 
   /**
    * Multiplies the translation by a scalar and returns the new translation.
@@ -168,7 +174,9 @@ class Translation3d {
    *
    * @return The scaled translation.
    */
-  Translation3d operator*(double scalar) const;
+  constexpr Translation3d operator*(double scalar) const {
+    return {scalar * m_x, scalar * m_y, scalar * m_z};
+  }
 
   /**
    * Multiplies the current translation by a scalar.
@@ -190,7 +198,9 @@ class Translation3d {
    *
    * @return The scaled translation.
    */
-  Translation3d operator/(double scalar) const;
+  constexpr Translation3d operator/(double scalar) const {
+    return *this * (1.0 / scalar);
+  }
 
   /**
    * Checks equality between this Translation3d and another object.

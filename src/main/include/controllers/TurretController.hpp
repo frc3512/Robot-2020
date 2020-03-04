@@ -7,19 +7,16 @@
 #include <frc/controller/LinearQuadraticRegulator.h>
 #include <frc/estimator/KalmanFilter.h>
 #include <frc/geometry/Pose2d.h>
-#include <frc/geometry/Transform2d.h>
 #include <frc/geometry/Translation3d.h>
 #include <frc/logging/CSVLogFile.h>
 #include <frc/system/LinearSystem.h>
-#include <frc/system/LinearSystemLoop.h>
-#include <frc/system/plant/DCMotor.h>
 #include <frc/system/plant/LinearSystemId.h>
-#include <frc/system/plant/SingleJointedArmSystem.h>
 #include <frc/trajectory/TrapezoidProfile.h>
 #include <units/units.h>
 #include <wpi/math>
 
 #include "Constants.hpp"
+#include "TargetModel.hpp"
 
 namespace frc3512 {
 
@@ -28,20 +25,10 @@ public:
     static constexpr double kGearRatio = 18.0 / 160.0;
     static constexpr double kDpR = kGearRatio * 2.0 * wpi::math::pi;
 
-    // State tolerances in radians and radians/sec respectively.
+    // State tolerances
     static constexpr units::radian_t kAngleTolerance = 0.05_rad;
     static constexpr units::radians_per_second_t kAngularVelocityTolerance =
         2.0_rad_per_s;
-    // Target model-points in the global frame, pulled from
-    // https://files.slack.com/files-pri/T29CNG6MQ-FTV1L0XD1/img_4471.jpg
-    static constexpr frc::Translation3d A{629.25_in, 108.464_in, 115.25_in};
-    static constexpr frc::Translation3d B{629.25_in, 106.464_in, 115.25_in};
-    static constexpr frc::Translation3d C{629.25_in, 98.644_in, 98.25_in};
-    static constexpr frc::Translation3d D{629.25_in, 93.912_in, 100.25_in};
-    static constexpr frc::Translation3d E{629.25_in, 80.75_in, 98.25_in};
-    static constexpr frc::Translation3d F{629.25_in, 82.214_in, 100.25_in};
-    static constexpr frc::Translation3d G{629.25_in, 69.214_in, 115.25_in};
-    static constexpr frc::Translation3d H{629.25_in, 71.214_in, 115.25_in};
 
     TurretController();
 
@@ -180,9 +167,8 @@ private:
     static constexpr units::meter_t kTy = 0_m;
     static constexpr units::radian_t kR = wpi::math::pi * 1_rad;
 
-    const frc::Translation3d targetModelCenter = (A + G) / 2.0;
-    const frc::Pose2d targetPoseInGlobal{targetModelCenter.X(),
-                                         targetModelCenter.Y(),
+    const frc::Pose2d targetPoseInGlobal{TargetModel::kCenter.X(),
+                                         TargetModel::kCenter.Y(),
                                          units::radian_t{wpi::math::pi}};
 
     // The current sensor measurement.
@@ -221,7 +207,7 @@ private:
 
     Eigen::Matrix<double, 1, 1> m_u;
 
-    Eigen::Vector2d ToVector2d(frc::Translation2d translation);
+    static Eigen::Vector2d ToVector2d(frc::Translation2d translation);
 };
 
 }  // namespace frc3512

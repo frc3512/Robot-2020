@@ -4,6 +4,7 @@
 #include <string>
 #include <string_view>
 
+#include <frc/system/plant/DCMotor.h>
 #include <gtest/gtest.h>
 #include <mockdata/RoboRioData.h>
 #include <units/units.h>

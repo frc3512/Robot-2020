@@ -13,7 +13,6 @@
 #include "Constants.hpp"
 #include "LinearTable.hpp"
 #include "controllers/FlywheelController.hpp"
-#include "controllers/TurretController.hpp"
 #include "subsystems/ControllerSubsystemBase.hpp"
 #include "subsystems/Turret.hpp"
 
@@ -96,10 +95,8 @@ public:
     void ControllerPeriodic() override;
 
 private:
-    const frc::Translation3d kTargetModelCenter =
-        (TurretController::A + TurretController::G) / 2.0;
-    const frc::Pose2d kTargetPoseInGlobal{kTargetModelCenter.X(),
-                                          kTargetModelCenter.Y(),
+    const frc::Pose2d kTargetPoseInGlobal{TargetModel::kCenter.X(),
+                                          TargetModel::kCenter.Y(),
                                           units::radian_t{wpi::math::pi}};
     lookup::unbounded_linear_table<units::meter_t, units::radians_per_second_t>
         m_table;

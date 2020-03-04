@@ -3,7 +3,6 @@
 #pragma once
 
 #include <units/units.h>
-#include <wpi/math>
 
 namespace frc3512::Constants {
 
