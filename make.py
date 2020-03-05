@@ -131,7 +131,7 @@ def main():
     parser = argparse.ArgumentParser(description="Builds and deploys FRC C++ programs")
     parser.add_argument(
         "target",
-        choices=["build", "deploy", "copy", "clean", "ci", "test"],
+        choices=["build", "deploy", "clean", "ci", "test"],
         help="""'build' compiles the robot program for athena and downloads missing dependencies.
         'deploy' compiles the program if it hasn't already and deploys it to a roboRIO.
         'clean' removes all build artifacts from the build folder.
@@ -225,17 +225,23 @@ def main():
     if args.target == "build":
         subprocess.run(make_athena + ["build", f"-j{args.jobs}"])
     elif args.target == "deploy":
-        subprocess.run(make_athena + ["deploy", f"-j{args.jobs}"])
-    elif args.target == "copy":
+        #Generates a list of files that are found in the deploy folder
+        files = [os.path.join(dp, f) for dp, dn, fn in os.walk("deploy/") for f in fn]
+        if len(files) > 0:
+            print(f"Files found! Attempting to copy files")
+            #Establish a connection to the roboRIO
             print(f"Establishing connection to the RoboRIO")
             subprocess.run(["ssh", ssh_target])
-            print(f"Checking if rsync is installed onto the RoboRIO...")
+            print(f"Checking rsync is installed on the roboRIO...")
+            #Command we used to test if rsync is on the roboRIO
             rsync_cmd = ("rsync", "--version")
             try:
+                #Checks to see if the called command returns successfully
                 subprocess.check_call(rsync_cmd)
                 print(f"Command rsync found!")
             except subprocess.CalledProcessError as e:
                 if e.returncode == 127:
+                    #Downloads rsync + its dependencies if they are not present on the roboRIO
                     print("Command rsync not found! Installing necessary packages...")
                     download_NIPackage(ssh_target, "libattr1_2.4.47-r0.513_cortexa9-vfpv3.ipk")
                     download_NIPackage(ssh_target, "libacl1_2.2.52-r0.183_cortexa9-vfpv3.ipk")
@@ -243,14 +249,13 @@ def main():
                     subprocess.check_call(rsync_cmd)
                 else:
                     raise e;
-            files = [os.path.join(dp, f) for dp, dn, fn in os.walk("deploy/") for f in fn]
-            print(files)
-            if len(files) > 0:
-                print(f"Files found! Copying over files...")
-                subprocess.run(["rsync", "-vazh", "ssh", "--progress", target_dir, copy_dir])
-            else:
-                print(f"There are no files in the deploy folder.")
-                print(f"Aborting...")
+            #Copy of all the files in the deploy folder onto the roboRIO
+            subprocess.run(["rsync", "-vazh", "ssh", "--progress", target_dir, copy_dir])
+        else:
+            #If no files are found, this is called to have it deployed normally
+            print(f"No files have been found in the deploy folder.")
+            print(f"Deploying as normal...")
+            subprocess.run(make_athena + ["deploy", f"-j{args.jobs}"])
     elif args.target == "clean":
         subprocess.run(make_athena + ["clean"])
         subprocess.run(make_x86_64 + ["clean"])
