@@ -78,8 +78,14 @@ void FlywheelController::Update(units::second_t dt,
 
     m_lqr.Update(m_observer.Xhat().block<1, 1>(0, 0),
                  m_nextR.block<1, 1>(0, 0));
-    // TODO: Change to U() when an encoder is installed on the flywheel.
-    m_u = m_lqr.Uff();
+
+    // To conserve battery when the flywheel doesn't have to be spinning, don't
+    // apply a negative voltage to slow down.
+    if (m_nextR(0, 0) == 0.0) {
+        m_u(0, 0) = 0.0;
+    } else {
+        m_u = m_lqr.U();
+    }
 
     ScaleCapU(&m_u);
 

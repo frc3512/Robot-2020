@@ -16,8 +16,8 @@ namespace frc3512 {
 
 class FlywheelController {
 public:
-    static constexpr double kDpP = (wpi::math::pi * 2.0) / 512.0;
-    static constexpr double kGearRatio = 2.0;
+    static constexpr double kGearRatio = 8.0;
+    static constexpr double kDpP = (wpi::math::pi * 2.0) * kGearRatio / 512.0;
     static constexpr units::radians_per_second_t kMaxAngularVelocity =
         1000.5_rad_per_s;
 
@@ -108,9 +108,9 @@ public:
     void Reset();
 
 private:
-    static constexpr decltype(1_V / 1_rad_per_s) kV = 0.00957_V / 1_rad_per_s;
+    static constexpr decltype(1_V / 1_rad_per_s) kV = 0.011_V / 1_rad_per_s;
     static constexpr decltype(1_V / (1_rad_per_s / 1_s)) kA =
-        0.02206_V / (1_rad_per_s / 1_s);
+        0.005515_V / (1_rad_per_s / 1_s);
     static constexpr units::radians_per_second_t kAngularVelocityTolerance =
         7.0_rad_per_s;
 
@@ -139,7 +139,7 @@ private:
     }();
 
     frc::KalmanFilter<1, 1, 1> m_observer{
-        m_plant, Constants::kDt, {10.0}, {kDpP + 0.175}};
+        m_plant, Constants::kDt, {700.0}, {50.0}};
 
     frc::LinearQuadraticRegulator<1, 1> m_lqr;
 

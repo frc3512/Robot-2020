@@ -7,7 +7,6 @@
 #include <frc/CounterBase.h>
 #include <frc/Encoder.h>
 #include <frc/RTNotifier.h>
-#include <frc2/Timer.h>
 #include <rev/CANSparkMax.h>
 
 #include "Constants.hpp"
@@ -111,8 +110,6 @@ private:
         std::chrono::steady_clock::now();
     frc::Pose2d m_nextTurretPose;
     std::mutex m_controllerMutex;
-
-    frc2::Timer m_timer;
 
     Turret& m_turret;
 };

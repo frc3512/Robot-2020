@@ -32,9 +32,22 @@ void Robot::TeleopInit() {
     SubsystemBase::RunAllTeleopInit();
     ControllerSubsystemBase::Enable();
 
+    // Consumes button presses made in disabled
     for (int i = 1; i <= 12; i++) {
         if (m_driveStick1.GetRawButtonPressed(i)) {
             ButtonPacket message{"DriveStick1", i, true};
+            Publish(message);
+        }
+        if (m_driveStick2.GetRawButtonPressed(i)) {
+            ButtonPacket message{"DriveStick2", i, true};
+            Publish(message);
+        }
+        if (m_appendageStick.GetRawButtonPressed(i)) {
+            ButtonPacket message{"AppendageStick", i, true};
+            Publish(message);
+        }
+        if (m_appendageStick2.GetRawButtonPressed(i)) {
+            ButtonPacket message{"AppendageStick2", i, true};
             Publish(message);
         }
     }

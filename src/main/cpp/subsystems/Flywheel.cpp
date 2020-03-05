@@ -19,7 +19,12 @@ Flywheel::Flywheel(Turret& turret)
     Reset();
 
     // TODO: add more entries to the look up table
-    m_table.insert(0_m, 5_rad_per_s);
+
+    m_table.insert(125_in, 450_rad_per_s);
+    m_table.insert(153_in, 500_rad_per_s);
+    m_table.insert(268_in, 525_rad_per_s);
+    m_table.insert(312_in, 550_rad_per_s);
+    m_table.insert(326_in, 650_rad_per_s);
 }
 
 void Flywheel::SetVoltage(units::volt_t voltage) {
@@ -44,34 +49,20 @@ void Flywheel::DisableController() { m_controller.Disable(); }
 
 void Flywheel::SetGoal(units::radians_per_second_t velocity) {
     m_controller.SetGoal(velocity);
-    if (velocity > 0_rad_per_s) {
-        m_timer.Reset();
-        m_timer.Start();
-    }
 }
 
 units::radians_per_second_t Flywheel::GetGoal() const {
     return m_controller.AngularVelocityGoal();
 }
 
-bool Flywheel::AtGoal() const {
-    // TODO: Re-add line when encoder is installed on flywheel.
-    // return m_controller.AtGoal();
-    return m_timer.HasElapsed(5_s);
-}
+bool Flywheel::AtGoal() const { return m_controller.AtGoal(); }
 
 void Flywheel::Shoot() {
     std::scoped_lock lock(m_controllerMutex);
-    // TODO: Put LUT back
-    if constexpr (0) {
-        auto turretPose = m_turret.GetNextPose();
-        auto angularVelocity =
-            m_table.linear_interp(turretPose.Translation().Distance(
-                kTargetPoseInGlobal.Translation()));
-        SetGoal(angularVelocity);
-    } else {
-        SetGoal(8_V / 12_V * FlywheelController::kMaxAngularVelocity);
-    }
+    auto turretPose = m_turret.GetNextPose();
+    auto angularVelocity = m_table.linear_interp(
+        turretPose.Translation().Distance(kTargetPoseInGlobal.Translation()));
+    SetGoal(angularVelocity);
 }
 
 void Flywheel::Reset() {

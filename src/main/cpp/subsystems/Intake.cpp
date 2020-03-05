@@ -45,7 +45,7 @@ void Intake::RobotPeriodic() {
     if (m_flywheel.GetGoal() > 0_rad_per_s && m_flywheel.AtGoal()) {
         SetConveyor(0.85);
     } else if (IsLowerSensorBlocked() && !IsUpperSensorBlocked()) {
-        SetConveyor(0.2);
+        SetConveyor(0.4);
     } else {
         SetConveyor(0.0);
     }
