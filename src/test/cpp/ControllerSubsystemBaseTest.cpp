@@ -38,8 +38,8 @@ TEST(ControllerSubsystemBase, EnableController) {
     frc3512::Turret turret{drivetrain};
     frc3512::Flywheel flywheel{turret};
 
-    drivetrain.SetWaypoints(
-        {frc::Pose2d(0_m, 0_m, 0_rad), frc::Pose2d(2_m, 1_m, 0_rad)});
+    drivetrain.SetWaypoints(frc::Pose2d(0_m, 0_m, 0_rad), {},
+                            frc::Pose2d(2_m, 1_m, 0_rad));
 
     frc3512::ControllerSubsystemBase::Enable();
     drivetrain.EnableController();

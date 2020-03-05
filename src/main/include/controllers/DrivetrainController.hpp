@@ -13,6 +13,7 @@
 #include <frc/logging/CSVLogFile.h>
 #include <frc/system/plant/LinearSystemId.h>
 #include <frc/trajectory/Trajectory.h>
+#include <frc/trajectory/TrajectoryConfig.h>
 #include <units/units.h>
 #include <wpi/math>
 #include <wpi/mutex.h>
@@ -89,7 +90,32 @@ public:
     void SetOpenLoop(bool manualControl);
     bool IsOpenLoop() const;
 
-    void SetWaypoints(const std::vector<frc::Pose2d>& waypoints);
+    /**
+     * Sets the waypoints for a generated trajectory.
+     *
+     * @param start    Starting pose.
+     * @param interior Intermediate waypoints excluding heading.
+     * @param end      Ending pose.
+     */
+    void SetWaypoints(const frc::Pose2d& start,
+                      const std::vector<frc::Translation2d>& interior,
+                      const frc::Pose2d& end);
+
+    /**
+     * Sets the waypoints for a generated trajectory.
+     *
+     * @param start    Starting pose.
+     * @param interior Intermediate waypoints excluding heading.
+     * @param end      Ending pose.
+     * @param config   TrajectoryConfig for this trajectory. This can include
+     *                 constraints on the trajectory dynamics. If adding custom
+     *                 constraints, it is recommended to start with the config
+     *                 returned by MakeTrajectoryConfig() so differential drive
+     *                 dynamics constraints are included automatically.
+     */
+    void SetWaypoints(const frc::Pose2d& start,
+                      const std::vector<frc::Translation2d>& interior,
+                      const frc::Pose2d& end, frc::TrajectoryConfig& config);
 
     /**
      * Returns whether the drivetrain controller is at the goal waypoint.
@@ -194,6 +220,12 @@ public:
      * @param initialPose Initial pose for state estimate.
      */
     void Reset(const frc::Pose2d& initialPose);
+
+    /**
+     * Returns a trajectory config with a differential drive dynamics constraint
+     * included.
+     */
+    frc::TrajectoryConfig MakeTrajectoryConfig() const;
 
     Eigen::Matrix<double, 2, 1> Controller(
         const Eigen::Matrix<double, 10, 1>& x,

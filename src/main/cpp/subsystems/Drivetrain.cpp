@@ -113,8 +113,17 @@ void Drivetrain::ControllerPeriodic() {
     m_lastTime = now;
 }
 
-void Drivetrain::SetWaypoints(const std::vector<frc::Pose2d>& waypoints) {
-    m_controller.SetWaypoints(waypoints);
+void Drivetrain::SetWaypoints(const frc::Pose2d& start,
+                              const std::vector<frc::Translation2d>& interior,
+                              const frc::Pose2d& end) {
+    m_controller.SetWaypoints(start, interior, end);
+}
+
+void Drivetrain::SetWaypoints(const frc::Pose2d& start,
+                              const std::vector<frc::Translation2d>& interior,
+                              const frc::Pose2d& end,
+                              frc::TrajectoryConfig& config) {
+    m_controller.SetWaypoints(start, interior, end, config);
 }
 
 bool Drivetrain::AtGoal() const { return m_controller.AtGoal(); }

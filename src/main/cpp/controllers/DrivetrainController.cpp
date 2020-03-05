@@ -63,19 +63,19 @@ void DrivetrainController::SetOpenLoop(bool manualControl) {
 bool DrivetrainController::IsOpenLoop() const { return m_isOpenLoop; }
 
 void DrivetrainController::SetWaypoints(
-    const std::vector<frc::Pose2d>& waypoints) {
-    auto plant = frc::IdentifyDrivetrainSystem(
-        kLinearV.to<double>(), kLinearA.to<double>(), kAngularV.to<double>(),
-        kAngularA.to<double>());
+    const frc::Pose2d& start, const std::vector<frc::Translation2d>& interior,
+    const frc::Pose2d& end) {
+    auto config = MakeTrajectoryConfig();
+    SetWaypoints(start, interior, end, config);
+}
 
-    frc::DrivetrainVelocitySystemConstraint constraint{plant, kWidth, 8_V};
-    frc::TrajectoryConfig config{kMaxV, kMaxA};
-    config.AddConstraint(constraint);
-
+void DrivetrainController::SetWaypoints(
+    const frc::Pose2d& start, const std::vector<frc::Translation2d>& interior,
+    const frc::Pose2d& end, frc::TrajectoryConfig& config) {
     std::lock_guard lock(m_trajectoryMutex);
-    m_goal = waypoints.back();
-    m_trajectory =
-        frc::TrajectoryGenerator::GenerateTrajectory(waypoints, config);
+    m_goal = end;
+    m_trajectory = frc::TrajectoryGenerator::GenerateTrajectory(start, interior,
+                                                                end, config);
 }
 
 bool DrivetrainController::AtGoal() const {
@@ -280,6 +280,19 @@ void DrivetrainController::Reset(const frc::Pose2d& initialPose) {
     m_r.setZero();
     m_nextR.setZero();
     m_cappedU.setZero();
+}
+
+frc::TrajectoryConfig DrivetrainController::MakeTrajectoryConfig() const {
+    frc::TrajectoryConfig config{kMaxV, kMaxA};
+
+    auto plant = frc::IdentifyDrivetrainSystem(
+        kLinearV.to<double>(), kLinearA.to<double>(), kAngularV.to<double>(),
+        kAngularA.to<double>());
+    frc::DrivetrainVelocitySystemConstraint systemConstraint{plant, kWidth,
+                                                             8_V};
+    config.AddConstraint(systemConstraint);
+
+    return config;
 }
 
 Eigen::Matrix<double, 2, 1> DrivetrainController::Controller(

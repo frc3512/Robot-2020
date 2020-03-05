@@ -23,8 +23,8 @@ TEST(DrivetrainControllerTest, ReachesReference) {
     controller.Enable();
 
     controller.SetMeasuredLocalOutputs(0_rad, 0_m, 0_m);
-    controller.SetWaypoints(
-        {frc::Pose2d(0_m, 0_m, 0_rad), frc::Pose2d(4.8768_m, 2.7432_m, 0_rad)});
+    controller.SetWaypoints(frc::Pose2d(0_m, 0_m, 0_rad), {},
+                            frc::Pose2d(4.8768_m, 2.7432_m, 0_rad));
 
     Eigen::Matrix<double, 10, 1> trueXhat =
         Eigen::Matrix<double, 10, 1>::Zero();

@@ -11,6 +11,7 @@
 #include <frc/Spark.h>
 #include <frc/SpeedControllerGroup.h>
 #include <frc/drive/DifferentialDrive.h>
+#include <frc/trajectory/TrajectoryConfig.h>
 #include <rev/CANSparkMax.h>
 #include <wpi/mutex.h>
 
@@ -133,9 +134,29 @@ public:
     /**
      * Sets the waypoints for a generated trajectory.
      *
-     * @param waypoints list of poses
+     * @param start    Starting pose.
+     * @param interior Intermediate waypoints excluding heading.
+     * @param end      Ending pose.
      */
-    void SetWaypoints(const std::vector<frc::Pose2d>& waypoints);
+    void SetWaypoints(const frc::Pose2d& start,
+                      const std::vector<frc::Translation2d>& interior,
+                      const frc::Pose2d& end);
+
+    /**
+     * Sets the waypoints for a generated trajectory.
+     *
+     * @param start    Starting pose.
+     * @param interior Intermediate waypoints excluding heading.
+     * @param end      Ending pose.
+     * @param config   TrajectoryConfig for this trajectory. This can include
+     *                 constraints on the trajectory dynamics. If adding custom
+     *                 constraints, it is recommended to start with the config
+     *                 returned by MakeTrajectoryConfig() so differential drive
+     *                 dynamics constraints are included automatically.
+     */
+    void SetWaypoints(const frc::Pose2d& start,
+                      const std::vector<frc::Translation2d>& interior,
+                      const frc::Pose2d& end, frc::TrajectoryConfig& config);
 
     /**
      * Returns whether the drivetrain controller is at the goal waypoint.
