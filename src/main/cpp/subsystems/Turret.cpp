@@ -2,8 +2,6 @@
 
 #include "subsystems/Turret.hpp"
 
-#include "controllers/NormalizeAngle.hpp"
-
 using namespace frc3512;
 
 Turret::Turret(Drivetrain& drivetrain)
