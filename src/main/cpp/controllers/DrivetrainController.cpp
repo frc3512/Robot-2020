@@ -101,11 +101,14 @@ void DrivetrainController::Predict(const Eigen::Matrix<double, 2, 1>& u,
 void DrivetrainController::CorrectWithGlobalOutputs(units::meter_t x,
                                                     units::meter_t y,
                                                     int64_t timestamp) {
+    std::lock_guard lock(m_globalCorrectMutex);
     Eigen::Matrix<double, 2, 1> globalY;
     globalY << x.to<double>(), y.to<double>();
     m_observer.Correct<2>(Eigen::Matrix<double, 2, 1>::Zero(), globalY,
                           &DrivetrainController::GlobalMeasurementModel,
                           kGlobalR);
+    m_timestampGlobalY = timestamp;
+    m_isNewGlobalY = true;
 }
 
 const Eigen::Matrix<double, 10, 1>& DrivetrainController::GetReferences()
@@ -144,7 +147,42 @@ void DrivetrainController::Update(units::second_t dt) {
         auto [vlRef, vrRef] =
             ToWheelVelocities(ref.velocity, ref.curvature, kWidth);
 
-        m_observer.Correct(m_appliedU, m_localY);
+        {
+            std::lock_guard lock(m_globalCorrectMutex);
+            m_observer.Correct(m_appliedU, m_localY);
+
+            // Insert current observations into priority queue
+            auto timestamp =
+                std::chrono::duration_cast<std::chrono::microseconds>(
+                    std::chrono::steady_clock::now().time_since_epoch())
+                    .count();
+            m_observations.PushFromBottom({timestamp, m_observer.Xhat(),
+                                           m_observer.P(), m_cappedU,
+                                           m_localY});
+
+            // Replay all later xhat and P starting from the timestamp of
+            // globalY if data is new
+            if (m_isNewGlobalY) {
+                // Pushing just the timestamp is acceptable here as we know the
+                // data at this timestamp will never be replayed
+                auto currentIt =
+                    m_observations.PushFromBottom({m_timestampGlobalY});
+                auto previousIt = currentIt;
+                currentIt++;
+                while (currentIt != m_observations.end()) {
+                    m_observer.SetXhat(currentIt->Xhat);
+                    m_observer.SetP(currentIt->P);
+                    m_observer.Predict(
+                        currentIt->U,
+                        units::microsecond_t{currentIt->timestamp -
+                                             previousIt->timestamp});
+                    m_observer.Correct(currentIt->U, currentIt->localY);
+                    previousIt = currentIt;
+                    ++currentIt;
+                }
+                m_isNewGlobalY = false;
+            }
+        }
 
         m_nextR << ref.pose.X().to<double>(), ref.pose.Y().to<double>(),
             ref.pose.Rotation().Radians().to<double>(), vlRef.to<double>(),
@@ -167,7 +205,10 @@ void DrivetrainController::Update(units::second_t dt) {
                          std::abs(error(4)) < kVelocityTolerance;
 
         m_r = m_nextR;
-        m_observer.Predict(m_cappedU, dt);
+        {
+            std::lock_guard lock(m_globalCorrectMutex);
+            m_observer.Predict(m_cappedU, dt);
+        }
 
         std::scoped_lock lock(m_trajectoryMutex);
         if (ref.pose == m_goal) {
@@ -176,7 +217,38 @@ void DrivetrainController::Update(units::second_t dt) {
             Enable();
         }
     } else {
+        std::lock_guard lock(m_globalCorrectMutex);
         m_observer.Correct(m_appliedU, m_localY);
+        // Insert current observations into priority queue
+        auto timestamp =
+            std::chrono::duration_cast<std::chrono::microseconds>(
+                std::chrono::steady_clock::now().time_since_epoch())
+                .count();
+        m_observations.PushFromBottom({timestamp, m_observer.Xhat(),
+                                       m_observer.P(), m_appliedU, m_localY});
+
+        // Replay all later xhat and P starting from the timestamp of
+        // globalY if data is new
+        if (m_isNewGlobalY) {
+            // Pushing just the timestamp is acceptable here as we know the
+            // data at this timestamp will never be replayed
+            auto currentIt =
+                m_observations.PushFromBottom({m_timestampGlobalY});
+            auto previousIt = currentIt;
+            currentIt++;
+            while (currentIt != m_observations.end()) {
+                m_observer.SetXhat(currentIt->Xhat);
+                m_observer.SetP(currentIt->P);
+                m_observer.Predict(currentIt->U,
+                                   units::microsecond_t{currentIt->timestamp -
+                                                        previousIt->timestamp});
+                m_observer.Correct(currentIt->U, currentIt->localY);
+                previousIt = currentIt;
+                ++currentIt;
+            }
+            m_isNewGlobalY = false;
+        }
+
         m_observer.Predict(m_appliedU, dt);
     }
 }

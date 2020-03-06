@@ -23,6 +23,7 @@
 #include <wpi/mutex.h>
 
 #include "Constants.hpp"
+#include "PriorityQueue.h"
 #include "controllers/ControllerBase.hpp"
 
 namespace frc {
@@ -75,6 +76,23 @@ public:
     public:
         static constexpr int kX = 0;
         static constexpr int kY = 1;
+    };
+
+    struct Observation {
+        // Timestamp of observation
+        int64_t timestamp;
+        // State estimate at timestamp (after correct and before predict)
+        Eigen::Matrix<double, 10, 1> Xhat;
+        // Error covariance at timestamp (after correct and before predict)
+        Eigen::Matrix<double, 10, 10> P;
+        // The input applied from previous observation until time t.
+        Eigen::Matrix<double, 2, 1> U;
+        // Local measured output taken at that time.
+        Eigen::Matrix<double, 3, 1> localY;
+        // This is required for priority queue sorting
+        friend bool operator<(const Observation& lhs, const Observation& rhs) {
+            return lhs.timestamp < rhs.timestamp;
+        }
     };
 
     /**
@@ -237,6 +255,9 @@ private:
     // Robot radius
     static constexpr auto rb = kWidth / 2.0;
 
+    // Number of previous measurement samples to save.
+    static constexpr int kSaveSamples = 50;
+
     // The current voltage inputs
     Eigen::Matrix<double, 2, 1> m_appliedU;
 
@@ -273,6 +294,10 @@ private:
 
     bool m_atReferences = false;
     bool m_isOpenLoop = false;
+
+    aos::PriorityQueue<Observation, kSaveSamples, std::less<Observation>>
+        m_observations;
+    wpi::mutex m_globalCorrectMutex;
 
     /**
      * Converts velocity and curvature of drivetrain into left and right wheel

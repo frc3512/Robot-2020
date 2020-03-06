@@ -11,6 +11,7 @@ cppSrcFileInclude {
 
 modifiableFileExclude {
   gradle/
+  src/main/include/PriorityQueue\.h$
 }
 
 includeCppSys {
