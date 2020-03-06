@@ -83,6 +83,10 @@ void Robot::TeleopPeriodic() {
             ButtonPacket message{"DriveStick1", i, true};
             Publish(message);
         }
+        if (m_appendageStick.GetRawButtonPressed(i)) {
+            ButtonPacket message{"AppendageStick", i, true};
+            Publish(message);
+        }
         if (m_appendageStick2.GetRawButtonPressed(i)) {
             ButtonPacket message{"AppendageStick2", i, true};
             Publish(message);

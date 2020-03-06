@@ -8,29 +8,32 @@ using namespace frc3512::Constants::Climber;
 void Climber::SetTransverser(double speed) { m_transverser.Set(speed); }
 
 void Climber::SetElevator(double speed) {
-    m_armLeft.Set(speed);
-    m_armRight.Set(speed);
+    m_elevatorLeft.Set(speed);
+    m_elevatorRight.Set(speed);
 }
 
-void Climber::ForwardClimb() {
+void Climber::SpringElevator() {
     m_climbSole.Set(frc::DoubleSolenoid::Value::kForward);
 }
 
-void Climber::ReverseClimb() {
+void Climber::DisengageElevator() {
     m_climbSole.Set(frc::DoubleSolenoid::Value::kReverse);
 }
 
-void Climber::LockClimb() { m_climbSole.Set(frc::DoubleSolenoid::Value::kOff); }
-
 void Climber::ProcessMessage(const ButtonPacket& message) {
-    if (message.topic == "Robot/AppendageStick" && message.button == 7 &&
+    if (message.topic == "Robot/AppendageStick" && message.button == 5 &&
         message.pressed) {
-        m_winch.Set(1.0);
-    } else if (message.topic == "Robot/AppendageStick" && message.button == 8 &&
+        SpringElevator();
+    } else if (message.topic == "Robot/AppendageStick" && message.button == 3 &&
                message.pressed) {
-        m_winch.Set(-1.0);
-    } else {
-        m_winch.Set(0.0);
-        LockClimb();
+        DisengageElevator();
     }
+}
+
+void Climber::ProcessMessage(const HIDPacket& message) {
+    // TODO: Uncomment once climber and its motors are added to the robot
+    // if (GetRawButton(message, 3, 2)) {
+    //     SetTransverser(message.x4);
+    // }
+    // SetElevator(-message.y3);
 }

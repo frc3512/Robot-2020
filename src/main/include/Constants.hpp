@@ -72,23 +72,16 @@ constexpr int kArmReverse = 1;
 
 namespace Climber {
 // Side Elevator Motors
-constexpr int kArmPortLeft = 2;
-constexpr int kArmPortRight = 3;
+constexpr int kElevatorPortLeft = 2;
+constexpr int kElevatorPortRight = 3;
 
 // Transverser Motor
-constexpr int kTransverserPort = 12;
+constexpr int kTransverserPort = 13;
 
-// Wrangler Winch Motor
-constexpr int kWinchPort = 13;
+// Solenoid
+constexpr int kSolenoidForward = 3;
+constexpr int kSolenoidReverse = 4;
 
-// Climber Forward Solenoid
-constexpr int kClimbForwardSolenoid = 2;
-
-// Climber Reverse Solenoid
-constexpr int kClimbReverseSolenoid = 3;
-
-// Wrangler Solenoid
-constexpr int kWranglerSolenoid = 4;
 }  // namespace Climber
 
 constexpr auto kDt = 0.00505_s;
