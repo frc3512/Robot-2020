@@ -37,7 +37,7 @@ class DrivetrainVelocitySystemConstraint : public TrajectoryConstraint {
   DrivetrainVelocitySystemConstraint(const LinearSystem<2, 2, 2>& system,
                                      units::meter_t trackWidth,
                                      units::volt_t maxVoltage)
-      : m_system(&system), m_trackWidth(trackWidth), m_maxVoltage(maxVoltage) {}
+      : m_system(system), m_trackWidth(trackWidth), m_maxVoltage(maxVoltage) {}
 
   units::meters_per_second_t MaxVelocity(
       const Pose2d& pose, curvature_t curvature,
@@ -47,7 +47,7 @@ class DrivetrainVelocitySystemConstraint : public TrajectoryConstraint {
                             units::meters_per_second_t speed) override;
 
  private:
-  const LinearSystem<2, 2, 2>* m_system;
+  LinearSystem<2, 2, 2> m_system;
   units::meter_t m_trackWidth;
   units::volt_t m_maxVoltage;
 

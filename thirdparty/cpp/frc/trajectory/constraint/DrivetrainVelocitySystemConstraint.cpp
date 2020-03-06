@@ -41,13 +41,13 @@ DrivetrainVelocitySystemConstraint::MinMaxAcceleration(
 
   // Get dx/dt for min u
   u << -m_maxVoltage.to<double>(), -m_maxVoltage.to<double>();
-  xDot = m_system->A() * x + m_system->B() * u;
+  xDot = m_system.A() * x + m_system.B() * u;
   auto minAccel =
       units::meters_per_second_squared_t{(xDot(0, 0) + xDot(1, 0)) / 2.0};
 
   // Get dx/dt for max u
   u << m_maxVoltage.to<double>(), m_maxVoltage.to<double>();
-  xDot = m_system->A() * x + m_system->B() * u;
+  xDot = m_system.A() * x + m_system.B() * u;
   auto maxAccel =
       units::meters_per_second_squared_t{(xDot(0, 0) + xDot(1, 0)) / 2.0};
 
