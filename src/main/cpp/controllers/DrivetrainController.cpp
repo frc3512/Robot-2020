@@ -156,9 +156,7 @@ void DrivetrainController::Update(units::second_t dt,
                            m_localY(LocalOutput::kLeftPosition, 0),
                            m_localY(LocalOutput::kRightPosition, 0),
                            m_observer.Xhat(State::kLeftPosition),
-                           m_observer.Xhat(State::kRightPosition),
-                           m_odometer.GetPose().Translation().X().to<double>(),
-                           m_odometer.GetPose().Translation().Y().to<double>());
+                           m_observer.Xhat(State::kRightPosition));
 
         angleLogger.Log(elapsedTime, m_localY(LocalOutput::kHeading),
                         m_observer.Xhat(State::kHeading),
@@ -185,10 +183,6 @@ void DrivetrainController::Update(units::second_t dt,
             m_observer.P(State::kAngularVelocityError,
                          State::kAngularVelocityError));
 
-        m_odometer.Update(
-            units::radian_t{m_localY(LocalOutput::kHeading)},
-            units::meter_t{m_localY(LocalOutput::kLeftPosition)},
-            units::meter_t{m_localY(LocalOutput::kRightPosition)});
         m_observer.Correct(m_appliedU, m_localY);
 
         m_nextR << ref.pose.Translation().X().to<double>(),
@@ -234,9 +228,7 @@ void DrivetrainController::Update(units::second_t dt,
                            m_localY(LocalOutput::kLeftPosition, 0),
                            m_localY(LocalOutput::kRightPosition, 0),
                            m_observer.Xhat(State::kLeftPosition),
-                           m_observer.Xhat(State::kRightPosition),
-                           m_odometer.GetPose().Translation().X().to<double>(),
-                           m_odometer.GetPose().Translation().Y().to<double>());
+                           m_observer.Xhat(State::kRightPosition));
 
         angleLogger.Log(elapsedTime, m_localY(LocalOutput::kHeading),
                         m_observer.Xhat(State::kHeading), 0,
@@ -263,12 +255,7 @@ void DrivetrainController::Update(units::second_t dt,
             m_observer.P(State::kAngularVelocityError,
                          State::kAngularVelocityError));
 
-        m_odometer.Update(
-            units::radian_t{m_localY(LocalOutput::kHeading)},
-            units::meter_t{m_localY(LocalOutput::kLeftPosition)},
-            units::meter_t{m_localY(LocalOutput::kRightPosition)});
         m_observer.Correct(m_appliedU, m_localY);
-
         m_observer.Predict(m_appliedU, dt);
     }
 }

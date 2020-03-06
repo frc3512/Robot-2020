@@ -10,7 +10,6 @@
 
 #include <Eigen/Core>
 #include <frc/estimator/ExtendedKalmanFilter.h>
-#include <frc/kinematics/DifferentialDriveOdometry.h>
 #include <frc/logging/CSVLogFile.h>
 #include <frc/system/plant/LinearSystemId.h>
 #include <frc/trajectory/Trajectory.h>
@@ -258,10 +257,6 @@ private:
         {0.0001, 0.005, 0.005},
         Constants::kDt};
 
-    // XXX: For testing only. This is used to verify the EKF pose because
-    // DifferentialDriveOdometry is known to work on other robots.
-    frc::DifferentialDriveOdometry m_odometer{frc::Rotation2d(0_rad)};
-
     // Design controller
     // States: [x position, y position, heading, left velocity, right velocity]
     Eigen::Matrix<double, 5, 2> m_B;
@@ -292,9 +287,7 @@ private:
                                    "Measured Left Position (m)",
                                    "Measured Right Position (m)",
                                    "Estimated Left Position (m)",
-                                   "Estimated Right Position (m)",
-                                   "Odometry X (m)",
-                                   "Odometry Y (m)"};
+                                   "Estimated Right Position (m)"};
     frc::CSVLogFile angleLogger{"Drivetrain Angles", "Measured Heading (rad)",
                                 "Estimated Heading (rad)", "Heading Ref (rad)",
                                 "Angle Error (rad)"};
