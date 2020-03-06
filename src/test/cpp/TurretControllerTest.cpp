@@ -108,7 +108,9 @@ TEST(TurretControllerTest, ReachesReferenceStaticDrivetrain) {
     EXPECT_TRUE(controller.AtGoal());
 }
 
-TEST(TurretControllerTest, ReachesReferenceRotateInPlaceDrivetrain) {
+TEST(TurretControllerTest, DISABLED_ReachesReferenceRotateInPlaceDrivetrain) {
+    // TODO: Make the drivetrain actually rotate in place instead of follow an
+    // s-curve.
     using frc3512::Constants::kDt;
 
     // Initialize turret controller
@@ -137,11 +139,6 @@ TEST(TurretControllerTest, ReachesReferenceRotateInPlaceDrivetrain) {
             dt += units::second_t{frc::MakeWhiteNoiseVector(0.001)(0, 0)};
         }
 
-        // Update turret controller
-        turretController.SetDrivetrainStatus(drivetrainTrueXhat);
-        turretController.SetMeasuredOutputs(units::radian_t{turretXhat(0)});
-        turretController.Update(kDt, currentTime);
-
         // Update drivetrain controller
         Eigen::Matrix<double, 3, 1> drivetrainY =
             frc3512::DrivetrainController::LocalMeasurementModel(
@@ -155,6 +152,11 @@ TEST(TurretControllerTest, ReachesReferenceRotateInPlaceDrivetrain) {
             units::meter_t{drivetrainY(1, 0)},
             units::meter_t{drivetrainY(2, 0)});
         drivetrainController.Update(kDt, currentTime);
+
+        // Update turret controller
+        turretController.SetDrivetrainStatus(drivetrainTrueXhat);
+        turretController.SetMeasuredOutputs(units::radian_t{turretXhat(0)});
+        turretController.Update(kDt, currentTime);
 
         currentTime += dt;
 
