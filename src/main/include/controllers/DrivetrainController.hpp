@@ -212,9 +212,9 @@ public:
         const Eigen::Matrix<double, 2, 1>& u);
 
 private:
-    static constexpr double kPositionTolerance = 0.05;  // meters
-    static constexpr double kVelocityTolerance = 2.0;   // meters/second
-    static constexpr double kAngleTolerance = 0.05;     // radians
+    static constexpr double kPositionTolerance = 0.5;  // meters
+    static constexpr double kVelocityTolerance = 2.0;  // meters/second
+    static constexpr double kAngleTolerance = 0.52;    // radians
     static constexpr decltype(1_V / 1_mps) kLinearV = 3.02_V / 1_mps;
     static constexpr decltype(1_V / 1_mps_sq) kLinearA = 0.642_V / 1_mps_sq;
     static constexpr decltype(1_V / 1_rad_per_s) kAngularV =
