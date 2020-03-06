@@ -2,6 +2,8 @@
 
 #include "Robot.hpp"
 
+#include <functional>
+
 #include <frc/DriverStation.h>
 #include <wpi/raw_ostream.h>
 
@@ -16,6 +18,23 @@ Robot::Robot() : PublishNode("Robot") {
     m_climber.Subscribe(*this);
 
     m_flywheel.Subscribe(m_turret);
+
+    m_autonSelector.AddAutoMethod(
+        "Loading Zone Drive Forward",
+        std::bind(&Robot::AutoLoadingZoneDriveForwardInit, this),
+        std::bind(&Robot::AutoLoadingZoneDriveForwardPeriodic, this));
+    m_autonSelector.AddAutoMethod(
+        "Loading Zone Shoot Three Balls",
+        std::bind(&Robot::AutoLoadingZoneShootThreeInit, this),
+        std::bind(&Robot::AutoLoadingZoneShootThreePeriodic, this));
+    m_autonSelector.AddAutoMethod(
+        "Target Zone Shoot Three Balls",
+        std::bind(&Robot::AutoTargetZoneShootThreeInit, this),
+        std::bind(&Robot::AutoTargetZoneShootThreePeriodic, this));
+    m_autonSelector.AddAutoMethod(
+        "Right Side Shoot Three Balls",
+        std::bind(&Robot::AutoRightSideShootThreeInit, this),
+        std::bind(&Robot::AutoRightSideShootThreePeriodic, this));
 }
 
 void Robot::DisabledInit() {
@@ -26,6 +45,7 @@ void Robot::DisabledInit() {
 void Robot::AutonomousInit() {
     SubsystemBase::RunAllAutonomousInit();
     ControllerSubsystemBase::Enable();
+    m_autonSelector.ExecAutonomousInit();
 }
 
 void Robot::TeleopInit() {
@@ -73,7 +93,10 @@ void Robot::DisabledPeriodic() {
     wpi::outs() << "Turret: " << m_turret.GetAngle().to<double>() << "\n";
 }
 
-void Robot::AutonomousPeriodic() { SubsystemBase::RunAllAutonomousPeriodic(); }
+void Robot::AutonomousPeriodic() {
+    SubsystemBase::RunAllAutonomousPeriodic();
+    m_autonSelector.ExecAutonomousPeriodic();
+}
 
 void Robot::TeleopPeriodic() {
     SubsystemBase::RunAllTeleopPeriodic();

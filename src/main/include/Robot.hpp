@@ -36,6 +36,16 @@ public:
     void AutonomousPeriodic() override;
     void TeleopPeriodic() override;
 
+    void AutoLoadingZoneDriveForwardInit();
+    void AutoLoadingZoneShootThreeInit();
+    void AutoTargetZoneShootThreeInit();
+    void AutoRightSideShootThreeInit();
+
+    void AutoLoadingZoneDriveForwardPeriodic();
+    void AutoLoadingZoneShootThreePeriodic();
+    void AutoTargetZoneShootThreePeriodic();
+    void AutoRightSideShootThreePeriodic();
+
 private:
     // The order the subsystems are initialized determines the order the
     // controllers run in.
@@ -52,6 +62,7 @@ private:
 
     ShootingState m_state = ShootingState::kIdle;
     frc2::Timer m_timer;
-};
 
+    AutonSelector m_autonSelector{kDsPort};
+};
 }  // namespace frc3512
