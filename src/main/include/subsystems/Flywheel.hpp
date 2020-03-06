@@ -81,6 +81,11 @@ public:
     void Shoot();
 
     /**
+     * Returns true if flywheel is spinning.
+     */
+    bool IsShooting() const;
+
+    /**
      * Resets sensors and the controller.
      */
     void Reset();
@@ -109,7 +114,7 @@ private:
     std::chrono::steady_clock::time_point m_lastTime =
         std::chrono::steady_clock::now();
     frc::Pose2d m_nextTurretPose;
-    std::mutex m_controllerMutex;
+    mutable std::mutex m_controllerMutex;
 
     Turret& m_turret;
 };

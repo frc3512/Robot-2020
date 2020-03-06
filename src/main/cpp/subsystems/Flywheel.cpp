@@ -65,6 +65,11 @@ void Flywheel::Shoot() {
     SetGoal(angularVelocity);
 }
 
+bool Flywheel::IsShooting() const {
+    std::scoped_lock lock(m_controllerMutex);
+    return GetGoal() > 0_rad_per_s;
+}
+
 void Flywheel::Reset() {
     m_controller.Reset();
     m_encoder.Reset();
