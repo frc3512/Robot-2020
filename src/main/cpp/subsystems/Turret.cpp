@@ -3,11 +3,14 @@
 #include "subsystems/Turret.hpp"
 
 #include "subsystems/Drivetrain.hpp"
+#include "subsystems/Vision.hpp"
 
 using namespace frc3512;
 
-Turret::Turret(Drivetrain& drivetrain)
-    : ControllerSubsystemBase("Turret"), m_drivetrain(drivetrain) {
+Turret::Turret(Vision& vision, Drivetrain& drivetrain)
+    : ControllerSubsystemBase("Turret"),
+      m_vision(vision),
+      m_drivetrain(drivetrain) {
     m_motor.Set(0);
 #ifndef RUNNING_FRC_TESTS
     m_encoder.SetDistancePerRotation(TurretController::kDpR);
@@ -49,6 +52,26 @@ void Turret::ControllerPeriodic() {
     m_controller.SetDrivetrainStatus(m_drivetrain.GetNextXhat());
     m_controller.SetHardLimitOutputs(IsPassedCCWLimit(), IsPassedCWLimit());
     m_controller.Update(now - m_lastTime, now - GetStartTime());
+
+    auto globalMeasurement = m_vision.GetGlobalMeasurement();
+    if (globalMeasurement) {
+        auto turretInGlobal = globalMeasurement.value();
+
+        frc::Transform2d turretInGlobalToDrivetrainInGlobal{
+            frc::Pose2d{
+                TurretController::kDrivetrainToTurretFrame.Translation(),
+                TurretController::kDrivetrainToTurretFrame.Rotation()
+                        .Radians() +
+                    GetAngle()},
+            frc::Pose2d{}};
+        auto drivetrainInGlobal =
+            turretInGlobal.pose.TransformBy(turretInGlobalToDrivetrainInGlobal);
+
+        m_drivetrain.CorrectWithGlobalOutputs(
+            drivetrainInGlobal.Translation().X(),
+            drivetrainInGlobal.Translation().Y(),
+            globalMeasurement.value().timestamp);
+    }
 
     // Set motor input
     if (!m_manualOverride) {

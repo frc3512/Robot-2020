@@ -2,20 +2,40 @@
 
 #pragma once
 
-#include <memory>
+#include <ntcore_c.h>
 
-#include <frc/geometry/Pose2d.h>
+#include <memory>
+#include <optional>
+
+#include <frc/geometry/Translation2d.h>
+#include <frc/logging/CSVLogFile.h>
 #include <networktables/NetworkTable.h>
 #include <networktables/NetworkTableEntry.h>
 #include <networktables/NetworkTableInstance.h>
+#include <units/units.h>
+#include <wpi/math>
+#include <wpi/mutex.h>
+#include <wpi/static_circular_buffer.h>
 
+#include "controllers/DrivetrainController.hpp"
 #include "subsystems/SubsystemBase.hpp"
 
 namespace frc3512 {
 
 class Vision : public SubsystemBase {
 public:
+    // Transformation from camera to drivetrain
+    static const frc::Transform2d kCameraInGlobalToTurretInGlobal;
+
+    struct GlobalMeasurement {
+        int64_t timestamp;
+        frc::Pose2d pose;
+    };
+
     Vision();
+
+    ~Vision() override = default;
+
     Vision& operator=(const Vision&) = delete;
 
     /**
@@ -33,18 +53,27 @@ public:
      */
     bool IsLEDOn() const;
 
-    void RobotPeriodic() override;
+    /**
+     * Returns the most recent global measurement
+     */
+    std::optional<GlobalMeasurement> GetGlobalMeasurement();
+
+    /**
+     * Converts solvePnP data from the networktables into a global turret pose
+     * measurement
+     */
+    void ProcessNewMeasurement();
 
 private:
-    nt::NetworkTableInstance m_inst{nt::NetworkTableInstance::GetDefault()};
-    std::shared_ptr<nt::NetworkTable> m_ledTable =
-        m_inst.GetTable("LED Ring Light");
-    nt::NetworkTableEntry m_ledIsOn = m_ledTable->GetEntry("LED-State");
-    std::shared_ptr<nt::NetworkTable> m_poseTable =
-        m_inst.GetTable("chameleon-vision");
-    std::shared_ptr<nt::NetworkTable> m_rpiTable =
-        m_poseTable->GetSubTable("RPI-Cam");
-    nt::NetworkTableEntry m_pose = m_rpiTable->GetEntry("target-Pose");
-    nt::NetworkTableEntry m_latency = m_rpiTable->GetEntry("latency");
+    nt::NetworkTableInstance m_inst;
+    std::shared_ptr<nt::NetworkTable> m_ledTable;
+    nt::NetworkTableEntry m_ledIsOn;
+    std::shared_ptr<nt::NetworkTable> m_poseTable;
+    std::shared_ptr<nt::NetworkTable> m_rpiTable;
+    nt::NetworkTableEntry m_pose;
+    nt::NetworkTableEntry m_latency;
+
+    wpi::mutex m_measurementMutex;
+    wpi::static_circular_buffer<GlobalMeasurement, 8> m_measurements;
 };
 }  // namespace frc3512

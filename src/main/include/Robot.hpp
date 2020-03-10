@@ -114,11 +114,11 @@ private:
     const units::meter_t kPathWeaverFudge = -0.343_m;
     // The order the subsystems are initialized determines the order the
     // controllers run in.
-    Drivetrain m_drivetrain;
-    Turret m_turret{m_drivetrain};
+    Vision m_vision;
+    Drivetrain m_drivetrain{m_vision};
+    Turret m_turret{m_vision, m_drivetrain};
     Flywheel m_flywheel{m_turret};
     Intake m_intake{m_flywheel};
-    Vision m_vision;
     Climber m_climber;
     frc::Joystick m_driveStick1{kDriveStick1Port};
     frc::Joystick m_driveStick2{kDriveStick2Port};

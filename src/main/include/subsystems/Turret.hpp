@@ -17,6 +17,7 @@
 
 namespace frc3512 {
 
+class Vision;
 class Drivetrain;
 
 /**
@@ -30,7 +31,7 @@ enum TurretState { kIDLE = 0, kMostLeft, KMostRight };
  */
 class Turret : public ControllerSubsystemBase {
 public:
-    explicit Turret(Drivetrain& drivetrain);
+    explicit Turret(Vision& vision, Drivetrain& drivetrain);
 
     Turret(const Turret&) = delete;
     Turret& operator=(const Turret&) = delete;
@@ -114,6 +115,7 @@ private:
 
     TurretController m_controller;
 
+    Vision& m_vision;
     Drivetrain& m_drivetrain;
 
     // TODO: Let the turret move on its once the absolute

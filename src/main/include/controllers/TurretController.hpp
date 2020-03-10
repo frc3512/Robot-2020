@@ -29,9 +29,7 @@ public:
     static constexpr double kDpR = kGearRatio * 2.0 * wpi::math::pi;
 
     // Transformation from drivetrain to turret
-    static constexpr units::meter_t kTx = 2_in;
-    static constexpr units::meter_t kTy = 0_m;
-    static constexpr units::radian_t kR = wpi::math::pi * 1_rad;
+    static const frc::Pose2d kDrivetrainToTurretFrame;
 
     // State tolerances
     static constexpr units::radian_t kAngleTolerance = 0.05_rad;

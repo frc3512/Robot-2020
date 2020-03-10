@@ -8,10 +8,14 @@
 
 #include <frc/RobotController.h>
 
+#include "controllers/TurretController.hpp"
+#include "subsystems/Vision.hpp"
+
 using namespace frc3512;
 using namespace frc3512::Constants::Robot;
 
-Drivetrain::Drivetrain() : ControllerSubsystemBase("Drivetrain") {
+Drivetrain::Drivetrain(Vision& vision)
+    : ControllerSubsystemBase("Drivetrain"), m_vision(vision) {
     m_drive.SetDeadband(kJoystickDeadband);
 
     m_leftGrbx.Set(0.0);
@@ -93,6 +97,11 @@ bool Drivetrain::IsControllerEnabled() const {
     return m_controller.IsEnabled();
 }
 
+void Drivetrain::CorrectWithGlobalOutputs(units::meter_t x, units::meter_t y,
+                                          int64_t timestamp) {
+    m_controller.CorrectWithGlobalOutputs(x, y, timestamp);
+}
+
 void Drivetrain::ControllerPeriodic() {
     m_controller.SetMeasuredInputs(
         units::volt_t{m_leftGrbx.Get() *
@@ -101,6 +110,7 @@ void Drivetrain::ControllerPeriodic() {
                       frc::RobotController::GetInputVoltage()});
     m_controller.SetMeasuredLocalOutputs(GetAngle(), GetLeftPosition(),
                                          GetRightPosition());
+
     auto now = std::chrono::steady_clock::now();
     m_controller.Update(now - m_lastTime, now - GetStartTime());
 

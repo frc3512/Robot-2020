@@ -9,6 +9,9 @@
 using namespace frc3512;
 using namespace frc3512::Constants::Turret;
 
+const frc::Pose2d TurretController::kDrivetrainToTurretFrame{
+    2_in, 0_m, wpi::math::pi * 1_rad};
+
 TurretController::TurretController() { m_y.setZero(); }
 
 void TurretController::Enable() { m_isEnabled = true; }
@@ -89,8 +92,8 @@ void TurretController::Update(units::second_t dt, units::second_t elapsedTime) {
 
     // Calculate next drivetrain and turret pose in global frame
     frc::Transform2d drivetrainToTurretFrame{
-        frc::Pose2d(),
-        frc::Pose2d(kTx, kTy, m_drivetrainNextPoseInGlobal.Rotation())};
+        frc::Pose2d(), frc::Pose2d(kDrivetrainToTurretFrame.Translation(),
+                                   m_drivetrainNextPoseInGlobal.Rotation())};
     m_turretNextPoseInGlobal =
         m_drivetrainNextPoseInGlobal.TransformBy(drivetrainToTurretFrame);
 
@@ -103,7 +106,8 @@ void TurretController::Update(units::second_t dt, units::second_t elapsedTime) {
     units::radian_t turretDesiredHeadingInDrivetrain =
         turretThetaToTargetInGlobal - drivetrainNextThetaInGlobal;
     units::radian_t turretDesiredHeadingInTurret =
-        turretDesiredHeadingInDrivetrain - kR;
+        turretDesiredHeadingInDrivetrain -
+        kDrivetrainToTurretFrame.Rotation().Radians();
 
     SetGoal(turretDesiredHeadingInTurret, 0_rad_per_s);
 

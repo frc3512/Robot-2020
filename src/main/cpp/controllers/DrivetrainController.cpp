@@ -7,6 +7,7 @@
 
 #include <Eigen/QR>
 #include <frc/RobotController.h>
+#include <frc/StateSpaceUtil.h>
 #include <frc/controller/LinearQuadraticRegulator.h>
 #include <frc/geometry/Pose2d.h>
 #include <frc/kinematics/DifferentialDriveKinematics.h>
@@ -20,6 +21,9 @@
 
 using namespace frc3512;
 using namespace frc3512::Constants;
+
+const Eigen::Matrix<double, 2, 2> DrivetrainController::kGlobalR =
+    frc::MakeCovMatrix(0.05, 0.05);
 
 DrivetrainController::DrivetrainController() {
     m_localY.setZero();
@@ -79,13 +83,19 @@ void DrivetrainController::SetMeasuredLocalOutputs(
         rightPosition.to<double>();
 }
 
-void DrivetrainController::SetMeasuredGlobalOutputs(
-    units::meter_t x, units::meter_t y, units::radian_t heading,
-    units::meter_t leftPosition, units::meter_t rightPosition,
-    units::radians_per_second_t angularVelocity) {
-    m_globalY << x.to<double>(), y.to<double>(), heading.to<double>(),
-        leftPosition.to<double>(), rightPosition.to<double>(),
-        angularVelocity.to<double>();
+void DrivetrainController::Predict(const Eigen::Matrix<double, 2, 1>& u,
+                                   units::second_t dt) {
+    m_observer.Predict(u, dt);
+}
+
+void DrivetrainController::CorrectWithGlobalOutputs(units::meter_t x,
+                                                    units::meter_t y,
+                                                    int64_t timestamp) {
+    Eigen::Matrix<double, 2, 1> globalY;
+    globalY << x.to<double>(), y.to<double>();
+    m_observer.Correct<2>(Eigen::Matrix<double, 2, 1>::Zero(), globalY,
+                          &DrivetrainController::GlobalMeasurementModel,
+                          kGlobalR);
 }
 
 const Eigen::Matrix<double, 10, 1>& DrivetrainController::GetReferences()
@@ -111,7 +121,7 @@ Eigen::Matrix<double, 3, 1> DrivetrainController::EstimatedLocalOutputs()
                                  Eigen::Matrix<double, 2, 1>::Zero());
 }
 
-Eigen::Matrix<double, 6, 1> DrivetrainController::EstimatedGlobalOutputs()
+Eigen::Matrix<double, 2, 1> DrivetrainController::EstimatedGlobalOutputs()
     const {
     return GlobalMeasurementModel(m_observer.Xhat(),
                                   Eigen::Matrix<double, 2, 1>::Zero());
@@ -310,17 +320,13 @@ Eigen::Matrix<double, 3, 1> DrivetrainController::LocalMeasurementModel(
     return y;
 }
 
-Eigen::Matrix<double, 6, 1> DrivetrainController::GlobalMeasurementModel(
+Eigen::Matrix<double, 2, 1> DrivetrainController::GlobalMeasurementModel(
     const Eigen::Matrix<double, 10, 1>& x,
     const Eigen::Matrix<double, 2, 1>& u) {
     static_cast<void>(u);
 
-    Eigen::Matrix<double, 6, 1> y;
-    y.block<3, 1>(0, 0) = x.block<3, 1>(0, 0);
-    y(3) = x(State::kLeftPosition);
-    y(4) = x(State::kRightPosition);
-    y(5) = (x(State::kRightVelocity) - x(State::kLeftVelocity)) /
-           (2.0 * rb.to<double>());
+    Eigen::Matrix<double, 2, 1> y;
+    y << x(State::kX), x(State::kY);
     return y;
 }
 

@@ -18,12 +18,14 @@
 
 namespace frc3512 {
 
+class Vision;
+
 /**
  * Provides an interface for this year's drive train.
  */
 class Drivetrain : public ControllerSubsystemBase {
 public:
-    Drivetrain();
+    explicit Drivetrain(Vision& vision);
     Drivetrain(const Drivetrain&) = delete;
     Drivetrain& operator=(const Drivetrain&) = delete;
 
@@ -126,6 +128,16 @@ public:
      */
     bool IsControllerEnabled() const;
 
+    /**
+     * Set global measurements.
+     *
+     * @param x         X position of the robot in meters.
+     * @param y         Y position of the robot in meters.
+     * @param timestamp Absolute time the translation data comes from.
+     */
+    void CorrectWithGlobalOutputs(units::meter_t x, units::meter_t y,
+                                  int64_t timestamp);
+
     void ControllerPeriodic() override;
 
     /**
@@ -209,6 +221,8 @@ private:
 
     bool m_manualControl = true;
     wpi::mutex m_motorControllerMutex;
+
+    Vision& m_vision;
 };
 
 }  // namespace frc3512

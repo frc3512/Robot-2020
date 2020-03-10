@@ -413,7 +413,10 @@ TEST(TurretControllerTest, ProperDistanceFromTarget) {
 
     RenameCSVs("TurretControllerTest ProperDistanceFromTarget", "./Turret ");
 
-    EXPECT_NEAR_UNITS(distance,
-                      629.25_in - kDrivetrainX + frc3512::TurretController::kTx,
-                      1e-6_m);
+    EXPECT_NEAR_UNITS(
+        distance,
+        629.25_in - kDrivetrainX +
+            frc3512::TurretController::kDrivetrainToTurretFrame.Translation()
+                .X(),
+        1e-6_m);
 }

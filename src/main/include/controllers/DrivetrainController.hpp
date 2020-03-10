@@ -69,10 +69,6 @@ public:
     public:
         static constexpr int kX = 0;
         static constexpr int kY = 1;
-        static constexpr int kHeading = 2;
-        static constexpr int kLeftPosition = 3;
-        static constexpr int kRightPosition = 4;
-        static constexpr int kAngularVelocity = 5;
     };
 
     /**
@@ -141,22 +137,17 @@ public:
                                  units::meter_t leftPosition,
                                  units::meter_t rightPosition);
 
+    void Predict(const Eigen::Matrix<double, 2, 1>& u, units::second_t dt);
+
     /**
      * Set global measurements.
      *
-     * @param x             X position of the robot in meters.
-     * @param y             Y position of the robot in meters.
-     * @param heading       Angle of the robot.
-     * @param leftPosition  Encoder count of left side in meters.
-     * @param rightPosition Encoder count of right side in meters.
-     * @param angularVelocity Angular velocity of the robot in radians per
-     * second.
+     * @param x         X position of the robot in meters.
+     * @param y         Y position of the robot in meters.
+     * @param timestamp Absolute time the translation data comes from.
      */
-    void SetMeasuredGlobalOutputs(units::meter_t x, units::meter_t y,
-                                  units::radian_t heading,
-                                  units::meter_t leftPosition,
-                                  units::meter_t rightPosition,
-                                  units::radians_per_second_t angularVelocity);
+    void CorrectWithGlobalOutputs(units::meter_t x, units::meter_t y,
+                                  int64_t timestamp);
 
     const Eigen::Matrix<double, 10, 1>& GetReferences() const override;
 
@@ -178,7 +169,7 @@ public:
      *
      * This provides global measurements (including pose).
      */
-    Eigen::Matrix<double, 6, 1> EstimatedGlobalOutputs() const;
+    Eigen::Matrix<double, 2, 1> EstimatedGlobalOutputs() const;
 
     /**
      * Executes the control loop for a cycle.
@@ -225,7 +216,7 @@ public:
         const Eigen::Matrix<double, 10, 1>& x,
         const Eigen::Matrix<double, 2, 1>& u);
 
-    static Eigen::Matrix<double, 6, 1> GlobalMeasurementModel(
+    static Eigen::Matrix<double, 2, 1> GlobalMeasurementModel(
         const Eigen::Matrix<double, 10, 1>& x,
         const Eigen::Matrix<double, 2, 1>& u);
 
@@ -250,7 +241,12 @@ private:
 
     // The current sensor measurements
     Eigen::Matrix<double, 3, 1> m_localY;
-    Eigen::Matrix<double, 6, 1> m_globalY;
+    Eigen::Matrix<double, 2, 1> m_globalY;
+    int64_t m_timestampGlobalY;
+    bool m_isNewGlobalY = false;
+
+    // TODO: Find the good measurement covariance for global measurements
+    static const Eigen::Matrix<double, 2, 2> kGlobalR;
 
     // Design observer. See the enums above for lists of the states, inputs, and
     // outputs.
