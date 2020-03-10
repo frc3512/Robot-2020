@@ -135,13 +135,18 @@ void DrivetrainController::Update(units::second_t dt,
     if (!m_isOpenLoop) {
         frc::Trajectory::State ref;
 
-        // Only sample the trajectory if one was created. Otherwise, use the
-        // default Trajectory::State, which is zero-filled.
-        if (m_trajectory.States().size() != 0) {
+        // Only sample the trajectory if one was created.
+        {
             std::lock_guard lock(m_trajectoryMutex);
-            ref = m_trajectory.Sample(elapsedTime);
+            if (m_trajectory.States().size() != 0) {
+                ref = m_trajectory.Sample(elapsedTime);
+            } else {
+                ref.pose = frc::Pose2d(
+                    units::meter_t{m_observer.Xhat(State::kX)},
+                    units::meter_t{m_observer.Xhat(State::kY)},
+                    units::radian_t{m_observer.Xhat(State::kHeading)});
+            }
         }
-
         auto [vlRef, vrRef] =
             ToWheelVelocities(ref.velocity, ref.curvature, kWidth);
 
@@ -172,11 +177,15 @@ void DrivetrainController::Update(units::second_t dt,
         m_r = m_nextR;
         m_observer.Predict(m_cappedU, dt);
 
-        if (ref.pose == m_goal) {
-            Disable();
-        } else {
-            Enable();
+        {
+            std::lock_guard lock(m_trajectoryMutex);
+            if (ref.pose == m_goal) {
+                Disable();
+            } else {
+                Enable();
+            }
         }
+
     } else {
         m_observer.Correct(m_appliedU, m_localY);
         m_observer.Predict(m_appliedU, dt);

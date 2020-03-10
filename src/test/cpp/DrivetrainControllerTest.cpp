@@ -20,18 +20,24 @@ TEST(DrivetrainControllerTest, ReachesReference) {
     frc::sim::RoboRioSim roboRIO{0};
 
     frc3512::DrivetrainController controller;
-    controller.Reset(frc::Pose2d{0_m, 0_m, 0_rad});
+    controller.Reset(frc::Pose2d(12.65_m, 5.800_m - 0.343_m,
+                                 units::radian_t{wpi::math::pi}));
     controller.SetOpenLoop(false);
     controller.Enable();
-
-    controller.SetWaypoints(frc::Pose2d(0_m, 0_m, 0_rad), {},
-                            frc::Pose2d(4.8768_m, 2.7432_m, 0_rad));
 
     Eigen::Matrix<double, 10, 1> x = Eigen::Matrix<double, 10, 1>::Zero();
 
     Eigen::Matrix<double, 2, 1> u = Eigen::Matrix<double, 2, 1>::Zero();
 
     auto currentTime = 0_s;
+
+    controller.Update(kDt, currentTime);
+
+    controller.SetWaypoints(
+        frc::Pose2d(12.65_m, 5.800_m - 0.343_m, units::radian_t{wpi::math::pi}),
+        {},
+        frc::Pose2d(12.65_m - 0.9398_m - 0.5_m, 5.800_m - 0.343_m,
+                    units::radian_t{wpi::math::pi}));
     while (currentTime < 10_s) {
         auto dt = kDt;
 
