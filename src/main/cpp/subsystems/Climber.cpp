@@ -2,38 +2,26 @@
 
 #include "subsystems/Climber.hpp"
 
+#include <cmath>
+
+#include <wpi/MathExtras.h>
+
 using namespace frc3512;
 using namespace frc3512::Constants::Climber;
 
 void Climber::SetTransverser(double speed) { m_transverser.Set(speed); }
 
-void Climber::SetElevator(double speed) {
-    m_elevatorLeft.Set(speed);
-    m_elevatorRight.Set(speed);
-}
-
-void Climber::SpringElevator() {
-    m_climbSole.Set(frc::DoubleSolenoid::Value::kForward);
-}
-
-void Climber::DisengageElevator() {
-    m_climbSole.Set(frc::DoubleSolenoid::Value::kReverse);
-}
-
-void Climber::ProcessMessage(const ButtonPacket& message) {
-    if (message.topic == "Robot/AppendageStick" && message.button == 5 &&
-        message.pressed) {
-        SpringElevator();
-    } else if (message.topic == "Robot/AppendageStick" && message.button == 3 &&
-               message.pressed) {
-        DisengageElevator();
-    }
-}
+void Climber::SetElevator(double speed) { m_elevator.Set(speed); }
 
 void Climber::ProcessMessage(const HIDPacket& message) {
-    // TODO: Uncomment once climber and its motors are added to the robot
-    // if (GetRawButton(message, 3, 2)) {
-    //     SetTransverser(message.x4);
-    // }
-    // SetElevator(-message.y3);
+    if (GetRawButton(message, 3, 2)) {
+        SetTransverser(message.x4 * 0.5 + wpi::sgn(message.x4) * 0.5);
+    } else {
+        SetTransverser(0.0);
+    }
+    if (GetRawButton(message, 2, 1)) {
+        SetElevator(std::abs(message.y3));
+    } else {
+        SetElevator(0.0);
+    }
 }

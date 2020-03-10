@@ -74,16 +74,10 @@ constexpr int kArmReverse = 1;
 
 namespace Climber {
 // Side Elevator Motors
-constexpr int kElevatorPortLeft = 2;
 constexpr int kElevatorPortRight = 3;
 
 // Transverser Motor
 constexpr int kTransverserPort = 13;
-
-// Solenoid
-constexpr int kSolenoidForward = 3;
-constexpr int kSolenoidReverse = 4;
-
 }  // namespace Climber
 
 constexpr auto kDt = 0.00505_s;

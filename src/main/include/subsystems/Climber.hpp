@@ -37,32 +37,15 @@ public:
      */
     void SetElevator(double speed);
 
-    /**
-     * Engages the climber solenoid to release the spring-loaded elevator.
-     */
-    void SpringElevator();
-
-    /**
-     * Disengages the climber solenoid.
-     */
-    void DisengageElevator();
-
-    void ProcessMessage(const ButtonPacket& message) override;
-
     void ProcessMessage(const HIDPacket& message) override;
 
 private:
-    rev::CANSparkMax m_elevatorLeft{Constants::Climber::kElevatorPortLeft,
-                                    rev::CANSparkMax::MotorType::kBrushless};
-    rev::CANSparkMax m_elevatorRight{Constants::Climber::kElevatorPortRight,
-                                     rev::CANSparkMax::MotorType::kBrushless};
+    rev::CANSparkMax m_elevator{Constants::Climber::kElevatorPortRight,
+                                rev::CANSparkMax::MotorType::kBrushless};
 
     rev::CANSparkMax m_transverser{
         frc3512::Constants::Climber::kTransverserPort,
         rev::CANSparkMax::MotorType::kBrushless};
-
-    frc::DoubleSolenoid m_climbSole{Constants::Climber::kSolenoidForward,
-                                    Constants::Climber::kSolenoidReverse};
 };
 
 }  // namespace frc3512
