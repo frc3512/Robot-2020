@@ -2,6 +2,8 @@
 
 #include "subsystems/Intake.hpp"
 
+#include "subsystems/Flywheel.hpp"
+
 using namespace frc3512;
 using namespace frc3512::Constants::Intake;
 
@@ -45,7 +47,7 @@ void Intake::RobotPeriodic() {
     if (m_flywheel.GetGoal() > 0_rad_per_s && m_flywheel.AtGoal()) {
         SetConveyor(0.85);
     } else if (IsLowerSensorBlocked() && !IsUpperSensorBlocked()) {
-        SetConveyor(0.4);
+        SetConveyor(0.70);
     } else {
         SetConveyor(0.0);
     }
@@ -53,7 +55,7 @@ void Intake::RobotPeriodic() {
 
 void Intake::ProcessMessage(const ButtonPacket& message) {
     if (message.topic == "Robot/AppendageStick2" && message.button == 4 &&
-        message.pressed && !IsUpperSensorBlocked()) {
+        message.pressed) {
         SetArmMotor(ArmMotorDirection::kIntake);
         SetFunnel(0.4);
     } else if (message.topic == "Robot/AppendageStick2" &&

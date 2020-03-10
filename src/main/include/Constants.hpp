@@ -64,8 +64,8 @@ constexpr int kFunnelPortLeft = 4;
 constexpr int kFunnelPortRight = 5;
 
 // Proximity Sensor Ports (Digital Inputs)
-constexpr int kLowerSensorPort = 5;
-constexpr int kUpperSensorPort = 4;
+constexpr int kLowerSensorPort = 4;
+constexpr int kUpperSensorPort = 5;
 
 // Solenoid Ports
 constexpr int kArmForward = 0;

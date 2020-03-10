@@ -9,10 +9,11 @@
 #include <wpi/mutex.h>
 
 #include "Constants.hpp"
-#include "subsystems/Flywheel.hpp"
 #include "subsystems/SubsystemBase.hpp"
 
 namespace frc3512 {
+
+class Flywheel;
 
 /**
  * Provides an interface for the robot's intake. It's in front of a funnel and
