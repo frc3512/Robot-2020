@@ -11,8 +11,12 @@
 #include <wpi/math>
 
 #include "Constants.hpp"
+#include "TargetModel.hpp"
 #include "controllers/DrivetrainController.hpp"
 #include "controllers/TurretController.hpp"
+
+#define EXPECT_NEAR_UNITS(val1, val2, eps) \
+    EXPECT_LE(units::math::abs((val1) - (val2)), eps)
 
 static constexpr bool kIdealModel = true;
 
@@ -411,4 +415,33 @@ TEST(TurretControllerTest, ReachesReferenceAutonDrivetrain) {
     RenameTurretCSVs("Auton");
 
     EXPECT_TRUE(turretController.AtGoal());
+}
+
+TEST(TurretControllerTest, ProperDistanceFromTarget) {
+    constexpr units::meter_t kDrivetrainX = 12.65_m - 0.9398_m;
+    constexpr units::meter_t kDrivetrainY = 2.600_m - 0.343_m;
+
+    frc3512::TurretController controller;
+    controller.Reset();
+    controller.Enable();
+    controller.SetMeasuredOutputs(0_rad);
+    Eigen::Matrix<double, 10, 1> drivetrainXhat;
+
+    drivetrainXhat << kDrivetrainX.to<double>(), kDrivetrainY.to<double>(),
+        wpi::math::pi, 0, 0, 0, 0, 0, 0, 0;
+
+    controller.SetDrivetrainStatus(drivetrainXhat);
+    controller.Update(0.00505_s, 0_s);
+    auto turretPose = controller.GetNextPose();
+
+    const frc::Pose2d kTargetPoseInGlobal{TargetModel::kCenter.X(),
+                                          TargetModel::kCenter.Y(),
+                                          units::radian_t{wpi::math::pi}};
+
+    auto distance =
+        turretPose.Translation().Distance(kTargetPoseInGlobal.Translation());
+
+    EXPECT_NEAR_UNITS(distance,
+                      629.25_in - kDrivetrainX + frc3512::TurretController::kTx,
+                      1e-6_m);
 }

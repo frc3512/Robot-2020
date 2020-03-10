@@ -25,6 +25,11 @@ public:
     static constexpr double kGearRatio = 18.0 / 160.0;
     static constexpr double kDpR = kGearRatio * 2.0 * wpi::math::pi;
 
+    // Transformation from drivetrain to turret
+    static constexpr units::meter_t kTx = 2_in;
+    static constexpr units::meter_t kTy = 0_m;
+    static constexpr units::radian_t kR = wpi::math::pi * 1_rad;
+
     // State tolerances
     static constexpr units::radian_t kAngleTolerance = 0.05_rad;
     static constexpr units::radians_per_second_t kAngularVelocityTolerance =
@@ -163,9 +168,6 @@ private:
     static constexpr units::radians_per_second_t kMaxV = 1.477996_rad_per_s;
     static constexpr decltype(1_rad_per_s / 1_s) kMaxA =
         7.782482_rad_per_s / 1_s;
-    static constexpr units::meter_t kTx = 2_in;
-    static constexpr units::meter_t kTy = 0_m;
-    static constexpr units::radian_t kR = wpi::math::pi * 1_rad;
 
     const frc::Pose2d targetPoseInGlobal{TargetModel::kCenter.X(),
                                          TargetModel::kCenter.Y(),

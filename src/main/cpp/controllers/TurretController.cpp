@@ -101,11 +101,11 @@ void TurretController::Update(units::second_t dt, units::second_t elapsedTime) {
     m_observer.Correct(m_u, m_y);
 
     // Calculate next drivetrain and turret pose in global frame
-    frc::Transform2d turretNextPoseInDrivetrainToGlobal{
-        frc::Pose2d(kTx, kTy, kR), m_drivetrainNextPoseInGlobal};
-    frc::Pose2d turretNextPoseInLocal{0_m, 0_m, 0_rad};
+    frc::Transform2d drivetrainToTurretFrame{
+        frc::Pose2d(),
+        frc::Pose2d(kTx, kTy, m_drivetrainNextPoseInGlobal.Rotation())};
     m_turretNextPoseInGlobal =
-        turretNextPoseInLocal.TransformBy(turretNextPoseInDrivetrainToGlobal);
+        m_drivetrainNextPoseInGlobal.TransformBy(drivetrainToTurretFrame);
 
     // Find angle reference for this timestep
     units::radian_t turretThetaToTargetInGlobal =
