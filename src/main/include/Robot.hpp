@@ -47,6 +47,7 @@ public:
     void AutoRightSideShootThreePeriodic();
 
 private:
+    const units::meter_t kPathWeaverFudge = -0.343_m;
     // The order the subsystems are initialized determines the order the
     // controllers run in.
     Drivetrain m_drivetrain;

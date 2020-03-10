@@ -283,7 +283,7 @@ void DrivetrainController::Reset(const frc::Pose2d& initialPose) {
 }
 
 frc::TrajectoryConfig DrivetrainController::MakeTrajectoryConfig() const {
-    frc::TrajectoryConfig config{kMaxV, kMaxA};
+    frc::TrajectoryConfig config{kMaxV, kMaxA - 16.5_mps_sq};
 
     auto plant = frc::IdentifyDrivetrainSystem(
         kLinearV.to<double>(), kLinearA.to<double>(), kAngularV.to<double>(),
