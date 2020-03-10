@@ -14,10 +14,11 @@
 #include "Constants.hpp"
 #include "controllers/TurretController.hpp"
 #include "subsystems/ControllerSubsystemBase.hpp"
-#include "subsystems/Drivetrain.hpp"
 #include "subsystems/SubsystemBase.hpp"
 
 namespace frc3512 {
+
+class Drivetrain;
 
 /**
  *  State class which stores numerical values as "states" for the Turret to use.
@@ -96,6 +97,10 @@ public:
 
     frc::Pose2d GetNextPose() const;
 
+    void ProcessMessage(const ButtonPacket& message) override;
+
+    void ProcessMessage(const POVPacket& message) override;
+
 private:
 #ifndef RUNNING_FRC_TESTS
     frc::DutyCycleEncoder m_encoder{Constants::Turret::kEncoderPort};
@@ -111,5 +116,9 @@ private:
     TurretController m_controller;
 
     Drivetrain& m_drivetrain;
+
+    // TODO: Let the turret move on its once the absolute
+    // encoder is swapped off for a normal one
+    bool m_manualOverride = true;
 };
 }  // namespace frc3512

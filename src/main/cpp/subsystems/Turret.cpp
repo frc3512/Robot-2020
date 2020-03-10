@@ -2,6 +2,8 @@
 
 #include "subsystems/Turret.hpp"
 
+#include "subsystems/Drivetrain.hpp"
+
 using namespace frc3512;
 
 Turret::Turret(Drivetrain& drivetrain)
@@ -49,9 +51,30 @@ void Turret::ControllerPeriodic() {
     m_controller.Update(now - m_lastTime, now - GetStartTime());
 
     // Set motor input
-    SetVoltage(m_controller.ControllerVoltage());
+    if (!m_manualOverride) {
+        SetVoltage(m_controller.ControllerVoltage());
+    }
 
     m_lastTime = now;
 }
 
 frc::Pose2d Turret::GetNextPose() const { return m_controller.GetNextPose(); }
+
+void Turret::ProcessMessage(const ButtonPacket& message) {
+    if (message.topic == "Robot/AppendageStick" && message.button == 11 &&
+        message.pressed) {
+        m_manualOverride = true;
+    }
+}
+
+void Turret::ProcessMessage(const POVPacket& message) {
+    if (m_manualOverride) {
+        if (message.direction == 90 && !IsPassedCWLimit()) {
+            SetVoltage(-4.0_V);
+        } else if (message.direction == 270 && !IsPassedCCWLimit()) {
+            SetVoltage(4.0_V);
+        } else {
+            SetVoltage(0.0_V);
+        }
+    }
+}

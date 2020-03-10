@@ -157,21 +157,24 @@ void Robot::TeleopPeriodic() {
         }
     }
 
+    POVPacket povMessage{"AppendageStick2", m_appendageStick.GetPOV()};
+    Publish(povMessage);
+
     auto& ds = frc::DriverStation::GetInstance();
-    HIDPacket message{"",
-                      m_driveStick1.GetX(),
-                      m_driveStick1.GetY(),
-                      ds.GetStickButtons(0),
-                      m_driveStick2.GetX(),
-                      m_driveStick2.GetY(),
-                      ds.GetStickButtons(1),
-                      m_appendageStick.GetX(),
-                      m_appendageStick.GetY(),
-                      ds.GetStickButtons(2),
-                      m_appendageStick2.GetX(),
-                      m_appendageStick2.GetY(),
-                      ds.GetStickButtons(3)};
-    Publish(message);
+    HIDPacket hidMessage{"",
+                         m_driveStick1.GetX(),
+                         m_driveStick1.GetY(),
+                         ds.GetStickButtons(0),
+                         m_driveStick2.GetX(),
+                         m_driveStick2.GetY(),
+                         ds.GetStickButtons(1),
+                         m_appendageStick.GetX(),
+                         m_appendageStick.GetY(),
+                         ds.GetStickButtons(2),
+                         m_appendageStick2.GetX(),
+                         m_appendageStick2.GetY(),
+                         ds.GetStickButtons(3)};
+    Publish(hidMessage);
 }
 
 }  // namespace frc3512
