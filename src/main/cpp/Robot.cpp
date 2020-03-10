@@ -50,7 +50,6 @@ void Robot::AutonomousInit() {
 
 void Robot::TeleopInit() {
     SubsystemBase::RunAllTeleopInit();
-    ControllerSubsystemBase::Enable();
 
     // Consumes button presses made in disabled
     for (int i = 1; i <= 12; i++) {
@@ -71,6 +70,8 @@ void Robot::TeleopInit() {
             Publish(message);
         }
     }
+
+    ControllerSubsystemBase::Enable();
 }
 
 void Robot::TestInit() {
@@ -91,6 +92,10 @@ void Robot::DisabledPeriodic() {
     wpi::outs() << "Drivetrain Gyro: " << m_drivetrain.GetAngle().to<double>()
                 << "\n";
     wpi::outs() << "Turret: " << m_turret.GetAngle().to<double>() << "\n";
+    wpi::outs() << "Upper Conveyor: " << m_intake.IsUpperSensorBlocked()
+                << "\n";
+    wpi::outs() << "Lower Conveyor: " << m_intake.IsLowerSensorBlocked()
+                << "\n";
 }
 
 void Robot::AutonomousPeriodic() {
