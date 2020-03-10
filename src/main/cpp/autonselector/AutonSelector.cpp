@@ -95,7 +95,7 @@ void AutonSelector::ReceiveFromDS() {
                          m_recvPort) == UdpSocket::Done) {
         if (std::strncmp(m_recvBuffer, "connect\r\n", 9) == 0) {
             {
-                std::lock_guard<std::mutex> lock(m_ipMutex);
+                std::scoped_lock lock(m_ipMutex);
                 m_dsIP = m_recvIP;
                 m_dsPort = m_recvPort;
             }

@@ -7,12 +7,13 @@
 #include <atomic>
 #include <chrono>
 #include <functional>
-#include <mutex>
 #include <string>
 #include <string_view>
 #include <thread>
 #include <tuple>
 #include <vector>
+
+#include <wpi/mutex.h>
 
 #include "autonselector/Packet.hpp"
 #include "autonselector/UdpSocket.hpp"
@@ -95,7 +96,7 @@ private:
     char m_curAutonMode;
 
     std::thread m_recvThread;
-    std::mutex m_ipMutex;
+    wpi::mutex m_ipMutex;
     std::atomic<bool> m_recvRunning{false};
 
     /**

@@ -8,6 +8,7 @@
 #include <frc/Encoder.h>
 #include <frc/RTNotifier.h>
 #include <rev/CANSparkMax.h>
+#include <wpi/mutex.h>
 
 #include "Constants.hpp"
 #include "LinearTable.hpp"
@@ -114,7 +115,7 @@ private:
     std::chrono::steady_clock::time_point m_lastTime =
         std::chrono::steady_clock::now();
     frc::Pose2d m_nextTurretPose;
-    mutable std::mutex m_controllerMutex;
+    mutable wpi::mutex m_controllerMutex;
 
     Turret& m_turret;
 };
