@@ -4,6 +4,8 @@
 
 #include <frc/RobotController.h>
 
+#include "subsystems/Turret.hpp"
+
 using namespace frc3512;
 using namespace std::chrono_literals;
 
@@ -19,9 +21,8 @@ Flywheel::Flywheel(Turret& turret)
     Reset();
 
     // TODO: add more entries to the look up table
-
     m_table.insert(125_in, 450_rad_per_s);
-    m_table.insert(153_in, 500_rad_per_s);
+    m_table.insert(200_in, 510_rad_per_s);
     m_table.insert(268_in, 525_rad_per_s);
     m_table.insert(312_in, 550_rad_per_s);
     m_table.insert(326_in, 650_rad_per_s);
@@ -48,6 +49,8 @@ void Flywheel::EnableController() {
 void Flywheel::DisableController() { m_controller.Disable(); }
 
 void Flywheel::SetGoal(units::radians_per_second_t velocity) {
+    m_timer.Reset();
+    m_timer.Start();
     m_controller.SetGoal(velocity);
 }
 
@@ -55,7 +58,13 @@ units::radians_per_second_t Flywheel::GetGoal() const {
     return m_controller.AngularVelocityGoal();
 }
 
-bool Flywheel::AtGoal() const { return m_controller.AtGoal(); }
+bool Flywheel::AtGoal() {
+    bool atGoal = m_controller.AtGoal() || m_timer.HasElapsed(3_s);
+    if (atGoal) {
+        m_timer.Stop();
+    }
+    return atGoal;
+}
 
 void Flywheel::Shoot() {
     std::scoped_lock lock(m_controllerMutex);

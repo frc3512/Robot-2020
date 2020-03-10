@@ -7,16 +7,20 @@
 #include <frc/CounterBase.h>
 #include <frc/Encoder.h>
 #include <frc/RTNotifier.h>
+#include <frc/geometry/Pose2d.h>
+#include <frc2/Timer.h>
 #include <rev/CANSparkMax.h>
 #include <wpi/mutex.h>
 
 #include "Constants.hpp"
 #include "LinearTable.hpp"
+#include "TargetModel.hpp"
 #include "controllers/FlywheelController.hpp"
 #include "subsystems/ControllerSubsystemBase.hpp"
-#include "subsystems/Turret.hpp"
 
 namespace frc3512 {
+
+class Turret;
 
 class Flywheel : public ControllerSubsystemBase {
 public:
@@ -73,7 +77,7 @@ public:
      * Takes the projected distance of the flywheel to the target and sets an
      * angular velocity goal determined by the lookup table
      */
-    bool AtGoal() const;
+    bool AtGoal();
 
     /**
      * Takes the projected distance of the flywheel to the target and sets an
@@ -115,6 +119,7 @@ private:
     std::chrono::steady_clock::time_point m_lastTime =
         std::chrono::steady_clock::now();
     frc::Pose2d m_nextTurretPose;
+    frc2::Timer m_timer;
     mutable wpi::mutex m_controllerMutex;
 
     Turret& m_turret;
