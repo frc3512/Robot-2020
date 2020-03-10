@@ -19,6 +19,7 @@ Robot::Robot() : PublishNode("Robot") {
 
     m_flywheel.Subscribe(m_turret);
 
+    m_autonSelector.AddAutoMethod("No-op", [] {}, [] {});
     m_autonSelector.AddAutoMethod(
         "Loading Zone Drive Forward",
         std::bind(&Robot::AutoLoadingZoneDriveForwardInit, this),
@@ -31,6 +32,10 @@ Robot::Robot() : PublishNode("Robot") {
         "Target Zone Shoot Three Balls",
         std::bind(&Robot::AutoTargetZoneShootThreeInit, this),
         std::bind(&Robot::AutoTargetZoneShootThreePeriodic, this));
+    m_autonSelector.AddAutoMethod(
+        "Right Side Drive Forward",
+        std::bind(&Robot::AutoRightSideDriveForwardInit, this),
+        std::bind(&Robot::AutoRightSideDriveForwardPeriodic, this));
     m_autonSelector.AddAutoMethod(
         "Right Side Shoot Three Balls",
         std::bind(&Robot::AutoRightSideShootThreeInit, this),

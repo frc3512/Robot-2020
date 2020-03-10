@@ -39,11 +39,13 @@ public:
     void AutoLoadingZoneDriveForwardInit();
     void AutoLoadingZoneShootThreeInit();
     void AutoTargetZoneShootThreeInit();
+    void AutoRightSideDriveForwardInit();
     void AutoRightSideShootThreeInit();
 
     void AutoLoadingZoneDriveForwardPeriodic();
     void AutoLoadingZoneShootThreePeriodic();
     void AutoTargetZoneShootThreePeriodic();
+    void AutoRightSideDriveForwardPeriodic();
     void AutoRightSideShootThreePeriodic();
 
 private:
