@@ -57,7 +57,7 @@ TEST(FlywheelControllerTest, ReachesGoal) {
         trueXhat(0) = controller.EstimatedAngularVelocity().to<double>();
     }
 
-    RenameCSVs("FlywheelControllerTest", "./Flywheel");
+    RenameCSVs("FlywheelControllerTest", "./Flywheel ");
 
     EXPECT_TRUE(controller.AtGoal());
 }

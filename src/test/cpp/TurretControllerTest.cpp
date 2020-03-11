@@ -88,7 +88,7 @@ TEST(TurretControllerTest, ReachesReferenceStaticDrivetrain) {
             controller.EstimatedAngularVelocity().to<double>();
     }
 
-    RenameCSVs("Static", "./Turret");
+    RenameCSVs("TurretControllerTest Static", "./Turret ");
 
     EXPECT_TRUE(controller.AtGoal());
 }
@@ -190,7 +190,8 @@ TEST(TurretControllerTest, DISABLED_ReachesReferenceRotateInPlaceDrivetrain) {
             turretController.EstimatedAngularVelocity().to<double>();
     }
 
-    RenameCSVs("RotateInPlace", "./Turret");
+    RenameCSVs("TurretController RotateInPlace", "./Drivetrain ");
+    RenameCSVs("TurretController RotateInPlace", "./Turret ");
 
     EXPECT_TRUE(turretController.AtGoal());
 }
@@ -290,7 +291,8 @@ TEST(TurretControllerTest, ReachesReferenceSCurveDrivetrain) {
             turretController.EstimatedAngularVelocity().to<double>();
     }
 
-    RenameCSVs("SCurve", "./Turret");
+    RenameCSVs("TurretControllerTest SCurve", "./Drivetrain ");
+    RenameCSVs("TurretControllerTest SCurve", "./Turret ");
 
     EXPECT_TRUE(turretController.AtGoal());
 }
@@ -393,7 +395,8 @@ TEST(TurretControllerTest, ReachesReferenceAutonDrivetrain) {
             turretController.EstimatedAngularVelocity().to<double>();
     }
 
-    RenameCSVs("Auton", "./Turret");
+    RenameCSVs("TurretControllerTest Auton", "./Drivetrain ");
+    RenameCSVs("TurretControllerTest Auton", "./Turret ");
 
     EXPECT_TRUE(turretController.AtGoal());
 }
@@ -421,6 +424,8 @@ TEST(TurretControllerTest, ProperDistanceFromTarget) {
 
     auto distance =
         turretPose.Translation().Distance(kTargetPoseInGlobal.Translation());
+
+    RenameCSVs("TurretControllerTest ProperDistanceFromTarget", "./Turret ");
 
     EXPECT_NEAR_UNITS(distance,
                       629.25_in - kDrivetrainX + frc3512::TurretController::kTx,

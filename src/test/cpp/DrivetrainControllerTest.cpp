@@ -89,7 +89,7 @@ TEST(DrivetrainControllerTest, ReachesReference) {
                                    trueXhat, u, dt);
     }
 
-    RenameCSVs("DrivetrainControllerTest", "./Drivetrain");
+    RenameCSVs("DrivetrainControllerTest", "./Drivetrain ");
 
     EXPECT_TRUE(controller.AtGoal());
 }

@@ -151,11 +151,11 @@ private:
     bool m_isEnabled = false;
 
     // The loggers that generates the comma separated value files
-    frc::CSVLogFile velocityLogger{"FlywheelVelocities",
+    frc::CSVLogFile velocityLogger{"Flywheel Velocities",
                                    "Measured Angular Velocity (rad/s)",
                                    "Estimated Angular Velocity (rad/s)",
                                    "Angular Velocity Reference (rad/s)"};
-    frc::CSVLogFile voltageLogger{"FlywheelVoltages", "Controller Voltage (V)",
+    frc::CSVLogFile voltageLogger{"Flywheel Voltages", "Controller Voltage (V)",
                                   "Voltage Error (V)", "Battery Voltage (V)"};
 
     Eigen::Matrix<double, 1, 1> m_u;
