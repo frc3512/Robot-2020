@@ -9,6 +9,7 @@
 #include <units/units.h>
 
 #include "Constants.hpp"
+#include "RenameCSVs.hpp"
 #include "controllers/DrivetrainController.hpp"
 
 static constexpr bool kIdealModel = false;
@@ -87,5 +88,8 @@ TEST(DrivetrainControllerTest, ReachesReference) {
         trueXhat = frc::RungeKutta(frc3512::DrivetrainController::Dynamics,
                                    trueXhat, u, dt);
     }
+
+    RenameCSVs("DrivetrainControllerTest", "./Drivetrain");
+
     EXPECT_TRUE(controller.AtGoal());
 }

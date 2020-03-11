@@ -9,9 +9,10 @@
 #include <wpi/circular_buffer.h>
 
 #include "Constants.hpp"
+#include "RenameCSVs.hpp"
 #include "controllers/FlywheelController.hpp"
 
-TEST(FlywheelControllerTest, DISABLED_ReachesGoal) {
+TEST(FlywheelControllerTest, ReachesGoal) {
     using frc3512::Constants::kDt;
 
     frc3512::FlywheelController controller{{80.0}, {12.0}, kDt};
@@ -55,5 +56,8 @@ TEST(FlywheelControllerTest, DISABLED_ReachesGoal) {
 
         trueXhat(0) = controller.EstimatedAngularVelocity().to<double>();
     }
+
+    RenameCSVs("FlywheelControllerTest", "./Flywheel");
+
     EXPECT_TRUE(controller.AtGoal());
 }

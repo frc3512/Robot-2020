@@ -84,7 +84,7 @@ void FlywheelController::Update(units::second_t dt,
     if (m_nextR(0, 0) == 0.0) {
         m_u(0, 0) = 0.0;
     } else {
-        m_u = m_lqr.U();
+        m_u = m_lqr.U() * 12.0 / frc::RobotController::GetInputVoltage();
     }
 
     ScaleCapU(&m_u);

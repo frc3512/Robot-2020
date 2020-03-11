@@ -1,7 +1,5 @@
 // Copyright (c) 2019-2020 FRC Team 3512. All Rights Reserved.
 
-#include <experimental/filesystem>
-#include <string>
 #include <string_view>
 
 #include <frc/system/plant/DCMotor.h>
@@ -11,6 +9,7 @@
 #include <wpi/math>
 
 #include "Constants.hpp"
+#include "RenameCSVs.hpp"
 #include "TargetModel.hpp"
 #include "controllers/DrivetrainController.hpp"
 #include "controllers/TurretController.hpp"
@@ -19,24 +18,6 @@
     EXPECT_LE(units::math::abs((val1) - (val2)), eps)
 
 static constexpr bool kIdealModel = true;
-
-/**
- * Rename turret CSVs to avoid them being overwritten
- *
- * @param prefix Prefix for turret CSV filename
- */
-void RenameTurretCSVs(std::string_view prefix) {
-    for (auto& p : std::experimental::filesystem::directory_iterator(".")) {
-        std::string directoryEntry = p.path().u8string();
-        std::string oldFilename =
-            directoryEntry.substr(directoryEntry.find("/") + 1);
-        if (directoryEntry.find("./Turret") == 0) {
-            std::string newFilename =
-                std::string{prefix.data()} + " " + oldFilename;
-            std::rename(oldFilename.c_str(), newFilename.c_str());
-        }
-    }
-}
 
 TEST(TurretControllerTest, CalculateHeading) {
     frc3512::TurretController controller;
@@ -107,7 +88,7 @@ TEST(TurretControllerTest, ReachesReferenceStaticDrivetrain) {
             controller.EstimatedAngularVelocity().to<double>();
     }
 
-    RenameTurretCSVs("Static");
+    RenameCSVs("Static", "./Turret");
 
     EXPECT_TRUE(controller.AtGoal());
 }
@@ -209,7 +190,7 @@ TEST(TurretControllerTest, DISABLED_ReachesReferenceRotateInPlaceDrivetrain) {
             turretController.EstimatedAngularVelocity().to<double>();
     }
 
-    RenameTurretCSVs("RotateInPlace");
+    RenameCSVs("RotateInPlace", "./Turret");
 
     EXPECT_TRUE(turretController.AtGoal());
 }
@@ -309,7 +290,7 @@ TEST(TurretControllerTest, ReachesReferenceSCurveDrivetrain) {
             turretController.EstimatedAngularVelocity().to<double>();
     }
 
-    RenameTurretCSVs("SCurve");
+    RenameCSVs("SCurve", "./Turret");
 
     EXPECT_TRUE(turretController.AtGoal());
 }
@@ -412,7 +393,7 @@ TEST(TurretControllerTest, ReachesReferenceAutonDrivetrain) {
             turretController.EstimatedAngularVelocity().to<double>();
     }
 
-    RenameTurretCSVs("Auton");
+    RenameCSVs("Auton", "./Turret");
 
     EXPECT_TRUE(turretController.AtGoal());
 }
