@@ -114,7 +114,7 @@ const Eigen::Matrix<double, 10, 1>& DrivetrainController::GetStates() const {
     return m_observer.Xhat();
 }
 
-Eigen::Matrix<double, 2, 1> DrivetrainController::GetInputs() const {
+const Eigen::Matrix<double, 2, 1>& DrivetrainController::GetInputs() const {
     return m_cappedU;
 }
 

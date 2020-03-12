@@ -34,6 +34,21 @@ public:
     FlywheelController(const FlywheelController&) = delete;
     FlywheelController& operator=(const FlywheelController&) = delete;
 
+    class State {
+    public:
+        static constexpr int kAngularVelocity = 0;
+    };
+
+    class Input {
+    public:
+        static constexpr int kVoltage = 0;
+    };
+
+    class Output {
+    public:
+        static constexpr int kAngularVelocity = 0;
+    };
+
     void Enable();
     void Disable();
     bool IsEnabled() const;
@@ -61,36 +76,32 @@ public:
         units::radians_per_second_t angularVelocity);
 
     /**
-     * Returns the estimated angular velocity.
+     * Returns the current reference.
+     *
+     * angular velocity.
      */
-    units::radians_per_second_t EstimatedAngularVelocity() const;
+    const Eigen::Matrix<double, 1, 1>& GetReferences() const;
 
     /**
-     * Returns the error between the angular velocity goal and the angular
-     * velocity estimate.
+     * Returns the current state estimate.
+     *
+     * angular velocity.
      */
-    units::radians_per_second_t AngularVelocityError() const;
+    const Eigen::Matrix<double, 1, 1>& GetStates() const;
 
     /**
-     * Returns the current angular velocity goal.
+     * Returns the control input.
+     *
+     * voltage.
      */
-    units::radians_per_second_t AngularVelocityGoal() const;
+    const Eigen::Matrix<double, 1, 1>& GetInputs() const;
 
     /**
-     * Returns the current controller voltage.
+     * Returns the currently set local output.
+     *
+     * angular velocity.
      */
-    units::volt_t ControllerVoltage() const;
-
-    /**
-     * Returns the estimated controller voltage.
-     */
-    units::volt_t EstimatedControllerVoltage() const;
-
-    /**
-     * Returns the error between the controller voltage and the controller
-     * voltage estimate
-     */
-    units::volt_t ControllerVoltageError() const;
+    const Eigen::Matrix<double, 1, 1>& GetOutputs() const;
 
     /**
      * Executes the control loop for a cycle.
@@ -156,7 +167,7 @@ private:
                                    "Estimated Angular Velocity (rad/s)",
                                    "Angular Velocity Reference (rad/s)"};
     frc::CSVLogFile voltageLogger{"Flywheel Voltages", "Controller Voltage (V)",
-                                  "Voltage Error (V)", "Battery Voltage (V)"};
+                                  "Battery Voltage (V)"};
 
     Eigen::Matrix<double, 1, 1> m_u;
 

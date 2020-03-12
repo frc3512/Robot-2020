@@ -38,8 +38,7 @@ TEST(FlywheelControllerTest, ReachesGoal) {
 
         constexpr auto Vbat = 12_V;
         constexpr auto Rbat = 0.03_Ohm;
-        Eigen::Matrix<double, 1, 1> u;
-        u << controller.ControllerVoltage().to<double>();
+        Eigen::Matrix<double, 1, 1> u = controller.GetInputs();
 
         // Account for battery voltage drop due to current draw
         constexpr auto motors = frc::DCMotor::NEO(2);
@@ -54,7 +53,7 @@ TEST(FlywheelControllerTest, ReachesGoal) {
         Eigen::Matrix<double, 1, 1> trueU = u;
         trueU *= dsVoltage / 12.0;
 
-        trueXhat(0) = controller.EstimatedAngularVelocity().to<double>();
+        trueXhat = controller.GetStates();
     }
 
     RenameCSVs("FlywheelControllerTest", "./Flywheel ");

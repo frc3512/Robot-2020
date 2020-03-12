@@ -44,34 +44,28 @@ void FlywheelController::SetMeasuredAngularVelocity(
     m_y << angularVelocity.to<double>();
 }
 
-units::radians_per_second_t FlywheelController::EstimatedAngularVelocity()
-    const {
-    return units::radians_per_second_t{m_observer.Xhat(0)};
+const Eigen::Matrix<double, 1, 1>& FlywheelController::GetReferences() const {
+    return m_r;
 }
 
-units::radians_per_second_t FlywheelController::AngularVelocityError() const {
-    return units::radians_per_second_t{m_r(0, 0) - m_observer.Xhat(0)};
+const Eigen::Matrix<double, 1, 1>& FlywheelController::GetStates() const {
+    return m_observer.Xhat();
 }
 
-units::radians_per_second_t FlywheelController::AngularVelocityGoal() const {
-    return units::radians_per_second_t{m_nextR(0, 0)};
+const Eigen::Matrix<double, 1, 1>& FlywheelController::GetInputs() const {
+    return m_u;
 }
 
-units::volt_t FlywheelController::ControllerVoltage() const {
-    return units::volt_t{m_u(0, 0)};
-}
-
-units::volt_t FlywheelController::ControllerVoltageError() const {
-    return units::volt_t{0};
+const Eigen::Matrix<double, 1, 1>& FlywheelController::GetOutputs() const {
+    return m_y;
 }
 
 void FlywheelController::Update(units::second_t dt,
                                 units::second_t elapsedTime) {
-    velocityLogger.Log(elapsedTime, m_y(0, 0),
-                       EstimatedAngularVelocity().to<double>(),
-                       AngularVelocityGoal().to<double>());
-    voltageLogger.Log(elapsedTime, ControllerVoltage().to<double>(),
-                      ControllerVoltageError().to<double>(),
+    velocityLogger.Log(elapsedTime, m_y(Output::kAngularVelocity, 0),
+                       m_observer.Xhat(State::kAngularVelocity),
+                       m_nextR(State::kAngularVelocity, 0));
+    voltageLogger.Log(elapsedTime, m_u(Input::kVoltage, 0),
                       frc::RobotController::GetInputVoltage());
 
     m_observer.Correct(m_u, m_y);
@@ -89,8 +83,10 @@ void FlywheelController::Update(units::second_t dt,
 
     ScaleCapU(&m_u);
 
-    m_atGoal =
-        units::math::abs(AngularVelocityError()) < kAngularVelocityTolerance;
+    m_atGoal = units::math::abs(units::radians_per_second_t{
+                   m_r(State::kAngularVelocity, 0) -
+                   m_observer.Xhat(State::kAngularVelocity)}) <
+               kAngularVelocityTolerance;
     m_r = m_nextR;
     m_observer.Predict(m_u * frc::RobotController::GetInputVoltage() / 12.0,
                        dt);

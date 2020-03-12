@@ -178,7 +178,7 @@ public:
      *
      * left voltage and right voltage.
      */
-    Eigen::Matrix<double, 2, 1> GetInputs() const;
+    const Eigen::Matrix<double, 2, 1>& GetInputs() const;
 
     /**
      * Returns the currently set local outputs.

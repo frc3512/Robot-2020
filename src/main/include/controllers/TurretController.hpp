@@ -35,6 +35,22 @@ public:
     static constexpr units::radians_per_second_t kAngularVelocityTolerance =
         2.0_rad_per_s;
 
+    class State {
+    public:
+        static constexpr int kAngle = 0;
+        static constexpr int kAngularVelocity = 1;
+    };
+
+    class Input {
+    public:
+        static constexpr int kVoltage = 0;
+    };
+
+    class Output {
+    public:
+        static constexpr int kAngle = 0;
+    };
+
     TurretController();
 
     TurretController(const TurretController&) = delete;
@@ -100,46 +116,37 @@ public:
     void SetDrivetrainStatus(const Eigen::Matrix<double, 10, 1>& nextXhat);
 
     /**
+     * Returns the current references.
+     *
+     * angle, angular velocity.
+     */
+    const Eigen::Matrix<double, 2, 1>& GetReferences() const;
+
+    /**
+     * Returns the current state estimate.
+     *
+     * angle, angular velocity.
+     */
+    const Eigen::Matrix<double, 2, 1>& GetStates() const;
+
+    /**
+     * Returns the control inputs.
+     *
+     * voltage.
+     */
+    const Eigen::Matrix<double, 1, 1>& GetInputs() const;
+
+    /**
+     * Returns the currently set local outputs.
+     *
+     * angle.
+     */
+    const Eigen::Matrix<double, 1, 1>& GetOutputs() const;
+
+    /**
      * Returns the projected pose of the turret.
      */
     frc::Pose2d GetNextPose() const;
-
-    /**
-     * Returns the control loop calculated voltage.
-     */
-    units::volt_t ControllerVoltage() const;
-
-    /**
-     * Returns the estimated angle.
-     */
-    units::radian_t EstimatedAngle() const;
-
-    /**
-     * Returns the estimated angular velocity.
-     */
-    units::radians_per_second_t EstimatedAngularVelocity() const;
-
-    /**
-     * Returns the current angle reference.
-     */
-    units::radian_t AngleReference();
-
-    /**
-     * Returns the current angular velocity reference.
-     */
-    units::radians_per_second_t AngularVelocityReference();
-
-    /**
-     * Returns the error between the angle reference and the angle
-     * estimate.
-     */
-    units::radian_t AngleError() const;
-
-    /**
-     * Returns the error between the angular velocity reference and the angular
-     * velocity estimate.
-     */
-    units::radians_per_second_t AngularVelocityError() const;
 
     /**
      * Returns the angle the target must rotate to in the global frame to point

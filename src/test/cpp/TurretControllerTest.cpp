@@ -67,7 +67,7 @@ TEST(TurretControllerTest, ReachesReferenceStaticDrivetrain) {
         constexpr auto Vbat = 12_V;
         constexpr auto Rbat = 0.03_Ohm;
         Eigen::Matrix<double, 1, 1> u;
-        u << controller.ControllerVoltage().to<double>();
+        u = controller.GetInputs();
 
         if constexpr (!kIdealModel) {
             // Account for battery voltage drop due to current draw from both
@@ -84,8 +84,7 @@ TEST(TurretControllerTest, ReachesReferenceStaticDrivetrain) {
             trueU *= dsVoltage / 12.0;
         }
 
-        trueXhat << controller.EstimatedAngle().to<double>(),
-            controller.EstimatedAngularVelocity().to<double>();
+        trueXhat = controller.GetStates();
     }
 
     RenameCSVs("TurretControllerTest Static", "./Turret ");
@@ -151,7 +150,7 @@ TEST(TurretControllerTest, DISABLED_ReachesReferenceRotateInPlaceDrivetrain) {
         Eigen::Matrix<double, 2, 1> drivetrainU =
             drivetrainController.GetInputs();
         Eigen::Matrix<double, 1, 1> turretU;
-        turretU << turretController.ControllerVoltage().to<double>();
+        turretU = turretController.GetInputs();
 
         if constexpr (!kIdealModel) {
             // Account for battery voltage drop due to current draw for the
@@ -186,8 +185,7 @@ TEST(TurretControllerTest, DISABLED_ReachesReferenceRotateInPlaceDrivetrain) {
         drivetrainTrueXhat =
             frc::RungeKutta(frc3512::DrivetrainController::Dynamics,
                             drivetrainTrueXhat, drivetrainU, dt);
-        turretXhat << turretController.EstimatedAngle().to<double>(),
-            turretController.EstimatedAngularVelocity().to<double>();
+        turretXhat = turretController.GetStates();
     }
 
     RenameCSVs("TurretController RotateInPlace", "./Drivetrain ");
@@ -252,7 +250,7 @@ TEST(TurretControllerTest, ReachesReferenceSCurveDrivetrain) {
         Eigen::Matrix<double, 2, 1> drivetrainU =
             drivetrainController.GetInputs();
         Eigen::Matrix<double, 1, 1> turretU;
-        turretU << turretController.ControllerVoltage().to<double>();
+        turretU = turretController.GetInputs();
 
         if constexpr (!kIdealModel) {
             // Account for battery voltage drop due to current draw for the
@@ -287,8 +285,7 @@ TEST(TurretControllerTest, ReachesReferenceSCurveDrivetrain) {
         drivetrainTrueXhat =
             frc::RungeKutta(frc3512::DrivetrainController::Dynamics,
                             drivetrainTrueXhat, drivetrainU, dt);
-        turretXhat << turretController.EstimatedAngle().to<double>(),
-            turretController.EstimatedAngularVelocity().to<double>();
+        turretXhat = turretController.GetStates();
     }
 
     RenameCSVs("TurretControllerTest SCurve", "./Drivetrain ");
@@ -356,7 +353,7 @@ TEST(TurretControllerTest, ReachesReferenceAutonDrivetrain) {
         Eigen::Matrix<double, 2, 1> drivetrainU =
             drivetrainController.GetInputs();
         Eigen::Matrix<double, 1, 1> turretU;
-        turretU << turretController.ControllerVoltage().to<double>();
+        turretU = turretController.GetInputs();
 
         if constexpr (!kIdealModel) {
             // Account for battery voltage drop due to current draw for the
@@ -391,8 +388,7 @@ TEST(TurretControllerTest, ReachesReferenceAutonDrivetrain) {
         drivetrainTrueXhat =
             frc::RungeKutta(frc3512::DrivetrainController::Dynamics,
                             drivetrainTrueXhat, drivetrainU, dt);
-        turretXhat << turretController.EstimatedAngle().to<double>(),
-            turretController.EstimatedAngularVelocity().to<double>();
+        turretXhat = turretController.GetStates();
     }
 
     RenameCSVs("TurretControllerTest Auton", "./Drivetrain ");
