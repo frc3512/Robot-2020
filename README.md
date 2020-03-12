@@ -1,8 +1,8 @@
 # FRC team 3512's 2020 robot
 
-Source code for the 2020 comp robot: Andromeda
+Source code for the 2020 comp robot: Arcadia
 
-Source code also for the 2020 practice robot: Aithir
+Source code also for the 2020 practice robot: Ellinika
 
 ## Setup
 
@@ -53,18 +53,33 @@ in `docs/html` with an index.html page as the root.
 
 ## Game
 
-
+The game for 2020 is called Infinite Recharge, where teams are tasked with shooting power cells into a low, high outer, and high inner goal. This year, the autonomous period returns and is the standard 15 seconds. Teams earn points in this period from moving off the initiation line and earn double the usual points for scoring in the power cell goals. Tele-op adds access to the control panel, which can be spun 3 to 5 times once the stage 2 capacity has been reached for more points, and can spun to a specified color from the FMS to score more points and earn the alliance a ranking point. Endgame tasks robots to climb a "generator switch" square truss, which may swing to be balanced or unbalanced. A ranking point is given if three robots are able to climb, or if two robots climb and the shield generator is balanced.
 
 ## Unique features
 
+This years robot's unique features include:
 
+- Augmented state-space drivetrain controller
+- Vectored intake/outtake wheels
+- Funnel
+- Indexing conveyor
+- Turret
+- Single-wheel flywheel (similar to 2012)
+- Two-stage elevator climbing system
+- Raspberry Pi 3 w/ vision processing
 
 ## Goals of the year
 
-
+|Status|Goal|Additional Description|
+|------|----|----------------------|
+|Yes|Drivetrain State-Space Controller|Following set autonomous trajectories accurately and precisely and using a nonlinear observer for a global pose estimate.|
+|Yes|Turret State-Space Controller|Autoaiming at at the goal while the drivetrain moves underneath.|
+|Yes|Flywheel State-Space Controller|Maintaining a constant RPM with reasonable recovery time.|
+|Yes|Computer Vision|Using Perspective-n-Point to correct nonlinear observer's state estimate.|
+|Yes|Unit Tests|Simulations for *everything* to test complicated robot code with no physical robot present.|
 
 ## Roster
 
 Mentors: Tyler Veness
 
-Students:William Jin (Lead), Kyle Quinlan, Matthew Santana, Ivy Quach, Adan Silva
+Students: William Jin (Lead), Kyle Quinlan, Matthew Santana, Ivy Quach, Adan Silva
