@@ -2,7 +2,6 @@
 
 #pragma once
 
-#include <Eigen/Core>
 #include <frc/controller/LinearQuadraticRegulator.h>
 #include <frc/estimator/KalmanFilter.h>
 #include <frc/logging/CSVLogFile.h>
@@ -11,10 +10,11 @@
 #include <wpi/math>
 
 #include "Constants.hpp"
+#include "controllers/ControllerBase.hpp"
 
 namespace frc3512 {
 
-class FlywheelController {
+class FlywheelController : public ControllerBase<1, 1, 1> {
 public:
     static constexpr double kGearRatio = 8.0;
     static constexpr double kDpP = (wpi::math::pi * 2.0) * kGearRatio / 512.0;
@@ -75,33 +75,13 @@ public:
     void SetMeasuredAngularVelocity(
         units::radians_per_second_t angularVelocity);
 
-    /**
-     * Returns the current reference.
-     *
-     * angular velocity.
-     */
-    const Eigen::Matrix<double, 1, 1>& GetReferences() const;
+    const Eigen::Matrix<double, 1, 1>& GetReferences() const override;
 
-    /**
-     * Returns the current state estimate.
-     *
-     * angular velocity.
-     */
-    const Eigen::Matrix<double, 1, 1>& GetStates() const;
+    const Eigen::Matrix<double, 1, 1>& GetStates() const override;
 
-    /**
-     * Returns the control input.
-     *
-     * voltage.
-     */
-    const Eigen::Matrix<double, 1, 1>& GetInputs() const;
+    const Eigen::Matrix<double, 1, 1>& GetInputs() const override;
 
-    /**
-     * Returns the currently set local output.
-     *
-     * angular velocity.
-     */
-    const Eigen::Matrix<double, 1, 1>& GetOutputs() const;
+    const Eigen::Matrix<double, 1, 1>& GetOutputs() const override;
 
     /**
      * Executes the control loop for a cycle.

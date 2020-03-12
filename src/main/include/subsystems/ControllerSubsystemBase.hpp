@@ -13,7 +13,7 @@
 namespace frc3512 {
 
 /**
- * A base class for subsystem controllers.
+ * A base class for subsystems which contain controllers.
  *
  * The internal notifier will call ControllerPeriodic() on every controller
  * subsystem in the order they were constructed.

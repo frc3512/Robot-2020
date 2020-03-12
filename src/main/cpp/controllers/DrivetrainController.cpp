@@ -106,7 +106,8 @@ void DrivetrainController::SetMeasuredGlobalOutputs(
         angularVelocity.to<double>();
 }
 
-const Eigen::Matrix<double, 5, 1>& DrivetrainController::GetReferences() const {
+const Eigen::Matrix<double, 10, 1>& DrivetrainController::GetReferences()
+    const {
     return m_nextR;
 }
 
@@ -188,26 +189,26 @@ void DrivetrainController::Update(units::second_t dt,
         m_nextR << ref.pose.Translation().X().to<double>(),
             ref.pose.Translation().Y().to<double>(),
             ref.pose.Rotation().Radians().to<double>(), vlRef.to<double>(),
-            vrRef.to<double>();
+            vrRef.to<double>(), 0, 0, 0, 0, 0;
 
         // Compute feedforward
-        Eigen::Matrix<double, 5, 1> rdot = (m_nextR - m_r) / dt.to<double>();
-        Eigen::Matrix<double, 10, 1> rAugmented;
-        rAugmented.block<5, 1>(0, 0) = m_r;
-        rAugmented.block<5, 1>(5, 0).setZero();
+        Eigen::Matrix<double, 5, 1> rdot =
+            (m_nextR.block<5, 1>(0, 0) - m_r.block<5, 1>(0, 0)) /
+            dt.to<double>();
         Eigen::Matrix<double, 2, 1> uff = m_B.householderQr().solve(
-            rdot - Dynamics(rAugmented, Eigen::Matrix<double, 2, 1>::Zero())
+            rdot - Dynamics(m_r, Eigen::Matrix<double, 2, 1>::Zero())
                        .block<5, 1>(0, 0));
 
         if (m_isEnabled) {
-            m_cappedU = Controller(m_observer.Xhat(), m_nextR) + uff;
+            m_cappedU =
+                Controller(m_observer.Xhat(), m_nextR.block<5, 1>(0, 0)) + uff;
         } else {
             m_cappedU = Eigen::Matrix<double, 2, 1>::Zero();
         }
         ScaleCapU(&m_cappedU);
 
         Eigen::Matrix<double, 5, 1> error =
-            m_r - m_observer.Xhat().block<5, 1>(0, 0);
+            m_r.block<5, 1>(0, 0) - m_observer.Xhat().block<5, 1>(0, 0);
         m_atReferences = std::abs(error(0, 0)) < kPositionTolerance &&
                          std::abs(error(1, 0)) < kPositionTolerance &&
                          std::abs(error(2, 0)) < kAngleTolerance &&

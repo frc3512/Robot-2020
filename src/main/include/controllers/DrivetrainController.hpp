@@ -8,7 +8,6 @@
 #include <tuple>
 #include <vector>
 
-#include <Eigen/Core>
 #include <frc/estimator/ExtendedKalmanFilter.h>
 #include <frc/logging/CSVLogFile.h>
 #include <frc/system/plant/LinearSystemId.h>
@@ -19,10 +18,11 @@
 #include <wpi/mutex.h>
 
 #include "Constants.hpp"
+#include "controllers/ControllerBase.hpp"
 
 namespace frc3512 {
 
-class DrivetrainController {
+class DrivetrainController : public ControllerBase<10, 2, 3> {
 public:
     static constexpr units::meter_t kWheelRadius = 3_in;
     static constexpr double kDriveGearRatio = 1.0 / 1.0;
@@ -158,35 +158,13 @@ public:
                                   units::meter_t rightPosition,
                                   units::radians_per_second_t angularVelocity);
 
-    /**
-     * Returns the current references.
-     *
-     * x, y, heading, left velocity, and right velocity.
-     */
-    const Eigen::Matrix<double, 5, 1>& GetReferences() const;
+    const Eigen::Matrix<double, 10, 1>& GetReferences() const override;
 
-    /**
-     * Returns the current state estimate.
-     *
-     * x, y, heading, left position, left velocity, right position,
-     * right velocity, left voltage error, right voltage error, and angle error.
-     */
-    const Eigen::Matrix<double, 10, 1>& GetStates() const;
+    const Eigen::Matrix<double, 10, 1>& GetStates() const override;
 
-    /**
-     * Returns the control inputs.
-     *
-     * left voltage and right voltage.
-     */
-    const Eigen::Matrix<double, 2, 1>& GetInputs() const;
+    const Eigen::Matrix<double, 2, 1>& GetInputs() const override;
 
-    /**
-     * Returns the currently set local outputs.
-     *
-     * heading, left position, left velocity, right position,
-     * right velocity, and angular velocity.
-     */
-    const Eigen::Matrix<double, 3, 1>& GetOutputs() const;
+    const Eigen::Matrix<double, 3, 1>& GetOutputs() const override;
 
     /**
      * Returns the estimated outputs based on the current state estimate.
@@ -296,9 +274,9 @@ private:
     Eigen::Matrix<double, 2, 5> m_K1;
 
     // Controller reference
-    Eigen::Matrix<double, 5, 1> m_r;
+    Eigen::Matrix<double, 10, 1> m_r;
 
-    Eigen::Matrix<double, 5, 1> m_nextR;
+    Eigen::Matrix<double, 10, 1> m_nextR;
     Eigen::Matrix<double, 2, 1> m_cappedU;
 
     frc::Trajectory m_trajectory;

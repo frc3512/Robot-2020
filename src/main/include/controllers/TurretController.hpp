@@ -2,7 +2,6 @@
 
 #pragma once
 
-#include <Eigen/Core>
 #include <frc/DigitalInput.h>
 #include <frc/controller/LinearQuadraticRegulator.h>
 #include <frc/estimator/KalmanFilter.h>
@@ -17,10 +16,11 @@
 
 #include "Constants.hpp"
 #include "TargetModel.hpp"
+#include "controllers/ControllerBase.hpp"
 
 namespace frc3512 {
 
-class TurretController {
+class TurretController : public ControllerBase<2, 1, 1> {
 public:
     static constexpr double kGearRatio = 18.0 / 160.0;
     static constexpr double kDpR = kGearRatio * 2.0 * wpi::math::pi;
@@ -115,33 +115,13 @@ public:
      */
     void SetDrivetrainStatus(const Eigen::Matrix<double, 10, 1>& nextXhat);
 
-    /**
-     * Returns the current references.
-     *
-     * angle, angular velocity.
-     */
-    const Eigen::Matrix<double, 2, 1>& GetReferences() const;
+    const Eigen::Matrix<double, 2, 1>& GetReferences() const override;
 
-    /**
-     * Returns the current state estimate.
-     *
-     * angle, angular velocity.
-     */
-    const Eigen::Matrix<double, 2, 1>& GetStates() const;
+    const Eigen::Matrix<double, 2, 1>& GetStates() const override;
 
-    /**
-     * Returns the control inputs.
-     *
-     * voltage.
-     */
-    const Eigen::Matrix<double, 1, 1>& GetInputs() const;
+    const Eigen::Matrix<double, 1, 1>& GetInputs() const override;
 
-    /**
-     * Returns the currently set local outputs.
-     *
-     * angle.
-     */
-    const Eigen::Matrix<double, 1, 1>& GetOutputs() const;
+    const Eigen::Matrix<double, 1, 1>& GetOutputs() const override;
 
     /**
      * Returns the projected pose of the turret.
