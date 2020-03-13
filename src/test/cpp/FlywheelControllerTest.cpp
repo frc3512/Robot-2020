@@ -4,7 +4,7 @@
 
 #include <frc/system/plant/DCMotor.h>
 #include <gtest/gtest.h>
-#include <mockdata/RoboRioData.h>
+#include <simulation/RoboRioSim.h>
 #include <units/units.h>
 #include <wpi/circular_buffer.h>
 
@@ -14,6 +14,8 @@
 
 TEST(FlywheelControllerTest, ReachesGoal) {
     using frc3512::Constants::kDt;
+
+    frc::sim::RoboRioSim roboRIO{0};
 
     frc3512::FlywheelController controller{{80.0}, {12.0}, kDt};
     controller.Reset();
@@ -49,7 +51,7 @@ TEST(FlywheelControllerTest, ReachesGoal) {
         units::volt_t vLoaded = Vbat - load * Rbat - load * Rbat;
         double dsVoltage =
             vLoaded.to<double>() + frc::MakeWhiteNoiseVector(0.1)(0);
-        HALSIM_SetRoboRioVInVoltage(0, dsVoltage);
+        roboRIO.SetVInVoltage(dsVoltage);
         Eigen::Matrix<double, 1, 1> trueU = u;
         trueU *= dsVoltage / 12.0;
 

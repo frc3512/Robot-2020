@@ -4,7 +4,7 @@
 
 #include <frc/system/plant/DCMotor.h>
 #include <gtest/gtest.h>
-#include <mockdata/RoboRioData.h>
+#include <simulation/RoboRioSim.h>
 #include <units/units.h>
 #include <wpi/math>
 
@@ -20,6 +20,8 @@
 static constexpr bool kIdealModel = true;
 
 TEST(TurretControllerTest, CalculateHeading) {
+    frc::sim::RoboRioSim roboRIO{0};
+
     frc3512::TurretController controller;
     controller.Reset();
     controller.Enable();
@@ -40,6 +42,8 @@ TEST(TurretControllerTest, CalculateHeading) {
 
 TEST(TurretControllerTest, ReachesReferenceStaticDrivetrain) {
     using frc3512::Constants::kDt;
+
+    frc::sim::RoboRioSim roboRIO{0};
 
     frc3512::TurretController controller;
     controller.Reset();
@@ -78,7 +82,7 @@ TEST(TurretControllerTest, ReachesReferenceStaticDrivetrain) {
             units::volt_t vLoaded = Vbat - load * Rbat;
             double dsVoltage =
                 vLoaded.to<double>() + frc::MakeWhiteNoiseVector(0.1)(0);
-            HALSIM_SetRoboRioVInVoltage(0, dsVoltage);
+            roboRIO.SetVInVoltage(dsVoltage);
             Eigen::Matrix<double, 1, 1> trueU = u;
             trueU *= dsVoltage / 12.0;
         }
@@ -95,6 +99,8 @@ TEST(TurretControllerTest, DISABLED_ReachesReferenceRotateInPlaceDrivetrain) {
     // TODO: Make the drivetrain actually rotate in place instead of follow an
     // s-curve.
     using frc3512::Constants::kDt;
+
+    frc::sim::RoboRioSim roboRIO{0};
 
     // Initialize turret controller
     frc3512::TurretController turretController;
@@ -172,7 +178,7 @@ TEST(TurretControllerTest, DISABLED_ReachesReferenceRotateInPlaceDrivetrain) {
                 Vbat - turretLoad * Rbat - loadIleft * Rbat - loadIright * Rbat;
             double dsVoltage =
                 vLoaded.to<double>() + frc::MakeWhiteNoiseVector(0.1)(0);
-            HALSIM_SetRoboRioVInVoltage(0, dsVoltage);
+            roboRIO.SetVInVoltage(dsVoltage);
             drivetrainU *= dsVoltage / 12.0;
             Eigen::Matrix<double, 1, 1> turretTrueU = turretU;
             turretTrueU *= dsVoltage / 12.0;
@@ -192,6 +198,8 @@ TEST(TurretControllerTest, DISABLED_ReachesReferenceRotateInPlaceDrivetrain) {
 TEST(TurretControllerTest, ReachesReferenceSCurveDrivetrain) {
     using frc3512::Constants::kDt;
 
+    frc::sim::RoboRioSim roboRIO{0};
+
     // Initialize turret controller
     frc3512::TurretController turretController;
     turretController.Reset();
@@ -268,7 +276,7 @@ TEST(TurretControllerTest, ReachesReferenceSCurveDrivetrain) {
                 Vbat - turretLoad * Rbat - loadIleft * Rbat - loadIright * Rbat;
             double dsVoltage =
                 vLoaded.to<double>() + frc::MakeWhiteNoiseVector(0.1)(0);
-            HALSIM_SetRoboRioVInVoltage(0, dsVoltage);
+            roboRIO.SetVInVoltage(dsVoltage);
             drivetrainU *= dsVoltage / 12.0;
             Eigen::Matrix<double, 1, 1> turretTrueU = turretU;
             turretTrueU *= dsVoltage / 12.0;
@@ -287,6 +295,8 @@ TEST(TurretControllerTest, ReachesReferenceSCurveDrivetrain) {
 
 TEST(TurretControllerTest, ReachesReferenceAutonDrivetrain) {
     using frc3512::Constants::kDt;
+
+    frc::sim::RoboRioSim roboRIO{0};
 
     // Initialize turret controller
     frc3512::TurretController turretController;
@@ -367,7 +377,7 @@ TEST(TurretControllerTest, ReachesReferenceAutonDrivetrain) {
                 Vbat - turretLoad * Rbat - loadIleft * Rbat - loadIright * Rbat;
             double dsVoltage =
                 vLoaded.to<double>() + frc::MakeWhiteNoiseVector(0.1)(0);
-            HALSIM_SetRoboRioVInVoltage(0, dsVoltage);
+            roboRIO.SetVInVoltage(dsVoltage);
             drivetrainU *= dsVoltage / 12.0;
             Eigen::Matrix<double, 1, 1> turretTrueU = turretU;
             turretTrueU *= dsVoltage / 12.0;

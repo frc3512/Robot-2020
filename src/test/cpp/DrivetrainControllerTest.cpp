@@ -5,7 +5,7 @@
 #include <frc/StateSpaceUtil.h>
 #include <frc/system/plant/DCMotor.h>
 #include <gtest/gtest.h>
-#include <mockdata/RoboRioData.h>
+#include <simulation/RoboRioSim.h>
 #include <units/units.h>
 
 #include "Constants.hpp"
@@ -16,6 +16,8 @@ static constexpr bool kIdealModel = false;
 
 TEST(DrivetrainControllerTest, ReachesReference) {
     using frc3512::Constants::kDt;
+
+    frc::sim::RoboRioSim roboRIO{0};
 
     frc3512::DrivetrainController controller{
         {0.0625, 0.125, 10.0, 0.95, 0.95}, {12.0, 12.0}, kDt};
@@ -76,7 +78,7 @@ TEST(DrivetrainControllerTest, ReachesReference) {
             units::volt_t vLoaded = Vbat - loadIleft * Rbat - loadIright * Rbat;
             double dsVoltage =
                 vLoaded.to<double>() + frc::MakeWhiteNoiseVector(0.1)(0);
-            HALSIM_SetRoboRioVInVoltage(0, dsVoltage);
+            roboRIO.SetVInVoltage(dsVoltage);
 
             u *= dsVoltage / 12.0;
         }
