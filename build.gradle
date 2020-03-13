@@ -121,7 +121,7 @@ model {
 doxygen {
     description = 'Generate documentation'
 
-    project_name 'Robot-2019'
+    project_name 'Robot-2020'
 
     generate_html true
     generate_latex false
@@ -131,6 +131,6 @@ doxygen {
     outputDir 'build/docs/'
 
     executables {
-        doxygen version: '1.8.15'
+        doxygen version: '1.8.17'
     }
 }

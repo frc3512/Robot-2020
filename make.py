@@ -106,12 +106,13 @@ def main():
     parser = argparse.ArgumentParser(description="Builds and deploys FRC C++ programs")
     parser.add_argument(
         "target",
-        choices=["build", "deploy", "clean", "ci", "test"],
+        choices=["build", "deploy", "clean", "ci", "test", "docs"],
         help="""'build' compiles the robot program for athena and downloads missing dependencies.
         'deploy' compiles the program if it hasn't already and deploys it to a roboRIO.
         'clean' removes all build artifacts from the build folder.
         'ci' compiles the robot program for x86-64 and downloads missing dependencies.
-        'test' compiles the robot program for x86-64 and downloads missing dependencies, then runs the tests.""",
+        'test' compiles the robot program for x86-64 and downloads missing dependencies, then runs the tests.
+        'docs' generates C++ API documentation using Doxygen.""",
     )
     parser.add_argument(
         "-j",
@@ -203,6 +204,8 @@ def main():
         purge(".", r"Robot\.log$")
 
         subprocess.run(["build/linuxx86-64/frcUserProgram"], check=True)
+    elif args.target == "docs":
+        subprocess.run(["doxygen", "doxygen.conf"])
 
 
 if __name__ == "__main__":
