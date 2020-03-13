@@ -48,14 +48,14 @@ ChassisSpeeds LTVUnicycleController::Calculate(
     units::meters_per_second_t linearVelocityRef,
     units::radians_per_second_t angularVelocityRef) {
   Eigen::Matrix<double, 3, 1> x;
-  x(0, 0) = currentPose.Translation().X().to<double>();
-  x(1, 0) = currentPose.Translation().Y().to<double>();
-  x(2, 0) = currentPose.Rotation().Radians().to<double>();
+  x(0) = currentPose.Translation().X().to<double>();
+  x(1) = currentPose.Translation().Y().to<double>();
+  x(2) = currentPose.Rotation().Radians().to<double>();
 
   Eigen::Matrix<double, 3, 1> r;
-  r(0, 0) = poseRef.Translation().X().to<double>();
-  r(1, 0) = poseRef.Translation().Y().to<double>();
-  r(2, 0) = poseRef.Rotation().Radians().to<double>();
+  r(0) = poseRef.Translation().X().to<double>();
+  r(1) = poseRef.Translation().Y().to<double>();
+  r(2) = poseRef.Rotation().Radians().to<double>();
 
   m_poseError = poseRef.RelativeTo(currentPose);
 
@@ -77,15 +77,15 @@ ChassisSpeeds LTVUnicycleController::Calculate(
 
   Eigen::Matrix<double, 3, 3> inRobotFrame =
       Eigen::Matrix<double, 3, 3>::Identity();
-  inRobotFrame(0, 0) = std::cos(x(2, 0));
-  inRobotFrame(0, 1) = std::sin(x(2, 0));
-  inRobotFrame(1, 0) = -std::sin(x(2, 0));
-  inRobotFrame(1, 1) = std::cos(x(2, 0));
+  inRobotFrame(0, 0) = std::cos(x(2));
+  inRobotFrame(0, 1) = std::sin(x(2));
+  inRobotFrame(1, 0) = -std::sin(x(2));
+  inRobotFrame(1, 1) = std::cos(x(2));
   Eigen::Matrix<double, 2, 1> u = K * inRobotFrame * (r - x);
 
-  return ChassisSpeeds{
-      linearVelocityRef + units::meters_per_second_t{u(0, 0)}, 0_mps,
-      angularVelocityRef + units::radians_per_second_t{u(1, 0)}};
+  return ChassisSpeeds{linearVelocityRef + units::meters_per_second_t{u(0)},
+                       0_mps,
+                       angularVelocityRef + units::radians_per_second_t{u(1)}};
 }
 
 ChassisSpeeds LTVUnicycleController::Calculate(
