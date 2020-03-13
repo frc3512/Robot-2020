@@ -37,7 +37,7 @@ TEST(DrivetrainControllerTest, ReachesReference) {
 
         // Add scheduling jitter
         if constexpr (!kIdealModel) {
-            dt += units::second_t{frc::MakeWhiteNoiseVector(0.001)(0, 0)};
+            dt += units::second_t{frc::MakeWhiteNoiseVector(0.001)(0)};
         }
 
         Eigen::Matrix<double, 3, 1> y =
@@ -49,11 +49,9 @@ TEST(DrivetrainControllerTest, ReachesReference) {
             y += frc::MakeWhiteNoiseVector(0.0001, 0.005, 0.005);
         }
 
-        controller.SetMeasuredLocalOutputs(units::radian_t{y(0, 0)},
-                                           units::meter_t{y(1, 0)},
-                                           units::meter_t{y(2, 0)});
-        controller.SetMeasuredInputs(units::volt_t{u(0, 0)},
-                                     units::volt_t{u(1, 0)});
+        controller.SetMeasuredLocalOutputs(
+            units::radian_t{y(0)}, units::meter_t{y(1)}, units::meter_t{y(2)});
+        controller.SetMeasuredInputs(units::volt_t{u(0)}, units::volt_t{u(1)});
         controller.Update(kDt, currentTime);
         currentTime += dt;
 
@@ -69,16 +67,15 @@ TEST(DrivetrainControllerTest, ReachesReference) {
             using State = frc3512::DrivetrainController::State;
             constexpr auto motors = frc::DCMotor::MiniCIM(3);
             units::ampere_t loadIleft = motors.Current(
-                units::meters_per_second_t{x(State::kLeftVelocity, 0)} / r *
-                    1_rad,
-                units::volt_t{u(Input::kLeftVoltage, 0)});
+                units::meters_per_second_t{x(State::kLeftVelocity)} / r * 1_rad,
+                units::volt_t{u(Input::kLeftVoltage)});
             units::ampere_t loadIright = motors.Current(
-                units::meters_per_second_t{x(State::kRightVelocity, 0)} / r *
+                units::meters_per_second_t{x(State::kRightVelocity)} / r *
                     1_rad,
-                units::volt_t{u(Input::kRightVoltage, 0)});
+                units::volt_t{u(Input::kRightVoltage)});
             units::volt_t vLoaded = Vbat - loadIleft * Rbat - loadIright * Rbat;
             double dsVoltage =
-                vLoaded.to<double>() + frc::MakeWhiteNoiseVector(0.1)(0, 0);
+                vLoaded.to<double>() + frc::MakeWhiteNoiseVector(0.1)(0);
             HALSIM_SetRoboRioVInVoltage(0, dsVoltage);
 
             u *= dsVoltage / 12.0;

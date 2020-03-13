@@ -26,12 +26,12 @@ TEST(FlywheelControllerTest, ReachesGoal) {
 
     auto currentTime = 0_s;
     while (currentTime < 10_s) {
-        auto dt = kDt + units::second_t{frc::MakeWhiteNoiseVector(0.001)(0, 0)};
+        auto dt = kDt + units::second_t{frc::MakeWhiteNoiseVector(0.001)(0)};
         Eigen::Matrix<double, 1, 1> noise =
             frc::MakeWhiteNoiseVector<1>({0.08});
 
         controller.SetMeasuredAngularVelocity(
-            units::radians_per_second_t{x(0) + noise(0, 0)});
+            units::radians_per_second_t{x(0) + noise(0)});
 
         controller.Update(kDt, currentTime);
         currentTime += dt;
@@ -44,11 +44,11 @@ TEST(FlywheelControllerTest, ReachesGoal) {
         constexpr auto motors = frc::DCMotor::NEO(2);
         units::ampere_t load = motors.Current(
             units::radians_per_second_t{
-                x(0, 0) / frc3512::FlywheelController::kGearRatio},
-            units::volt_t{u(0, 0)});
+                x(0) / frc3512::FlywheelController::kGearRatio},
+            units::volt_t{u(0)});
         units::volt_t vLoaded = Vbat - load * Rbat - load * Rbat;
         double dsVoltage =
-            vLoaded.to<double>() + frc::MakeWhiteNoiseVector(0.1)(0, 0);
+            vLoaded.to<double>() + frc::MakeWhiteNoiseVector(0.1)(0);
         HALSIM_SetRoboRioVInVoltage(0, dsVoltage);
         Eigen::Matrix<double, 1, 1> trueU = u;
         trueU *= dsVoltage / 12.0;

@@ -34,7 +34,7 @@ void FlywheelController::SetGoal(units::radians_per_second_t angularVelocity) {
 }
 
 units::radians_per_second_t FlywheelController::GetGoal() const {
-    return units::radians_per_second_t(m_nextR(0, 0));
+    return units::radians_per_second_t(m_nextR(0));
 }
 
 bool FlywheelController::AtGoal() const { return m_atGoal; }
@@ -62,10 +62,10 @@ const Eigen::Matrix<double, 1, 1>& FlywheelController::GetOutputs() const {
 
 void FlywheelController::Update(units::second_t dt,
                                 units::second_t elapsedTime) {
-    velocityLogger.Log(elapsedTime, m_y(Output::kAngularVelocity, 0),
+    velocityLogger.Log(elapsedTime, m_y(Output::kAngularVelocity),
                        m_observer.Xhat(State::kAngularVelocity),
-                       m_nextR(State::kAngularVelocity, 0));
-    voltageLogger.Log(elapsedTime, m_u(Input::kVoltage, 0),
+                       m_nextR(State::kAngularVelocity));
+    voltageLogger.Log(elapsedTime, m_u(Input::kVoltage),
                       frc::RobotController::GetInputVoltage());
 
     m_observer.Correct(m_u, m_y);
@@ -75,8 +75,8 @@ void FlywheelController::Update(units::second_t dt,
 
     // To conserve battery when the flywheel doesn't have to be spinning, don't
     // apply a negative voltage to slow down.
-    if (m_nextR(0, 0) == 0.0) {
-        m_u(0, 0) = 0.0;
+    if (m_nextR(0) == 0.0) {
+        m_u(0) = 0.0;
     } else {
         m_u = m_lqr.U() * 12.0 / frc::RobotController::GetInputVoltage();
     }
@@ -84,7 +84,7 @@ void FlywheelController::Update(units::second_t dt,
     ScaleCapU(&m_u);
 
     m_atGoal = units::math::abs(units::radians_per_second_t{
-                   m_r(State::kAngularVelocity, 0) -
+                   m_r(State::kAngularVelocity) -
                    m_observer.Xhat(State::kAngularVelocity)}) <
                kAngularVelocityTolerance;
     m_r = m_nextR;
@@ -98,7 +98,7 @@ const frc::LinearSystem<2, 1, 1>& FlywheelController::GetAugmentedPlant()
 }
 
 void FlywheelController::ScaleCapU(Eigen::Matrix<double, 1, 1>* u) {
-    bool outputCapped = std::abs((*u)(0, 0)) > 12.0;
+    bool outputCapped = std::abs((*u)(0)) > 12.0;
 
     if (outputCapped) {
         *u *= 12.0 / u->lpNorm<Eigen::Infinity>();

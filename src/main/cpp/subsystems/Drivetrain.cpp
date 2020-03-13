@@ -107,8 +107,8 @@ void Drivetrain::ControllerPeriodic() {
     if (!m_controller.IsOpenLoop()) {
         // Set motor inputs
         auto u = m_controller.GetInputs();
-        SetLeftManual(u(0, 0) / 12.0);
-        SetRightManual(u(1, 0) / 12.0);
+        SetLeftManual(u(0) / 12.0);
+        SetRightManual(u(1) / 12.0);
     }
     m_lastTime = now;
 }
