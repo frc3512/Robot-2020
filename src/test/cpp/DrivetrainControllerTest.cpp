@@ -27,8 +27,7 @@ TEST(DrivetrainControllerTest, ReachesReference) {
     controller.SetWaypoints(frc::Pose2d(0_m, 0_m, 0_rad), {},
                             frc::Pose2d(4.8768_m, 2.7432_m, 0_rad));
 
-    Eigen::Matrix<double, 10, 1> trueXhat =
-        Eigen::Matrix<double, 10, 1>::Zero();
+    Eigen::Matrix<double, 10, 1> x = Eigen::Matrix<double, 10, 1>::Zero();
 
     Eigen::Matrix<double, 2, 1> u = Eigen::Matrix<double, 2, 1>::Zero();
 
@@ -43,7 +42,7 @@ TEST(DrivetrainControllerTest, ReachesReference) {
 
         Eigen::Matrix<double, 3, 1> y =
             frc3512::DrivetrainController::LocalMeasurementModel(
-                trueXhat, Eigen::Matrix<double, 2, 1>::Zero());
+                x, Eigen::Matrix<double, 2, 1>::Zero());
 
         // Add measurement noise
         if constexpr (!kIdealModel) {
@@ -70,12 +69,12 @@ TEST(DrivetrainControllerTest, ReachesReference) {
             using State = frc3512::DrivetrainController::State;
             constexpr auto motors = frc::DCMotor::MiniCIM(3);
             units::ampere_t loadIleft = motors.Current(
-                units::meters_per_second_t{trueXhat(State::kLeftVelocity, 0)} /
-                    r * 1_rad,
+                units::meters_per_second_t{x(State::kLeftVelocity, 0)} / r *
+                    1_rad,
                 units::volt_t{u(Input::kLeftVoltage, 0)});
             units::ampere_t loadIright = motors.Current(
-                units::meters_per_second_t{trueXhat(State::kRightVelocity, 0)} /
-                    r * 1_rad,
+                units::meters_per_second_t{x(State::kRightVelocity, 0)} / r *
+                    1_rad,
                 units::volt_t{u(Input::kRightVoltage, 0)});
             units::volt_t vLoaded = Vbat - loadIleft * Rbat - loadIright * Rbat;
             double dsVoltage =
@@ -85,8 +84,7 @@ TEST(DrivetrainControllerTest, ReachesReference) {
             u *= dsVoltage / 12.0;
         }
 
-        trueXhat = frc::RungeKutta(frc3512::DrivetrainController::Dynamics,
-                                   trueXhat, u, dt);
+        x = frc::RungeKutta(frc3512::DrivetrainController::Dynamics, x, u, dt);
     }
 
     RenameCSVs("DrivetrainControllerTest", "./Drivetrain ");

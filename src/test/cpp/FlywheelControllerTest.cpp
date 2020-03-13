@@ -22,7 +22,7 @@ TEST(FlywheelControllerTest, ReachesGoal) {
     controller.SetMeasuredAngularVelocity(0_rad_per_s);
     controller.SetGoal(500.0_rad_per_s);
 
-    Eigen::Matrix<double, 1, 1> trueXhat = Eigen::Matrix<double, 1, 1>::Zero();
+    Eigen::Matrix<double, 1, 1> x = Eigen::Matrix<double, 1, 1>::Zero();
 
     auto currentTime = 0_s;
     while (currentTime < 10_s) {
@@ -31,7 +31,7 @@ TEST(FlywheelControllerTest, ReachesGoal) {
             frc::MakeWhiteNoiseVector<1>({0.08});
 
         controller.SetMeasuredAngularVelocity(
-            units::radians_per_second_t{trueXhat(0) + noise(0, 0)});
+            units::radians_per_second_t{x(0) + noise(0, 0)});
 
         controller.Update(kDt, currentTime);
         currentTime += dt;
@@ -44,7 +44,7 @@ TEST(FlywheelControllerTest, ReachesGoal) {
         constexpr auto motors = frc::DCMotor::NEO(2);
         units::ampere_t load = motors.Current(
             units::radians_per_second_t{
-                trueXhat(0, 0) / frc3512::FlywheelController::kGearRatio},
+                x(0, 0) / frc3512::FlywheelController::kGearRatio},
             units::volt_t{u(0, 0)});
         units::volt_t vLoaded = Vbat - load * Rbat - load * Rbat;
         double dsVoltage =
@@ -53,7 +53,7 @@ TEST(FlywheelControllerTest, ReachesGoal) {
         Eigen::Matrix<double, 1, 1> trueU = u;
         trueU *= dsVoltage / 12.0;
 
-        trueXhat = controller.GetStates();
+        x = controller.GetStates();
     }
 
     RenameCSVs("FlywheelControllerTest", "./Flywheel ");

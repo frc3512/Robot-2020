@@ -50,7 +50,7 @@ TEST(TurretControllerTest, ReachesReferenceStaticDrivetrain) {
         Eigen::Matrix<double, 10, 1>::Zero();
     controller.SetDrivetrainStatus(drivetrainXhat);
 
-    Eigen::Matrix<double, 2, 1> trueXhat = Eigen::Matrix<double, 2, 1>::Zero();
+    Eigen::Matrix<double, 2, 1> x = Eigen::Matrix<double, 2, 1>::Zero();
 
     auto currentTime = 0_s;
     while (currentTime < 10_s) {
@@ -59,7 +59,7 @@ TEST(TurretControllerTest, ReachesReferenceStaticDrivetrain) {
             dt += units::second_t{frc::MakeWhiteNoiseVector(0.001)(0, 0)};
         }
 
-        controller.SetMeasuredOutputs(units::radian_t{trueXhat(0)});
+        controller.SetMeasuredOutputs(units::radian_t{x(0)});
 
         controller.Update(kDt, currentTime);
         currentTime += dt;
@@ -73,9 +73,8 @@ TEST(TurretControllerTest, ReachesReferenceStaticDrivetrain) {
             // Account for battery voltage drop due to current draw from both
             // turret and drivetrain
             constexpr auto motor = frc::DCMotor::NEO(1);
-            units::ampere_t load =
-                motor.Current(units::radians_per_second_t{trueXhat(1)},
-                              units::volt_t{u(0, 0)});
+            units::ampere_t load = motor.Current(
+                units::radians_per_second_t{x(1)}, units::volt_t{u(0, 0)});
             units::volt_t vLoaded = Vbat - load * Rbat;
             double dsVoltage =
                 vLoaded.to<double>() + frc::MakeWhiteNoiseVector(0.1)(0, 0);
@@ -84,7 +83,7 @@ TEST(TurretControllerTest, ReachesReferenceStaticDrivetrain) {
             trueU *= dsVoltage / 12.0;
         }
 
-        trueXhat = controller.GetStates();
+        x = controller.GetStates();
     }
 
     RenameCSVs("TurretControllerTest Static", "./Turret ");
