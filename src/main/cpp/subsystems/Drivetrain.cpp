@@ -51,7 +51,38 @@ Drivetrain::~Drivetrain() {}
 
 void Drivetrain::Drive(double throttle, double turn, bool isQuickTurn) {
     std::scoped_lock lock(m_motorControllerMutex);
-    m_drive.CurvatureDrive(throttle, turn, isQuickTurn);
+
+    auto [left, right] = m_drive.CurvatureDrive(throttle, turn, isQuickTurn);
+    Eigen::Matrix<double, 2, 1> u;
+    u << left * 12.0, right * 12.0;
+
+    using State = DrivetrainController::State;
+    auto plant = m_controller->GetPlant();
+    Eigen::Matrix<double, 10, 1> x = m_controller->GetStates();
+    Eigen::Matrix<double, 2, 1> xdot = plant.A() * x.block<2, 1>(kLeftVelocity, 0) + plant.B() * u;
+    using Input = DrivetrainController::Input;
+    double accel = (xdot(Input::kRightVoltage) + xdot(Input::kLeftVoltage)) / 2.0;
+    // volts divided by kLinearA
+    auto kMaxAccel = 6.0_V / 3.02_V / 1_mps;
+    auto kAngularA;
+
+     if (accel > kMaxAccel) {
+        // v = w r -> a = alpha r
+        // a_l = a - alpha r;
+        // a_r = a + alpha r;
+        xdot(Input::kLeftVoltage) = kMaxAccel - kAngularA * DrivetrainController::kWidth; // kMaxAccel - alpha * kWidth;
+        xdot(Input::kRightVoltage) = kMaxAccel + kAngularA * DrivetrainController::kWidth; // kMaxAccel + alpha * kWidth;
+        u = plant.B().householderQr().solve(xdot - plant.A() * x);
+    } else if (accel < -kMaxAccel) {
+        // v = w r -> a = alpha r
+        // a_l = a - alpha r;
+        // a_r = a + alpha r;
+        xdot(Input::kLeftVoltage) = -kMaxAccel - kAngularA * DrivetrainController::kWidth; // -kMaxAccel - alpha * kWidth;
+        xdot(Input::kRightVoltage) = -kMaxAccel - kAngularA * DrivetrainController::kWidth; // -kMaxAccel + alpha * kWidth;
+        u = plant.B().householderQr().solve(xdot - plant.A() * x);
+    }
+    m_leftGrbx.Set(u(Inputs::kLeftVoltage));
+    m_rightGrbx.Set(u(Inputs::kRightVoltage));
 }
 
 units::radian_t Drivetrain::GetAngle() const {

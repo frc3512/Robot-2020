@@ -7,7 +7,9 @@
 
 #include <Eigen/Core>
 #include <frc/ADXRS450_Gyro.h>
+#include <frc/BuiltInAccelerometer.h>
 #include <frc/Encoder.h>
+#include <frc/SlewRateLimiter.h>
 #include <frc/SpeedControllerGroup.h>
 #include <frc/drive/DifferentialDrive.h>
 #include <frc/geometry/Pose2d.h>
