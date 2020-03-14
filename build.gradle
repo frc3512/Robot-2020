@@ -128,7 +128,7 @@ doxygen {
 
     source 'src/main/include'
 
-    outputDir 'build/docs/'
+    outputDir 'docs/'
 
     executables {
         doxygen version: '1.8.17'
