@@ -9,10 +9,7 @@
 using namespace frc3512;
 using namespace frc3512::Constants;
 
-FlywheelController::FlywheelController(const std::array<double, 1>& Qelems,
-                                       const std::array<double, 1>& Relems,
-                                       units::second_t dt)
-    : m_lqr{m_plant, Qelems, Relems, dt} {
+FlywheelController::FlywheelController() {
     m_y.setZero();
     Reset();
 }

@@ -22,14 +22,9 @@ public:
         1000.5_rad_per_s;
 
     /**
-     * Constructs a flywheel controller with the given coefficients.
-     *
-     * @param Qelems The maximum desired error tolerance for each state.
-     * @param Relems The maximum desired control effort for each input.
-     * @param dt     Discretization timestep.
+     * Constructs a flywheel controller.
      */
-    FlywheelController(const std::array<double, 1>& Qelems,
-                       const std::array<double, 1>& Relems, units::second_t dt);
+    FlywheelController();
 
     FlywheelController(const FlywheelController&) = delete;
     FlywheelController& operator=(const FlywheelController&) = delete;
@@ -132,7 +127,8 @@ private:
     frc::KalmanFilter<1, 1, 1> m_observer{
         m_plant, Constants::kDt, {700.0}, {50.0}};
 
-    frc::LinearQuadraticRegulator<1, 1> m_lqr;
+    frc::LinearQuadraticRegulator<1, 1> m_lqr{
+        m_plant, {80.0}, {12.0}, Constants::kDt};
 
     // Controller reference
     Eigen::Matrix<double, 1, 1> m_r;

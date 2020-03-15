@@ -21,9 +21,7 @@
 using namespace frc3512;
 using namespace frc3512::Constants;
 
-DrivetrainController::DrivetrainController(const std::array<double, 5>& Qelems,
-                                           const std::array<double, 2>& Relems,
-                                           units::second_t dt) {
+DrivetrainController::DrivetrainController() {
     m_localY.setZero();
     m_globalY.setZero();
     Reset();
@@ -46,8 +44,12 @@ DrivetrainController::DrivetrainController(const std::array<double, 5>& Qelems,
     m_B =
         frc::NumericalJacobianU<10, 10, 2>(Dynamics, x0, u0).block<5, 2>(0, 0);
 
-    m_K0 = frc::LinearQuadraticRegulator<5, 2>(A0, m_B, Qelems, Relems, dt).K();
-    m_K1 = frc::LinearQuadraticRegulator<5, 2>(A1, m_B, Qelems, Relems, dt).K();
+    m_K0 = frc::LinearQuadraticRegulator<5, 2>(A0, m_B, kControllerQ,
+                                               kControllerR, kDt)
+               .K();
+    m_K1 = frc::LinearQuadraticRegulator<5, 2>(A1, m_B, kControllerQ,
+                                               kControllerR, kDt)
+               .K();
 }
 
 void DrivetrainController::Enable() { m_isEnabled = true; }

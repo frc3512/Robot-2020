@@ -115,7 +115,7 @@ private:
                                  rev::CANSparkMax::MotorType::kBrushless};
     frc::Encoder m_encoder{Constants::Flywheel::kEncoderA,
                            Constants::Flywheel::kEncoderB};
-    FlywheelController m_controller{{80.0}, {12.0}, Constants::kDt};
+    FlywheelController m_controller;
     std::chrono::steady_clock::time_point m_lastTime =
         std::chrono::steady_clock::now();
     frc::Pose2d m_nextTurretPose;

@@ -17,7 +17,7 @@ TEST(FlywheelControllerTest, ReachesGoal) {
 
     frc::sim::RoboRioSim roboRIO{0};
 
-    frc3512::FlywheelController controller{{80.0}, {12.0}, kDt};
+    frc3512::FlywheelController controller;
     controller.Reset();
     controller.Enable();
 

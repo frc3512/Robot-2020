@@ -111,8 +111,7 @@ TEST(TurretControllerTest, DISABLED_ReachesReferenceRotateInPlaceDrivetrain) {
         Eigen::Matrix<double, 2, 1>::Zero();
 
     // Initialize drivetrain controller
-    frc3512::DrivetrainController drivetrainController{
-        {0.0625, 0.125, 10.0, 0.95, 0.95}, {12.0, 12.0}, kDt};
+    frc3512::DrivetrainController drivetrainController;
     drivetrainController.Reset(frc::Pose2d{0_m, 0_m, 0_rad});
     drivetrainController.Enable();
     drivetrainController.SetMeasuredLocalOutputs(0_rad, 0_m, 0_m);
@@ -209,8 +208,7 @@ TEST(TurretControllerTest, ReachesReferenceSCurveDrivetrain) {
         Eigen::Matrix<double, 2, 1>::Zero();
 
     // Initialize drivetrain controller
-    frc3512::DrivetrainController drivetrainController{
-        {0.0625, 0.125, 10.0, 0.95, 0.95}, {12.0, 12.0}, kDt};
+    frc3512::DrivetrainController drivetrainController;
     drivetrainController.Reset(frc::Pose2d{0_m, 0_m, 0_rad});
     drivetrainController.Enable();
     drivetrainController.SetMeasuredLocalOutputs(0_rad, 0_m, 0_m);
@@ -307,8 +305,7 @@ TEST(TurretControllerTest, ReachesReferenceAutonDrivetrain) {
         Eigen::Matrix<double, 2, 1>::Zero();
 
     // Initialize drivetrain controller
-    frc3512::DrivetrainController drivetrainController{
-        {0.0625, 0.125, 2.5, 0.95, 0.95}, {12.0, 12.0}, kDt};
+    frc3512::DrivetrainController drivetrainController;
     drivetrainController.Reset(
         frc::Pose2d{12.65_m, 5.800_m, units::radian_t{wpi::math::pi}});
     drivetrainController.Enable();

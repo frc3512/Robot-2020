@@ -19,8 +19,7 @@ TEST(DrivetrainControllerTest, ReachesReference) {
 
     frc::sim::RoboRioSim roboRIO{0};
 
-    frc3512::DrivetrainController controller{
-        {0.0625, 0.125, 10.0, 0.95, 0.95}, {12.0, 12.0}, kDt};
+    frc3512::DrivetrainController controller;
     controller.Reset(frc::Pose2d{0_m, 0_m, 0_rad});
     controller.SetOpenLoop(false);
     controller.Enable();

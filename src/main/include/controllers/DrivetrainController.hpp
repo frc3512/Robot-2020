@@ -32,6 +32,10 @@ public:
     static constexpr units::meter_t kLength = 0.9398_m;
     static constexpr units::meter_t kWidth = 0.990405073902434_m;
 
+    static constexpr std::array<double, 5> kControllerQ{0.0625, 0.125, 2.5,
+                                                        0.95, 0.95};
+    static constexpr std::array<double, 2> kControllerR{12.0, 12.0};
+
     class State {
     public:
         static constexpr int kX = 0;
@@ -70,15 +74,9 @@ public:
     };
 
     /**
-     * Constructs a drivetrain controller with the given coefficients.
-     *
-     * @param Qelems The maximum desired error tolerance for each state.
-     * @param Relems The maximum desired control effort for each input.
-     * @param dt     Discretization timestep.
+     * Constructs a drivetrain controller.
      */
-    DrivetrainController(const std::array<double, 5>& Qelems,
-                         const std::array<double, 2>& Relems,
-                         units::second_t dt);
+    DrivetrainController();
 
     DrivetrainController(const DrivetrainController&) = delete;
     DrivetrainController& operator=(const DrivetrainController&) = delete;
