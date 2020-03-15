@@ -175,7 +175,7 @@ private:
     frc::LinearQuadraticRegulator<2, 1> m_lqr{
         m_plant, {0.01245, 0.109726}, {12.0}, Constants::kDt};
     frc::KalmanFilter<2, 1, 1> m_observer{
-        m_plant, Constants::kDt, {0.21745, 0.28726}, {0.01}};
+        m_plant, {0.21745, 0.28726}, {0.01}, Constants::kDt};
 
     Eigen::Matrix<double, 2, 1> m_nextR;
 

@@ -125,7 +125,7 @@ private:
     }();
 
     frc::KalmanFilter<1, 1, 1> m_observer{
-        m_plant, Constants::kDt, {700.0}, {50.0}};
+        m_plant, {700.0}, {50.0}, Constants::kDt};
 
     frc::LinearQuadraticRegulator<1, 1> m_lqr{
         m_plant, {80.0}, {12.0}, Constants::kDt};
