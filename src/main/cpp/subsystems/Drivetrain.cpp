@@ -140,5 +140,5 @@ void Drivetrain::ProcessMessage(const HIDPacket& message) {
         y1 *= 0.5;
         x2 *= 0.5;
     }
-    Drive(-message.y1, message.x2, GetRawButton(message, 1, 2));
+    Drive(y1, x2, GetRawButton(message, 1, 2));
 }
