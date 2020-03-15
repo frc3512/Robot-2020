@@ -84,11 +84,6 @@ public:
     void Update(units::second_t dt, units::second_t elapsedTime);
 
     /**
-     * Returns the augmented version of the model with voltage error estimation
-     */
-    const frc::LinearSystem<2, 1, 1>& GetAugmentedPlant() const;
-
-    /**
      * Resets any internal state.
      */
     void Reset();
@@ -105,24 +100,6 @@ private:
 
     frc::LinearSystem<1, 1, 1> m_plant =
         frc::IdentifyVelocitySystem(kV.to<double>(), kA.to<double>());
-
-    frc::LinearSystem<2, 1, 1> m_augmentedPlant = [=] {
-        Eigen::Matrix<double, 2, 2> A;
-        A.block<1, 1>(0, 0) = m_plant.A();
-        A.block<1, 1>(0, 1) = m_plant.B();
-        A.block<1, 2>(1, 0) = Eigen::Matrix<double, 1, 2>::Zero();
-        Eigen::Matrix<double, 2, 1> B;
-        B.block<1, 1>(0, 0) = m_plant.B();
-        B(1, 0) = 0;
-        Eigen::Matrix<double, 1, 2> C;
-        C.block<1, 1>(0, 0) = m_plant.C();
-        C(0, 1) = 0;
-        Eigen::Matrix<double, 1, 1> D;
-        D = m_plant.D();
-        auto augmentedPlant = frc::LinearSystem<2, 1, 1>(
-            A, B, C, D, m_plant.Umin(), m_plant.Umax());
-        return augmentedPlant;
-    }();
 
     frc::KalmanFilter<1, 1, 1> m_observer{
         m_plant, {700.0}, {50.0}, Constants::kDt};

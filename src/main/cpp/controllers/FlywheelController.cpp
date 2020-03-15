@@ -89,11 +89,6 @@ void FlywheelController::Update(units::second_t dt,
                        dt);
 }
 
-const frc::LinearSystem<2, 1, 1>& FlywheelController::GetAugmentedPlant()
-    const {
-    return m_augmentedPlant;
-}
-
 void FlywheelController::ScaleCapU(Eigen::Matrix<double, 1, 1>* u) {
     bool outputCapped = std::abs((*u)(0)) > 12.0;
 
