@@ -22,30 +22,91 @@ using namespace frc3512::Constants::Robot;
 
 class Robot : public frc::TimedRobot, public PublishNode {
 public:
+    /**
+     * States used for the multi-subsystem shooting procedure
+     */
     enum class ShootingState { kIdle, kStartFlywheel, kStartConveyor };
 
     Robot();
 
     void DisabledInit() override;
+
     void AutonomousInit() override;
+
     void TeleopInit() override;
+
     void TestInit() override;
 
     void RobotPeriodic() override;
+
     void DisabledPeriodic() override;
+
     void AutonomousPeriodic() override;
+
     void TeleopPeriodic() override;
 
+    /**
+     * Initialization code for driving towards the allied alliance station from
+     * a position on the initializating line aligned with the loading zone
+     * during autonomous.
+     */
     void AutoLoadingZoneDriveForwardInit();
+
+    /**
+     * Initialization code for shooting three power cells from a position on the
+     * initializating line aligned with the loading zone during autonomous.
+     */
     void AutoLoadingZoneShootThreeInit();
+
+    /**
+     * Initialization code for shooting three power cells from a position on the
+     * initializating line aligned with the target zone during autonomous.
+     */
     void AutoTargetZoneShootThreeInit();
+
+    /**
+     * Initialization code for driving towards the allied alliance station from
+     * a position on the initializating line aligned with the allied trench run
+     * during autonomous.
+     */
     void AutoRightSideDriveForwardInit();
+
+    /**
+     * Initialization code for shooting three power cells from a position on the
+     * initializating line aligned with the allied trench run during autonomous.
+     */
     void AutoRightSideShootThreeInit();
 
+    /**
+     * Periodic code for driving towards the allied alliance station from a
+     * position on the initializating line aligned with the loading zone during
+     * autonomous.
+     */
     void AutoLoadingZoneDriveForwardPeriodic();
+
+    /**
+     * Periodic code for shooting three power cells from a position on the
+     * initializating line aligned with the loading zone during autonomous.
+     */
     void AutoLoadingZoneShootThreePeriodic();
+
+    /**
+     * Periodic code for shooting three power cells from a position on the
+     * initializating line aligned with the target zone during autonomous.
+     */
     void AutoTargetZoneShootThreePeriodic();
+
+    /**
+     * Periodic code for driving towards the allied alliance station from a
+     * position on the initializating line aligned with the allied trench run
+     * during autonomous.
+     */
     void AutoRightSideDriveForwardPeriodic();
+
+    /**
+     * Periodic code for shooting three power cells from a position on the
+     * initializating line aligned with the allied trench run during autonomous.
+     */
     void AutoRightSideShootThreePeriodic();
 
 private:
