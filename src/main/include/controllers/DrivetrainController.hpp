@@ -244,20 +244,8 @@ private:
     Eigen::Matrix<double, 3, 1> m_localY;
     Eigen::Matrix<double, 6, 1> m_globalY;
 
-    // Design observer
-    // States: [x position, y position, heading,
-    //          left velocity, right velocity,
-    //          left position, right position,
-    //          left voltage error, right voltage error, angle error]
-    //
-    // Inputs: [left voltage, right voltage]
-    //
-    // Outputs (local): [left position, right position,
-    //                   angular velocity]
-    //
-    // Outputs (global): [x position, y position, heading,
-    //                    left position, right position,
-    //                    angular velocity]
+    // Design observer. See the enums above for lists of the states, inputs, and
+    // outputs.
     frc::ExtendedKalmanFilter<10, 2, 3> m_observer{
         Dynamics,
         LocalMeasurementModel,
@@ -265,8 +253,6 @@ private:
         {0.0001, 0.005, 0.005},
         Constants::kDt};
 
-    // Design controller
-    // States: [x position, y position, heading, left velocity, right velocity]
     Eigen::Matrix<double, 5, 2> m_B;
     Eigen::Matrix<double, 2, 5> m_K0;
     Eigen::Matrix<double, 2, 5> m_K1;
