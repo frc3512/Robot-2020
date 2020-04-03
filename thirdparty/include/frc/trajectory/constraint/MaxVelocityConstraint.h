@@ -14,8 +14,7 @@
 namespace frc {
 
 /**
- * A class that enforces constraints when the trajectory pose in a specific
- * square region.
+ * A constraint on the maximum velocity allowed when traversing a trajectory.
  */
 class MaxVelocityConstraint : public TrajectoryConstraint {
  public:

@@ -19,8 +19,8 @@
 namespace frc {
 
 /**
- * A class that enforces constraints when the trajectory pose in a specific
- * ellipse region.
+ * A constraint that enforces a given arbitrary constraint when the trajectory
+ * pose is in a specific ellipse region.
  */
 class RegionConstraint : public TrajectoryConstraint {
  public:
