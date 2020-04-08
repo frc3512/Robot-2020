@@ -156,7 +156,7 @@ class KalmanFilter {
    */
   void Correct(const Eigen::Matrix<double, Inputs, 1>& u,
                const Eigen::Matrix<double, Outputs, 1>& y) {
-    Correct(u, y, m_plant->C(), m_discR);
+    Correct(u, y, m_plant->C(), m_plant->D(), m_discR);
   }
 
   /**
@@ -169,12 +169,14 @@ class KalmanFilter {
    * @param u Same control input used in the predict step.
    * @param y Measurement vector.
    * @param C Output matrix.
+   * @param D Feedthrough matrix.
    * @param R Measurement noise covariance matrix.
    */
   template <int Rows>
   void Correct(const Eigen::Matrix<double, Inputs, 1>& u,
                const Eigen::Matrix<double, Rows, 1>& y,
                const Eigen::Matrix<double, Rows, States>& C,
+               const Eigen::Matrix<double, Rows, Inputs>& D,
                const Eigen::Matrix<double, Rows, Rows>& R) {
     const auto& x = m_plant->X();
     Eigen::Matrix<double, Rows, Rows> S = C * m_P * C.transpose() + R;
@@ -194,7 +196,7 @@ class KalmanFilter {
     Eigen::Matrix<double, States, Rows> K =
         S.transpose().ldlt().solve(C * m_P.transpose()).transpose();
 
-    m_plant->SetX(x + K * (y - (C * x + m_plant->D() * u)));
+    m_plant->SetX(x + K * (y - (C * x + D * u)));
     m_P = (Eigen::Matrix<double, States, States>::Identity() - K * C) * m_P;
   }
 
