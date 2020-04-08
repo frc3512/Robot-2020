@@ -19,7 +19,8 @@ Robot::Robot() : PublishNode("Robot") {
 
     m_flywheel.Subscribe(m_turret);
 
-    m_autonSelector.AddAutoMethod("No-op", [] {}, [] {});
+    m_autonSelector.AddAutoMethod(
+        "No-op", [] {}, [] {});
     m_autonSelector.AddAutoMethod(
         "Loading Zone Drive Forward",
         std::bind(&Robot::AutoLoadingZoneDriveForwardInit, this),
