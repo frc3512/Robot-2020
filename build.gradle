@@ -107,7 +107,7 @@ model {
                 }
 
                 exportedHeaders {
-                    srcDirs += ['src/test/include', 'src/test/include/frc']
+                    srcDirs += ['src/test/include']
                 }
             }
 
