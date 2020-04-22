@@ -229,10 +229,8 @@ private:
         1.382_V / 1_rad_per_s;
     static constexpr decltype(1_V / (1_rad_per_s / 1_s)) kAngularA =
         (0.3398_V / 4.0) / (1_rad_per_s / 1_s);
-    static constexpr decltype(1_V / (1_V / 1_mps)) kMaxV =
-        12_V / kLinearV;  // m/s
-    static constexpr decltype(1_V / (1_V / 1_mps_sq)) kMaxA =
-        12_V / kLinearA;  // m/s^2
+    static constexpr units::meters_per_second_t kMaxV = 12_V / kLinearV;
+    static constexpr decltype(1_mps_sq) kMaxA = 12_V / kLinearA;
 
     // Robot radius
     static constexpr auto rb = kWidth / 2.0;
