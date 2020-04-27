@@ -12,7 +12,7 @@
 #include <string>
 #include <type_traits>
 
-#include <units/units.h>
+#include <units.h>
 #include <wpi/StringRef.h>
 
 #include "frc/logging/LogFile.h"

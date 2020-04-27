@@ -4870,6 +4870,6 @@ using namespace voltage;
 using dimensionless::scalar;
 using dimensionless::scalar_t;
 using dimensionless::dimensionless_t;
-using force::newtons;
 using force::newton_t;
+using force::newtons;
 }  // namespace units

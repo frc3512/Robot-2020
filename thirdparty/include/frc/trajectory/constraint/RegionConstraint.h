@@ -9,7 +9,7 @@
 
 #include <limits>
 
-#include <units/units.h>
+#include <units.h>
 
 #include "frc/geometry/Pose2d.h"
 #include "frc/geometry/Rotation2d.h"

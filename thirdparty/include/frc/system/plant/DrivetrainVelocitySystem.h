@@ -30,6 +30,6 @@ namespace frc {
  */
 LinearSystem<2, 2, 2> DrivetrainVelocitySystem(
     DCMotor motor, units::kilogram_t m, units::meter_t r, units::meter_t rb,
-    double G, units::kilogram_square_meter_t J);
+    double G, units::kilogram_square_meter_t J, units::volt_t maxVoltage);
 
 }  // namespace frc

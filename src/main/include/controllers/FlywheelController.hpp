@@ -99,7 +99,7 @@ private:
     Eigen::Matrix<double, 1, 1> m_y;
 
     frc::LinearSystem<1, 1, 1> m_plant =
-        frc::IdentifyVelocitySystem(kV.to<double>(), kA.to<double>());
+        frc::IdentifyVelocitySystem(kV.to<double>(), kA.to<double>(), 12_V);
 
     frc::KalmanFilter<1, 1, 1> m_observer{
         m_plant, {700.0}, {50.0}, Constants::kDt};

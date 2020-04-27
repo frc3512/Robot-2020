@@ -14,7 +14,8 @@
 namespace frc {
 
 LinearSystem<2, 1, 1> ElevatorSystem(DCMotor motor, units::kilogram_t m,
-                                     units::meter_t r, double G) {
+                                     units::meter_t r, double G,
+                                     units::volt_t maxVoltage) {
   auto A =
       frc::MakeMatrix<2, 2>(0.0, 1.0, 0.0,
                             (-std::pow(G, 2) * motor.Kt /
@@ -24,8 +25,8 @@ LinearSystem<2, 1, 1> ElevatorSystem(DCMotor motor, units::kilogram_t m,
       0.0, (G * motor.Kt / (motor.R * r * m)).to<double>());
   auto C = frc::MakeMatrix<1, 2>(1.0, 0.0);
   auto D = frc::MakeMatrix<1, 1>(0.0);
-  auto uMin = frc::MakeMatrix<1, 1>(-12.0);
-  auto uMax = frc::MakeMatrix<1, 1>(12.0);
+  auto uMin = frc::MakeMatrix<1, 1>(-maxVoltage.to<double>());
+  auto uMax = frc::MakeMatrix<1, 1>(maxVoltage.to<double>());
 
   return LinearSystem<2, 1, 1>(A, B, C, D, uMin, uMax);
 }

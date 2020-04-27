@@ -86,7 +86,9 @@ class circular_buffer {
   };
 
   iterator begin() { return iterator(this, 0); }
-  iterator end() { return iterator(this, ::wpi::circular_buffer<T, N>::size()); }
+  iterator end() {
+    return iterator(this, ::wpi::circular_buffer<T, N>::size());
+  }
 
   const_iterator begin() const { return const_iterator(this, 0); }
   const_iterator end() const {
@@ -114,9 +116,7 @@ class circular_buffer {
    * If there are no elements in the buffer, calling this function results in
    * undefined behavior.
    */
-  T& back() {
-    return m_data[(m_front + m_length - 1) % N];
-  }
+  T& back() { return m_data[(m_front + m_length - 1) % N]; }
 
   /**
    * Returns value at back of buffer
@@ -124,9 +124,7 @@ class circular_buffer {
    * If there are no elements in the buffer, calling this function results in
    * undefined behavior.
    */
-  const T& back() const {
-    return m_data[(m_front + m_length - 1) % N];
-  }
+  const T& back() const { return m_data[(m_front + m_length - 1) % N]; }
 
   /**
    * Push new value onto front of the buffer. The value at the back is
@@ -192,9 +190,7 @@ class circular_buffer {
   /**
    * @return Element at index starting from front of buffer.
    */
-  T& operator[](size_t index) {
-    return m_data[(m_front + index) % N];
-  }
+  T& operator[](size_t index) { return m_data[(m_front + index) % N]; }
 
   /**
    * @return Element at index starting from front of buffer.

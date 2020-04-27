@@ -11,6 +11,7 @@
 #include <random>
 
 #include <Eigen/Core>
+#include <units.h>
 
 #include "frc/controller/LinearQuadraticRegulator.h"
 #include "frc/estimator/KalmanFilter.h"
@@ -38,7 +39,7 @@ class StateSpace : public testing::Test {
     // Gear ratio
     constexpr double G = 40.0 / 40.0;
 
-    return ElevatorSystem(motors, m, r, G);
+    return ElevatorSystem(motors, m, r, G, 12_V);
   }();
   LinearQuadraticRegulator<2, 1> controller{plant, {0.02, 0.4}, {12.0}, kDt};
   KalmanFilter<2, 1, 1> observer{plant, {0.05, 1.0}, {0.0001}, kDt};

@@ -10,7 +10,7 @@
 #include <limits>
 #include <tuple>
 
-#include <units/units.h>
+#include <units.h>
 
 #include "frc/system/LinearSystem.h"
 #include "frc/trajectory/constraint/TrajectoryConstraint.h"

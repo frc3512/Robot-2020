@@ -53,7 +53,7 @@ class UnscentedKalmanFilter {
     m_contQ = MakeCovMatrix(stateStdDevs);
     m_contR = MakeCovMatrix(measurementStdDevs);
 
-    m_discR = DiscretizeR(m_contR, dt);
+    m_discR = DiscretizeR<Outputs>(m_contR, dt);
 
     Reset();
   }
@@ -126,7 +126,7 @@ class UnscentedKalmanFilter {
         NumericalJacobianX<States, States, Inputs>(m_f, m_xHat, u);
     Eigen::Matrix<double, States, States> discA;
     Eigen::Matrix<double, States, States> discQ;
-    DiscretizeAQTaylor(contA, m_contQ, dt, &discA, &discQ);
+    DiscretizeAQTaylor<States>(contA, m_contQ, dt, &discA, &discQ);
 
     auto sigmas = m_pts.SigmaPoints(m_xHat, m_P);
 
@@ -143,7 +143,7 @@ class UnscentedKalmanFilter {
     m_P = std::get<1>(ret);
 
     m_P += discQ;
-    m_discR = DiscretizeR(m_contR, dt);
+    m_discR = DiscretizeR<Outputs>(m_contR, dt);
   }
 
   /**
@@ -154,7 +154,7 @@ class UnscentedKalmanFilter {
    */
   void Correct(const Eigen::Matrix<double, Inputs, 1>& u,
                const Eigen::Matrix<double, Outputs, 1>& y) {
-    Correct(u, y, m_h, m_discR);
+    Correct<Outputs>(u, y, m_h, m_discR);
   }
 
   /**

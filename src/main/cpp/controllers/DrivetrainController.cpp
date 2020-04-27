@@ -290,7 +290,7 @@ frc::TrajectoryConfig DrivetrainController::MakeTrajectoryConfig() const {
 
     auto plant = frc::IdentifyDrivetrainSystem(
         kLinearV.to<double>(), kLinearA.to<double>(), kAngularV.to<double>(),
-        kAngularA.to<double>());
+        kAngularA.to<double>(), 12_V);
     frc::DrivetrainVelocitySystemConstraint systemConstraint{plant, kWidth,
                                                              8_V};
     config.AddConstraint(systemConstraint);
@@ -361,7 +361,7 @@ Eigen::Matrix<double, 10, 1> DrivetrainController::Dynamics(
 
     auto plant = frc::IdentifyDrivetrainSystem(
         kLinearV.to<double>(), kLinearA.to<double>(), kAngularV.to<double>(),
-        kAngularA.to<double>());
+        kAngularA.to<double>(), 12_V);
 
     Eigen::Matrix<double, 4, 2> B;
     B.block<2, 2>(0, 0) = plant.B();
