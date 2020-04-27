@@ -101,4 +101,5 @@ void FlywheelController::Reset() {
     m_observer.Reset();
     m_r.setZero();
     m_nextR.setZero();
+    m_u.setZero();
 }

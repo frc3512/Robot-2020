@@ -26,8 +26,8 @@ ControllerSubsystemBase::~ControllerSubsystemBase() {
 }
 
 void ControllerSubsystemBase::Enable() {
-    m_notifier.StartPeriodic(frc3512::Constants::kDt);
     m_startTime = std::chrono::steady_clock::now();
+    m_notifier.StartPeriodic(frc3512::Constants::kDt);
 }
 
 void ControllerSubsystemBase::Disable() { m_notifier.Stop(); }

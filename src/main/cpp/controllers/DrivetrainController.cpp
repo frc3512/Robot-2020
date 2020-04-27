@@ -144,7 +144,7 @@ void DrivetrainController::Update(units::second_t dt,
 
         // Only sample the trajectory if one was created. Otherwise, use the
         // default Trajectory::State, which is zero-filled.
-        if (m_trajectory.TotalTime() != 0_s) {
+        if (m_trajectory.States().size() != 0) {
             std::lock_guard lock(m_trajectoryMutex);
             ref = m_trajectory.Sample(elapsedTime);
         }
