@@ -6,10 +6,18 @@
 
 namespace frc3512 {
 
+namespace {
 enum class State { kInit, kShoot, kTrenchRun, kTrenchShoot, kIdle };
-static State state;
+}  // namespace
 
-void Robot::AutoRightSideShootSixInit() { state = State::kInit; }
+static State state;
+static frc2::Timer autonTimer;
+
+void Robot::AutoRightSideShootSixInit() {
+    state = State::kInit;
+    autonTimer.Reset();
+    autonTimer.Start();
+}
 
 void Robot::AutoRightSideShootSixPeriodic() {
     switch (state) {
@@ -64,6 +72,14 @@ void Robot::AutoRightSideShootSixPeriodic() {
                 m_timer.Stop();
             }
             break;
+        }
+    }
+
+    if constexpr (IsSimulation()) {
+        if (autonTimer.HasElapsed(14.5_s)) {
+            EXPECT_EQ(State::kIdle, state);
+            EXPECT_TRUE(m_drivetrain.AtGoal());
+            EXPECT_TRUE(m_flywheel.AtGoal());
         }
     }
 }

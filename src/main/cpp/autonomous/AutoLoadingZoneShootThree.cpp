@@ -12,8 +12,13 @@ enum class State { kShoot, kDriveAwayFromGoal, kIdle };
 }  // namespace
 
 static State state;
+static frc2::Timer autonTimer;
 
-void Robot::AutoLoadingZoneShootThreeInit() { state = State::kShoot; }
+void Robot::AutoLoadingZoneShootThreeInit() {
+    state = State::kShoot;
+    autonTimer.Reset();
+    autonTimer.Start();
+}
 
 void Robot::AutoLoadingZoneShootThreePeriodic() {
     switch (state) {
@@ -47,6 +52,14 @@ void Robot::AutoLoadingZoneShootThreePeriodic() {
         }
         case State::kIdle: {
             break;
+        }
+    }
+
+    if constexpr (IsSimulation()) {
+        if (autonTimer.HasElapsed(14.5_s)) {
+            EXPECT_EQ(State::kIdle, state);
+            EXPECT_TRUE(m_drivetrain.AtGoal());
+            EXPECT_TRUE(m_flywheel.AtGoal());
         }
     }
 }

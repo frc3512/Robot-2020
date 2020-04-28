@@ -7,6 +7,13 @@
 #include <frc/simulation/JoystickSim.h>
 #include <frc2/Timer.h>
 
+#if RUNNING_FRC_TESTS
+#include <gtest/gtest.h>
+#else
+#define EXPECT_EQ(a, b)
+#define EXPECT_TRUE(a)
+#endif
+
 #include "Constants.hpp"
 #include "autonselector/AutonSelector.hpp"
 #include "subsystems/Climber.hpp"
@@ -29,6 +36,8 @@ public:
      * States used for the multi-subsystem shooting procedure
      */
     enum class ShootingState { kIdle, kStartFlywheel, kStartConveyor };
+
+    AutonSelector m_autonSelector{kDsPort};
 
     Robot();
 
@@ -148,8 +157,6 @@ private:
 
     ShootingState m_state = ShootingState::kIdle;
     frc2::Timer m_timer;
-
-    AutonSelector m_autonSelector{kDsPort};
 
     frc::CSVLogFile m_batteryLogger{"Battery", "Battery voltage (V)"};
 

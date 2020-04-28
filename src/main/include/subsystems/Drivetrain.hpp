@@ -15,6 +15,7 @@
 #include <frc/simulation/ADXRS450_GyroSim.h>
 #include <frc/simulation/DifferentialDrivetrainSim.h>
 #include <frc/simulation/EncoderSim.h>
+#include <frc/simulation/Field2d.h>
 #include <frc2/Timer.h>
 #include <networktables/NetworkTableEntry.h>
 #include <networktables/NetworkTableInstance.h>
@@ -235,6 +236,7 @@ private:
     frc::sim::EncoderSim m_leftEncoderSim{m_leftEncoder};
     frc::sim::EncoderSim m_rightEncoderSim{m_rightEncoder};
     frc::sim::ADXRS450_GyroSim m_gyroSim{m_gyro};
+    frc::Field2d m_field;
 };
 
 }  // namespace frc3512

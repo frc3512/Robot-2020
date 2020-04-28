@@ -12,8 +12,13 @@ enum class State { kInit, kIdle };
 }  // namespace
 
 static State state;
+static frc2::Timer autonTimer;
 
-void Robot::AutoRightSideDriveForwardInit() { state = State::kInit; }
+void Robot::AutoRightSideDriveForwardInit() {
+    state = State::kInit;
+    autonTimer.Reset();
+    autonTimer.Start();
+}
 
 void Robot::AutoRightSideDriveForwardPeriodic() {
     switch (state) {
@@ -33,6 +38,14 @@ void Robot::AutoRightSideDriveForwardPeriodic() {
         }
         case State::kIdle: {
             break;
+        }
+    }
+
+    if constexpr (IsSimulation()) {
+        if (autonTimer.HasElapsed(14.5_s)) {
+            EXPECT_EQ(State::kIdle, state);
+            EXPECT_TRUE(m_drivetrain.AtGoal());
+            EXPECT_TRUE(m_flywheel.AtGoal());
         }
     }
 }

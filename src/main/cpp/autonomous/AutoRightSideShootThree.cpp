@@ -11,8 +11,13 @@ enum class State { kInit, kDriveAwayFromGoal, kIdle };
 }  // namespace
 
 static State state;
+static frc2::Timer autonTimer;
 
-void Robot::AutoRightSideShootThreeInit() { state = State::kInit; }
+void Robot::AutoRightSideShootThreeInit() {
+    state = State::kInit;
+    autonTimer.Reset();
+    autonTimer.Start();
+}
 
 void Robot::AutoRightSideShootThreePeriodic() {
     switch (state) {
@@ -40,6 +45,14 @@ void Robot::AutoRightSideShootThreePeriodic() {
             // Final Pose -
             // X: 12.65 m - RobotLength  Y: 0.7500 m  Heading: 0 rad
             break;
+        }
+    }
+
+    if constexpr (IsSimulation()) {
+        if (autonTimer.HasElapsed(14.5_s)) {
+            EXPECT_EQ(State::kIdle, state);
+            EXPECT_TRUE(m_drivetrain.AtGoal());
+            EXPECT_TRUE(m_flywheel.AtGoal());
         }
     }
 }

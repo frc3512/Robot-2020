@@ -97,6 +97,7 @@ void Drivetrain::Reset(const frc::Pose2d& initialPose) {
         x(State::kY) = initialPose.Y().to<double>();
         x(State::kHeading) = initialPose.Rotation().Radians().to<double>();
         m_drivetrainSim.SetState(x);
+        m_field.SetRobotPose(initialPose);
     }
 }
 
