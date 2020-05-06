@@ -54,7 +54,6 @@ TEST(DrivetrainControllerTest, ReachesReference) {
             units::radian_t{y(0)}, units::meter_t{y(1)}, units::meter_t{y(2)});
         controller.SetMeasuredInputs(units::volt_t{u(0)}, units::volt_t{u(1)});
         controller.Update(kDt, currentTime);
-        currentTime += dt;
 
         u = controller.GetInputs();
 
@@ -83,6 +82,7 @@ TEST(DrivetrainControllerTest, ReachesReference) {
         }
 
         x = frc::RungeKutta(frc3512::DrivetrainController::Dynamics, x, u, dt);
+        currentTime += dt;
     }
 
     RenameCSVs("DrivetrainControllerTest", "./Drivetrain ");
