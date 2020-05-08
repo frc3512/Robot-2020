@@ -4867,6 +4867,12 @@ using namespace torque;
 using namespace velocity;
 using namespace voltage;
 
+/**
+ * Define a unit for curvature.
+ */
+using curvature_t = units::unit_t<
+    units::compound_unit<units::radian, units::inverse<units::meter>>>;
+
 using dimensionless::scalar;
 using dimensionless::scalar_t;
 using dimensionless::dimensionless_t;

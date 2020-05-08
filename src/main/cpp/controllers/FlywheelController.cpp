@@ -16,11 +16,13 @@ FlywheelController::FlywheelController() {
 
 void FlywheelController::Enable() {
     m_lqr.Enable();
+    m_ff.Enable();
     m_isEnabled = true;
 }
 
 void FlywheelController::Disable() {
     m_lqr.Disable();
+    m_ff.Disable();
     m_isEnabled = false;
 }
 
@@ -75,7 +77,8 @@ void FlywheelController::Update(units::second_t dt,
     if (m_nextR(0) == 0.0) {
         m_u(0) = 0.0;
     } else {
-        m_u = m_lqr.U() * 12.0 / frc::RobotController::GetInputVoltage();
+        m_u = (m_lqr.U() + m_ff.Calculate(m_nextR)) * 12.0 /
+              frc::RobotController::GetInputVoltage();
     }
 
     ScaleCapU(&m_u);

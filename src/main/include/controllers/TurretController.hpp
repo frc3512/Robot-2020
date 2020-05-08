@@ -4,6 +4,7 @@
 
 #include <frc/DigitalInput.h>
 #include <frc/controller/LinearQuadraticRegulator.h>
+#include <frc/controller/PlantInversionFeedforward.h>
 #include <frc/estimator/KalmanFilter.h>
 #include <frc/geometry/Pose2d.h>
 #include <frc/geometry/Translation3d.h>
@@ -174,6 +175,7 @@ private:
 
     frc::LinearQuadraticRegulator<2, 1> m_lqr{
         m_plant, {0.01245, 0.109726}, {12.0}, Constants::kDt};
+    frc::PlantInversionFeedforward<2, 1> m_ff{m_plant, Constants::kDt};
     frc::KalmanFilter<2, 1, 1> m_observer{
         m_plant, {0.21745, 0.28726}, {0.01}, Constants::kDt};
 

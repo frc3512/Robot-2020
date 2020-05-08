@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------------*/
-/* Copyright (c) 2019-2020 FIRST. All Rights Reserved.                        */
+/* Copyright (c) 2020 FIRST. All Rights Reserved.                             */
 /* Open Source Software - may be modified and shared by FRC teams. The code   */
 /* must be accompanied by the FIRST BSD license file in the root directory of */
 /* the project.                                                               */
@@ -17,7 +17,12 @@ using namespace frc;
 
 LTVUnicycleController::LTVUnicycleController(
     const std::array<double, 3>& Qelems, const std::array<double, 2>& Relems,
-    units::second_t dt) {
+    units::second_t dt)
+    : LTVUnicycleController(Qelems, 1.0, Relems, dt) {}
+
+LTVUnicycleController::LTVUnicycleController(
+    const std::array<double, 3>& Qelems, const double rho,
+    const std::array<double, 2>& Relems, units::second_t dt) {
   Eigen::Matrix<double, 3, 3> A0;
   A0 << 0, 0, 0, 0, 0, 1e-9, 0, 0, 0;
   Eigen::Matrix<double, 3, 3> A1;
@@ -25,8 +30,13 @@ LTVUnicycleController::LTVUnicycleController(
   Eigen::Matrix<double, 3, 2> B;
   B << 1, 0, 0, 0, 0, 1;
 
-  m_K0 = LinearQuadraticRegulator<3, 2>(A0, B, Qelems, Relems, dt).K();
-  m_K1 = LinearQuadraticRegulator<3, 2>(A1, B, Qelems, Relems, dt).K();
+  std::array<double, 3> QelemsScaled = Qelems;
+
+  std::transform(QelemsScaled.begin(), QelemsScaled.end(), QelemsScaled.begin(),
+                 [&rho](auto& c) { return c * rho; });
+
+  m_K0 = LinearQuadraticRegulator<3, 2>(A0, B, QelemsScaled, Relems, dt).K();
+  m_K1 = LinearQuadraticRegulator<3, 2>(A1, B, QelemsScaled, Relems, dt).K();
 }
 
 bool LTVUnicycleController::AtReference() const {

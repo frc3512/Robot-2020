@@ -10,6 +10,7 @@
 #include <Eigen/Core>
 
 #include "frc/controller/LinearQuadraticRegulator.h"
+#include "frc/controller/PlantInversionFeedforward.h"
 #include "frc/estimator/KalmanFilter.h"
 #include "frc/system/LinearSystem.h"
 
@@ -38,13 +39,19 @@ class LinearSystemLoop {
    *
    * @param plant      State-space plant.
    * @param controller State-space controller.
+   * @param feedforward Plant-inversion feedforward.
    * @param observer   State-space observer.
    */
   LinearSystemLoop(LinearSystem<States, Inputs, Outputs>& plant,
                    LinearQuadraticRegulator<States, Inputs>& controller,
+                   PlantInversionFeedforward<States, Inputs>& feedforward,
                    KalmanFilter<States, Inputs, Outputs>& observer)
-      : m_plant(plant), m_controller(controller), m_observer(observer) {
-    Reset();
+      : m_plant(plant),
+        m_controller(controller),
+        m_feedforward(feedforward),
+        m_observer(observer) {
+    m_nextR.setZero();
+    Reset(m_nextR);
   }
 
   virtual ~LinearSystemLoop() = default;
@@ -55,12 +62,18 @@ class LinearSystemLoop {
   /**
    * Enables the controller.
    */
-  void Enable() { m_controller.Enable(); }
+  void Enable() {
+    m_controller.Enable();
+    m_feedforward.Enable();
+  }
 
   /**
    * Disables the controller and zeros the control input.
    */
-  void Disable() { m_controller.Disable(); }
+  void Disable() {
+    m_controller.Disable();
+    m_feedforward.Disable();
+  }
 
   /**
    * Returns the observer's state estimate x-hat.
@@ -92,7 +105,7 @@ class LinearSystemLoop {
    * Returns the controller's calculated control input u.
    */
   Eigen::Matrix<double, Inputs, 1> U() const {
-    return m_plant.ClampInput(m_controller.U());
+    return m_plant.ClampInput(m_controller.U() + m_feedforward.Uff());
   }
 
   /**
@@ -100,7 +113,7 @@ class LinearSystemLoop {
    *
    * @param i Row of u.
    */
-  double U(int i) const { return m_plant.ClampInput(m_controller.U())(i); }
+  double U(int i) const { return m_plant.ClampInput(U())(i); }
 
   /**
    * Set the initial state estimate x-hat.
@@ -141,6 +154,15 @@ class LinearSystemLoop {
   }
 
   /**
+   * Return the feedforward used internally.
+   *
+   * @return the feedforward used internally.
+   */
+  const PlantInversionFeedforward<States, Inputs> Feedforward() const {
+    return m_feedforward;
+  }
+
+  /**
    * Return the observer used internally.
    */
   const KalmanFilter<States, Inputs, Outputs>& Observer() const {
@@ -148,12 +170,15 @@ class LinearSystemLoop {
   }
 
   /**
-   * Zeroes reference r, controller output u, plant output y, and state estimate
-   * x-hat.
+   * Zeroes reference r, controller output u and plant output y.
+   * The previous reference for PlantInversionFeedforward is set to the
+   * initial reference.
+   * @param initialReference The initial reference.
    */
-  void Reset() {
+  void Reset(Eigen::Matrix<double, States, 1> initialState) {
     m_plant.Reset();
     m_controller.Reset();
+    m_feedforward.Reset(initialState);
     m_observer.Reset();
     m_nextR.setZero();
   }
@@ -171,7 +196,7 @@ class LinearSystemLoop {
    * @param y Measurement vector.
    */
   void Correct(const Eigen::Matrix<double, Outputs, 1>& y) {
-    m_observer.Correct(m_controller.U(), y);
+    m_observer.Correct(U(), y);
   }
 
   /**
@@ -185,29 +210,14 @@ class LinearSystemLoop {
    */
   void Predict(units::second_t dt) {
     m_controller.Update(m_observer.Xhat(), m_nextR);
-    m_observer.Predict(m_controller.U(), dt);
+    m_feedforward.Calculate(m_nextR);
+    m_observer.Predict(U(), dt);
   }
-
-  /**
-   * Sets the current controller to be "index". This can be used for gain
-   * scheduling.
-   *
-   * @param index The controller index.
-   */
-  void SetIndex(int index) {
-    m_plant.SetIndex(index);
-    m_controller.SetIndex(index);
-    m_observer.SetIndex(index);
-  }
-
-  /**
-   * Returns the current controller index.
-   */
-  int GetIndex() const { return m_plant.GetIndex(); }
 
  protected:
   LinearSystem<States, Inputs, Outputs>& m_plant;
   LinearQuadraticRegulator<States, Inputs>& m_controller;
+  PlantInversionFeedforward<States, Inputs>& m_feedforward;
   KalmanFilter<States, Inputs, Outputs>& m_observer;
 
   // Reference to go to in the next cycle (used by feedforward controller).

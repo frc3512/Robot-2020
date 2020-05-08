@@ -3,6 +3,7 @@
 #pragma once
 
 #include <frc/controller/LinearQuadraticRegulator.h>
+#include <frc/controller/PlantInversionFeedforward.h>
 #include <frc/estimator/KalmanFilter.h>
 #include <frc/logging/CSVLogFile.h>
 #include <frc/system/plant/LinearSystemId.h>
@@ -106,6 +107,7 @@ private:
 
     frc::LinearQuadraticRegulator<1, 1> m_lqr{
         m_plant, {80.0}, {12.0}, Constants::kDt};
+    frc::PlantInversionFeedforward<1, 1> m_ff{m_plant, Constants::kDt};
 
     // Controller reference
     Eigen::Matrix<double, 1, 1> m_r;

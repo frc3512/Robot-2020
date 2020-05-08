@@ -11,9 +11,15 @@ using namespace frc3512::Constants::Turret;
 
 TurretController::TurretController() { m_y.setZero(); }
 
-void TurretController::Enable() { m_lqr.Enable(); }
+void TurretController::Enable() {
+    m_lqr.Enable();
+    m_ff.Enable();
+}
 
-void TurretController::Disable() { m_lqr.Disable(); }
+void TurretController::Disable() {
+    m_lqr.Disable();
+    m_ff.Disable();
+}
 
 void TurretController::SetGoal(
     units::radian_t angleGoal,
@@ -123,7 +129,7 @@ void TurretController::Update(units::second_t dt, units::second_t elapsedTime) {
     } else {
         Eigen::Matrix<double, 2, 1> error = m_lqr.R() - m_observer.Xhat();
         error(0) = NormalizeAngle(error(0));
-        m_u << (m_lqr.K() * error + m_lqr.Uff()) * 12.0 /
+        m_u << (m_lqr.K() * error + m_ff.Calculate(m_nextR)) * 12.0 /
                    frc::RobotController::GetInputVoltage();
     }
 
@@ -141,6 +147,7 @@ void TurretController::Update(units::second_t dt, units::second_t elapsedTime) {
 
 void TurretController::Reset() {
     m_observer.Reset();
+    m_ff.Reset(Eigen::Matrix<double, 2, 1>::Zero());
     m_nextR.setZero();
     m_u.setZero();
 }

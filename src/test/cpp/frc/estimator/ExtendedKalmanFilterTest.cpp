@@ -140,8 +140,8 @@ TEST(ExtendedKalmanFilterTest, Convergence) {
     nextR(3) = vl.to<double>();
     nextR(4) = vr.to<double>();
 
-    auto localY = LocalMeasurementModel(observer.Xhat(),
-                                        Eigen::Matrix<double, 2, 1>::Zero());
+    auto localY =
+        LocalMeasurementModel(nextR, Eigen::Matrix<double, 2, 1>::Zero());
     observer.Correct(u, localY + frc::MakeWhiteNoiseVector(0.0001, 0.5, 0.5));
 
     Eigen::Matrix<double, 5, 1> rdot = (nextR - r) / dt.to<double>();
@@ -159,4 +159,14 @@ TEST(ExtendedKalmanFilterTest, Convergence) {
   auto globalY = GlobalMeasurementModel(observer.Xhat(), u);
   auto R = frc::MakeCovMatrix(0.01, 0.01, 0.0001, 0.5, 0.5);
   observer.Correct<5>(u, globalY, GlobalMeasurementModel, R);
+
+  auto finalPosition = trajectory.Sample(trajectory.TotalTime());
+  ASSERT_NEAR(finalPosition.pose.Translation().X().template to<double>(),
+              observer.Xhat(0), 1.0);
+  ASSERT_NEAR(finalPosition.pose.Translation().Y().template to<double>(),
+              observer.Xhat(1), 1.0);
+  ASSERT_NEAR(finalPosition.pose.Rotation().Radians().template to<double>(),
+              observer.Xhat(2), 1.0);
+  ASSERT_NEAR(0.0, observer.Xhat(3), 1.0);
+  ASSERT_NEAR(0.0, observer.Xhat(4), 1.0);
 }

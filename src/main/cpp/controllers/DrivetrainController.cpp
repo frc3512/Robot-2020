@@ -193,17 +193,10 @@ void DrivetrainController::Update(units::second_t dt,
             ref.pose.Rotation().Radians().to<double>(), vlRef.to<double>(),
             vrRef.to<double>(), 0, 0, 0, 0, 0;
 
-        // Compute feedforward
-        Eigen::Matrix<double, 5, 1> rdot =
-            (m_nextR.block<5, 1>(0, 0) - m_r.block<5, 1>(0, 0)) /
-            dt.to<double>();
-        Eigen::Matrix<double, 2, 1> uff = m_B.householderQr().solve(
-            rdot - Dynamics(m_r, Eigen::Matrix<double, 2, 1>::Zero())
-                       .block<5, 1>(0, 0));
-
         if (m_isEnabled) {
             m_cappedU =
-                Controller(m_observer.Xhat(), m_nextR.block<5, 1>(0, 0)) + uff;
+                Controller(m_observer.Xhat(), m_nextR.block<5, 1>(0, 0)) +
+                m_ff.Calculate(m_nextR);
         } else {
             m_cappedU = Eigen::Matrix<double, 2, 1>::Zero();
         }

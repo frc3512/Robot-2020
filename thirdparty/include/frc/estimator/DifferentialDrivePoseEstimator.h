@@ -12,8 +12,8 @@
 #include <Eigen/Core>
 #include <units.h>
 
+#include "frc/estimator/ExtendedKalmanFilter.h"
 #include "frc/estimator/KalmanFilterLatencyCompensator.h"
-#include "frc/estimator/UnscentedKalmanFilter.h"
 #include "frc/geometry/Pose2d.h"
 #include "frc/geometry/Rotation2d.h"
 #include "frc/kinematics/DifferentialDriveWheelSpeeds.h"
@@ -148,8 +148,8 @@ class DifferentialDrivePoseEstimator {
                         units::meter_t rightDistance);
 
  private:
-  UnscentedKalmanFilter<5, 3, 3> m_observer;
-  KalmanFilterLatencyCompensator<5, 3, 3, UnscentedKalmanFilter<5, 3, 3>>
+  ExtendedKalmanFilter<5, 3, 3> m_observer;
+  KalmanFilterLatencyCompensator<5, 3, 3, ExtendedKalmanFilter<5, 3, 3>>
       m_latencyCompensator;
   std::function<void(const Vector<3>& u, const Vector<3>& y)> m_visionCorrect;
 
