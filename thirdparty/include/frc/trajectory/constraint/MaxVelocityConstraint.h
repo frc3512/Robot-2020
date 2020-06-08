@@ -7,15 +7,14 @@
 
 #pragma once
 
-#include <units/units.h>
+#include <units.h>
 
 #include "frc/trajectory/constraint/TrajectoryConstraint.h"
 
 namespace frc {
 
 /**
- * A class that enforces constraints when the trajectory pose in a specific
- * square region.
+ * A constraint on the maximum velocity allowed when traversing a trajectory.
  */
 class MaxVelocityConstraint : public TrajectoryConstraint {
  public:

@@ -2,9 +2,9 @@
 
 #pragma once
 
-#include <Eigen/Core>
 #include <frc/DigitalInput.h>
 #include <frc/controller/LinearQuadraticRegulator.h>
+#include <frc/controller/PlantInversionFeedforward.h>
 #include <frc/estimator/KalmanFilter.h>
 #include <frc/geometry/Pose2d.h>
 #include <frc/geometry/Translation3d.h>
@@ -17,10 +17,11 @@
 
 #include "Constants.hpp"
 #include "TargetModel.hpp"
+#include "controllers/ControllerBase.hpp"
 
 namespace frc3512 {
 
-class TurretController {
+class TurretController : public ControllerBase<2, 1, 1> {
 public:
     static constexpr double kGearRatio = 18.0 / 160.0;
     static constexpr double kDpR = kGearRatio * 2.0 * wpi::math::pi;
@@ -34,6 +35,22 @@ public:
     static constexpr units::radian_t kAngleTolerance = 0.05_rad;
     static constexpr units::radians_per_second_t kAngularVelocityTolerance =
         2.0_rad_per_s;
+
+    class State {
+    public:
+        static constexpr int kAngle = 0;
+        static constexpr int kAngularVelocity = 1;
+    };
+
+    class Input {
+    public:
+        static constexpr int kVoltage = 0;
+    };
+
+    class Output {
+    public:
+        static constexpr int kAngle = 0;
+    };
 
     TurretController();
 
@@ -99,47 +116,18 @@ public:
      */
     void SetDrivetrainStatus(const Eigen::Matrix<double, 10, 1>& nextXhat);
 
+    const Eigen::Matrix<double, 2, 1>& GetReferences() const override;
+
+    const Eigen::Matrix<double, 2, 1>& GetStates() const override;
+
+    const Eigen::Matrix<double, 1, 1>& GetInputs() const override;
+
+    const Eigen::Matrix<double, 1, 1>& GetOutputs() const override;
+
     /**
      * Returns the projected pose of the turret.
      */
     frc::Pose2d GetNextPose() const;
-
-    /**
-     * Returns the control loop calculated voltage.
-     */
-    units::volt_t ControllerVoltage() const;
-
-    /**
-     * Returns the estimated angle.
-     */
-    units::radian_t EstimatedAngle() const;
-
-    /**
-     * Returns the estimated angular velocity.
-     */
-    units::radians_per_second_t EstimatedAngularVelocity() const;
-
-    /**
-     * Returns the current angle reference.
-     */
-    units::radian_t AngleReference();
-
-    /**
-     * Returns the current angular velocity reference.
-     */
-    units::radians_per_second_t AngularVelocityReference();
-
-    /**
-     * Returns the error between the angle reference and the angle
-     * estimate.
-     */
-    units::radian_t AngleError() const;
-
-    /**
-     * Returns the error between the angular velocity reference and the angular
-     * velocity estimate.
-     */
-    units::radians_per_second_t AngularVelocityError() const;
 
     /**
      * Returns the angle the target must rotate to in the global frame to point
@@ -183,12 +171,13 @@ private:
     frc::TrapezoidProfile<units::radians>::State m_profiledReference;
 
     frc::LinearSystem<2, 1, 1> m_plant =
-        frc::IdentifyPositionSystem(kV.to<double>(), kA.to<double>());
+        frc::IdentifyPositionSystem(kV.to<double>(), kA.to<double>(), 12_V);
 
     frc::LinearQuadraticRegulator<2, 1> m_lqr{
         m_plant, {0.01245, 0.109726}, {12.0}, Constants::kDt};
+    frc::PlantInversionFeedforward<2, 1> m_ff{m_plant, Constants::kDt};
     frc::KalmanFilter<2, 1, 1> m_observer{
-        m_plant, Constants::kDt, {0.21745, 0.28726}, {0.01}};
+        m_plant, {0.21745, 0.28726}, {0.01}, Constants::kDt};
 
     Eigen::Matrix<double, 2, 1> m_nextR;
 

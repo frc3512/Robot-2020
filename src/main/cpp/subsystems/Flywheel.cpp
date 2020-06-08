@@ -55,7 +55,9 @@ void Flywheel::SetGoal(units::radians_per_second_t velocity) {
 }
 
 units::radians_per_second_t Flywheel::GetGoal() const {
-    return m_controller.AngularVelocityGoal();
+    auto ref = m_controller.GetReferences();
+    return units::radians_per_second_t{
+        ref(FlywheelController::State::kAngularVelocity)};
 }
 
 bool Flywheel::AtGoal() {
@@ -89,6 +91,7 @@ void Flywheel::ControllerPeriodic() {
     m_controller.SetMeasuredAngularVelocity(GetAngularVelocity());
     m_controller.Update(now - m_lastTime, now - GetStartTime());
     // Set motor input
-    SetVoltage(m_controller.ControllerVoltage());
+    auto u = m_controller.GetInputs();
+    SetVoltage(units::volt_t{u(FlywheelController::Input::kVoltage)});
     m_lastTime = now;
 }

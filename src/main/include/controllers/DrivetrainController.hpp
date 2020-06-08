@@ -8,7 +8,7 @@
 #include <tuple>
 #include <vector>
 
-#include <Eigen/Core>
+#include <frc/controller/PlantInversionFeedforward.h>
 #include <frc/estimator/ExtendedKalmanFilter.h>
 #include <frc/logging/CSVLogFile.h>
 #include <frc/system/plant/LinearSystemId.h>
@@ -19,10 +19,11 @@
 #include <wpi/mutex.h>
 
 #include "Constants.hpp"
+#include "controllers/ControllerBase.hpp"
 
 namespace frc3512 {
 
-class DrivetrainController {
+class DrivetrainController : public ControllerBase<10, 2, 3> {
 public:
     static constexpr units::meter_t kWheelRadius = 3_in;
     static constexpr double kDriveGearRatio = 1.0 / 1.0;
@@ -31,6 +32,10 @@ public:
         2048.0;
     static constexpr units::meter_t kLength = 0.9398_m;
     static constexpr units::meter_t kWidth = 0.990405073902434_m;
+
+    static constexpr std::array<double, 5> kControllerQ{0.0625, 0.125, 2.5,
+                                                        0.95, 0.95};
+    static constexpr std::array<double, 2> kControllerR{12.0, 12.0};
 
     class State {
     public:
@@ -70,15 +75,9 @@ public:
     };
 
     /**
-     * Constructs a drivetrain controller with the given coefficients.
-     *
-     * @param Qelems The maximum desired error tolerance for each state.
-     * @param Relems The maximum desired control effort for each input.
-     * @param dt     Discretization timestep.
+     * Constructs a drivetrain controller.
      */
-    DrivetrainController(const std::array<double, 5>& Qelems,
-                         const std::array<double, 2>& Relems,
-                         units::second_t dt);
+    DrivetrainController();
 
     DrivetrainController(const DrivetrainController&) = delete;
     DrivetrainController& operator=(const DrivetrainController&) = delete;
@@ -158,35 +157,13 @@ public:
                                   units::meter_t rightPosition,
                                   units::radians_per_second_t angularVelocity);
 
-    /**
-     * Returns the current references.
-     *
-     * x, y, heading, left velocity, and right velocity.
-     */
-    const Eigen::Matrix<double, 5, 1>& GetReferences() const;
+    const Eigen::Matrix<double, 10, 1>& GetReferences() const override;
 
-    /**
-     * Returns the current state estimate.
-     *
-     * x, y, heading, left position, left velocity, right position,
-     * right velocity, left voltage error, right voltage error, and angle error.
-     */
-    const Eigen::Matrix<double, 10, 1>& GetStates() const;
+    const Eigen::Matrix<double, 10, 1>& GetStates() const override;
 
-    /**
-     * Returns the control inputs.
-     *
-     * left voltage and right voltage.
-     */
-    Eigen::Matrix<double, 2, 1> GetInputs() const;
+    const Eigen::Matrix<double, 2, 1>& GetInputs() const override;
 
-    /**
-     * Returns the currently set local outputs.
-     *
-     * heading, left position, left velocity, right position,
-     * right velocity, and angular velocity.
-     */
-    const Eigen::Matrix<double, 3, 1>& GetOutputs() const;
+    const Eigen::Matrix<double, 3, 1>& GetOutputs() const override;
 
     /**
      * Returns the estimated outputs based on the current state estimate.
@@ -253,10 +230,8 @@ private:
         1.382_V / 1_rad_per_s;
     static constexpr decltype(1_V / (1_rad_per_s / 1_s)) kAngularA =
         (0.3398_V / 4.0) / (1_rad_per_s / 1_s);
-    static constexpr decltype(1_V / (1_V / 1_mps)) kMaxV =
-        12_V / kLinearV;  // m/s
-    static constexpr decltype(1_V / (1_V / 1_mps_sq)) kMaxA =
-        12_V / kLinearA;  // m/s^2
+    static constexpr units::meters_per_second_t kMaxV = 12_V / kLinearV;
+    static constexpr decltype(1_mps_sq) kMaxA = 12_V / kLinearA;
 
     // Robot radius
     static constexpr auto rb = kWidth / 2.0;
@@ -268,37 +243,24 @@ private:
     Eigen::Matrix<double, 3, 1> m_localY;
     Eigen::Matrix<double, 6, 1> m_globalY;
 
-    // Design observer
-    // States: [x position, y position, heading,
-    //          left velocity, right velocity,
-    //          left position, right position,
-    //          left voltage error, right voltage error, angle error]
-    //
-    // Inputs: [left voltage, right voltage]
-    //
-    // Outputs (local): [left position, right position,
-    //                   angular velocity]
-    //
-    // Outputs (global): [x position, y position, heading,
-    //                    left position, right position,
-    //                    angular velocity]
+    // Design observer. See the enums above for lists of the states, inputs, and
+    // outputs.
     frc::ExtendedKalmanFilter<10, 2, 3> m_observer{
         Dynamics,
         LocalMeasurementModel,
         {0.002, 0.002, 0.0001, 1.5, 1.5, 0.5, 0.5, 10.0, 10.0, 2.0},
         {0.0001, 0.005, 0.005},
         Constants::kDt};
+    frc::PlantInversionFeedforward<10, 2> m_ff{Dynamics, Constants::kDt};
 
-    // Design controller
-    // States: [x position, y position, heading, left velocity, right velocity]
     Eigen::Matrix<double, 5, 2> m_B;
     Eigen::Matrix<double, 2, 5> m_K0;
     Eigen::Matrix<double, 2, 5> m_K1;
 
     // Controller reference
-    Eigen::Matrix<double, 5, 1> m_r;
+    Eigen::Matrix<double, 10, 1> m_r;
 
-    Eigen::Matrix<double, 5, 1> m_nextR;
+    Eigen::Matrix<double, 10, 1> m_nextR;
     Eigen::Matrix<double, 2, 1> m_cappedU;
 
     frc::Trajectory m_trajectory;

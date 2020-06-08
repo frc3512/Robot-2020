@@ -7,7 +7,7 @@
 
 #include <vector>
 
-#include <units/units.h>
+#include <units.h>
 
 #include "frc/kinematics/DifferentialDriveKinematics.h"
 #include "frc/trajectory/TestTrajectory.h"

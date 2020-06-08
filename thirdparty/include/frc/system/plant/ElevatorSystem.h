@@ -25,8 +25,10 @@ namespace frc {
  * @param m Carriage mass.
  * @param r Pulley radius.
  * @param G Gear ratio from motor to carriage.
+ * @param maxVoltage the maximum voltage that can be applied.
  */
 LinearSystem<2, 1, 1> ElevatorSystem(DCMotor motor, units::kilogram_t m,
-                                     units::meter_t r, double G);
+                                     units::meter_t r, double G,
+                                     units::volt_t maxVoltage);
 
 }  // namespace frc

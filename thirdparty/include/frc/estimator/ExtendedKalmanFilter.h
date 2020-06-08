@@ -63,9 +63,9 @@ class ExtendedKalmanFilter {
 
     Eigen::Matrix<double, States, States> discA;
     Eigen::Matrix<double, States, States> discQ;
-    DiscretizeAQTaylor(contA, m_contQ, dt, &discA, &discQ);
+    DiscretizeAQTaylor<States>(contA, m_contQ, dt, &discA, &discQ);
 
-    m_discR = DiscretizeR(m_contR, dt);
+    m_discR = DiscretizeR<Outputs>(m_contR, dt);
 
     if (IsStabilizable<States, Outputs>(discA.transpose(), C.transpose()) &&
         Outputs <= States) {
@@ -89,6 +89,13 @@ class ExtendedKalmanFilter {
    * @param j Column of P.
    */
   double P(int i, int j) const { return m_P(i, j); }
+
+  /**
+   * Set the current error covariance matrix P.
+   *
+   * @param P The error covariance matrix P.
+   */
+  void SetP(const Eigen::Matrix<double, States, States>& P) { m_P = P; }
 
   /**
    * Returns the state estimate x-hat.
@@ -139,11 +146,11 @@ class ExtendedKalmanFilter {
     // Find discrete A and Q
     Eigen::Matrix<double, States, States> discA;
     Eigen::Matrix<double, States, States> discQ;
-    DiscretizeAQTaylor(contA, m_contQ, dt, &discA, &discQ);
+    DiscretizeAQTaylor<States>(contA, m_contQ, dt, &discA, &discQ);
 
     m_xHat = RungeKutta(m_f, m_xHat, u, dt);
     m_P = discA * m_P * discA.transpose() + discQ;
-    m_discR = DiscretizeR(m_contR, dt);
+    m_discR = DiscretizeR<Outputs>(m_contR, dt);
   }
 
   /**
@@ -154,7 +161,7 @@ class ExtendedKalmanFilter {
    */
   void Correct(const Eigen::Matrix<double, Inputs, 1>& u,
                const Eigen::Matrix<double, Outputs, 1>& y) {
-    Correct(u, y, m_h, m_discR);
+    Correct<Outputs>(u, y, m_h, m_discR);
   }
 
   /**

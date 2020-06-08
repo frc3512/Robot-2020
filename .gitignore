@@ -4,6 +4,7 @@
 .vscode/
 .wpilib/
 build/
+docs/
 *.swp
 *.csv
 *.log

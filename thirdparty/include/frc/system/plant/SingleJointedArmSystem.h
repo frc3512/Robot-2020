@@ -24,9 +24,11 @@ namespace frc {
  * @param motor Instance of DCMotor.
  * @param J Moment of inertia.
  * @param G Gear ratio from motor to carriage.
+ * @param maxVoltage the maximum voltage that can be applied.
  */
 LinearSystem<2, 1, 1> SingleJointedArmSystem(DCMotor motor,
                                              units::kilogram_square_meter_t J,
-                                             double G);
+                                             double G,
+                                             units::volt_t maxVoltage);
 
 }  // namespace frc

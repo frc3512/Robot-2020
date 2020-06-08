@@ -4,6 +4,7 @@
 
 #include <gtest/gtest.h>
 
+#include "RenameCSVs.hpp"
 #include "subsystems/ControllerSubsystemBase.hpp"
 #include "subsystems/Drivetrain.hpp"
 #include "subsystems/Flywheel.hpp"
@@ -46,4 +47,8 @@ TEST(ControllerSubsystemBase, EnableController) {
     turret.EnableController();
     flywheel.EnableController();
     frc3512::ControllerSubsystemBase::Disable();
+
+    RenameCSVs("ControllerSubsystemBaseTest", "./Drivetrain ");
+    RenameCSVs("ControllerSubsystemBaseTest", "./Flywheel ");
+    RenameCSVs("ControllerSubsystemBaseTest", "./Turret ");
 }

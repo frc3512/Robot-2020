@@ -16,8 +16,20 @@
 #include <Eigen/Eigenvalues>
 #include <Eigen/QR>
 
+#include "frc/geometry/Pose2d.h"
+
 namespace frc {
 namespace detail {
+
+template <int Rows, int Cols, typename Matrix, typename T, typename... Ts>
+void MatrixImpl(Matrix& result, T elem, Ts... elems) {
+  constexpr int count = Rows * Cols - (sizeof...(Ts) + 1);
+
+  result(count / Cols, count % Cols) = elem;
+  if constexpr (sizeof...(Ts) > 0) {
+    MatrixImpl<Rows, Cols>(result, elems...);
+  }
+}
 
 template <typename Matrix, typename T, typename... Ts>
 void CostMatrixImpl(Matrix& result, T elem, Ts... elems) {
@@ -47,6 +59,27 @@ void WhiteNoiseVectorImpl(Matrix& result, T elem, Ts... elems) {
   }
 }
 }  // namespace detail
+
+/**
+ * Creates a matrix from the given list of elements.
+ *
+ * The elements of the matrix are filled in in row-major order.
+ *
+ * @param elems An array of elements in the matrix.
+ * @return A matrix containing the given elements.
+ */
+template <int Rows, int Cols, typename... Ts,
+          typename =
+              std::enable_if_t<std::conjunction_v<std::is_same<double, Ts>...>>>
+Eigen::Matrix<double, Rows, Cols> MakeMatrix(Ts... elems) {
+  static_assert(
+      sizeof...(elems) == Rows * Cols,
+      "Number of provided elements doesn't match matrix dimensionality");
+
+  Eigen::Matrix<double, Rows, Cols> result;
+  detail::MatrixImpl<Rows, Cols>(result, elems...);
+  return result;
+}
 
 /**
  * Creates a cost matrix from the given vector for use with LQR.
@@ -160,7 +193,7 @@ Eigen::Matrix<double, N, 1> MakeWhiteNoiseVector(
   Eigen::Matrix<double, N, 1> result;
   for (int i = 0; i < N; ++i) {
     std::normal_distribution<> distr{0.0, stdDevs[i]};
-    result(i, 0) = distr(gen);
+    result(i) = distr(gen);
   }
   return result;
 }
@@ -203,4 +236,12 @@ bool IsStabilizable(const Eigen::Matrix<double, States, States>& A,
   return true;
 }
 
+/**
+ * Converts a Pose2d into a vector of [x, y, theta].
+ *
+ * @param pose The pose that is being represented.
+ *
+ * @return The vector.
+ */
+Eigen::Matrix<double, 3, 1> PoseToVector(const Pose2d& pose);
 }  // namespace frc

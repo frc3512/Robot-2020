@@ -1,16 +1,15 @@
 // Copyright (c) 2019-2020 FRC Team 3512. All Rights Reserved.
 
-#include <experimental/filesystem>
-#include <string>
 #include <string_view>
 
 #include <frc/system/plant/DCMotor.h>
 #include <gtest/gtest.h>
-#include <mockdata/RoboRioData.h>
+#include <simulation/RoboRioSim.h>
 #include <units/units.h>
 #include <wpi/math>
 
 #include "Constants.hpp"
+#include "RenameCSVs.hpp"
 #include "TargetModel.hpp"
 #include "controllers/DrivetrainController.hpp"
 #include "controllers/TurretController.hpp"
@@ -20,25 +19,9 @@
 
 static constexpr bool kIdealModel = true;
 
-/**
- * Rename turret CSVs to avoid them being overwritten
- *
- * @param prefix Prefix for turret CSV filename
- */
-void RenameTurretCSVs(std::string_view prefix) {
-    for (auto& p : std::experimental::filesystem::directory_iterator(".")) {
-        std::string directoryEntry = p.path().u8string();
-        std::string oldFilename =
-            directoryEntry.substr(directoryEntry.find("/") + 1);
-        if (directoryEntry.find("./Turret") == 0) {
-            std::string newFilename =
-                std::string{prefix.data()} + " " + oldFilename;
-            std::rename(oldFilename.c_str(), newFilename.c_str());
-        }
-    }
-}
-
 TEST(TurretControllerTest, CalculateHeading) {
+    frc::sim::RoboRioSim roboRIO{0};
+
     frc3512::TurretController controller;
     controller.Reset();
     controller.Enable();
@@ -60,6 +43,8 @@ TEST(TurretControllerTest, CalculateHeading) {
 TEST(TurretControllerTest, ReachesReferenceStaticDrivetrain) {
     using frc3512::Constants::kDt;
 
+    frc::sim::RoboRioSim roboRIO{0};
+
     frc3512::TurretController controller;
     controller.Reset();
     controller.Enable();
@@ -69,16 +54,16 @@ TEST(TurretControllerTest, ReachesReferenceStaticDrivetrain) {
         Eigen::Matrix<double, 10, 1>::Zero();
     controller.SetDrivetrainStatus(drivetrainXhat);
 
-    Eigen::Matrix<double, 2, 1> trueXhat = Eigen::Matrix<double, 2, 1>::Zero();
+    Eigen::Matrix<double, 2, 1> x = Eigen::Matrix<double, 2, 1>::Zero();
 
     auto currentTime = 0_s;
     while (currentTime < 10_s) {
         auto dt = kDt;
         if constexpr (!kIdealModel) {
-            dt += units::second_t{frc::MakeWhiteNoiseVector(0.001)(0, 0)};
+            dt += units::second_t{frc::MakeWhiteNoiseVector(0.001)(0)};
         }
 
-        controller.SetMeasuredOutputs(units::radian_t{trueXhat(0)});
+        controller.SetMeasuredOutputs(units::radian_t{x(0)});
 
         controller.Update(kDt, currentTime);
         currentTime += dt;
@@ -86,28 +71,26 @@ TEST(TurretControllerTest, ReachesReferenceStaticDrivetrain) {
         constexpr auto Vbat = 12_V;
         constexpr auto Rbat = 0.03_Ohm;
         Eigen::Matrix<double, 1, 1> u;
-        u << controller.ControllerVoltage().to<double>();
+        u = controller.GetInputs();
 
         if constexpr (!kIdealModel) {
             // Account for battery voltage drop due to current draw from both
             // turret and drivetrain
             constexpr auto motor = frc::DCMotor::NEO(1);
-            units::ampere_t load =
-                motor.Current(units::radians_per_second_t{trueXhat(1)},
-                              units::volt_t{u(0, 0)});
+            units::ampere_t load = motor.Current(
+                units::radians_per_second_t{x(1)}, units::volt_t{u(0)});
             units::volt_t vLoaded = Vbat - load * Rbat;
             double dsVoltage =
-                vLoaded.to<double>() + frc::MakeWhiteNoiseVector(0.1)(0, 0);
-            HALSIM_SetRoboRioVInVoltage(0, dsVoltage);
+                vLoaded.to<double>() + frc::MakeWhiteNoiseVector(0.1)(0);
+            roboRIO.SetVInVoltage(dsVoltage);
             Eigen::Matrix<double, 1, 1> trueU = u;
             trueU *= dsVoltage / 12.0;
         }
 
-        trueXhat << controller.EstimatedAngle().to<double>(),
-            controller.EstimatedAngularVelocity().to<double>();
+        x = controller.GetStates();
     }
 
-    RenameTurretCSVs("Static");
+    RenameCSVs("TurretControllerTest Static", "./Turret ");
 
     EXPECT_TRUE(controller.AtGoal());
 }
@@ -117,6 +100,8 @@ TEST(TurretControllerTest, DISABLED_ReachesReferenceRotateInPlaceDrivetrain) {
     // s-curve.
     using frc3512::Constants::kDt;
 
+    frc::sim::RoboRioSim roboRIO{0};
+
     // Initialize turret controller
     frc3512::TurretController turretController;
     turretController.Reset();
@@ -126,39 +111,37 @@ TEST(TurretControllerTest, DISABLED_ReachesReferenceRotateInPlaceDrivetrain) {
         Eigen::Matrix<double, 2, 1>::Zero();
 
     // Initialize drivetrain controller
-    frc3512::DrivetrainController drivetrainController{
-        {0.0625, 0.125, 10.0, 0.95, 0.95}, {12.0, 12.0}, kDt};
+    frc3512::DrivetrainController drivetrainController;
     drivetrainController.Reset(frc::Pose2d{0_m, 0_m, 0_rad});
     drivetrainController.Enable();
     drivetrainController.SetMeasuredLocalOutputs(0_rad, 0_m, 0_m);
     drivetrainController.SetWaypoints(frc::Pose2d(0_m, 0_m, 0_rad), {},
                                       frc::Pose2d(4.8768_m, 2.7432_m, 0_rad));
-    Eigen::Matrix<double, 10, 1> drivetrainTrueXhat =
+    Eigen::Matrix<double, 10, 1> drivetrainX =
         Eigen::Matrix<double, 10, 1>::Zero();
 
     auto currentTime = 0_s;
     while (currentTime < 10_s) {
         auto dt = kDt;
         if constexpr (!kIdealModel) {
-            dt += units::second_t{frc::MakeWhiteNoiseVector(0.001)(0, 0)};
+            dt += units::second_t{frc::MakeWhiteNoiseVector(0.001)(0)};
         }
 
         // Update drivetrain controller
         Eigen::Matrix<double, 3, 1> drivetrainY =
             frc3512::DrivetrainController::LocalMeasurementModel(
-                drivetrainTrueXhat, Eigen::Matrix<double, 2, 1>::Zero());
+                drivetrainX, Eigen::Matrix<double, 2, 1>::Zero());
         // Add measurement noise to drivetrain controller
         if constexpr (!kIdealModel) {
             drivetrainY += frc::MakeWhiteNoiseVector(0.0001, 0.005, 0.005);
         }
         drivetrainController.SetMeasuredLocalOutputs(
-            units::radian_t{drivetrainY(0, 0)},
-            units::meter_t{drivetrainY(1, 0)},
-            units::meter_t{drivetrainY(2, 0)});
+            units::radian_t{drivetrainY(0)}, units::meter_t{drivetrainY(1)},
+            units::meter_t{drivetrainY(2)});
         drivetrainController.Update(kDt, currentTime);
 
         // Update turret controller
-        turretController.SetDrivetrainStatus(drivetrainTrueXhat);
+        turretController.SetDrivetrainStatus(drivetrainX);
         turretController.SetMeasuredOutputs(units::radian_t{turretXhat(0)});
         turretController.Update(kDt, currentTime);
 
@@ -170,7 +153,7 @@ TEST(TurretControllerTest, DISABLED_ReachesReferenceRotateInPlaceDrivetrain) {
         Eigen::Matrix<double, 2, 1> drivetrainU =
             drivetrainController.GetInputs();
         Eigen::Matrix<double, 1, 1> turretU;
-        turretU << turretController.ControllerVoltage().to<double>();
+        turretU = turretController.GetInputs();
 
         if constexpr (!kIdealModel) {
             // Account for battery voltage drop due to current draw for the
@@ -180,36 +163,33 @@ TEST(TurretControllerTest, DISABLED_ReachesReferenceRotateInPlaceDrivetrain) {
             constexpr auto turretMotor = frc::DCMotor::NEO(1);
             units::ampere_t turretLoad =
                 turretMotor.Current(units::radians_per_second_t{turretXhat(1)},
-                                    units::volt_t{turretU(0, 0)});
+                                    units::volt_t{turretU(0)});
             constexpr auto drivetrainMotors = frc::DCMotor::NEO(2);
             units::ampere_t loadIleft = drivetrainMotors.Current(
-                units::meters_per_second_t{
-                    drivetrainTrueXhat(State::kLeftVelocity, 0)} /
+                units::meters_per_second_t{drivetrainX(State::kLeftVelocity)} /
                     r * 1_rad,
-                units::volt_t{drivetrainU(Input::kLeftVoltage, 0)});
+                units::volt_t{drivetrainU(Input::kLeftVoltage)});
             units::ampere_t loadIright = drivetrainMotors.Current(
-                units::meters_per_second_t{
-                    drivetrainTrueXhat(State::kRightVelocity, 0)} /
+                units::meters_per_second_t{drivetrainX(State::kRightVelocity)} /
                     r * 1_rad,
-                units::volt_t{drivetrainU(Input::kRightVoltage, 0)});
+                units::volt_t{drivetrainU(Input::kRightVoltage)});
             units::volt_t vLoaded =
                 Vbat - turretLoad * Rbat - loadIleft * Rbat - loadIright * Rbat;
             double dsVoltage =
-                vLoaded.to<double>() + frc::MakeWhiteNoiseVector(0.1)(0, 0);
-            HALSIM_SetRoboRioVInVoltage(0, dsVoltage);
+                vLoaded.to<double>() + frc::MakeWhiteNoiseVector(0.1)(0);
+            roboRIO.SetVInVoltage(dsVoltage);
             drivetrainU *= dsVoltage / 12.0;
             Eigen::Matrix<double, 1, 1> turretTrueU = turretU;
             turretTrueU *= dsVoltage / 12.0;
         }
 
-        drivetrainTrueXhat =
-            frc::RungeKutta(frc3512::DrivetrainController::Dynamics,
-                            drivetrainTrueXhat, drivetrainU, dt);
-        turretXhat << turretController.EstimatedAngle().to<double>(),
-            turretController.EstimatedAngularVelocity().to<double>();
+        drivetrainX = frc::RungeKutta(frc3512::DrivetrainController::Dynamics,
+                                      drivetrainX, drivetrainU, dt);
+        turretXhat = turretController.GetStates();
     }
 
-    RenameTurretCSVs("RotateInPlace");
+    RenameCSVs("TurretController RotateInPlace", "./Drivetrain ");
+    RenameCSVs("TurretController RotateInPlace", "./Turret ");
 
     EXPECT_TRUE(turretController.AtGoal());
 }
@@ -217,6 +197,8 @@ TEST(TurretControllerTest, DISABLED_ReachesReferenceRotateInPlaceDrivetrain) {
 TEST(TurretControllerTest, ReachesReferenceSCurveDrivetrain) {
     using frc3512::Constants::kDt;
 
+    frc::sim::RoboRioSim roboRIO{0};
+
     // Initialize turret controller
     frc3512::TurretController turretController;
     turretController.Reset();
@@ -226,39 +208,37 @@ TEST(TurretControllerTest, ReachesReferenceSCurveDrivetrain) {
         Eigen::Matrix<double, 2, 1>::Zero();
 
     // Initialize drivetrain controller
-    frc3512::DrivetrainController drivetrainController{
-        {0.0625, 0.125, 10.0, 0.95, 0.95}, {12.0, 12.0}, kDt};
+    frc3512::DrivetrainController drivetrainController;
     drivetrainController.Reset(frc::Pose2d{0_m, 0_m, 0_rad});
     drivetrainController.Enable();
     drivetrainController.SetMeasuredLocalOutputs(0_rad, 0_m, 0_m);
     drivetrainController.SetWaypoints(frc::Pose2d(0_m, 0_m, 0_rad), {},
                                       frc::Pose2d(4.8768_m, 2.7432_m, 0_rad));
-    Eigen::Matrix<double, 10, 1> drivetrainTrueXhat =
+    Eigen::Matrix<double, 10, 1> drivetrainX =
         Eigen::Matrix<double, 10, 1>::Zero();
 
     auto currentTime = 0_s;
     while (currentTime < 10_s) {
         auto dt = kDt;
         if constexpr (!kIdealModel) {
-            dt += units::second_t{frc::MakeWhiteNoiseVector(0.001)(0, 0)};
+            dt += units::second_t{frc::MakeWhiteNoiseVector(0.001)(0)};
         }
 
         // Update drivetrain controller
         Eigen::Matrix<double, 3, 1> drivetrainY =
             frc3512::DrivetrainController::LocalMeasurementModel(
-                drivetrainTrueXhat, Eigen::Matrix<double, 2, 1>::Zero());
+                drivetrainX, Eigen::Matrix<double, 2, 1>::Zero());
         // Add measurement noise to drivetrain controller
         if constexpr (!kIdealModel) {
             drivetrainY += frc::MakeWhiteNoiseVector(0.0001, 0.005, 0.005);
         }
         drivetrainController.SetMeasuredLocalOutputs(
-            units::radian_t{drivetrainY(0, 0)},
-            units::meter_t{drivetrainY(1, 0)},
-            units::meter_t{drivetrainY(2, 0)});
+            units::radian_t{drivetrainY(0)}, units::meter_t{drivetrainY(1)},
+            units::meter_t{drivetrainY(2)});
         drivetrainController.Update(kDt, currentTime);
 
         // Update turret controller
-        turretController.SetDrivetrainStatus(drivetrainTrueXhat);
+        turretController.SetDrivetrainStatus(drivetrainX);
         turretController.SetMeasuredOutputs(units::radian_t{turretXhat(0)});
         turretController.Update(kDt, currentTime);
 
@@ -270,7 +250,7 @@ TEST(TurretControllerTest, ReachesReferenceSCurveDrivetrain) {
         Eigen::Matrix<double, 2, 1> drivetrainU =
             drivetrainController.GetInputs();
         Eigen::Matrix<double, 1, 1> turretU;
-        turretU << turretController.ControllerVoltage().to<double>();
+        turretU = turretController.GetInputs();
 
         if constexpr (!kIdealModel) {
             // Account for battery voltage drop due to current draw for the
@@ -280,36 +260,33 @@ TEST(TurretControllerTest, ReachesReferenceSCurveDrivetrain) {
             constexpr auto turretMotor = frc::DCMotor::NEO(1);
             units::ampere_t turretLoad =
                 turretMotor.Current(units::radians_per_second_t{turretXhat(1)},
-                                    units::volt_t{turretU(0, 0)});
+                                    units::volt_t{turretU(0)});
             constexpr auto drivetrainMotors = frc::DCMotor::NEO(2);
             units::ampere_t loadIleft = drivetrainMotors.Current(
-                units::meters_per_second_t{
-                    drivetrainTrueXhat(State::kLeftVelocity, 0)} /
+                units::meters_per_second_t{drivetrainX(State::kLeftVelocity)} /
                     r * 1_rad,
-                units::volt_t{drivetrainU(Input::kLeftVoltage, 0)});
+                units::volt_t{drivetrainU(Input::kLeftVoltage)});
             units::ampere_t loadIright = drivetrainMotors.Current(
-                units::meters_per_second_t{
-                    drivetrainTrueXhat(State::kRightVelocity, 0)} /
+                units::meters_per_second_t{drivetrainX(State::kRightVelocity)} /
                     r * 1_rad,
-                units::volt_t{drivetrainU(Input::kRightVoltage, 0)});
+                units::volt_t{drivetrainU(Input::kRightVoltage)});
             units::volt_t vLoaded =
                 Vbat - turretLoad * Rbat - loadIleft * Rbat - loadIright * Rbat;
             double dsVoltage =
-                vLoaded.to<double>() + frc::MakeWhiteNoiseVector(0.1)(0, 0);
-            HALSIM_SetRoboRioVInVoltage(0, dsVoltage);
+                vLoaded.to<double>() + frc::MakeWhiteNoiseVector(0.1)(0);
+            roboRIO.SetVInVoltage(dsVoltage);
             drivetrainU *= dsVoltage / 12.0;
             Eigen::Matrix<double, 1, 1> turretTrueU = turretU;
             turretTrueU *= dsVoltage / 12.0;
         }
 
-        drivetrainTrueXhat =
-            frc::RungeKutta(frc3512::DrivetrainController::Dynamics,
-                            drivetrainTrueXhat, drivetrainU, dt);
-        turretXhat << turretController.EstimatedAngle().to<double>(),
-            turretController.EstimatedAngularVelocity().to<double>();
+        drivetrainX = frc::RungeKutta(frc3512::DrivetrainController::Dynamics,
+                                      drivetrainX, drivetrainU, dt);
+        turretXhat = turretController.GetStates();
     }
 
-    RenameTurretCSVs("SCurve");
+    RenameCSVs("TurretControllerTest SCurve", "./Drivetrain ");
+    RenameCSVs("TurretControllerTest SCurve", "./Turret ");
 
     EXPECT_TRUE(turretController.AtGoal());
 }
@@ -317,6 +294,8 @@ TEST(TurretControllerTest, ReachesReferenceSCurveDrivetrain) {
 TEST(TurretControllerTest, ReachesReferenceAutonDrivetrain) {
     using frc3512::Constants::kDt;
 
+    frc::sim::RoboRioSim roboRIO{0};
+
     // Initialize turret controller
     frc3512::TurretController turretController;
     turretController.Reset();
@@ -326,8 +305,7 @@ TEST(TurretControllerTest, ReachesReferenceAutonDrivetrain) {
         Eigen::Matrix<double, 2, 1>::Zero();
 
     // Initialize drivetrain controller
-    frc3512::DrivetrainController drivetrainController{
-        {0.0625, 0.125, 2.5, 0.95, 0.95}, {12.0, 12.0}, kDt};
+    frc3512::DrivetrainController drivetrainController;
     drivetrainController.Reset(
         frc::Pose2d{12.65_m, 5.800_m, units::radian_t{wpi::math::pi}});
     drivetrainController.Enable();
@@ -335,33 +313,32 @@ TEST(TurretControllerTest, ReachesReferenceAutonDrivetrain) {
         frc::Pose2d(12.65_m, 5.800_m, units::radian_t{wpi::math::pi}), {},
         frc::Pose2d(12.65_m - frc3512::DrivetrainController::kLength, 5.800_m,
                     units::radian_t{wpi::math::pi}));
-    Eigen::Matrix<double, 10, 1> drivetrainTrueXhat =
+    Eigen::Matrix<double, 10, 1> drivetrainX =
         Eigen::Matrix<double, 10, 1>::Zero();
-    drivetrainTrueXhat(2, 0) = wpi::math::pi;
+    drivetrainX(2) = wpi::math::pi;
 
     auto currentTime = 0_s;
     while (currentTime < 10_s) {
         auto dt = kDt;
         if constexpr (!kIdealModel) {
-            dt += units::second_t{frc::MakeWhiteNoiseVector(0.001)(0, 0)};
+            dt += units::second_t{frc::MakeWhiteNoiseVector(0.001)(0)};
         }
 
         // Update drivetrain controller
         Eigen::Matrix<double, 3, 1> drivetrainY =
             frc3512::DrivetrainController::LocalMeasurementModel(
-                drivetrainTrueXhat, Eigen::Matrix<double, 2, 1>::Zero());
+                drivetrainX, Eigen::Matrix<double, 2, 1>::Zero());
         // Add measurement noise to drivetrain controller
         if constexpr (!kIdealModel) {
             drivetrainY += frc::MakeWhiteNoiseVector(0.0001, 0.005, 0.005);
         }
         drivetrainController.SetMeasuredLocalOutputs(
-            units::radian_t{drivetrainY(0, 0)},
-            units::meter_t{drivetrainY(1, 0)},
-            units::meter_t{drivetrainY(2, 0)});
+            units::radian_t{drivetrainY(0)}, units::meter_t{drivetrainY(1)},
+            units::meter_t{drivetrainY(2)});
         drivetrainController.Update(kDt, currentTime);
 
         // Update turret controller
-        turretController.SetDrivetrainStatus(drivetrainTrueXhat);
+        turretController.SetDrivetrainStatus(drivetrainX);
         turretController.SetMeasuredOutputs(units::radian_t{turretXhat(0)});
         turretController.Update(kDt, currentTime);
 
@@ -373,7 +350,7 @@ TEST(TurretControllerTest, ReachesReferenceAutonDrivetrain) {
         Eigen::Matrix<double, 2, 1> drivetrainU =
             drivetrainController.GetInputs();
         Eigen::Matrix<double, 1, 1> turretU;
-        turretU << turretController.ControllerVoltage().to<double>();
+        turretU = turretController.GetInputs();
 
         if constexpr (!kIdealModel) {
             // Account for battery voltage drop due to current draw for the
@@ -383,36 +360,33 @@ TEST(TurretControllerTest, ReachesReferenceAutonDrivetrain) {
             constexpr auto turretMotor = frc::DCMotor::NEO(1);
             units::ampere_t turretLoad =
                 turretMotor.Current(units::radians_per_second_t{turretXhat(1)},
-                                    units::volt_t{turretU(0, 0)});
+                                    units::volt_t{turretU(0)});
             constexpr auto drivetrainMotors = frc::DCMotor::NEO(2);
             units::ampere_t loadIleft = drivetrainMotors.Current(
-                units::meters_per_second_t{
-                    drivetrainTrueXhat(State::kLeftVelocity, 0)} /
+                units::meters_per_second_t{drivetrainX(State::kLeftVelocity)} /
                     r * 1_rad,
-                units::volt_t{drivetrainU(Input::kLeftVoltage, 0)});
+                units::volt_t{drivetrainU(Input::kLeftVoltage)});
             units::ampere_t loadIright = drivetrainMotors.Current(
-                units::meters_per_second_t{
-                    drivetrainTrueXhat(State::kRightVelocity, 0)} /
+                units::meters_per_second_t{drivetrainX(State::kRightVelocity)} /
                     r * 1_rad,
-                units::volt_t{drivetrainU(Input::kRightVoltage, 0)});
+                units::volt_t{drivetrainU(Input::kRightVoltage)});
             units::volt_t vLoaded =
                 Vbat - turretLoad * Rbat - loadIleft * Rbat - loadIright * Rbat;
             double dsVoltage =
-                vLoaded.to<double>() + frc::MakeWhiteNoiseVector(0.1)(0, 0);
-            HALSIM_SetRoboRioVInVoltage(0, dsVoltage);
+                vLoaded.to<double>() + frc::MakeWhiteNoiseVector(0.1)(0);
+            roboRIO.SetVInVoltage(dsVoltage);
             drivetrainU *= dsVoltage / 12.0;
             Eigen::Matrix<double, 1, 1> turretTrueU = turretU;
             turretTrueU *= dsVoltage / 12.0;
         }
 
-        drivetrainTrueXhat =
-            frc::RungeKutta(frc3512::DrivetrainController::Dynamics,
-                            drivetrainTrueXhat, drivetrainU, dt);
-        turretXhat << turretController.EstimatedAngle().to<double>(),
-            turretController.EstimatedAngularVelocity().to<double>();
+        drivetrainX = frc::RungeKutta(frc3512::DrivetrainController::Dynamics,
+                                      drivetrainX, drivetrainU, dt);
+        turretXhat = turretController.GetStates();
     }
 
-    RenameTurretCSVs("Auton");
+    RenameCSVs("TurretControllerTest Auton", "./Drivetrain ");
+    RenameCSVs("TurretControllerTest Auton", "./Turret ");
 
     EXPECT_TRUE(turretController.AtGoal());
 }
@@ -440,6 +414,8 @@ TEST(TurretControllerTest, ProperDistanceFromTarget) {
 
     auto distance =
         turretPose.Translation().Distance(kTargetPoseInGlobal.Translation());
+
+    RenameCSVs("TurretControllerTest ProperDistanceFromTarget", "./Turret ");
 
     EXPECT_NEAR_UNITS(distance,
                       629.25_in - kDrivetrainX + frc3512::TurretController::kTx,

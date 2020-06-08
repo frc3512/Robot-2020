@@ -18,7 +18,7 @@ namespace frc {
  * Generates sigma points and weights according to Van der Merwe's 2004
  * dissertation[1] for the UnscentedKalmanFilter class.
  *
- * It parametizes the sigma points using alpha, beta, kappa terms, and is the
+ * It parametrizes the sigma points using alpha, beta, kappa terms, and is the
  * version seen in most publications. Unless you know better, this should be
  * your default choice.
  *
@@ -126,8 +126,8 @@ class MerweScaledSigmaPoints {
     m_Wm = Eigen::Matrix<double, 1, 2 * States + 1>::Constant(c);
     m_Wc = Eigen::Matrix<double, 1, 2 * States + 1>::Constant(c);
 
-    m_Wm(0, 0) = lambda / (States + lambda);
-    m_Wc(0, 0) = lambda / (States + lambda) + (1 - std::pow(m_alpha, 2) + beta);
+    m_Wm(0) = lambda / (States + lambda);
+    m_Wc(0) = lambda / (States + lambda) + (1 - std::pow(m_alpha, 2) + beta);
   }
 };
 

@@ -4857,8 +4857,6 @@ using namespace angle;
 using namespace angular_velocity;
 using namespace capacitance;
 using namespace current;
-using namespace dimensionless;
-using namespace force;
 using namespace frequency;
 using namespace impedance;
 using namespace inductance;
@@ -4868,4 +4866,16 @@ using namespace time;
 using namespace torque;
 using namespace velocity;
 using namespace voltage;
+
+/**
+ * Define a unit for curvature.
+ */
+using curvature_t = units::unit_t<
+    units::compound_unit<units::radian, units::inverse<units::meter>>>;
+
+using dimensionless::scalar;
+using dimensionless::scalar_t;
+using dimensionless::dimensionless_t;
+using force::newton_t;
+using force::newtons;
 }  // namespace units

@@ -107,8 +107,8 @@ void Drivetrain::ControllerPeriodic() {
     if (!m_controller.IsOpenLoop()) {
         // Set motor inputs
         auto u = m_controller.GetInputs();
-        SetLeftManual(u(0, 0) / 12.0);
-        SetRightManual(u(1, 0) / 12.0);
+        SetLeftManual(u(0) / 12.0);
+        SetRightManual(u(1) / 12.0);
     }
     m_lastTime = now;
 }
@@ -133,9 +133,12 @@ Eigen::Matrix<double, 10, 1> Drivetrain::GetNextXhat() const {
 }
 
 void Drivetrain::ProcessMessage(const HIDPacket& message) {
+    double y1 = message.y1;
+    double x2 = message.x2;
+
     if (GetRawButton(message, 0, 1)) {
-        Drive(-message.y1 * 0.5, message.x2 * 0.5, GetRawButton(message, 1, 2));
-    } else {
-        Drive(-message.y1, message.x2, GetRawButton(message, 1, 2));
+        y1 *= 0.5;
+        x2 *= 0.5;
     }
+    Drive(y1, x2, GetRawButton(message, 1, 2));
 }

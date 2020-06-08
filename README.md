@@ -20,6 +20,8 @@ Install the following python packages via `pip3 install --user package_name`.
 * wpiformat (optional)
   * https://github.com/wpilibsuite/styleguide/blob/master/wpiformat/README.rst
 
+We use clang-format 9.0 with wpiformat for C++ formatting.
+
 ## Build
 
 * `./make.py build`
@@ -44,10 +46,10 @@ This runs a roboRIO build if needed, copies the resulting binary to a roboRIO at
 
 ## Documentation
 
-* `./gradlew doxygen`
+* `./make.py docs`
 
-Doxygen 1.8.15 needs to be installed. The HTML documentation will be generated
-in `build/docs/html` with an index.html page as the root.
+Doxygen 1.8.17 needs to be installed. The HTML documentation will be generated
+in `docs/html` with an index.html page as the root.
 
 ## Game
 

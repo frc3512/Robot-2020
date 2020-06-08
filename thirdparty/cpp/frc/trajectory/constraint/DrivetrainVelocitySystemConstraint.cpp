@@ -20,11 +20,11 @@ units::meters_per_second_t DrivetrainVelocitySystemConstraint::MaxVelocity(
 
   // If either wheel velocity is greater than its maximum, normalize the wheel
   // speeds to within an achievable range while maintaining the curvature
-  if (std::abs(x(0, 0)) > velocity.to<double>() ||
-      std::abs(x(1, 0)) > velocity.to<double>()) {
+  if (std::abs(x(0)) > velocity.to<double>() ||
+      std::abs(x(1)) > velocity.to<double>()) {
     x *= velocity.to<double>() / x.lpNorm<Eigen::Infinity>();
   }
-  return units::meters_per_second_t{(x(0, 0) + x(1, 0)) / 2.0};
+  return units::meters_per_second_t{(x(0) + x(1)) / 2.0};
 }
 
 TrajectoryConstraint::MinMax
@@ -42,14 +42,12 @@ DrivetrainVelocitySystemConstraint::MinMaxAcceleration(
   // Get dx/dt for min u
   u << -m_maxVoltage.to<double>(), -m_maxVoltage.to<double>();
   xDot = m_system.A() * x + m_system.B() * u;
-  auto minAccel =
-      units::meters_per_second_squared_t{(xDot(0, 0) + xDot(1, 0)) / 2.0};
+  auto minAccel = units::meters_per_second_squared_t{(xDot(0) + xDot(1)) / 2.0};
 
   // Get dx/dt for max u
   u << m_maxVoltage.to<double>(), m_maxVoltage.to<double>();
   xDot = m_system.A() * x + m_system.B() * u;
-  auto maxAccel =
-      units::meters_per_second_squared_t{(xDot(0, 0) + xDot(1, 0)) / 2.0};
+  auto maxAccel = units::meters_per_second_squared_t{(xDot(0) + xDot(1)) / 2.0};
 
   return {minAccel, maxAccel};
 }

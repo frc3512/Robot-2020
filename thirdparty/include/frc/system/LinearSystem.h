@@ -123,7 +123,7 @@ class LinearSystem {
    *
    * @param i Row of u.
    */
-  double Umin(int i) const { return m_uMin(i, 0); }
+  double Umin(int i) const { return m_uMin(i); }
 
   /**
    * Returns the maximum control input vector u.
@@ -135,7 +135,19 @@ class LinearSystem {
    *
    * @param i Row of u.
    */
-  double Umax(int i) const { return m_uMax(i, 0); }
+  double Umax(int i) const { return m_uMax(i); }
+
+  /**
+   * Set the minimum control effort uMin.
+   * @param uMin the new minimum control effort.
+   */
+  void SetUmin(const Eigen::Matrix<double, States, 1>& uMin) { m_uMin = uMin; }
+
+  /**
+   * Set the maximum control effort uMin.
+   * @param uMax the new maximum control effort.
+   */
+  void SetUMax(const Eigen::Matrix<double, States, 1>& uMax) { m_uMax = uMax; }
 
   /**
    * Returns the current state x.
@@ -147,7 +159,7 @@ class LinearSystem {
    *
    * @param i Row of x.
    */
-  double X(int i) const { return m_x(i, 0); }
+  double X(int i) const { return m_x(i); }
 
   /**
    * Returns the current measurement vector y.
@@ -159,7 +171,7 @@ class LinearSystem {
    *
    * @param i Row of y.
    */
-  double Y(int i) const { return m_y(i, 0); }
+  double Y(int i) const { return m_y(i); }
 
   /**
    * Returns the control input vector u.
@@ -171,7 +183,7 @@ class LinearSystem {
    *
    * @param i Row of u.
    */
-  double U(int i) const { return m_delayedU(i, 0); }
+  double U(int i) const { return m_delayedU(i); }
 
   /**
    * Set the initial state x.
@@ -186,7 +198,7 @@ class LinearSystem {
    * @param i     Row of x.
    * @param value Value of element of x.
    */
-  void SetX(int i, double value) { m_x(i, 0) = value; }
+  void SetX(int i, double value) { m_x(i) = value; }
 
   /**
    * Set the current measurement y.
@@ -201,7 +213,7 @@ class LinearSystem {
    * @param i     Row of y.
    * @param value Value of element of y.
    */
-  void SetY(int i, double value) { m_y(i, 0) = value; }
+  void SetY(int i, double value) { m_y(i) = value; }
 
   /**
    * Resets the plant.
@@ -271,7 +283,7 @@ class LinearSystem {
       const Eigen::Matrix<double, Inputs, 1>& u) const {
     Eigen::Matrix<double, Inputs, 1> result;
     for (int i = 0; i < Inputs; ++i) {
-      result(i, 0) = std::clamp(u(i, 0), m_uMin(i, 0), m_uMax(i, 0));
+      result(i) = std::clamp(u(i), m_uMin(i), m_uMax(i));
     }
     return result;
   }

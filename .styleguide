@@ -28,6 +28,7 @@ includeOtherLibs {
   mockdata/
   networktables/
   rev/
+  simulation/
   wpi/
   cscore\.h$
   units\.h$

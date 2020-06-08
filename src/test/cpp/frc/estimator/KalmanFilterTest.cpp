@@ -11,6 +11,7 @@
 #include <cmath>
 
 #include <Eigen/Core>
+#include <units.h>
 
 #include "frc/estimator/KalmanFilter.h"
 #include "frc/system/plant/DCMotor.h"
@@ -18,6 +19,6 @@
 
 TEST(KalmanFilterTest, Flywheel) {
   auto motor = frc::DCMotor::NEO();
-  auto flywheel = frc::FlywheelSystem(motor, 1_kg_sq_m, 1.0);
-  frc::KalmanFilter<1, 1, 1> kf{flywheel, 5_ms, {1}, {1}};
+  auto flywheel = frc::FlywheelSystem(motor, 1_kg_sq_m, 1.0, 12_V);
+  frc::KalmanFilter<1, 1, 1> kf{flywheel, {1}, {1}, 5_ms};
 }

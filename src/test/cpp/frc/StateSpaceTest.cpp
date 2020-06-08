@@ -11,8 +11,10 @@
 #include <random>
 
 #include <Eigen/Core>
+#include <units.h>
 
 #include "frc/controller/LinearQuadraticRegulator.h"
+#include "frc/controller/PlantInversionFeedforward.h"
 #include "frc/estimator/KalmanFilter.h"
 #include "frc/system/LinearSystem.h"
 #include "frc/system/LinearSystemLoop.h"
@@ -38,11 +40,12 @@ class StateSpace : public testing::Test {
     // Gear ratio
     constexpr double G = 40.0 / 40.0;
 
-    return ElevatorSystem(motors, m, r, G);
+    return ElevatorSystem(motors, m, r, G, 12_V);
   }();
   LinearQuadraticRegulator<2, 1> controller{plant, {0.02, 0.4}, {12.0}, kDt};
-  KalmanFilter<2, 1, 1> observer{plant, kDt, {0.05, 1.0}, {0.0001}};
-  LinearSystemLoop<2, 1, 1> loop{plant, controller, observer};
+  KalmanFilter<2, 1, 1> observer{plant, {0.05, 1.0}, {0.0001}, kDt};
+  PlantInversionFeedforward<2, 1> feedforward{plant, kDt};
+  LinearSystemLoop<2, 1, 1> loop{plant, controller, feedforward, observer};
 };
 
 void Update(LinearSystemLoop<2, 1, 1>& loop, double noise) {

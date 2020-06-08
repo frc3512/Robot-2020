@@ -21,21 +21,19 @@
 using namespace frc3512;
 using namespace frc3512::Constants;
 
-DrivetrainController::DrivetrainController(const std::array<double, 5>& Qelems,
-                                           const std::array<double, 2>& Relems,
-                                           units::second_t dt) {
+DrivetrainController::DrivetrainController() {
     m_localY.setZero();
     m_globalY.setZero();
     Reset();
 
     Eigen::Matrix<double, 10, 1> x0;
     x0.setZero();
-    x0(State::kLeftVelocity, 0) = 1e-9;
-    x0(State::kRightVelocity, 0) = 1e-9;
+    x0(State::kLeftVelocity) = 1e-9;
+    x0(State::kRightVelocity) = 1e-9;
     Eigen::Matrix<double, 10, 1> x1;
     x1.setZero();
-    x1(State::kLeftVelocity, 0) = 1;
-    x1(State::kRightVelocity, 0) = 1;
+    x1(State::kLeftVelocity) = 1;
+    x1(State::kRightVelocity) = 1;
     Eigen::Matrix<double, 2, 1> u0;
     u0.setZero();
 
@@ -46,8 +44,12 @@ DrivetrainController::DrivetrainController(const std::array<double, 5>& Qelems,
     m_B =
         frc::NumericalJacobianU<10, 10, 2>(Dynamics, x0, u0).block<5, 2>(0, 0);
 
-    m_K0 = frc::LinearQuadraticRegulator<5, 2>(A0, m_B, Qelems, Relems, dt).K();
-    m_K1 = frc::LinearQuadraticRegulator<5, 2>(A1, m_B, Qelems, Relems, dt).K();
+    m_K0 = frc::LinearQuadraticRegulator<5, 2>(A0, m_B, kControllerQ,
+                                               kControllerR, kDt)
+               .K();
+    m_K1 = frc::LinearQuadraticRegulator<5, 2>(A1, m_B, kControllerQ,
+                                               kControllerR, kDt)
+               .K();
 }
 
 void DrivetrainController::Enable() { m_isEnabled = true; }
@@ -79,9 +81,9 @@ void DrivetrainController::SetWaypoints(
 }
 
 bool DrivetrainController::AtGoal() const {
-    frc::Pose2d ref{units::meter_t{m_r(State::kX, 0)},
-                    units::meter_t{m_r(State::kY, 0)},
-                    units::radian_t{m_r(State::kHeading, 0)}};
+    frc::Pose2d ref{units::meter_t{m_r(State::kX)},
+                    units::meter_t{m_r(State::kY)},
+                    units::radian_t{m_r(State::kHeading)}};
     return m_goal == ref && m_atReferences;
 }
 
@@ -106,7 +108,8 @@ void DrivetrainController::SetMeasuredGlobalOutputs(
         angularVelocity.to<double>();
 }
 
-const Eigen::Matrix<double, 5, 1>& DrivetrainController::GetReferences() const {
+const Eigen::Matrix<double, 10, 1>& DrivetrainController::GetReferences()
+    const {
     return m_nextR;
 }
 
@@ -114,7 +117,7 @@ const Eigen::Matrix<double, 10, 1>& DrivetrainController::GetStates() const {
     return m_observer.Xhat();
 }
 
-Eigen::Matrix<double, 2, 1> DrivetrainController::GetInputs() const {
+const Eigen::Matrix<double, 2, 1>& DrivetrainController::GetInputs() const {
     return m_cappedU;
 }
 
@@ -141,7 +144,7 @@ void DrivetrainController::Update(units::second_t dt,
 
         // Only sample the trajectory if one was created. Otherwise, use the
         // default Trajectory::State, which is zero-filled.
-        if (m_trajectory.TotalTime() != 0_s) {
+        if (m_trajectory.States().size() != 0) {
             std::lock_guard lock(m_trajectoryMutex);
             ref = m_trajectory.Sample(elapsedTime);
         }
@@ -153,8 +156,8 @@ void DrivetrainController::Update(units::second_t dt,
                            m_observer.Xhat(State::kY),
                            ref.pose.Translation().X().to<double>(),
                            ref.pose.Translation().Y().to<double>(),
-                           m_localY(LocalOutput::kLeftPosition, 0),
-                           m_localY(LocalOutput::kRightPosition, 0),
+                           m_localY(LocalOutput::kLeftPosition),
+                           m_localY(LocalOutput::kRightPosition),
                            m_observer.Xhat(State::kLeftPosition),
                            m_observer.Xhat(State::kRightPosition));
 
@@ -165,8 +168,8 @@ void DrivetrainController::Update(units::second_t dt,
         velocityLogger.Log(elapsedTime, m_observer.Xhat(State::kLeftVelocity),
                            m_observer.Xhat(State::kRightVelocity),
                            vlRef.to<double>(), vrRef.to<double>());
-        voltageLogger.Log(elapsedTime, m_cappedU(Input::kLeftVoltage, 0),
-                          m_cappedU(Input::kRightVoltage, 0),
+        voltageLogger.Log(elapsedTime, m_cappedU(Input::kLeftVoltage),
+                          m_cappedU(Input::kRightVoltage),
                           m_observer.Xhat(State::kLeftVoltageError),
                           m_observer.Xhat(State::kRightVoltageError),
                           frc::RobotController::GetInputVoltage());
@@ -188,31 +191,24 @@ void DrivetrainController::Update(units::second_t dt,
         m_nextR << ref.pose.Translation().X().to<double>(),
             ref.pose.Translation().Y().to<double>(),
             ref.pose.Rotation().Radians().to<double>(), vlRef.to<double>(),
-            vrRef.to<double>();
-
-        // Compute feedforward
-        Eigen::Matrix<double, 5, 1> rdot = (m_nextR - m_r) / dt.to<double>();
-        Eigen::Matrix<double, 10, 1> rAugmented;
-        rAugmented.block<5, 1>(0, 0) = m_r;
-        rAugmented.block<5, 1>(5, 0).setZero();
-        Eigen::Matrix<double, 2, 1> uff = m_B.householderQr().solve(
-            rdot - Dynamics(rAugmented, Eigen::Matrix<double, 2, 1>::Zero())
-                       .block<5, 1>(0, 0));
+            vrRef.to<double>(), 0, 0, 0, 0, 0;
 
         if (m_isEnabled) {
-            m_cappedU = Controller(m_observer.Xhat(), m_nextR) + uff;
+            m_cappedU =
+                Controller(m_observer.Xhat(), m_nextR.block<5, 1>(0, 0)) +
+                m_ff.Calculate(m_nextR);
         } else {
             m_cappedU = Eigen::Matrix<double, 2, 1>::Zero();
         }
         ScaleCapU(&m_cappedU);
 
         Eigen::Matrix<double, 5, 1> error =
-            m_r - m_observer.Xhat().block<5, 1>(0, 0);
-        m_atReferences = std::abs(error(0, 0)) < kPositionTolerance &&
-                         std::abs(error(1, 0)) < kPositionTolerance &&
-                         std::abs(error(2, 0)) < kAngleTolerance &&
-                         std::abs(error(3, 0)) < kVelocityTolerance &&
-                         std::abs(error(4, 0)) < kVelocityTolerance;
+            m_r.block<5, 1>(0, 0) - m_observer.Xhat().block<5, 1>(0, 0);
+        m_atReferences = std::abs(error(0)) < kPositionTolerance &&
+                         std::abs(error(1)) < kPositionTolerance &&
+                         std::abs(error(2)) < kAngleTolerance &&
+                         std::abs(error(3)) < kVelocityTolerance &&
+                         std::abs(error(4)) < kVelocityTolerance;
 
         m_r = m_nextR;
         m_observer.Predict(m_cappedU, dt);
@@ -225,8 +221,8 @@ void DrivetrainController::Update(units::second_t dt,
     } else {
         positionLogger.Log(elapsedTime, m_observer.Xhat(State::kX),
                            m_observer.Xhat(State::kY), 0, 0,
-                           m_localY(LocalOutput::kLeftPosition, 0),
-                           m_localY(LocalOutput::kRightPosition, 0),
+                           m_localY(LocalOutput::kLeftPosition),
+                           m_localY(LocalOutput::kRightPosition),
                            m_observer.Xhat(State::kLeftPosition),
                            m_observer.Xhat(State::kRightPosition));
 
@@ -235,10 +231,10 @@ void DrivetrainController::Update(units::second_t dt,
                         m_observer.Xhat(State::kAngularVelocityError));
         velocityLogger.Log(elapsedTime, m_observer.Xhat(State::kLeftVelocity),
                            m_observer.Xhat(State::kRightVelocity),
-                           m_nextR(State::kLeftVelocity, 0),
-                           m_nextR(State::kRightVelocity, 0));
-        voltageLogger.Log(elapsedTime, m_appliedU(Input::kLeftVoltage, 0),
-                          m_appliedU(Input::kRightVoltage, 0),
+                           m_nextR(State::kLeftVelocity),
+                           m_nextR(State::kRightVelocity));
+        voltageLogger.Log(elapsedTime, m_appliedU(Input::kLeftVoltage),
+                          m_appliedU(Input::kRightVoltage),
                           m_observer.Xhat(State::kLeftVoltageError),
                           m_observer.Xhat(State::kRightVoltageError),
                           frc::RobotController::GetInputVoltage());
@@ -271,9 +267,9 @@ void DrivetrainController::Reset(const frc::Pose2d& initialPose) {
     m_observer.Reset();
 
     Eigen::Matrix<double, 10, 1> xHat;
-    xHat(0, 0) = initialPose.Translation().X().to<double>();
-    xHat(1, 0) = initialPose.Translation().Y().to<double>();
-    xHat(2, 0) = initialPose.Rotation().Radians().to<double>();
+    xHat(0) = initialPose.Translation().X().to<double>();
+    xHat(1) = initialPose.Translation().Y().to<double>();
+    xHat(2) = initialPose.Rotation().Radians().to<double>();
     xHat.block<7, 1>(3, 0).setZero();
     m_observer.SetXhat(xHat);
 
@@ -287,7 +283,7 @@ frc::TrajectoryConfig DrivetrainController::MakeTrajectoryConfig() const {
 
     auto plant = frc::IdentifyDrivetrainSystem(
         kLinearV.to<double>(), kLinearA.to<double>(), kAngularV.to<double>(),
-        kAngularA.to<double>());
+        kAngularA.to<double>(), 12_V);
     frc::DrivetrainVelocitySystemConstraint systemConstraint{plant, kWidth,
                                                              8_V};
     config.AddConstraint(systemConstraint);
@@ -308,7 +304,7 @@ Eigen::Matrix<double, 2, 1> DrivetrainController::Controller(
     double ktheta1 = m_K1(0, 2);
     double kvpos1 = m_K1(0, 3);
 
-    double v = (x(State::kLeftVelocity, 0) + x(State::kRightVelocity, 0)) / 2.0;
+    double v = (x(State::kLeftVelocity) + x(State::kRightVelocity)) / 2.0;
     double sqrtAbsV = std::sqrt(std::abs(v));
 
     Eigen::Matrix<double, 2, 5> K;
@@ -324,17 +320,17 @@ Eigen::Matrix<double, 2, 1> DrivetrainController::Controller(
     K(1, 4) = K(0, 3);
 
     Eigen::Matrix<double, 2, 1> uError;
-    uError << x(State::kLeftVoltageError, 0), x(State::kRightVoltageError, 0);
+    uError << x(State::kLeftVoltageError), x(State::kRightVoltageError);
 
     Eigen::Matrix<double, 5, 5> inRobotFrame =
         Eigen::Matrix<double, 5, 5>::Identity();
-    inRobotFrame(0, 0) = std::cos(x(2, 0));
-    inRobotFrame(0, 1) = std::sin(x(2, 0));
-    inRobotFrame(1, 0) = -std::sin(x(2, 0));
-    inRobotFrame(1, 1) = std::cos(x(2, 0));
+    inRobotFrame(0, 0) = std::cos(x(2));
+    inRobotFrame(0, 1) = std::sin(x(2));
+    inRobotFrame(1, 0) = -std::sin(x(2));
+    inRobotFrame(1, 1) = std::cos(x(2));
 
     Eigen::Matrix<double, 5, 1> error = r - x.block<5, 1>(0, 0);
-    error(State::kHeading, 0) = NormalizeAngle(error(State::kHeading, 0));
+    error(State::kHeading) = NormalizeAngle(error(State::kHeading));
     return K * inRobotFrame * error;
 }
 
@@ -358,7 +354,7 @@ Eigen::Matrix<double, 10, 1> DrivetrainController::Dynamics(
 
     auto plant = frc::IdentifyDrivetrainSystem(
         kLinearV.to<double>(), kLinearA.to<double>(), kAngularV.to<double>(),
-        kAngularA.to<double>());
+        kAngularA.to<double>(), 12_V);
 
     Eigen::Matrix<double, 4, 2> B;
     B.block<2, 2>(0, 0) = plant.B();
@@ -371,14 +367,14 @@ Eigen::Matrix<double, 10, 1> DrivetrainController::Dynamics(
     A.block<4, 2>(0, 4) = B;
     A.block<4, 1>(0, 6) << 0, 0, 1, -1;
 
-    double v = (x(State::kLeftVelocity, 0) + x(State::kRightVelocity, 0)) / 2.0;
+    double v = (x(State::kLeftVelocity) + x(State::kRightVelocity)) / 2.0;
 
     Eigen::Matrix<double, 10, 1> result;
-    result(0, 0) = v * std::cos(x(State::kHeading, 0));
-    result(1, 0) = v * std::sin(x(State::kHeading, 0));
-    result(2, 0) = ((x(State::kRightVelocity, 0) - x(State::kLeftVelocity, 0)) /
-                    (2.0 * rb))
-                       .to<double>();
+    result(0) = v * std::cos(x(State::kHeading));
+    result(1) = v * std::sin(x(State::kHeading));
+    result(2) =
+        ((x(State::kRightVelocity) - x(State::kLeftVelocity)) / (2.0 * rb))
+            .to<double>();
     result.block<4, 1>(3, 0) = A * x.block<7, 1>(3, 0) + B * u;
     result.block<3, 1>(7, 0).setZero();
     return result;
@@ -390,8 +386,7 @@ Eigen::Matrix<double, 3, 1> DrivetrainController::LocalMeasurementModel(
     static_cast<void>(u);
 
     Eigen::Matrix<double, 3, 1> y;
-    y << x(State::kHeading, 0), x(State::kLeftPosition, 0),
-        x(State::kRightPosition, 0);
+    y << x(State::kHeading), x(State::kLeftPosition), x(State::kRightPosition);
     return y;
 }
 
@@ -402,16 +397,15 @@ Eigen::Matrix<double, 6, 1> DrivetrainController::GlobalMeasurementModel(
 
     Eigen::Matrix<double, 6, 1> y;
     y.block<3, 1>(0, 0) = x.block<3, 1>(0, 0);
-    y(3, 0) = x(State::kLeftPosition, 0);
-    y(4, 0) = x(State::kRightPosition, 0);
-    y(5, 0) = (x(State::kRightVelocity, 0) - x(State::kLeftVelocity, 0)) /
-              (2.0 * rb.to<double>());
+    y(3) = x(State::kLeftPosition);
+    y(4) = x(State::kRightPosition);
+    y(5) = (x(State::kRightVelocity) - x(State::kLeftVelocity)) /
+           (2.0 * rb.to<double>());
     return y;
 }
 
 void DrivetrainController::ScaleCapU(Eigen::Matrix<double, 2, 1>* u) {
-    bool outputCapped =
-        std::abs((*u)(0, 0)) > 12.0 || std::abs((*u)(1, 0)) > 12.0;
+    bool outputCapped = std::abs((*u)(0)) > 12.0 || std::abs((*u)(1)) > 12.0;
 
     if (outputCapped) {
         *u *= 12.0 / u->lpNorm<Eigen::Infinity>();

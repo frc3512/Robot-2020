@@ -45,13 +45,14 @@ class KalmanFilter {
    * Constructs a state-space observer with the given plant.
    *
    * @param plant              The plant used for the prediction step.
-   * @param dt                 Nominal discretization timestep.
    * @param stateStdDevs       Standard deviations of model states.
    * @param measurementStdDevs Standard deviations of measurements.
+   * @param dt                 Nominal discretization timestep.
    */
-  KalmanFilter(LinearSystem<States, Inputs, Outputs>& plant, units::second_t dt,
+  KalmanFilter(LinearSystem<States, Inputs, Outputs>& plant,
                const std::array<double, States>& stateStdDevs,
-               const std::array<double, Outputs>& measurementStdDevs) {
+               const std::array<double, Outputs>& measurementStdDevs,
+               units::second_t dt) {
     m_plant = &plant;
 
     m_contQ = MakeCovMatrix(stateStdDevs);
@@ -59,9 +60,9 @@ class KalmanFilter {
 
     Eigen::Matrix<double, States, States> discA;
     Eigen::Matrix<double, States, States> discQ;
-    DiscretizeAQTaylor(plant.A(), m_contQ, dt, &discA, &discQ);
+    DiscretizeAQTaylor<States>(plant.A(), m_contQ, dt, &discA, &discQ);
 
-    m_discR = DiscretizeR(m_contR, dt);
+    m_discR = DiscretizeR<Outputs>(m_contR, dt);
 
     if (IsStabilizable<States, Outputs>(discA.transpose(),
                                         plant.C().transpose()) &&
@@ -88,6 +89,13 @@ class KalmanFilter {
    * @param j Column of P.
    */
   double P(int i, int j) const { return m_P(i, j); }
+
+  /**
+   * Set the current error covariance matrix P.
+   *
+   * @param P The error covariance matrix P.
+   */
+  void SetP(const Eigen::Matrix<double, States, States>& P) { m_P = P; }
 
   /**
    * Returns the state estimate x-hat.
@@ -134,10 +142,10 @@ class KalmanFilter {
 
     Eigen::Matrix<double, States, States> discA;
     Eigen::Matrix<double, States, States> discQ;
-    DiscretizeAQTaylor(m_plant->A(), m_contQ, dt, &discA, &discQ);
+    DiscretizeAQTaylor<States>(m_plant->A(), m_contQ, dt, &discA, &discQ);
 
     m_P = discA * m_P * discA.transpose() + discQ;
-    m_discR = DiscretizeR(m_contR, dt);
+    m_discR = DiscretizeR<Outputs>(m_contR, dt);
   }
 
   /**
@@ -148,7 +156,7 @@ class KalmanFilter {
    */
   void Correct(const Eigen::Matrix<double, Inputs, 1>& u,
                const Eigen::Matrix<double, Outputs, 1>& y) {
-    Correct(u, y, m_plant->C(), m_discR);
+    Correct<Outputs>(u, y, m_plant->C(), m_plant->D(), m_discR);
   }
 
   /**
@@ -161,12 +169,14 @@ class KalmanFilter {
    * @param u Same control input used in the predict step.
    * @param y Measurement vector.
    * @param C Output matrix.
+   * @param D Feedthrough matrix.
    * @param R Measurement noise covariance matrix.
    */
   template <int Rows>
   void Correct(const Eigen::Matrix<double, Inputs, 1>& u,
                const Eigen::Matrix<double, Rows, 1>& y,
                const Eigen::Matrix<double, Rows, States>& C,
+               const Eigen::Matrix<double, Rows, Inputs>& D,
                const Eigen::Matrix<double, Rows, Rows>& R) {
     const auto& x = m_plant->X();
     Eigen::Matrix<double, Rows, Rows> S = C * m_P * C.transpose() + R;
@@ -186,7 +196,7 @@ class KalmanFilter {
     Eigen::Matrix<double, States, Rows> K =
         S.transpose().ldlt().solve(C * m_P.transpose()).transpose();
 
-    m_plant->SetX(x + K * (y - (C * x + m_plant->D() * u)));
+    m_plant->SetX(x + K * (y - (C * x + D * u)));
     m_P = (Eigen::Matrix<double, States, States>::Identity() - K * C) * m_P;
   }
 

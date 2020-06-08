@@ -52,7 +52,8 @@ void Turret::ControllerPeriodic() {
 
     // Set motor input
     if (!m_manualOverride) {
-        SetVoltage(m_controller.ControllerVoltage());
+        auto u = m_controller.GetInputs();
+        SetVoltage(units::volt_t{u(TurretController::Input::kVoltage)});
     }
 
     m_lastTime = now;
