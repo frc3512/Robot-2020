@@ -30,7 +30,7 @@ TEST(FlywheelControllerTest, ReachesGoal) {
     while (currentTime < 10_s) {
         auto dt = kDt + units::second_t{frc::MakeWhiteNoiseVector(0.001)(0)};
         Eigen::Matrix<double, 1, 1> noise =
-            frc::MakeWhiteNoiseVector<1>({0.08});
+            frc::MakeWhiteNoiseVector<1>({50.0});
 
         controller.SetMeasuredAngularVelocity(
             units::radians_per_second_t{x(0) + noise(0)});
