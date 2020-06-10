@@ -405,9 +405,8 @@ Eigen::Matrix<double, 6, 1> DrivetrainController::GlobalMeasurementModel(
 }
 
 void DrivetrainController::ScaleCapU(Eigen::Matrix<double, 2, 1>* u) {
-    bool outputCapped = std::abs((*u)(0)) > 12.0 || std::abs((*u)(1)) > 12.0;
-
-    if (outputCapped) {
-        *u *= 12.0 / u->lpNorm<Eigen::Infinity>();
+    double norm = u->lpNorm<Eigen::Infinity>();
+    if (norm > 12.0) {
+        *u *= 12.0 / norm;
     }
 }
