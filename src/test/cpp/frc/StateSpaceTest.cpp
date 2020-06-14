@@ -56,15 +56,13 @@ void Update(LinearSystemLoop<2, 1, 1>& loop, double noise) {
   loop.Predict(kDt);
 }
 
-TEST_F(StateSpace, Enabled) {
+TEST_F(StateSpace, CorrectPredictLoop) {
   std::default_random_engine generator;
   std::normal_distribution<double> dist{0.0, kPositionStddev};
 
   Eigen::Matrix<double, 2, 1> references;
   references << 2.0, 0.0;
   loop.SetNextR(references);
-
-  loop.Enable();
 
   for (int i = 0; i < 1000; i++) {
     Update(loop, dist(generator));
@@ -73,22 +71,6 @@ TEST_F(StateSpace, Enabled) {
 
   EXPECT_LT(std::abs(loop.Xhat(0) - 2.0), 0.05);
   EXPECT_LT(std::abs(loop.Xhat(1) - 0.0), 0.5);
-}
-
-TEST_F(StateSpace, Disabled) {
-  Eigen::Matrix<double, 2, 1> references;
-  references << 2.0, 0.0;
-  loop.SetNextR(references);
-
-  EXPECT_DOUBLE_EQ(loop.Xhat(0), 0.0);
-  EXPECT_DOUBLE_EQ(loop.Xhat(1), 0.0);
-
-  for (int i = 0; i < 100; i++) {
-    Update(loop, 0.0);
-  }
-
-  EXPECT_NEAR(std::abs(loop.Xhat(0)), 0, 1E-9);
-  EXPECT_NEAR(std::abs(loop.Xhat(1)), 0, 1E-9);
 }
 
 }  // namespace frc

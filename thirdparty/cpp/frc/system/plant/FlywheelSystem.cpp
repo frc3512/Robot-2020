@@ -21,10 +21,10 @@ LinearSystem<1, 1, 1> FlywheelSystem(DCMotor motor,
   auto B = frc::MakeMatrix<1, 1>((G * motor.Kt / (motor.R * J)).to<double>());
   auto C = frc::MakeMatrix<1, 1>(1.0);
   auto D = frc::MakeMatrix<1, 1>(0.0);
-  auto uMin = frc::MakeMatrix<1, 1>(-maxVoltage.to<double>());
-  auto uMax = frc::MakeMatrix<1, 1>(maxVoltage.to<double>());
 
-  return LinearSystem<1, 1, 1>(A, B, C, D, uMin, uMax);
+  return LinearSystem<1, 1, 1>(A, B, C, D, [=](Eigen::Matrix<double, 1, 1> u) {
+    return frc::NormalizeInputVector<1>(u, maxVoltage.template to<double>());
+  });
 }
 
 }  // namespace frc

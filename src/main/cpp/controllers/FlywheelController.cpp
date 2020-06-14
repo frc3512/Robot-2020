@@ -14,17 +14,9 @@ FlywheelController::FlywheelController() {
     Reset();
 }
 
-void FlywheelController::Enable() {
-    m_lqr.Enable();
-    m_ff.Enable();
-    m_isEnabled = true;
-}
+void FlywheelController::Enable() { m_isEnabled = true; }
 
-void FlywheelController::Disable() {
-    m_lqr.Disable();
-    m_ff.Disable();
-    m_isEnabled = false;
-}
+void FlywheelController::Disable() { m_isEnabled = false; }
 
 bool FlywheelController::IsEnabled() const { return m_isEnabled; }
 
@@ -82,7 +74,7 @@ void FlywheelController::Update(units::second_t dt,
 
     // To conserve battery when the flywheel doesn't have to be spinning, don't
     // apply a negative voltage to slow down.
-    if (m_nextR(0) == 0.0) {
+    if (m_nextR(0) == 0.0 || !m_isEnabled) {
         m_u(0) = 0.0;
     } else {
         m_u = (m_lqr.U() + m_ff.Calculate(m_nextR)) * 12.0 /

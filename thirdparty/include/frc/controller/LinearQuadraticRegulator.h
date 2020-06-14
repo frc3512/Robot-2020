@@ -122,19 +122,6 @@ class LinearQuadraticRegulator {
   LinearQuadraticRegulator& operator=(LinearQuadraticRegulator&&) = default;
 
   /**
-   * Enables controller.
-   */
-  void Enable() { m_enabled = true; }
-
-  /**
-   * Disables controller, zeroing controller output U.
-   */
-  void Disable() {
-    m_enabled = false;
-    m_u.setZero();
-  }
-
-  /**
    * Returns the controller matrix K.
    */
   const Eigen::Matrix<double, Inputs, States>& K() const { return m_K; }
@@ -193,9 +180,7 @@ class LinearQuadraticRegulator {
    * @param x The current state x.
    */
   void Update(const Eigen::Matrix<double, States, 1>& x) {
-    if (m_enabled) {
-      m_u = m_K * (m_r - x);
-    }
+    m_u = m_K * (m_r - x);
   }
 
   /**
@@ -213,8 +198,6 @@ class LinearQuadraticRegulator {
  private:
   Eigen::Matrix<double, States, States> m_discA;
   Eigen::Matrix<double, States, Inputs> m_discB;
-
-  bool m_enabled = false;
 
   // Current reference
   Eigen::Matrix<double, States, 1> m_r;

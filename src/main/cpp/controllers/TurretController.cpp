@@ -11,15 +11,9 @@ using namespace frc3512::Constants::Turret;
 
 TurretController::TurretController() { m_y.setZero(); }
 
-void TurretController::Enable() {
-    m_lqr.Enable();
-    m_ff.Enable();
-}
+void TurretController::Enable() { m_isEnabled = true; }
 
-void TurretController::Disable() {
-    m_lqr.Disable();
-    m_ff.Disable();
-}
+void TurretController::Disable() { m_isEnabled = false; }
 
 void TurretController::SetGoal(
     units::radian_t angleGoal,
@@ -129,6 +123,8 @@ void TurretController::Update(units::second_t dt, units::second_t elapsedTime) {
     if (m_atLeftLimit && m_lqr.U(0) > 0) {
         m_u << 0;
     } else if (m_atRightLimit && m_lqr.U(0) < 0) {
+        m_u << 0;
+    } else if (!m_isEnabled) {
         m_u << 0;
     } else {
         Eigen::Matrix<double, 2, 1> error = m_lqr.R() - m_observer.Xhat();

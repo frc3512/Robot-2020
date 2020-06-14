@@ -60,22 +60,6 @@ class LinearSystemLoop {
   LinearSystemLoop& operator=(LinearSystemLoop&&) = default;
 
   /**
-   * Enables the controller.
-   */
-  void Enable() {
-    m_controller.Enable();
-    m_feedforward.Enable();
-  }
-
-  /**
-   * Disables the controller and zeros the control input.
-   */
-  void Disable() {
-    m_controller.Disable();
-    m_feedforward.Disable();
-  }
-
-  /**
    * Returns the observer's state estimate x-hat.
    */
   const Eigen::Matrix<double, States, 1>& Xhat() const {

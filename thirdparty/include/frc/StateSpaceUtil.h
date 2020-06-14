@@ -244,4 +244,42 @@ bool IsStabilizable(const Eigen::Matrix<double, States, States>& A,
  * @return The vector.
  */
 Eigen::Matrix<double, 3, 1> PoseToVector(const Pose2d& pose);
+
+/**
+ * Clamps input vector between system's minimum and maximum allowable input.
+ *
+ * @param u Input vector to clamp.
+ * @return Clamped input vector.
+ */
+template <int Inputs>
+Eigen::Matrix<double, Inputs, 1> ClampInputMaxMagnitude(
+    const Eigen::Matrix<double, Inputs, 1>& u,
+    const Eigen::Matrix<double, Inputs, 1>& umin,
+    const Eigen::Matrix<double, Inputs, 1>& umax) {
+  Eigen::Matrix<double, Inputs, 1> result;
+  for (int i = 0; i < Inputs; ++i) {
+    result(i) = std::clamp(u(i), umin(i), umax(i));
+  }
+  return result;
+}
+
+/**
+ * Normalize all inputs if any excedes the maximum magnitude. Useful for systems
+ * such as differential drivetrains.
+ *
+ * @param u            The input vector.
+ * @param maxMagnitude The maximum magnitude any input can have.
+ * @param <I>          The number of inputs.
+ * @return The normalizedInput
+ */
+template <int Inputs>
+Eigen::Matrix<double, Inputs, 1> NormalizeInputVector(
+    const Eigen::Matrix<double, Inputs, 1>& u, double maxMagnitude) {
+  double maxValue = u.template lpNorm<Eigen::Infinity>();
+
+  if (maxValue > maxMagnitude) {
+    return u * maxMagnitude / maxValue;
+  }
+  return u;
+}
 }  // namespace frc

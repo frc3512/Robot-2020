@@ -8,6 +8,7 @@
 #pragma once
 
 #include <algorithm>
+#include <functional>
 
 #include <Eigen/Core>
 #include <units.h>
@@ -35,21 +36,19 @@ class LinearSystem {
    * @param B    Input matrix.
    * @param C    Output matrix.
    * @param D    Feedthrough matrix.
-   * @param uMin Minimum control input.
-   * @param uMax Maximum control input.
    */
   explicit LinearSystem(const Eigen::Matrix<double, States, States>& A,
                         const Eigen::Matrix<double, States, Inputs>& B,
                         const Eigen::Matrix<double, Outputs, States>& C,
                         const Eigen::Matrix<double, Outputs, Inputs>& D,
-                        const Eigen::Matrix<double, Inputs, 1>& uMin,
-                        const Eigen::Matrix<double, Inputs, 1>& uMax) {
+                        std::function<Eigen::Matrix<double, Inputs, 1>(
+                            const Eigen::Matrix<double, Inputs, 1>&)>
+                            clampFunction)
+      : m_clampFunc(clampFunction) {
     m_A = A;
     m_B = B;
     m_C = C;
     m_D = D;
-    m_uMin = uMin;
-    m_uMax = uMax;
 
     Reset();
   }
@@ -112,42 +111,6 @@ class LinearSystem {
    * @param j Column of D.
    */
   double D(int i, int j) const { return m_D(i, j); }
-
-  /**
-   * Returns the minimum control input vector u.
-   */
-  const Eigen::Matrix<double, Inputs, 1>& Umin() const { return m_uMin; }
-
-  /**
-   * Returns an element of the minimum control input vector u.
-   *
-   * @param i Row of u.
-   */
-  double Umin(int i) const { return m_uMin(i); }
-
-  /**
-   * Returns the maximum control input vector u.
-   */
-  const Eigen::Matrix<double, Inputs, 1>& Umax() const { return m_uMax; }
-
-  /**
-   * Returns an element of the maximum control input vector u.
-   *
-   * @param i Row of u.
-   */
-  double Umax(int i) const { return m_uMax(i); }
-
-  /**
-   * Set the minimum control effort uMin.
-   * @param uMin the new minimum control effort.
-   */
-  void SetUmin(const Eigen::Matrix<double, States, 1>& uMin) { m_uMin = uMin; }
-
-  /**
-   * Set the maximum control effort uMin.
-   * @param uMax the new maximum control effort.
-   */
-  void SetUMax(const Eigen::Matrix<double, States, 1>& uMax) { m_uMax = uMax; }
 
   /**
    * Returns the current state x.
@@ -281,14 +244,17 @@ class LinearSystem {
    */
   Eigen::Matrix<double, Inputs, 1> ClampInput(
       const Eigen::Matrix<double, Inputs, 1>& u) const {
-    Eigen::Matrix<double, Inputs, 1> result;
-    for (int i = 0; i < Inputs; ++i) {
-      result(i) = std::clamp(u(i), m_uMin(i), m_uMax(i));
-    }
-    return result;
+    return m_clampFunc(u);
   }
 
  private:
+  /**
+   * Clamping function.
+   */
+  std::function<Eigen::Matrix<double, Inputs, 1>(
+      const Eigen::Matrix<double, Inputs, 1>&)>
+      m_clampFunc;
+
   /**
    * Continuous system matrix.
    */
@@ -308,16 +274,6 @@ class LinearSystem {
    * Feedthrough matrix.
    */
   Eigen::Matrix<double, Outputs, Inputs> m_D;
-
-  /**
-   * Minimum allowable input vector.
-   */
-  Eigen::Matrix<double, Inputs, 1> m_uMin;
-
-  /**
-   * Maximum allowable input vector.
-   */
-  Eigen::Matrix<double, Inputs, 1> m_uMax;
 
   /**
    * State vector.

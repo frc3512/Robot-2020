@@ -32,12 +32,10 @@ LinearSystem<2, 2, 2> DrivetrainVelocitySystem(
       ((1 / m + units::math::pow<2>(rb) / J) * C2).to<double>());
   auto C = frc::MakeMatrix<2, 2>(1.0, 0.0, 0.0, 1.0);
   auto D = frc::MakeMatrix<2, 2>(0.0, 0.0, 0.0, 0.0);
-  auto uMin =
-      frc::MakeMatrix<2, 1>(-maxVoltage.to<double>(), -maxVoltage.to<double>());
-  auto uMax =
-      frc::MakeMatrix<2, 1>(maxVoltage.to<double>(), maxVoltage.to<double>());
 
-  return LinearSystem<2, 2, 2>(A, B, C, D, uMin, uMax);
+  return LinearSystem<2, 2, 2>(A, B, C, D, [=](Eigen::Matrix<double, 2, 1> u) {
+    return frc::NormalizeInputVector<2>(u, maxVoltage.to<double>());
+  });
 }
 
 }  // namespace frc

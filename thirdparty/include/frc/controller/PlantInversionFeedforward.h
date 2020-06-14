@@ -128,19 +128,6 @@ class PlantInversionFeedforward {
   double R(int i) const { return m_r(i, 0); }
 
   /**
-   * Enables controller.
-   */
-  void Enable() { m_enabled = true; }
-
-  /**
-   * Disables controller, zeroing feedforward uff.
-   */
-  void Disable() {
-    m_enabled = false;
-    m_uff.setZero();
-  }
-
-  /**
    * Resets the feedforward with a specified initial state vector.
    *
    * @param initialState The initial state vector.
@@ -174,8 +161,6 @@ class PlantInversionFeedforward {
   Eigen::Matrix<double, Inputs, 1> Calculate(
       const Eigen::Matrix<double, States, 1>& r,
       const Eigen::Matrix<double, States, 1>& nextR) {
-    if (!m_enabled) return m_uff;
-
     if (m_f) {
       Vector<States> rDot = (nextR - r) / m_dt.to<double>();
 
@@ -205,8 +190,6 @@ class PlantInversionFeedforward {
 
   // Computed feedforward
   Vector<Inputs> m_uff;
-
-  bool m_enabled = false;
 };
 
 }  // namespace frc

@@ -189,6 +189,7 @@ private:
     bool m_atReferences = false;
     bool m_atLeftLimit = false;
     bool m_atRightLimit = false;
+    bool m_isEnabled = false;
 
     frc::Pose2d m_drivetrainNextPoseInGlobal;
     Eigen::Matrix<double, 10, 1> m_drivetrainNextXhat;
