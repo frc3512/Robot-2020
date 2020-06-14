@@ -113,6 +113,44 @@ def download_lib(maven_url, artifact_name, version, classifier, headers=True):
         download_file(maven_url, filename, "build")
 
 
+def download_libs(target):
+    WPI_MAVEN_URL = "https://frcmaven.wpi.edu/artifactory/release"
+    REV_MAVEN_URL = "http://www.revrobotics.com/content/sw/max/sdk/maven"
+    WPI_URL = WPI_MAVEN_URL + "/edu/wpi/first"
+    OPENCV_URL = WPI_MAVEN_URL + "/edu/wpi/first/thirdparty/frc2020"
+    GTEST_URL = WPI_MAVEN_URL + "/edu/wpi/first/thirdparty/frc2020"
+    REV_URL = REV_MAVEN_URL + "/com/revrobotics/frc"
+
+    WPI_VERSION = "2020.3.2"
+
+    if target in ["build", "deploy"]:
+        classifier = "linuxathena"
+    else:
+        classifier = "linuxx86-64"
+
+    download_lib(WPI_URL + "/wpilibc", "wpilibc-cpp", WPI_VERSION, classifier)
+    download_lib(WPI_URL + "/cameraserver", "cameraserver-cpp", WPI_VERSION, classifier)
+    download_lib(WPI_URL + "/ntcore", "ntcore-cpp", WPI_VERSION, classifier)
+    download_lib(WPI_URL + "/hal", "hal-cpp", WPI_VERSION, classifier)
+    download_lib(WPI_URL + "/cscore", "cscore-cpp", WPI_VERSION, classifier)
+    download_lib(WPI_URL + "/wpiutil", "wpiutil-cpp", WPI_VERSION, classifier)
+    download_lib(OPENCV_URL + "/opencv", "opencv-cpp", "3.4.7-2", classifier)
+
+    if target == "build":
+        download_lib(WPI_URL + "/ni-libraries", "chipobject", "2020.9.2", classifier)
+        download_lib(WPI_URL + "/ni-libraries", "netcomm", "2020.9.2", classifier)
+        download_lib(
+            WPI_URL + "/ni-libraries", "runtime", "2020.10.1", classifier, False
+        )
+        download_lib(WPI_URL + "/ni-libraries", "visa", "2020.10.1", classifier)
+    elif target in ["ci", "test"]:
+        download_lib(GTEST_URL, "googletest", "1.9.0-4-437e100-1", classifier + "static")
+
+    classifier += "static"
+    download_lib(REV_URL, "SparkMax-cpp", "1.5.2", classifier)
+    download_lib(REV_URL, "SparkMax-driver", "1.5.2", classifier)
+
+
 def main():
     parser = argparse.ArgumentParser(description="Builds and deploys FRC C++ programs")
     parser.add_argument(
@@ -136,41 +174,8 @@ def main():
     if not os.path.exists("build/"):
         os.makedirs("build/")
 
-    WPI_MAVEN_URL = "https://frcmaven.wpi.edu/artifactory/release"
-    REV_MAVEN_URL = "http://www.revrobotics.com/content/sw/max/sdk/maven"
-    WPI_URL = WPI_MAVEN_URL + "/edu/wpi/first"
-    OPENCV_URL = WPI_MAVEN_URL + "/edu/wpi/first/thirdparty/frc2020"
-    GTEST_URL = WPI_MAVEN_URL + "/edu/wpi/first/thirdparty/frc2020"
-    REV_URL = REV_MAVEN_URL + "/com/revrobotics/frc"
-
-    WPI_VERSION = "2020.3.2"
-
-    if args.target in ["build", "deploy"]:
-        classifier = "linuxathena"
-    else:
-        classifier = "linuxx86-64"
-
-    download_lib(WPI_URL + "/wpilibc", "wpilibc-cpp", WPI_VERSION, classifier)
-    download_lib(WPI_URL + "/cameraserver", "cameraserver-cpp", WPI_VERSION, classifier)
-    download_lib(WPI_URL + "/ntcore", "ntcore-cpp", WPI_VERSION, classifier)
-    download_lib(WPI_URL + "/hal", "hal-cpp", WPI_VERSION, classifier)
-    download_lib(WPI_URL + "/cscore", "cscore-cpp", WPI_VERSION, classifier)
-    download_lib(WPI_URL + "/wpiutil", "wpiutil-cpp", WPI_VERSION, classifier)
-    download_lib(OPENCV_URL + "/opencv", "opencv-cpp", "3.4.7-2", classifier)
-
-    if args.target == "build":
-        download_lib(WPI_URL + "/ni-libraries", "chipobject", "2020.9.2", classifier)
-        download_lib(WPI_URL + "/ni-libraries", "netcomm", "2020.9.2", classifier)
-        download_lib(
-            WPI_URL + "/ni-libraries", "runtime", "2020.10.1", classifier, False
-        )
-        download_lib(WPI_URL + "/ni-libraries", "visa", "2020.10.1", classifier)
-    elif args.target in ["ci", "test"]:
-        download_lib(GTEST_URL, "googletest", "1.9.0-4-437e100-1", classifier + "static")
-
-    classifier += "static"
-    download_lib(REV_URL, "SparkMax-cpp", "1.5.2", classifier)
-    download_lib(REV_URL, "SparkMax-driver", "1.5.2", classifier)
+    if args.target != "clean":
+        download_libs(args.target)
 
     # Generate pubsub messages
     if (
