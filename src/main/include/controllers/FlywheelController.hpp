@@ -106,7 +106,7 @@ private:
     static constexpr decltype(1_V / (1_rad_per_s / 1_s)) kA =
         0.005515_V / (1_rad_per_s / 1_s);
     static constexpr units::radians_per_second_t kAngularVelocityTolerance =
-        7.0_rad_per_s;
+        15.0_rad_per_s;
 
     // The current sensor measurements.
     Eigen::Matrix<double, 1, 1> m_y;
