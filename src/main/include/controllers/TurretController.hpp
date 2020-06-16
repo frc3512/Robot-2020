@@ -125,6 +125,11 @@ public:
     const Eigen::Matrix<double, 1, 1>& GetOutputs() const override;
 
     /**
+     * Returns the turret plant.
+     */
+    const frc::LinearSystem<2, 1, 1>& GetPlant() const;
+
+    /**
      * Returns the projected pose of the turret.
      */
     frc::Pose2d GetNextPose() const;

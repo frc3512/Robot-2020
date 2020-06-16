@@ -73,6 +73,10 @@ const Eigen::Matrix<double, 1, 1>& TurretController::GetOutputs() const {
     return m_y;
 }
 
+const frc::LinearSystem<2, 1, 1>& TurretController::GetPlant() const {
+    return m_plant;
+}
+
 frc::Pose2d TurretController::GetNextPose() const {
     return m_turretNextPoseInGlobal;
 }

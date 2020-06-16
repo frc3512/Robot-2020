@@ -56,6 +56,8 @@ TEST(TurretControllerTest, ReachesReferenceStaticDrivetrain) {
 
     Eigen::Matrix<double, 2, 1> x = Eigen::Matrix<double, 2, 1>::Zero();
 
+    Eigen::Matrix<double, 1, 1> u = Eigen::Matrix<double, 1, 1>::Zero();
+
     auto currentTime = 0_s;
     while (currentTime < 10_s) {
         auto dt = kDt;
@@ -66,16 +68,15 @@ TEST(TurretControllerTest, ReachesReferenceStaticDrivetrain) {
         controller.SetMeasuredOutputs(units::radian_t{x(0)});
 
         controller.Update(kDt, currentTime);
-        currentTime += dt;
 
-        constexpr auto Vbat = 12_V;
-        constexpr auto Rbat = 0.03_Ohm;
-        Eigen::Matrix<double, 1, 1> u;
         u = controller.GetInputs();
 
+        // Account for battery voltage drop due to current draw from both turret
+        // and drivetrain
         if constexpr (!kIdealModel) {
-            // Account for battery voltage drop due to current draw from both
-            // turret and drivetrain
+            constexpr auto Vbat = 12_V;
+            constexpr auto Rbat = 0.03_Ohm;
+
             constexpr auto motor = frc::DCMotor::NEO(1);
             units::ampere_t load = motor.Current(
                 units::radians_per_second_t{x(1)}, units::volt_t{u(0)});
@@ -83,11 +84,12 @@ TEST(TurretControllerTest, ReachesReferenceStaticDrivetrain) {
             double dsVoltage =
                 vLoaded.to<double>() + frc::MakeWhiteNoiseVector(0.1)(0);
             roboRIO.SetVInVoltage(dsVoltage);
-            Eigen::Matrix<double, 1, 1> trueU = u;
-            trueU *= dsVoltage / 12.0;
+
+            u *= dsVoltage / 12.0;
         }
 
-        x = controller.GetStates();
+        x = controller.GetPlant().CalculateX(x, u, dt);
+        currentTime += dt;
     }
 
     RenameCSVs("TurretControllerTest Static", "./Turret ");
@@ -107,8 +109,7 @@ TEST(TurretControllerTest, DISABLED_ReachesReferenceRotateInPlaceDrivetrain) {
     turretController.Reset();
     turretController.Enable();
     turretController.SetMeasuredOutputs(0_rad);
-    Eigen::Matrix<double, 2, 1> turretXhat =
-        Eigen::Matrix<double, 2, 1>::Zero();
+    Eigen::Matrix<double, 2, 1> turretX = Eigen::Matrix<double, 2, 1>::Zero();
 
     // Initialize drivetrain controller
     frc3512::DrivetrainController drivetrainController;
@@ -119,6 +120,10 @@ TEST(TurretControllerTest, DISABLED_ReachesReferenceRotateInPlaceDrivetrain) {
                                       frc::Pose2d(4.8768_m, 2.7432_m, 0_rad));
     Eigen::Matrix<double, 10, 1> drivetrainX =
         Eigen::Matrix<double, 10, 1>::Zero();
+
+    Eigen::Matrix<double, 2, 1> drivetrainU =
+        Eigen::Matrix<double, 2, 1>::Zero();
+    Eigen::Matrix<double, 1, 1> turretU = Eigen::Matrix<double, 1, 1>::Zero();
 
     auto currentTime = 0_s;
     while (currentTime < 10_s) {
@@ -142,27 +147,23 @@ TEST(TurretControllerTest, DISABLED_ReachesReferenceRotateInPlaceDrivetrain) {
 
         // Update turret controller
         turretController.SetDrivetrainStatus(drivetrainX);
-        turretController.SetMeasuredOutputs(units::radian_t{turretXhat(0)});
+        turretController.SetMeasuredOutputs(units::radian_t{turretX(0)});
         turretController.Update(kDt, currentTime);
 
-        currentTime += dt;
-
-        constexpr auto Vbat = 12_V;
-        constexpr auto Rbat = 0.03_Ohm;
-        constexpr auto r = 0.0746125_m;  // Drivetrain wheel radius
-        Eigen::Matrix<double, 2, 1> drivetrainU =
-            drivetrainController.GetInputs();
-        Eigen::Matrix<double, 1, 1> turretU;
+        drivetrainU = drivetrainController.GetInputs();
         turretU = turretController.GetInputs();
 
+        // Account for battery voltage drop due to current draw for the turret
         if constexpr (!kIdealModel) {
-            // Account for battery voltage drop due to current draw for the
-            // turret
+            constexpr auto Vbat = 12_V;
+            constexpr auto Rbat = 0.03_Ohm;
+            constexpr auto r = 0.0746125_m;  // Drivetrain wheel radius
+
             using Input = frc3512::DrivetrainController::Input;
             using State = frc3512::DrivetrainController::State;
             constexpr auto turretMotor = frc::DCMotor::NEO(1);
             units::ampere_t turretLoad =
-                turretMotor.Current(units::radians_per_second_t{turretXhat(1)},
+                turretMotor.Current(units::radians_per_second_t{turretX(1)},
                                     units::volt_t{turretU(0)});
             constexpr auto drivetrainMotors = frc::DCMotor::NEO(2);
             units::ampere_t loadIleft = drivetrainMotors.Current(
@@ -178,14 +179,15 @@ TEST(TurretControllerTest, DISABLED_ReachesReferenceRotateInPlaceDrivetrain) {
             double dsVoltage =
                 vLoaded.to<double>() + frc::MakeWhiteNoiseVector(0.1)(0);
             roboRIO.SetVInVoltage(dsVoltage);
+
             drivetrainU *= dsVoltage / 12.0;
-            Eigen::Matrix<double, 1, 1> turretTrueU = turretU;
-            turretTrueU *= dsVoltage / 12.0;
+            turretU *= dsVoltage / 12.0;
         }
 
         drivetrainX = frc::RungeKutta(frc3512::DrivetrainController::Dynamics,
                                       drivetrainX, drivetrainU, dt);
-        turretXhat = turretController.GetStates();
+        turretX = turretController.GetPlant().CalculateX(turretX, turretU, dt);
+        currentTime += dt;
     }
 
     RenameCSVs("TurretController RotateInPlace", "./Drivetrain ");
@@ -204,8 +206,7 @@ TEST(TurretControllerTest, ReachesReferenceSCurveDrivetrain) {
     turretController.Reset();
     turretController.Enable();
     turretController.SetMeasuredOutputs(0_rad);
-    Eigen::Matrix<double, 2, 1> turretXhat =
-        Eigen::Matrix<double, 2, 1>::Zero();
+    Eigen::Matrix<double, 2, 1> turretX = Eigen::Matrix<double, 2, 1>::Zero();
 
     // Initialize drivetrain controller
     frc3512::DrivetrainController drivetrainController;
@@ -216,6 +217,10 @@ TEST(TurretControllerTest, ReachesReferenceSCurveDrivetrain) {
                                       frc::Pose2d(4.8768_m, 2.7432_m, 0_rad));
     Eigen::Matrix<double, 10, 1> drivetrainX =
         Eigen::Matrix<double, 10, 1>::Zero();
+
+    Eigen::Matrix<double, 2, 1> drivetrainU =
+        Eigen::Matrix<double, 2, 1>::Zero();
+    Eigen::Matrix<double, 1, 1> turretU = Eigen::Matrix<double, 1, 1>::Zero();
 
     auto currentTime = 0_s;
     while (currentTime < 10_s) {
@@ -239,27 +244,24 @@ TEST(TurretControllerTest, ReachesReferenceSCurveDrivetrain) {
 
         // Update turret controller
         turretController.SetDrivetrainStatus(drivetrainX);
-        turretController.SetMeasuredOutputs(units::radian_t{turretXhat(0)});
+        turretController.SetMeasuredOutputs(units::radian_t{turretX(0)});
         turretController.Update(kDt, currentTime);
 
-        currentTime += dt;
-
-        constexpr auto Vbat = 12_V;
-        constexpr auto Rbat = 0.03_Ohm;
-        constexpr auto r = 0.0746125_m;  // Drivetrain wheel radius
-        Eigen::Matrix<double, 2, 1> drivetrainU =
-            drivetrainController.GetInputs();
-        Eigen::Matrix<double, 1, 1> turretU;
+        drivetrainU = drivetrainController.GetInputs();
         turretU = turretController.GetInputs();
 
+        // Account for battery voltage drop due to current draw for the
+        // turret
         if constexpr (!kIdealModel) {
-            // Account for battery voltage drop due to current draw for the
-            // turret
+            constexpr auto Vbat = 12_V;
+            constexpr auto Rbat = 0.03_Ohm;
+            constexpr auto r = 0.0746125_m;  // Drivetrain wheel radius
+
             using Input = frc3512::DrivetrainController::Input;
             using State = frc3512::DrivetrainController::State;
             constexpr auto turretMotor = frc::DCMotor::NEO(1);
             units::ampere_t turretLoad =
-                turretMotor.Current(units::radians_per_second_t{turretXhat(1)},
+                turretMotor.Current(units::radians_per_second_t{turretX(1)},
                                     units::volt_t{turretU(0)});
             constexpr auto drivetrainMotors = frc::DCMotor::NEO(2);
             units::ampere_t loadIleft = drivetrainMotors.Current(
@@ -275,14 +277,15 @@ TEST(TurretControllerTest, ReachesReferenceSCurveDrivetrain) {
             double dsVoltage =
                 vLoaded.to<double>() + frc::MakeWhiteNoiseVector(0.1)(0);
             roboRIO.SetVInVoltage(dsVoltage);
+
             drivetrainU *= dsVoltage / 12.0;
-            Eigen::Matrix<double, 1, 1> turretTrueU = turretU;
-            turretTrueU *= dsVoltage / 12.0;
+            turretU *= dsVoltage / 12.0;
         }
 
         drivetrainX = frc::RungeKutta(frc3512::DrivetrainController::Dynamics,
                                       drivetrainX, drivetrainU, dt);
-        turretXhat = turretController.GetStates();
+        turretX = turretController.GetPlant().CalculateX(turretX, turretU, dt);
+        currentTime += dt;
     }
 
     RenameCSVs("TurretControllerTest SCurve", "./Drivetrain ");
@@ -301,8 +304,7 @@ TEST(TurretControllerTest, ReachesReferenceAutonDrivetrain) {
     turretController.Reset();
     turretController.Enable();
     turretController.SetMeasuredOutputs(0_rad);
-    Eigen::Matrix<double, 2, 1> turretXhat =
-        Eigen::Matrix<double, 2, 1>::Zero();
+    Eigen::Matrix<double, 2, 1> turretX = Eigen::Matrix<double, 2, 1>::Zero();
 
     // Initialize drivetrain controller
     frc3512::DrivetrainController drivetrainController;
@@ -316,6 +318,10 @@ TEST(TurretControllerTest, ReachesReferenceAutonDrivetrain) {
     Eigen::Matrix<double, 10, 1> drivetrainX =
         Eigen::Matrix<double, 10, 1>::Zero();
     drivetrainX(2) = wpi::math::pi;
+
+    Eigen::Matrix<double, 2, 1> drivetrainU =
+        Eigen::Matrix<double, 2, 1>::Zero();
+    Eigen::Matrix<double, 1, 1> turretU = Eigen::Matrix<double, 1, 1>::Zero();
 
     auto currentTime = 0_s;
     while (currentTime < 10_s) {
@@ -339,27 +345,23 @@ TEST(TurretControllerTest, ReachesReferenceAutonDrivetrain) {
 
         // Update turret controller
         turretController.SetDrivetrainStatus(drivetrainX);
-        turretController.SetMeasuredOutputs(units::radian_t{turretXhat(0)});
+        turretController.SetMeasuredOutputs(units::radian_t{turretX(0)});
         turretController.Update(kDt, currentTime);
 
-        currentTime += dt;
-
-        constexpr auto Vbat = 12_V;
-        constexpr auto Rbat = 0.03_Ohm;
-        constexpr auto r = 0.0746125_m;  // Drivetrain wheel radius
-        Eigen::Matrix<double, 2, 1> drivetrainU =
-            drivetrainController.GetInputs();
-        Eigen::Matrix<double, 1, 1> turretU;
+        drivetrainU = drivetrainController.GetInputs();
         turretU = turretController.GetInputs();
 
+        // Account for battery voltage drop due to current draw for the turret
         if constexpr (!kIdealModel) {
-            // Account for battery voltage drop due to current draw for the
-            // turret
+            constexpr auto Vbat = 12_V;
+            constexpr auto Rbat = 0.03_Ohm;
+            constexpr auto r = 0.0746125_m;  // Drivetrain wheel radius
+
             using Input = frc3512::DrivetrainController::Input;
             using State = frc3512::DrivetrainController::State;
             constexpr auto turretMotor = frc::DCMotor::NEO(1);
             units::ampere_t turretLoad =
-                turretMotor.Current(units::radians_per_second_t{turretXhat(1)},
+                turretMotor.Current(units::radians_per_second_t{turretX(1)},
                                     units::volt_t{turretU(0)});
             constexpr auto drivetrainMotors = frc::DCMotor::NEO(2);
             units::ampere_t loadIleft = drivetrainMotors.Current(
@@ -375,14 +377,15 @@ TEST(TurretControllerTest, ReachesReferenceAutonDrivetrain) {
             double dsVoltage =
                 vLoaded.to<double>() + frc::MakeWhiteNoiseVector(0.1)(0);
             roboRIO.SetVInVoltage(dsVoltage);
+
             drivetrainU *= dsVoltage / 12.0;
-            Eigen::Matrix<double, 1, 1> turretTrueU = turretU;
-            turretTrueU *= dsVoltage / 12.0;
+            turretU *= dsVoltage / 12.0;
         }
 
         drivetrainX = frc::RungeKutta(frc3512::DrivetrainController::Dynamics,
                                       drivetrainX, drivetrainU, dt);
-        turretXhat = turretController.GetStates();
+        turretX = turretController.GetPlant().CalculateX(turretX, turretU, dt);
+        currentTime += dt;
     }
 
     RenameCSVs("TurretControllerTest Auton", "./Drivetrain ");
