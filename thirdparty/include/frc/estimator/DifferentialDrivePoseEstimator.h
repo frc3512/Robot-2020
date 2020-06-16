@@ -24,7 +24,7 @@ template <int N>
 using Vector = Eigen::Matrix<double, N, 1>;
 
 /**
- * This class wraps an Unscented Kalman Filter to fuse latency-compensated
+ * This class wraps an Extended Kalman Filter to fuse latency-compensated
  * vision measurements with differential drive encoder measurements. It will
  * correct for noisy vision measurements and encoder drift. It is intended to be
  * an easy drop-in for DifferentialDriveOdometry. In fact, if you never call

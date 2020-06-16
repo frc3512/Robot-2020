@@ -128,13 +128,13 @@ class UnscentedKalmanFilter {
     Eigen::Matrix<double, States, States> discQ;
     DiscretizeAQTaylor<States>(contA, m_contQ, dt, &discA, &discQ);
 
-    auto sigmas = m_pts.SigmaPoints(m_xHat, m_P);
+    Eigen::Matrix<double, States, 2 * States + 1> sigmas =
+        m_pts.SigmaPoints(m_xHat, m_P);
 
     for (int i = 0; i < m_pts.NumSigmas(); ++i) {
       Eigen::Matrix<double, States, 1> x =
-          sigmas.template block<1, States>(i, 0).transpose();
-      m_sigmasF.template block<1, States>(i, 0) =
-          RungeKutta(m_f, x, u, dt).transpose();
+          sigmas.template block<States, 1>(0, i);
+      m_sigmasF.template block<States, 1>(0, i) = RungeKutta(m_f, x, u, dt);
     }
 
     auto ret =
@@ -178,10 +178,12 @@ class UnscentedKalmanFilter {
           h,
       const Eigen::Matrix<double, Rows, Rows>& R) {
     // Transform sigma points into measurement space
-    Eigen::Matrix<double, 2 * States + 1, Rows> sigmasH;
+    Eigen::Matrix<double, Rows, 2 * States + 1> sigmasH;
+    Eigen::Matrix<double, States, 2 * States + 1> sigmas =
+        m_pts.SigmaPoints(m_xHat, m_P);
     for (int i = 0; i < m_pts.NumSigmas(); ++i) {
-      sigmasH.template block<1, Rows>(i, 0) =
-          h(m_sigmasF.template block<1, States>(i, 0).transpose(), u);
+      sigmasH.template block<Rows, 1>(0, i) =
+          h(sigmas.template block<States, 1>(0, i), u);
     }
 
     // Mean and covariance of prediction passed through UT
@@ -194,9 +196,8 @@ class UnscentedKalmanFilter {
     Pxy.setZero();
     for (int i = 0; i < m_pts.NumSigmas(); ++i) {
       Pxy += m_pts.Wc(i) *
-             (m_sigmasF.template block<1, States>(i, 0) - m_xHat.transpose())
-                 .transpose() *
-             (sigmasH.template block<1, Rows>(i, 0) - yHat.transpose());
+             (m_sigmasF.template block<States, 1>(0, i) - m_xHat) *
+             (sigmasH.template block<Rows, 1>(0, i) - yHat).transpose();
     }
 
     // K = P_{xy} Py^-1
@@ -221,7 +222,7 @@ class UnscentedKalmanFilter {
   Eigen::Matrix<double, States, States> m_contQ;
   Eigen::Matrix<double, Outputs, Outputs> m_contR;
   Eigen::Matrix<double, Outputs, Outputs> m_discR;
-  Eigen::Matrix<double, 2 * States + 1, States> m_sigmasF;
+  Eigen::Matrix<double, States, 2 * States + 1> m_sigmasF;
 
   MerweScaledSigmaPoints<States> m_pts;
 };

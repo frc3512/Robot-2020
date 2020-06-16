@@ -38,6 +38,10 @@ units::radians_per_second_t FlywheelController::GetGoal() const {
 
 bool FlywheelController::AtGoal() const { return m_atGoal; }
 
+void FlywheelController::SetMeasuredInputs(units::volt_t u) {
+    m_u << u.to<double>();
+}
+
 void FlywheelController::SetMeasuredAngularVelocity(
     units::radians_per_second_t angularVelocity) {
     m_y << angularVelocity.to<double>();
@@ -57,6 +61,10 @@ const Eigen::Matrix<double, 1, 1>& FlywheelController::GetInputs() const {
 
 const Eigen::Matrix<double, 1, 1>& FlywheelController::GetOutputs() const {
     return m_y;
+}
+
+const frc::LinearSystem<1, 1, 1>& FlywheelController::GetPlant() const {
+    return m_plant;
 }
 
 void FlywheelController::Update(units::second_t dt,

@@ -162,7 +162,7 @@ class MecanumDrivePoseEstimator {
   static std::array<double, Dim> StdDevMatrixToArray(
       const Vector<Dim>& vector) {
     std::array<double, Dim> array;
-    for (unsigned int i = 0; i < Dim; ++i) {
+    for (size_t i = 0; i < Dim; ++i) {
       array[i] = vector(i);
     }
     return array;

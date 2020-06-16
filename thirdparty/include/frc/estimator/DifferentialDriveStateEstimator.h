@@ -12,8 +12,8 @@
 #include <Eigen/Core>
 #include <units.h>
 
+#include "frc/estimator/ExtendedKalmanFilter.h"
 #include "frc/estimator/KalmanFilterLatencyCompensator.h"
-#include "frc/estimator/UnscentedKalmanFilter.h"
 #include "frc/kinematics/DifferentialDriveKinematics.h"
 #include "frc/system/LinearSystem.h"
 
@@ -23,7 +23,7 @@ template <int N>
 using Vector = Eigen::Matrix<double, N, 1>;
 
 /**
- * This class wraps an Unscented Kalman Filter to fuse latency-compensated
+ * This class wraps an Extended Kalman Filter to fuse latency-compensated
  * global measurements(ex. vision) with differential drive encoder measurements.
  * It will correct for noisy global measurements and encoder drift.
  *
@@ -101,14 +101,14 @@ class DifferentialDriveStateEstimator {
 
   /**
    * Gets the state of the robot at the current time as estimated by the
-   * Unscented Kalman Filter.
+   * Extended Kalman Filter.
    *
    * @return The robot state estimate.
    */
   Vector<10> GetEstimatedState() const;
 
   /**
-   * Updates the the Unscented Kalman Filter using wheel encoder information,
+   * Updates the the Extended Kalman Filter using wheel encoder information,
    * robot heading and the previous control input. The control input can be
    * obtained from a
    * {@link edu.wpi.first.wpilibc.controller.LTVDiffDriveController}.
@@ -127,7 +127,7 @@ class DifferentialDriveStateEstimator {
                     const Vector<2>& controlInput);
 
   /**
-   * Updates the the Unscented Kalman Filter using wheel encoder information,
+   * Updates the the Extended Kalman Filter using wheel encoder information,
    * robot heading and the previous control input. The control input can be
    * obtained from a
    * {@link edu.wpi.first.wpilibj.controller.LTVDiffDriveController}.
@@ -172,10 +172,11 @@ class DifferentialDriveStateEstimator {
   LinearSystem<2, 2, 2> m_plant;
   units::meter_t m_rb;
 
+  ExtendedKalmanFilter<10, 2, 3> m_observer;
+
   units::second_t m_nominalDt;
 
-  UnscentedKalmanFilter<10, 2, 3> m_observer;
-  KalmanFilterLatencyCompensator<10, 2, 3, UnscentedKalmanFilter<10, 2, 3>>
+  KalmanFilterLatencyCompensator<10, 2, 3, ExtendedKalmanFilter<10, 2, 3>>
       m_latencyCompensator;
 
   std::function<void(const Vector<2>& u, const Vector<3>& y)> m_globalCorrect;

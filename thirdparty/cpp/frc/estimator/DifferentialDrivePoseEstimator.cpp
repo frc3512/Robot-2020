@@ -119,7 +119,7 @@ template <int Dim>
 std::array<double, Dim> DifferentialDrivePoseEstimator::StdDevMatrixToArray(
     const Vector<Dim>& stdDevs) {
   std::array<double, Dim> array;
-  for (unsigned int i = 0; i < Dim; ++i) {
+  for (size_t i = 0; i < Dim; ++i) {
     array[i] = stdDevs(i);
   }
   return array;

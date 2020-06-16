@@ -64,6 +64,13 @@ public:
     bool AtGoal() const;
 
     /**
+     * Set input.
+     *
+     * @param u Voltage applied to the flywheel
+     */
+    void SetMeasuredInputs(units::volt_t u);
+
+    /**
      * Sets the current encoder measurement.
      *
      * @param angularVelocity Anglular velocity of the flywheel in radians.
@@ -78,6 +85,11 @@ public:
     const Eigen::Matrix<double, 1, 1>& GetInputs() const override;
 
     const Eigen::Matrix<double, 1, 1>& GetOutputs() const override;
+
+    /**
+     * Returns the flywheel plant.
+     */
+    const frc::LinearSystem<1, 1, 1>& GetPlant() const;
 
     /**
      * Executes the control loop for a cycle.

@@ -65,20 +65,20 @@ class MerweScaledSigmaPoints {
    *         Xi_0, Xi_{1..n}, Xi_{n+1..2n}.
    *
    */
-  Eigen::Matrix<double, 2 * States + 1, States> SigmaPoints(
-      const Eigen::Matrix<double, 1, States>& x,
+  Eigen::Matrix<double, States, 2 * States + 1> SigmaPoints(
+      const Eigen::Matrix<double, States, 1>& x,
       const Eigen::Matrix<double, States, States>& P) {
     double lambda = std::pow(m_alpha, 2) * (States + m_kappa) - States;
     Eigen::Matrix<double, States, States> U =
-        ((lambda + States) * P).llt().matrixU();
+        ((lambda + States) * P).llt().matrixL();
 
-    Eigen::Matrix<double, 2 * States + 1, States> sigmas;
-    sigmas.template block<1, States>(0, 0) = x;
+    Eigen::Matrix<double, States, 2 * States + 1> sigmas;
+    sigmas.template block<States, 1>(0, 0) = x;
     for (int k = 0; k < States; ++k) {
-      sigmas.template block<1, States>(k + 1, 0) =
-          x + U.template block<1, States>(k, 0);
-      sigmas.template block<1, States>(States + k + 1, 0) =
-          x - U.template block<1, States>(k, 0);
+      sigmas.template block<States, 1>(0, k + 1) =
+          x + U.template block<States, 1>(0, k);
+      sigmas.template block<States, 1>(0, States + k + 1) =
+          x - U.template block<States, 1>(0, k);
     }
 
     return sigmas;
@@ -87,30 +87,30 @@ class MerweScaledSigmaPoints {
   /**
    * Returns the weight for each sigma point for the mean.
    */
-  const Eigen::Matrix<double, 1, 2 * States + 1>& Wm() const { return m_Wm; }
+  const Eigen::Matrix<double, 2 * States + 1, 1>& Wm() const { return m_Wm; }
 
   /**
    * Returns an element of the weight for each sigma point for the mean.
    *
    * @param i Element of vector to return.
    */
-  double Wm(int i) const { return m_Wm(0, i); }
+  double Wm(int i) const { return m_Wm(i, 0); }
 
   /**
    * Returns the weight for each sigma point for the covariance.
    */
-  const Eigen::Matrix<double, 1, 2 * States + 1>& Wc() const { return m_Wc; }
+  const Eigen::Matrix<double, 2 * States + 1, 1>& Wc() const { return m_Wc; }
 
   /**
    * Returns an element of the weight for each sigma point for the covariance.
    *
    * @param i Element of vector to return.
    */
-  double Wc(int i) const { return m_Wc(0, i); }
+  double Wc(int i) const { return m_Wc(i, 0); }
 
  private:
-  Eigen::Matrix<double, 1, 2 * States + 1> m_Wm;
-  Eigen::Matrix<double, 1, 2 * States + 1> m_Wc;
+  Eigen::Matrix<double, 2 * States + 1, 1> m_Wm;
+  Eigen::Matrix<double, 2 * States + 1, 1> m_Wc;
   double m_alpha;
   int m_kappa;
 
@@ -123,8 +123,8 @@ class MerweScaledSigmaPoints {
     double lambda = std::pow(m_alpha, 2) * (States + m_kappa) - States;
 
     double c = 0.5 / (States + lambda);
-    m_Wm = Eigen::Matrix<double, 1, 2 * States + 1>::Constant(c);
-    m_Wc = Eigen::Matrix<double, 1, 2 * States + 1>::Constant(c);
+    m_Wm = Eigen::Matrix<double, 2 * States + 1, 1>::Constant(c);
+    m_Wc = Eigen::Matrix<double, 2 * States + 1, 1>::Constant(c);
 
     m_Wm(0) = lambda / (States + lambda);
     m_Wc(0) = lambda / (States + lambda) + (1 - std::pow(m_alpha, 2) + beta);

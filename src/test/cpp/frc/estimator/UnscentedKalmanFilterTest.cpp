@@ -16,6 +16,7 @@
 #include "frc/StateSpaceUtil.h"
 #include "frc/estimator/UnscentedKalmanFilter.h"
 #include "frc/system/NumericalJacobian.h"
+#include "frc/system/RungeKutta.h"
 #include "frc/system/plant/DCMotor.h"
 #include "frc/trajectory/TrajectoryGenerator.h"
 
@@ -126,6 +127,8 @@ TEST(UnscentedKalmanFilterTest, Convergence) {
       trajectory.InitialPose().Translation().Y().to<double>(),
       trajectory.InitialPose().Rotation().Radians().to<double>(), 0.0, 0.0));
 
+  auto trueXhat = observer.Xhat();
+
   auto totalTime = trajectory.TotalTime();
   for (size_t i = 0; i < (totalTime / dt).to<double>(); ++i) {
     auto ref = trajectory.Sample(dt * i);
@@ -140,8 +143,8 @@ TEST(UnscentedKalmanFilterTest, Convergence) {
     nextR(3) = vl.to<double>();
     nextR(4) = vr.to<double>();
 
-    auto localY = LocalMeasurementModel(observer.Xhat(),
-                                        Eigen::Matrix<double, 2, 1>::Zero());
+    auto localY =
+        LocalMeasurementModel(trueXhat, Eigen::Matrix<double, 2, 1>::Zero());
     observer.Correct(u, localY + frc::MakeWhiteNoiseVector(0.0001, 0.5, 0.5));
 
     Eigen::Matrix<double, 5, 1> rdot = (nextR - r) / dt.to<double>();
@@ -151,12 +154,13 @@ TEST(UnscentedKalmanFilterTest, Convergence) {
     observer.Predict(u, dt);
 
     r = nextR;
+    trueXhat = frc::RungeKutta(Dynamics, trueXhat, u, dt);
   }
 
-  auto localY = LocalMeasurementModel(observer.Xhat(), u);
+  auto localY = LocalMeasurementModel(trueXhat, u);
   observer.Correct(u, localY);
 
-  auto globalY = GlobalMeasurementModel(observer.Xhat(), u);
+  auto globalY = GlobalMeasurementModel(trueXhat, u);
   auto R = frc::MakeCovMatrix(0.01, 0.01, 0.0001, 0.5, 0.5);
   observer.Correct<5>(u, globalY, GlobalMeasurementModel, R);
 

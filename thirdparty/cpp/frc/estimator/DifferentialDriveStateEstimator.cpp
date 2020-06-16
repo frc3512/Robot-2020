@@ -19,11 +19,11 @@ DifferentialDriveStateEstimator::DifferentialDriveStateEstimator(
     const DifferentialDriveKinematics& kinematics, units::second_t nominalDt)
     : m_plant(plant),
       m_rb(kinematics.trackWidth / 2.0),
-      m_nominalDt(nominalDt),
       m_observer([this](auto& x, auto& u) { return Dynamics(x, u); },
                  &DifferentialDriveStateEstimator::LocalMeasurementModel,
                  StdDevMatrixToArray<10>(stateStdDevs),
-                 StdDevMatrixToArray<3>(localMeasurementStdDevs), nominalDt) {
+                 StdDevMatrixToArray<3>(localMeasurementStdDevs), nominalDt),
+      m_nominalDt(nominalDt) {
   m_localY.setZero();
   m_globalY.setZero();
 
@@ -139,7 +139,7 @@ template <int Dim>
 std::array<double, Dim> DifferentialDriveStateEstimator::StdDevMatrixToArray(
     const Vector<Dim>& stdDevs) {
   std::array<double, Dim> array;
-  for (unsigned int i = 0; i < Dim; ++i) {
+  for (size_t i = 0; i < Dim; ++i) {
     array[i] = stdDevs(i);
   }
   return array;
