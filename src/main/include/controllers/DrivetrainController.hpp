@@ -204,6 +204,14 @@ public:
      */
     frc::TrajectoryConfig MakeTrajectoryConfig() const;
 
+    /**
+     * Returns the linear time-varying controller gain for the given state.
+     *
+     * @param x The state vector.
+     */
+    Eigen::Matrix<double, 2, 5> ControllerGainForState(
+        const Eigen::Matrix<double, 10, 1>& x);
+
     Eigen::Matrix<double, 2, 1> Controller(
         const Eigen::Matrix<double, 10, 1>& x,
         const Eigen::Matrix<double, 5, 1>& r);
@@ -254,8 +262,6 @@ private:
     frc::PlantInversionFeedforward<10, 2> m_ff{Dynamics, Constants::kDt};
 
     Eigen::Matrix<double, 5, 2> m_B;
-    Eigen::Matrix<double, 2, 5> m_K0;
-    Eigen::Matrix<double, 2, 5> m_K1;
 
     // Controller reference
     Eigen::Matrix<double, 10, 1> m_r;

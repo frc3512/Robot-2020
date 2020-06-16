@@ -14,7 +14,6 @@
 #include <frc/trajectory/TrajectoryGenerator.h>
 #include <frc/trajectory/constraint/DrivetrainVelocitySystemConstraint.h>
 #include <units/units.h>
-#include <wpi/MathExtras.h>
 
 #include "controllers/NormalizeAngle.hpp"
 
@@ -26,30 +25,10 @@ DrivetrainController::DrivetrainController() {
     m_globalY.setZero();
     Reset();
 
-    Eigen::Matrix<double, 10, 1> x0;
-    x0.setZero();
-    x0(State::kLeftVelocity) = 1e-9;
-    x0(State::kRightVelocity) = 1e-9;
-    Eigen::Matrix<double, 10, 1> x1;
-    x1.setZero();
-    x1(State::kLeftVelocity) = 1;
-    x1(State::kRightVelocity) = 1;
-    Eigen::Matrix<double, 2, 1> u0;
-    u0.setZero();
-
-    Eigen::Matrix<double, 5, 5> A0 =
-        frc::NumericalJacobianX<10, 10, 2>(Dynamics, x0, u0).block<5, 5>(0, 0);
-    Eigen::Matrix<double, 5, 5> A1 =
-        frc::NumericalJacobianX<10, 10, 2>(Dynamics, x1, u0).block<5, 5>(0, 0);
-    m_B =
-        frc::NumericalJacobianU<10, 10, 2>(Dynamics, x0, u0).block<5, 2>(0, 0);
-
-    m_K0 = frc::LinearQuadraticRegulator<5, 2>(A0, m_B, kControllerQ,
-                                               kControllerR, kDt)
-               .K();
-    m_K1 = frc::LinearQuadraticRegulator<5, 2>(A1, m_B, kControllerQ,
-                                               kControllerR, kDt)
-               .K();
+    m_B = frc::NumericalJacobianU<10, 10, 2>(
+              Dynamics, Eigen::Matrix<double, 10, 1>::Zero(),
+              Eigen::Matrix<double, 2, 1>::Zero())
+              .block<5, 2>(0, 0);
 }
 
 void DrivetrainController::Enable() { m_isEnabled = true; }
@@ -291,36 +270,38 @@ frc::TrajectoryConfig DrivetrainController::MakeTrajectoryConfig() const {
     return config;
 }
 
+Eigen::Matrix<double, 2, 5> DrivetrainController::ControllerGainForState(
+    const Eigen::Matrix<double, 10, 1>& x) {
+    // Make the heading zero because the LTV controller controls forward error
+    // and cross-track error
+    Eigen::Matrix<double, 10, 1> x0 = x;
+    x0(State::kHeading) = 0.0;
+
+    // The DARE is ill-conditioned if the velocity is close to zero, so don't
+    // let the system stop.
+    double velocity =
+        (x0(State::kLeftVelocity) + x0(State::kRightVelocity)) / 2.0;
+    if (std::abs(velocity) < 1e-9) {
+        x0(State::kLeftVelocity) += 1e-9;
+        x0(State::kRightVelocity) += 1e-9;
+    }
+
+    Eigen::Matrix<double, 5, 5> A =
+        frc::NumericalJacobianX<10, 10, 2>(Dynamics, x0,
+                                           Eigen::Matrix<double, 2, 1>::Zero())
+            .block<5, 5>(0, 0);
+
+    return frc::LinearQuadraticRegulator<5, 2>(A, m_B, kControllerQ,
+                                               kControllerR, kDt)
+        .K();
+}
+
 Eigen::Matrix<double, 2, 1> DrivetrainController::Controller(
     // This implements the linear time-varying differential drive controller in
     // theorem 8.6.2 of https://tavsys.net/controls-in-frc.
     const Eigen::Matrix<double, 10, 1>& x,
     const Eigen::Matrix<double, 5, 1>& r) {
-    double kx = m_K0(0, 0);
-    double ky0 = m_K0(0, 1);
-    double kvpos0 = m_K0(0, 3);
-    double kvneg0 = m_K0(1, 3);
-    double ky1 = m_K1(0, 1);
-    double ktheta1 = m_K1(0, 2);
-    double kvpos1 = m_K1(0, 3);
-
-    double v = (x(State::kLeftVelocity) + x(State::kRightVelocity)) / 2.0;
-    double sqrtAbsV = std::sqrt(std::abs(v));
-
-    Eigen::Matrix<double, 2, 5> K;
-    K(0, 0) = kx;
-    K(0, 1) = (ky0 + (ky1 - ky0) * sqrtAbsV) * wpi::sgn(v);
-    K(0, 2) = ktheta1 * sqrtAbsV;
-    K(0, 3) = kvpos0 + (kvpos1 - kvpos0) * sqrtAbsV;
-    K(0, 4) = kvneg0 - (kvpos1 - kvpos0) * sqrtAbsV;
-    K(1, 0) = kx;
-    K(1, 1) = -K(0, 1);
-    K(1, 2) = -K(0, 2);
-    K(1, 3) = K(0, 4);
-    K(1, 4) = K(0, 3);
-
-    Eigen::Matrix<double, 2, 1> uError;
-    uError << x(State::kLeftVoltageError), x(State::kRightVoltageError);
+    Eigen::Matrix<double, 2, 5> K = ControllerGainForState(x);
 
     Eigen::Matrix<double, 5, 5> inRobotFrame =
         Eigen::Matrix<double, 5, 5>::Identity();
