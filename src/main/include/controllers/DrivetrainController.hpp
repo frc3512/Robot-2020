@@ -8,7 +8,7 @@
 #include <tuple>
 #include <vector>
 
-#include <frc/controller/PlantInversionFeedforward.h>
+#include <frc/controller/ControlAffinePlantInversionFeedforward.h>
 #include <frc/estimator/ExtendedKalmanFilter.h>
 #include <frc/logging/CSVLogFile.h>
 #include <frc/system/plant/LinearSystemId.h>
@@ -259,7 +259,8 @@ private:
         {0.002, 0.002, 0.0001, 1.5, 1.5, 0.5, 0.5, 10.0, 10.0, 2.0},
         {0.0001, 0.005, 0.005},
         Constants::kDt};
-    frc::PlantInversionFeedforward<10, 2> m_ff{Dynamics, Constants::kDt};
+    frc::ControlAffinePlantInversionFeedforward<10, 2> m_ff{Dynamics,
+                                                            Constants::kDt};
 
     Eigen::Matrix<double, 5, 2> m_B;
 

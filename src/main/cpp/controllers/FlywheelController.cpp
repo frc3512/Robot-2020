@@ -40,7 +40,7 @@ void FlywheelController::SetMeasuredAngularVelocity(
 }
 
 const Eigen::Matrix<double, 1, 1>& FlywheelController::GetReferences() const {
-    return m_r;
+    return m_lqr.R();
 }
 
 const Eigen::Matrix<double, 1, 1>& FlywheelController::GetStates() const {
@@ -69,40 +69,28 @@ void FlywheelController::Update(units::second_t dt,
 
     m_observer.Correct(m_u, m_y);
 
-    m_lqr.Update(m_observer.Xhat().block<1, 1>(0, 0),
-                 m_nextR.block<1, 1>(0, 0));
-
     // To conserve battery when the flywheel doesn't have to be spinning, don't
     // apply a negative voltage to slow down.
     if (m_nextR(0) == 0.0 || !m_isEnabled) {
         m_u(0) = 0.0;
     } else {
-        m_u = (m_lqr.U() + m_ff.Calculate(m_nextR)) * 12.0 /
-              frc::RobotController::GetInputVoltage();
+        m_u = m_lqr.Calculate(m_observer.Xhat(), m_nextR) +
+              m_ff.Calculate(m_nextR);
     }
 
-    ScaleCapU(&m_u);
+    m_u *= 12.0 / frc::RobotController::GetInputVoltage();
+    m_u = frc::NormalizeInputVector<1>(m_u, 12.0);
 
     m_atGoal = units::math::abs(units::radians_per_second_t{
-                   m_r(State::kAngularVelocity) -
+                   m_lqr.R(State::kAngularVelocity) -
                    m_observer.Xhat(State::kAngularVelocity)}) <
                kAngularVelocityTolerance;
-    m_r = m_nextR;
     m_observer.Predict(m_u * frc::RobotController::GetInputVoltage() / 12.0,
                        dt);
 }
 
-void FlywheelController::ScaleCapU(Eigen::Matrix<double, 1, 1>* u) {
-    bool outputCapped = std::abs((*u)(0)) > 12.0;
-
-    if (outputCapped) {
-        *u *= 12.0 / u->lpNorm<Eigen::Infinity>();
-    }
-}
-
 void FlywheelController::Reset() {
     m_observer.Reset();
-    m_r.setZero();
     m_nextR.setZero();
     m_u.setZero();
 }

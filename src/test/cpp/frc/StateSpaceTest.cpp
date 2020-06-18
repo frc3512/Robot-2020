@@ -13,8 +13,8 @@
 #include <Eigen/Core>
 #include <units.h>
 
+#include "frc/controller/LinearPlantInversionFeedforward.h"
 #include "frc/controller/LinearQuadraticRegulator.h"
-#include "frc/controller/PlantInversionFeedforward.h"
 #include "frc/estimator/KalmanFilter.h"
 #include "frc/system/LinearSystem.h"
 #include "frc/system/LinearSystemLoop.h"
@@ -40,12 +40,13 @@ class StateSpace : public testing::Test {
     // Gear ratio
     constexpr double G = 40.0 / 40.0;
 
-    return ElevatorSystem(motors, m, r, G, 12_V);
+    return ElevatorSystem(motors, m, r, G);
   }();
   LinearQuadraticRegulator<2, 1> controller{plant, {0.02, 0.4}, {12.0}, kDt};
   KalmanFilter<2, 1, 1> observer{plant, {0.05, 1.0}, {0.0001}, kDt};
-  PlantInversionFeedforward<2, 1> feedforward{plant, kDt};
-  LinearSystemLoop<2, 1, 1> loop{plant, controller, feedforward, observer};
+  LinearPlantInversionFeedforward<2, 1> feedforward{plant, kDt};
+  LinearSystemLoop<2, 1, 1> loop{plant, controller, feedforward, observer,
+                                 12_V};
 };
 
 void Update(LinearSystemLoop<2, 1, 1>& loop, double noise) {
@@ -66,11 +67,12 @@ TEST_F(StateSpace, CorrectPredictLoop) {
 
   for (int i = 0; i < 1000; i++) {
     Update(loop, dist(generator));
-    EXPECT_TRUE(loop.U(0) >= -12.0 && loop.U(0) <= 12.0);
+    EXPECT_PRED_FORMAT2(testing::DoubleLE, -12.0, loop.U(0));
+    EXPECT_PRED_FORMAT2(testing::DoubleLE, loop.U(0), 12.0);
   }
 
-  EXPECT_LT(std::abs(loop.Xhat(0) - 2.0), 0.05);
-  EXPECT_LT(std::abs(loop.Xhat(1) - 0.0), 0.5);
+  EXPECT_NEAR(loop.Xhat(0), 2.0, 0.05);
+  EXPECT_NEAR(loop.Xhat(1), 0.0, 0.5);
 }
 
 }  // namespace frc

@@ -11,14 +11,10 @@
 #include <functional>
 
 #include <Eigen/Core>
-#include <Eigen/QR>
-#include <drake/math/discrete_algebraic_riccati_equation.h>
 #include <units.h>
 
-#include "frc/StateSpaceUtil.h"
 #include "frc/system/Discretization.h"
 #include "frc/system/LinearSystem.h"
-#include "frc/system/NumericalJacobian.h"
 
 namespace frc {
 
@@ -26,23 +22,17 @@ template <int N>
 using Vector = Eigen::Matrix<double, N, 1>;
 
 /**
- * Constructs a plant inversion model-based feedforward from a {@link
- * LinearSystem}.
+ * Constructs a plant inversion model-based feedforward from a LinearSystem.
  *
- * <p>The feedforward is calculated as u_ff = B<sup>+</sup> (r_k+1 - A r_k),
- * were B<sup>+</sup> is the pseudoinverse of B.
- *
- * <p>The feedforward has an overload for model dynamics and calculates B
- * through a {@link edu.wpi.first.wpilibj.system.NumericalJacobian}.
- * With the dynamics, the feedforward is calculated as
- * u_ff = B<sup>+</sup> (rDot - f(x)), were B<sup>+</sup> is the pseudoinverse
+ * The feedforward is calculated as <strong> u_ff = B<sup>+</sup> (r_k+1 - A
+ * r_k) </strong>, where <strong> B<sup>+</sup> </strong> is the pseudoinverse
  * of B.
  *
- * <p>For more on the underlying math, read
+ * For more on the underlying math, read
  * https://file.tavsys.net/control/controls-engineering-in-frc.pdf.
  */
 template <int States, int Inputs>
-class PlantInversionFeedforward {
+class LinearPlantInversionFeedforward {
  public:
   /**
    * Constructs a feedforward with the given plant.
@@ -51,9 +41,9 @@ class PlantInversionFeedforward {
    * @param dtSeconds Discretization timestep.
    */
   template <int Outputs>
-  PlantInversionFeedforward(const LinearSystem<States, Inputs, Outputs>& plant,
-                            units::second_t dt)
-      : PlantInversionFeedforward(plant.A(), plant.B(), dt) {}
+  LinearPlantInversionFeedforward(
+      const LinearSystem<States, Inputs, Outputs>& plant, units::second_t dt)
+      : LinearPlantInversionFeedforward(plant.A(), plant.B(), dt) {}
 
   /**
    * Constructs a feedforward with the given coefficients.
@@ -62,9 +52,9 @@ class PlantInversionFeedforward {
    * @param B         Continuous input matrix of the plant being controlled.
    * @param dtSeconds Discretization timestep.
    */
-  PlantInversionFeedforward(const Eigen::Matrix<double, States, States>& A,
-                            const Eigen::Matrix<double, States, Inputs>& B,
-                            units::second_t dt)
+  LinearPlantInversionFeedforward(
+      const Eigen::Matrix<double, States, States>& A,
+      const Eigen::Matrix<double, States, Inputs>& B, units::second_t dt)
       : m_dt(dt) {
     DiscretizeAB<States, Inputs>(A, B, dt, &m_A, &m_B);
 
@@ -72,28 +62,9 @@ class PlantInversionFeedforward {
     Reset(m_r);
   }
 
-  /**
-   * Constructs a feedforward with given model dynamics.
-   *
-   * @param f         A vector-valued function of x, the state, and
-   *                  u, the input, that returns the derivative of
-   *                  the state vector.
-   * @param dtSeconds The timestep between calls of calculate().
-   */
-  PlantInversionFeedforward(std::function<Vector<States>(const Vector<States>&,
-                                                         const Vector<Inputs>&)>
-                                f,
-                            units::second_t dt)
-      : m_dt(dt), m_f(f) {
-    m_B = NumericalJacobianU<States, States, Inputs>(f, Vector<States>::Zero(),
-                                                     Vector<Inputs>::Zero());
-
-    m_r.setZero();
-    Reset(m_r);
-  }
-
-  PlantInversionFeedforward(PlantInversionFeedforward&&) = default;
-  PlantInversionFeedforward& operator=(PlantInversionFeedforward&&) = default;
+  LinearPlantInversionFeedforward(LinearPlantInversionFeedforward&&) = default;
+  LinearPlantInversionFeedforward& operator=(
+      LinearPlantInversionFeedforward&&) = default;
 
   /**
    * Returns the previously calculated feedforward as an input vector.
@@ -132,16 +103,29 @@ class PlantInversionFeedforward {
    *
    * @param initialState The initial state vector.
    */
-  void Reset(const Eigen::Matrix<double, States, 1>& initalState) {
-    m_r = initalState;
+  void Reset(const Eigen::Matrix<double, States, 1>& initialState) {
+    m_r = initialState;
     m_uff.setZero();
   }
 
   /**
-   * Calculate the feedforward with only the future reference. This
-   * uses the internally stored previous reference.
+   * Resets the feedforward with a zero initial state vector.
+   */
+  void Reset() {
+    m_r.setZero();
+    m_uff.setZero();
+  }
+
+  /**
+   * Calculate the feedforward with only the desired
+   * future reference. This uses the internally stored "current"
+   * reference.
    *
-   * @param nextR The future reference state of time k + dt.
+   * If this method is used the initial state of the system is the one
+   * set using Reset(const Eigen::Matrix<double, States, 1>&).
+   * If the initial state is not set it defaults to a zero vector.
+   *
+   * @param nextR The reference state of the future timestep (k + dt).
    *
    * @return The calculated feedforward.
    */
@@ -151,24 +135,17 @@ class PlantInversionFeedforward {
   }
 
   /**
-   * Calculate the feedforward with current anf future reference vectors.
+   * Calculate the feedforward with current and future reference vectors.
    *
-   * @param r     The current reference state of time k.
-   * @param nextR The future reference state of time k + dt.
+   * @param r     The reference state of the current timestep (k).
+   * @param nextR The reference state of the future timestep (k + dt).
    *
    * @return The calculated feedforward.
    */
   Eigen::Matrix<double, Inputs, 1> Calculate(
       const Eigen::Matrix<double, States, 1>& r,
       const Eigen::Matrix<double, States, 1>& nextR) {
-    if (m_f) {
-      Vector<States> rDot = (nextR - r) / m_dt.to<double>();
-
-      m_uff =
-          m_B.householderQr().solve(rDot - m_f(m_r, Vector<Inputs>::Zero()));
-    } else {
-      m_uff = m_B.householderQr().solve(nextR - (m_A * r));
-    }
+    m_uff = m_B.householderQr().solve(nextR - (m_A * r));
     m_r = nextR;
     return m_uff;
   }
@@ -178,12 +155,6 @@ class PlantInversionFeedforward {
   Eigen::Matrix<double, States, Inputs> m_B;
 
   units::second_t m_dt;
-
-  /**
-   * The model dynamics, if the overload is used.
-   */
-  std::function<Vector<States>(const Vector<States>&, const Vector<Inputs>&)>
-      m_f;
 
   // Current reference
   Vector<States> m_r;

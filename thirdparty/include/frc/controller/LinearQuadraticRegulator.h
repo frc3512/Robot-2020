@@ -104,16 +104,18 @@ class LinearQuadraticRegulator {
                            const double rho,
                            const std::array<double, Inputs>& Relems,
                            units::second_t dt) {
-    DiscretizeAB<States, Inputs>(A, B, dt, &m_discA, &m_discB);
+    Eigen::Matrix<double, States, States> discA;
+    Eigen::Matrix<double, States, Inputs> discB;
+    DiscretizeAB<States, Inputs>(A, B, dt, &discA, &discB);
 
     Eigen::Matrix<double, States, States> Q = MakeCostMatrix(Qelems) * rho;
     Eigen::Matrix<double, Inputs, Inputs> R = MakeCostMatrix(Relems);
 
     Eigen::Matrix<double, States, States> S =
-        drake::math::DiscreteAlgebraicRiccatiEquation(m_discA, m_discB, Q, R);
+        drake::math::DiscreteAlgebraicRiccatiEquation(discA, discB, Q, R);
     Eigen::Matrix<double, Inputs, Inputs> tmp =
-        m_discB.transpose() * S * m_discB + R;
-    m_K = tmp.llt().solve(m_discB.transpose() * S * m_discA);
+        discB.transpose() * S * discB + R;
+    m_K = tmp.llt().solve(discB.transpose() * S * discA);
 
     Reset();
   }
@@ -175,30 +177,30 @@ class LinearQuadraticRegulator {
   }
 
   /**
-   * Update controller without setting a new reference.
+   * Returns the next output of the controller.
    *
    * @param x The current state x.
    */
-  void Update(const Eigen::Matrix<double, States, 1>& x) {
+  Eigen::Matrix<double, Inputs, 1> Calculate(
+      const Eigen::Matrix<double, States, 1>& x) {
     m_u = m_K * (m_r - x);
+    return m_u;
   }
 
   /**
-   * Set a new reference and update the controller.
+   * Returns the next output of the controller.
    *
    * @param x     The current state x.
    * @param nextR The next reference vector r.
    */
-  void Update(const Eigen::Matrix<double, States, 1>& x,
-              const Eigen::Matrix<double, States, 1>& nextR) {
-    Update(x);
+  Eigen::Matrix<double, Inputs, 1> Calculate(
+      const Eigen::Matrix<double, States, 1>& x,
+      const Eigen::Matrix<double, States, 1>& nextR) {
     m_r = nextR;
+    return Calculate(x);
   }
 
  private:
-  Eigen::Matrix<double, States, States> m_discA;
-  Eigen::Matrix<double, States, Inputs> m_discB;
-
   // Current reference
   Eigen::Matrix<double, States, 1> m_r;
 

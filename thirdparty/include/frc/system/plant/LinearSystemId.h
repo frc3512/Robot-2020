@@ -27,11 +27,8 @@ namespace frc {
  *
  * @param kV The velocity gain, in volt seconds per distance.
  * @param kA The acceleration gain, in volt seconds^2 per distance.
- * @param maxVoltage The max voltage that can be applied. Inputs with
- *                   greater magnitude than this will be clamped to it.
  */
-LinearSystem<1, 1, 1> IdentifyVelocitySystem(double kV, double kA,
-                                             units::volt_t maxVoltage);
+LinearSystem<1, 1, 1> IdentifyVelocitySystem(double kV, double kA);
 
 /**
  * Constructs the state-space model for a 1 DOF position system from system
@@ -47,11 +44,8 @@ LinearSystem<1, 1, 1> IdentifyVelocitySystem(double kV, double kA,
  *
  * @param kV The velocity gain, in volt seconds per distance.
  * @param kA The acceleration gain, in volt seconds^2 per distance.
- * @param maxVoltage The max voltage that can be applied. Inputs with
- *                   greater magnitude than this will be clamped to it.
  */
-LinearSystem<2, 1, 1> IdentifyPositionSystem(double kV, double kA,
-                                             units::volt_t maxVoltage);
+LinearSystem<2, 1, 1> IdentifyPositionSystem(double kV, double kA);
 
 /**
  * Constructs the state-space model for a 2 DOF drivetrain velocity system from
@@ -65,11 +59,9 @@ LinearSystem<2, 1, 1> IdentifyPositionSystem(double kV, double kA,
  * @param kAlinear The linear acceleration gain, in volt seconds^2 per distance.
  * @param kVangular The angular velocity gain, in volt seconds per angle.
  * @param kAangular The angular acceleration gain, in volt seconds^2 per angle.
- * @param maxVoltage the maximum voltage that can be applied.
  */
 LinearSystem<2, 2, 2> IdentifyDrivetrainSystem(double kVlinear, double kAlinear,
                                                double kVangular,
-                                               double kAangular,
-                                               units::volt_t maxVoltage);
+                                               double kAangular);
 
 }  // namespace frc

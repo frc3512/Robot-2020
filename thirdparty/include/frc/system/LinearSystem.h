@@ -40,11 +40,7 @@ class LinearSystem {
   explicit LinearSystem(const Eigen::Matrix<double, States, States>& A,
                         const Eigen::Matrix<double, States, Inputs>& B,
                         const Eigen::Matrix<double, Outputs, States>& C,
-                        const Eigen::Matrix<double, Outputs, Inputs>& D,
-                        std::function<Eigen::Matrix<double, Inputs, 1>(
-                            const Eigen::Matrix<double, Inputs, 1>&)>
-                            clampFunction)
-      : m_clampFunc(clampFunction) {
+                        const Eigen::Matrix<double, Outputs, Inputs>& D) {
     m_A = A;
     m_B = B;
     m_C = C;
@@ -213,12 +209,13 @@ class LinearSystem {
    */
   Eigen::Matrix<double, States, 1> CalculateX(
       const Eigen::Matrix<double, States, 1>& x,
-      const Eigen::Matrix<double, Inputs, 1>& u, units::second_t dt) const {
+      const Eigen::Matrix<double, Inputs, 1>& clampedU,
+      units::second_t dt) const {
     Eigen::Matrix<double, States, States> discA;
     Eigen::Matrix<double, States, Inputs> discB;
     DiscretizeAB<States, Inputs>(m_A, m_B, dt, &discA, &discB);
 
-    return discA * x + discB * ClampInput(u);
+    return discA * x + discB * clampedU;
   }
 
   /**
@@ -228,33 +225,15 @@ class LinearSystem {
    * estimate.
    *
    * @param x The current state.
-   * @param u The control input.
+   * @param clampedU The control input.
    */
   Eigen::Matrix<double, Outputs, 1> CalculateY(
       const Eigen::Matrix<double, States, 1>& x,
-      const Eigen::Matrix<double, Inputs, 1>& u) const {
-    return m_C * x + m_D * ClampInput(u);
-  }
-
-  /**
-   * Clamps input vector between system's minimum and maximum allowable input.
-   *
-   * @param u Input vector to clamp.
-   * @return Clamped input vector.
-   */
-  Eigen::Matrix<double, Inputs, 1> ClampInput(
-      const Eigen::Matrix<double, Inputs, 1>& u) const {
-    return m_clampFunc(u);
+      const Eigen::Matrix<double, Inputs, 1>& clampedU) const {
+    return m_C * x + m_D * clampedU;
   }
 
  private:
-  /**
-   * Clamping function.
-   */
-  std::function<Eigen::Matrix<double, Inputs, 1>(
-      const Eigen::Matrix<double, Inputs, 1>&)>
-      m_clampFunc;
-
   /**
    * Continuous system matrix.
    */
@@ -287,6 +266,8 @@ class LinearSystem {
 
   /**
    * Delayed u since predict and correct steps are run in reverse.
+   * It is up to the user (Or LinearSystemLoop) to clamp this input
+   * to what is physically achievable by the user's system.
    */
   Eigen::Matrix<double, Inputs, 1> m_delayedU;
 };

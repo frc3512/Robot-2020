@@ -11,34 +11,27 @@
 
 namespace frc {
 
-LinearSystem<1, 1, 1> IdentifyVelocitySystem(double kV, double kA,
-                                             units::volt_t maxVoltage) {
+LinearSystem<1, 1, 1> IdentifyVelocitySystem(double kV, double kA) {
   auto A = frc::MakeMatrix<1, 1>(-kV / kV);
   auto B = frc::MakeMatrix<1, 1>(1.0 / kA);
   auto C = frc::MakeMatrix<1, 1>(1.0);
   auto D = frc::MakeMatrix<1, 1>(0.0);
 
-  return LinearSystem<1, 1, 1>(A, B, C, D, [=](Eigen::Matrix<double, 1, 1> u) {
-    return frc::NormalizeInputVector<1>(u, maxVoltage.template to<double>());
-  });
+  return LinearSystem<1, 1, 1>(A, B, C, D);
 }
 
-LinearSystem<2, 1, 1> IdentifyPositionSystem(double kV, double kA,
-                                             units::volt_t maxVoltage) {
+LinearSystem<2, 1, 1> IdentifyPositionSystem(double kV, double kA) {
   auto A = frc::MakeMatrix<2, 2>(0.0, 1.0, 0.0, -kV / kA);
   auto B = frc::MakeMatrix<2, 1>(0.0, 1.0 / kA);
   auto C = frc::MakeMatrix<1, 2>(1.0, 0.0);
   auto D = frc::MakeMatrix<1, 1>(0.0);
 
-  return LinearSystem<2, 1, 1>(A, B, C, D, [=](Eigen::Matrix<double, 1, 1> u) {
-    return frc::NormalizeInputVector<1>(u, maxVoltage.template to<double>());
-  });
+  return LinearSystem<2, 1, 1>(A, B, C, D);
 }
 
 LinearSystem<2, 2, 2> IdentifyDrivetrainSystem(double kVlinear, double kAlinear,
                                                double kVangular,
-                                               double kAangular,
-                                               units::volt_t maxVoltage) {
+                                               double kAangular) {
   double c = 0.5 / (kAlinear * kAangular);
   double A1 = c * (-kAlinear * kVangular - kVlinear * kAangular);
   double A2 = c * (kAlinear * kVangular - kVlinear * kAangular);
@@ -50,9 +43,7 @@ LinearSystem<2, 2, 2> IdentifyDrivetrainSystem(double kVlinear, double kAlinear,
   auto C = frc::MakeMatrix<2, 2>(1.0, 0.0, 0.0, 1.0);
   auto D = frc::MakeMatrix<2, 2>(0.0, 0.0, 0.0, 0.0);
 
-  return LinearSystem<2, 2, 2>(A, B, C, D, [=](Eigen::Matrix<double, 2, 1> u) {
-    return frc::NormalizeInputVector<2>(u, maxVoltage.template to<double>());
-  });
+  return LinearSystem<2, 2, 2>(A, B, C, D);
 }
 
 }  // namespace frc

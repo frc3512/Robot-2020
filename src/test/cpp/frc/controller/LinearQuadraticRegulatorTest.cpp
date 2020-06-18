@@ -33,7 +33,7 @@ TEST(LinearQuadraticRegulatorTest, ElevatorGains) {
     // Gear ratio
     constexpr double G = 40.0 / 40.0;
 
-    return ElevatorSystem(motors, m, r, G, 12_V);
+    return ElevatorSystem(motors, m, r, G);
   }();
   LinearQuadraticRegulator<2, 1> controller{
       plant, {0.02, 0.4}, {12.0}, 0.00505_s};
@@ -55,7 +55,7 @@ TEST(LinearQuadraticRegulatorTest, ArmGains) {
     // Gear ratio
     constexpr double G = 100.0;
 
-    return SingleJointedArmSystem(motors, 1.0 / 3.0 * m * r * r, G, 12_V);
+    return SingleJointedArmSystem(motors, 1.0 / 3.0 * m * r * r, G);
   }();
 
   LinearQuadraticRegulator<2, 1> controller{
@@ -78,7 +78,7 @@ TEST(LinearQuadraticRegulatorTest, FourMotorElevator) {
     // Gear ratio
     constexpr double G = 14.67;
 
-    return ElevatorSystem(motors, m, r, G, 12_V);
+    return ElevatorSystem(motors, m, r, G);
   }();
   LinearQuadraticRegulator<2, 1> controller{plant, {0.1, 0.2}, {12.0}, 0.020_s};
 

@@ -2,8 +2,8 @@
 
 #pragma once
 
+#include <frc/controller/LinearPlantInversionFeedforward.h>
 #include <frc/controller/LinearQuadraticRegulator.h>
-#include <frc/controller/PlantInversionFeedforward.h>
 #include <frc/estimator/KalmanFilter.h>
 #include <frc/logging/CSVLogFile.h>
 #include <frc/system/plant/LinearSystemId.h>
@@ -112,17 +112,14 @@ private:
     Eigen::Matrix<double, 1, 1> m_y;
 
     frc::LinearSystem<1, 1, 1> m_plant =
-        frc::IdentifyVelocitySystem(kV.to<double>(), kA.to<double>(), 12_V);
-
+        frc::IdentifyVelocitySystem(kV.to<double>(), kA.to<double>());
+    frc::LinearQuadraticRegulator<1, 1> m_lqr{
+        m_plant, {80.0}, {12.0}, Constants::kDt};
+    frc::LinearPlantInversionFeedforward<1, 1> m_ff{m_plant, Constants::kDt};
     frc::KalmanFilter<1, 1, 1> m_observer{
         m_plant, {700.0}, {50.0}, Constants::kDt};
 
-    frc::LinearQuadraticRegulator<1, 1> m_lqr{
-        m_plant, {80.0}, {12.0}, Constants::kDt};
-    frc::PlantInversionFeedforward<1, 1> m_ff{m_plant, Constants::kDt};
-
     // Controller reference
-    Eigen::Matrix<double, 1, 1> m_r;
     Eigen::Matrix<double, 1, 1> m_nextR;
 
     bool m_atGoal = false;
@@ -137,7 +134,5 @@ private:
                                   "Battery Voltage (V)"};
 
     Eigen::Matrix<double, 1, 1> m_u;
-
-    void ScaleCapU(Eigen::Matrix<double, 1, 1>* u);
 };
 }  // namespace frc3512

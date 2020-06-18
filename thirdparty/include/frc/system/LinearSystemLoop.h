@@ -8,9 +8,10 @@
 #pragma once
 
 #include <Eigen/Core>
+#include <units.h>
 
+#include "frc/controller/LinearPlantInversionFeedforward.h"
 #include "frc/controller/LinearQuadraticRegulator.h"
-#include "frc/controller/PlantInversionFeedforward.h"
 #include "frc/estimator/KalmanFilter.h"
 #include "frc/system/LinearSystem.h"
 
@@ -35,6 +36,29 @@ class LinearSystemLoop {
  public:
   /**
    * Constructs a state-space loop with the given plant, controller, and
+   * observer. By default, the initial reference is all zeros. Users should
+   * call reset with the initial system state before enabling the loop.
+   *
+   * @param plant      State-space plant.
+   * @param controller State-space controller.
+   * @param feedforward Plant inversion feedforward.
+   * @param observer   State-space observer.
+   * @param maxVoltageVolts The maximum voltage that can be applied. Assumes
+   * that the inputs are voltages.
+   */
+  LinearSystemLoop(LinearSystem<States, Inputs, Outputs>& plant,
+                   LinearQuadraticRegulator<States, Inputs>& controller,
+                   LinearPlantInversionFeedforward<States, Inputs>& feedforward,
+                   KalmanFilter<States, Inputs, Outputs>& observer,
+                   units::volt_t maxVoltage)
+      : LinearSystemLoop(plant, controller, feedforward, observer,
+                         [=](Eigen::Matrix<double, Inputs, 1> u) {
+                           return frc::NormalizeInputVector<Inputs>(
+                               u, maxVoltage.template to<double>());
+                         }) {}
+
+  /**
+   * Constructs a state-space loop with the given plant, controller, and
    * observer.
    *
    * @param plant      State-space plant.
@@ -44,12 +68,16 @@ class LinearSystemLoop {
    */
   LinearSystemLoop(LinearSystem<States, Inputs, Outputs>& plant,
                    LinearQuadraticRegulator<States, Inputs>& controller,
-                   PlantInversionFeedforward<States, Inputs>& feedforward,
-                   KalmanFilter<States, Inputs, Outputs>& observer)
+                   LinearPlantInversionFeedforward<States, Inputs>& feedforward,
+                   KalmanFilter<States, Inputs, Outputs>& observer,
+                   std::function<Eigen::Matrix<double, Inputs, 1>(
+                       const Eigen::Matrix<double, Inputs, 1>&)>
+                       clampFunction)
       : m_plant(plant),
         m_controller(controller),
         m_feedforward(feedforward),
-        m_observer(observer) {
+        m_observer(observer),
+        m_clampFunc(clampFunction) {
     m_nextR.setZero();
     Reset(m_nextR);
   }
@@ -89,7 +117,7 @@ class LinearSystemLoop {
    * Returns the controller's calculated control input u.
    */
   Eigen::Matrix<double, Inputs, 1> U() const {
-    return m_plant.ClampInput(m_controller.U() + m_feedforward.Uff());
+    return ClampInput(m_controller.U() + m_feedforward.Uff());
   }
 
   /**
@@ -97,7 +125,7 @@ class LinearSystemLoop {
    *
    * @param i Row of u.
    */
-  double U(int i) const { return m_plant.ClampInput(U())(i); }
+  double U(int i) const { return U()(i); }
 
   /**
    * Set the initial state estimate x-hat.
@@ -142,7 +170,7 @@ class LinearSystemLoop {
    *
    * @return the feedforward used internally.
    */
-  const PlantInversionFeedforward<States, Inputs> Feedforward() const {
+  const LinearPlantInversionFeedforward<States, Inputs> Feedforward() const {
     return m_feedforward;
   }
 
@@ -193,16 +221,35 @@ class LinearSystemLoop {
    * @param dt Timestep for model update.
    */
   void Predict(units::second_t dt) {
-    m_controller.Update(m_observer.Xhat(), m_nextR);
-    m_feedforward.Calculate(m_nextR);
-    m_observer.Predict(U(), dt);
+    Eigen::Matrix<double, Inputs, 1> u =
+        ClampInput(m_controller.Calculate(m_observer.Xhat(), m_nextR) +
+                   m_feedforward.Calculate(m_nextR));
+    m_observer.Predict(u, dt);
+  }
+
+  /**
+   * Clamps input vector between system's minimum and maximum allowable input.
+   *
+   * @param u Input vector to clamp.
+   * @return Clamped input vector.
+   */
+  Eigen::Matrix<double, Inputs, 1> ClampInput(
+      const Eigen::Matrix<double, Inputs, 1>& u) const {
+    return m_clampFunc(u);
   }
 
  protected:
   LinearSystem<States, Inputs, Outputs>& m_plant;
   LinearQuadraticRegulator<States, Inputs>& m_controller;
-  PlantInversionFeedforward<States, Inputs>& m_feedforward;
+  LinearPlantInversionFeedforward<States, Inputs>& m_feedforward;
   KalmanFilter<States, Inputs, Outputs>& m_observer;
+
+  /**
+   * Clamping function.
+   */
+  std::function<Eigen::Matrix<double, Inputs, 1>(
+      const Eigen::Matrix<double, Inputs, 1>&)>
+      m_clampFunc;
 
   // Reference to go to in the next cycle (used by feedforward controller).
   Eigen::Matrix<double, States, 1> m_nextR;

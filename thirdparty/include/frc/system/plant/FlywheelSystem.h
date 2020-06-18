@@ -24,10 +24,9 @@ namespace frc {
  * @param motor Instance of DCMotor.
  * @param J Moment of inertia.
  * @param G Gear ratio from motor to carriage.
- * @param maxVoltage the maximum voltage that can be applied.
  */
 LinearSystem<1, 1, 1> FlywheelSystem(DCMotor motor,
-                                     units::kilogram_square_meter_t J, double G,
-                                     units::volt_t maxVoltage);
+                                     units::kilogram_square_meter_t J,
+                                     double G);
 
 }  // namespace frc

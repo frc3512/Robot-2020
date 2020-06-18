@@ -15,7 +15,7 @@ namespace frc {
 
 LinearSystem<2, 2, 2> DrivetrainVelocitySystem(
     DCMotor motor, units::kilogram_t m, units::meter_t r, units::meter_t rb,
-    double G, units::kilogram_square_meter_t J, units::volt_t maxVoltage) {
+    double G, units::kilogram_square_meter_t J) {
   auto C1 = -std::pow(G, 2) * motor.Kt /
             (motor.Kv * motor.R * units::math::pow<2>(r));
   auto C2 = G * motor.Kt / (motor.R * r);
@@ -33,9 +33,7 @@ LinearSystem<2, 2, 2> DrivetrainVelocitySystem(
   auto C = frc::MakeMatrix<2, 2>(1.0, 0.0, 0.0, 1.0);
   auto D = frc::MakeMatrix<2, 2>(0.0, 0.0, 0.0, 0.0);
 
-  return LinearSystem<2, 2, 2>(A, B, C, D, [=](Eigen::Matrix<double, 2, 1> u) {
-    return frc::NormalizeInputVector<2>(u, maxVoltage.to<double>());
-  });
+  return LinearSystem<2, 2, 2>(A, B, C, D);
 }
 
 }  // namespace frc

@@ -3,13 +3,14 @@
 #pragma once
 
 #include <frc/DigitalInput.h>
+#include <frc/controller/LinearPlantInversionFeedforward.h>
 #include <frc/controller/LinearQuadraticRegulator.h>
-#include <frc/controller/PlantInversionFeedforward.h>
 #include <frc/estimator/KalmanFilter.h>
 #include <frc/geometry/Pose2d.h>
 #include <frc/geometry/Translation3d.h>
 #include <frc/logging/CSVLogFile.h>
 #include <frc/system/LinearSystem.h>
+#include <frc/system/LinearSystemLoop.h>
 #include <frc/system/plant/LinearSystemId.h>
 #include <frc/trajectory/TrapezoidProfile.h>
 #include <units/units.h>
@@ -176,13 +177,15 @@ private:
     frc::TrapezoidProfile<units::radians>::State m_profiledReference;
 
     frc::LinearSystem<2, 1, 1> m_plant =
-        frc::IdentifyPositionSystem(kV.to<double>(), kA.to<double>(), 12_V);
+        frc::IdentifyPositionSystem(kV.to<double>(), kA.to<double>());
 
     frc::LinearQuadraticRegulator<2, 1> m_lqr{
         m_plant, {0.01245, 0.109726}, {12.0}, Constants::kDt};
-    frc::PlantInversionFeedforward<2, 1> m_ff{m_plant, Constants::kDt};
+    frc::LinearPlantInversionFeedforward<2, 1> m_ff{m_plant, Constants::kDt};
     frc::KalmanFilter<2, 1, 1> m_observer{
         m_plant, {0.21745, 0.28726}, {0.01}, Constants::kDt};
+    frc::LinearSystemLoop<2, 1, 1> m_loop{m_plant, m_lqr, m_ff, m_observer,
+                                          12_V};
 
     Eigen::Matrix<double, 2, 1> m_nextR;
 
