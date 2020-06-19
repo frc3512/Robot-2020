@@ -60,7 +60,7 @@ private:
     Climber m_climber;
     frc::Joystick m_driveStick1{kDriveStick1Port};
     frc::Joystick m_driveStick2{kDriveStick2Port};
-    frc::Joystick m_appendageStick{kAppendageStickPort};
+    frc::Joystick m_appendageStick1{kAppendageStick1Port};
     frc::Joystick m_appendageStick2{kAppendageStick2Port};
 
     ShootingState m_state = ShootingState::kIdle;

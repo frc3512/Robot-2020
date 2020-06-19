@@ -67,7 +67,7 @@ void Robot::TeleopInit() {
             ButtonPacket message{"DriveStick2", i, true};
             Publish(message);
         }
-        if (m_appendageStick.GetRawButtonPressed(i)) {
+        if (m_appendageStick1.GetRawButtonPressed(i)) {
             ButtonPacket message{"AppendageStick", i, true};
             Publish(message);
         }
@@ -117,7 +117,7 @@ void Robot::TeleopPeriodic() {
             ButtonPacket message{"DriveStick1", i, true};
             Publish(message);
         }
-        if (m_appendageStick.GetRawButtonPressed(i)) {
+        if (m_appendageStick1.GetRawButtonPressed(i)) {
             ButtonPacket message{"AppendageStick", i, true};
             Publish(message);
         }
@@ -163,7 +163,7 @@ void Robot::TeleopPeriodic() {
         }
     }
 
-    POVPacket povMessage{"AppendageStick2", m_appendageStick.GetPOV()};
+    POVPacket povMessage{"AppendageStick2", m_appendageStick1.GetPOV()};
     Publish(povMessage);
 
     auto& ds = frc::DriverStation::GetInstance();
@@ -174,8 +174,8 @@ void Robot::TeleopPeriodic() {
                          m_driveStick2.GetX(),
                          m_driveStick2.GetY(),
                          ds.GetStickButtons(1),
-                         m_appendageStick.GetX(),
-                         m_appendageStick.GetY(),
+                         m_appendageStick1.GetX(),
+                         m_appendageStick1.GetY(),
                          ds.GetStickButtons(2),
                          m_appendageStick2.GetX(),
                          m_appendageStick2.GetY(),

@@ -10,7 +10,7 @@ namespace Robot {
 // Joystick Ports
 constexpr int kDriveStick1Port = 0;
 constexpr int kDriveStick2Port = 1;
-constexpr int kAppendageStickPort = 2;
+constexpr int kAppendageStick1Port = 2;
 constexpr int kAppendageStick2Port = 3;
 
 // Joystick axis deadband range
