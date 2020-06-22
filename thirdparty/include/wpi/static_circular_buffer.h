@@ -17,11 +17,11 @@ namespace wpi {
  * old values.
  */
 template <class T, size_t N>
-class circular_buffer {
+class static_circular_buffer {
  public:
   static_assert(N > 0, "The circular buffer size shouldn't be zero.");
 
-  constexpr circular_buffer() = default;
+  constexpr static_circular_buffer() = default;
 
   class iterator {
    public:
@@ -31,7 +31,7 @@ class circular_buffer {
     using pointer = T*;
     using reference = T&;
 
-    explicit iterator(circular_buffer* buffer, size_t index)
+    explicit iterator(static_circular_buffer* buffer, size_t index)
         : m_buffer(buffer), m_index(index) {}
 
     iterator& operator++() {
@@ -50,7 +50,7 @@ class circular_buffer {
     reference operator*() const { return (*m_buffer)[m_index]; }
 
    private:
-    circular_buffer* m_buffer;
+    static_circular_buffer* m_buffer;
     size_t m_index;
   };
 
@@ -62,7 +62,7 @@ class circular_buffer {
     using pointer = T*;
     using reference = T&;
 
-    explicit const_iterator(const circular_buffer* buffer, size_t index)
+    explicit const_iterator(const static_circular_buffer* buffer, size_t index)
         : m_buffer(buffer), m_index(index) {}
 
     const_iterator& operator++() {
@@ -81,18 +81,18 @@ class circular_buffer {
     const reference operator*() const { return (*m_buffer)[m_index]; }
 
    private:
-    const circular_buffer* m_buffer;
+    const static_circular_buffer* m_buffer;
     size_t m_index;
   };
 
   iterator begin() { return iterator(this, 0); }
   iterator end() {
-    return iterator(this, ::wpi::circular_buffer<T, N>::size());
+    return iterator(this, ::wpi::static_circular_buffer<T, N>::size());
   }
 
   const_iterator begin() const { return const_iterator(this, 0); }
   const_iterator end() const {
-    return const_iterator(this, ::wpi::circular_buffer<T, N>::size());
+    return const_iterator(this, ::wpi::static_circular_buffer<T, N>::size());
   }
 
   /**

@@ -41,7 +41,7 @@ deploy {
 }
 
 // Set this to true to enable desktop support.
-def includeDesktopSupport = false
+def includeDesktopSupport = true
 
 // Enable simulation gui support. Must check the box in vscode to enable support
 // upon debugging
@@ -55,6 +55,7 @@ nativeUtils.platformConfigs.named("linuxathena").configure {
 
 nativeUtils.platformConfigs.named("linuxx86-64").configure {
     it.cppCompiler.args.remove('-g')
+    it.linker.args.add('-lstdc++fs')
 }
 
 model {

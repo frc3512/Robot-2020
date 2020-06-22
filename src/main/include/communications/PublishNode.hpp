@@ -8,8 +8,8 @@
 #include <thread>
 #include <vector>
 
-#include <wpi/circular_buffer.h>
 #include <wpi/condition_variable.h>
+#include <wpi/static_circular_buffer.h>
 
 #include "communications/PublishNodeBase.hpp"
 
@@ -81,7 +81,7 @@ private:
 
     std::string m_nodeName;
     std::vector<PublishNode*> m_subList;
-    wpi::circular_buffer<char, kNodeQueueSize> m_queue;
+    wpi::static_circular_buffer<char, kNodeQueueSize> m_queue;
 
     std::thread m_thread;
     std::atomic<bool> m_isRunning{true};

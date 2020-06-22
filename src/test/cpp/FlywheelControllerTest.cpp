@@ -6,7 +6,6 @@
 #include <gtest/gtest.h>
 #include <simulation/RoboRioSim.h>
 #include <units/units.h>
-#include <wpi/circular_buffer.h>
 
 #include "Constants.hpp"
 #include "RenameCSVs.hpp"

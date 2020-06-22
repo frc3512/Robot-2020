@@ -5,7 +5,7 @@
 /* the project.                                                               */
 /*----------------------------------------------------------------------------*/
 
-#include "wpi/circular_buffer.h"  // NOLINT(build/include_order)
+#include "wpi/static_circular_buffer.h"  // NOLINT(build/include_order)
 
 #include <array>
 
@@ -21,8 +21,8 @@ static const std::array<double, 8> pushFrontOut = {
 static const std::array<double, 8> pushBackOut = {
     {342.657, 234.252, 716.126, 132.344, 445.697, 22.727, 421.125, 799.913}};
 
-TEST(CircularBufferTest, PushFrontTest) {
-  wpi::circular_buffer<double, 8> queue;
+TEST(StaticCircularBufferTest, PushFrontTest) {
+  wpi::static_circular_buffer<double, 8> queue;
 
   for (auto& value : values) {
     queue.push_front(value);
@@ -33,8 +33,8 @@ TEST(CircularBufferTest, PushFrontTest) {
   }
 }
 
-TEST(CircularBufferTest, PushBackTest) {
-  wpi::circular_buffer<double, 8> queue;
+TEST(StaticCircularBufferTest, PushBackTest) {
+  wpi::static_circular_buffer<double, 8> queue;
 
   for (auto& value : values) {
     queue.push_back(value);
@@ -45,8 +45,8 @@ TEST(CircularBufferTest, PushBackTest) {
   }
 }
 
-TEST(CircularBufferTest, PushPopTest) {
-  wpi::circular_buffer<double, 3> queue;
+TEST(StaticCircularBufferTest, PushPopTest) {
+  wpi::static_circular_buffer<double, 3> queue;
 
   // Insert three elements into the buffer
   queue.push_back(1.0);
@@ -88,8 +88,8 @@ TEST(CircularBufferTest, PushPopTest) {
   EXPECT_EQ(4.0, queue[0]);
 }
 
-TEST(CircularBufferTest, ResetTest) {
-  wpi::circular_buffer<double, 5> queue;
+TEST(StaticCircularBufferTest, ResetTest) {
+  wpi::static_circular_buffer<double, 5> queue;
 
   for (size_t i = 1; i < 6; i++) {
     queue.push_back(i);
