@@ -1,8 +1,12 @@
 # Defining VERBOSE before running make (i.e., VERBOSE=1 make) will print all
 # commands ran.
 
-CFLAGS := -Og -g -Wall -std=c11
-CPPFLAGS := -Og -g -Wall -std=c++17
+CFLAGS := -O2 -Wall -std=c11
+CPPFLAGS := -O2 -Wall -std=c++17
+
+# Use these when running a debugger on unit tests
+# CFLAGS := -Og -g -Wall -std=c11
+# CPPFLAGS := -Og -g -Wall -std=c++17
 
 CC := gcc
 CPP := g++
