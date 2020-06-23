@@ -47,7 +47,7 @@ jobs:
 
     - name: Run wpiformat
       run: |
-        git checkout -b master
+        git checkout -B master
         wpiformat -clang 10
 
     # Ensure formatter made no changes
