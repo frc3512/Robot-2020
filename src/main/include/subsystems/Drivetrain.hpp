@@ -6,9 +6,6 @@
 
 #include <frc/ADXRS450_Gyro.h>
 #include <frc/Encoder.h>
-#include <frc/RTNotifier.h>
-#include <frc/Solenoid.h>
-#include <frc/Spark.h>
 #include <frc/SpeedControllerGroup.h>
 #include <frc/drive/DifferentialDrive.h>
 #include <frc/trajectory/TrajectoryConfig.h>
