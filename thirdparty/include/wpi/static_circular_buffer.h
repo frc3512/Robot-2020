@@ -60,7 +60,7 @@ class static_circular_buffer {
     using value_type = T;
     using difference_type = std::ptrdiff_t;
     using pointer = T*;
-    using reference = T&;
+    using const_reference = const T&;
 
     explicit const_iterator(const static_circular_buffer* buffer, size_t index)
         : m_buffer(buffer), m_index(index) {}
@@ -78,7 +78,7 @@ class static_circular_buffer {
       return m_buffer == other.m_buffer && m_index == other.m_index;
     }
     bool operator!=(const_iterator other) const { return !(*this == other); }
-    const reference operator*() const { return (*m_buffer)[m_index]; }
+    const_reference operator*() const { return (*m_buffer)[m_index]; }
 
    private:
     const static_circular_buffer* m_buffer;
