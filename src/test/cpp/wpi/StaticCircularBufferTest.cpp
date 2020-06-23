@@ -99,3 +99,29 @@ TEST(StaticCircularBufferTest, ResetTest) {
 
   EXPECT_EQ(queue.size(), size_t{0});
 }
+
+TEST(StaticCircularBufferTest, IteratorTest) {
+  wpi::static_circular_buffer<double, 3> queue;
+
+  queue.push_back(1.0);
+  queue.push_back(2.0);
+  queue.push_back(3.0);
+  queue.push_back(4.0);  // Overwrite 1 with 4
+
+  // The buffer now contains 2, 3 and 4
+  const std::array<double, 3> values = {2.0, 3.0, 4.0};
+
+  // iterator
+  int i = 0;
+  for (auto& elem : queue) {
+    EXPECT_EQ(values[i], elem);
+    ++i;
+  }
+
+  // const_iterator
+  i = 0;
+  for (const auto& elem : queue) {
+    EXPECT_EQ(values[i], elem);
+    ++i;
+  }
+}
