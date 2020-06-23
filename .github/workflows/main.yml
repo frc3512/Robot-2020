@@ -12,7 +12,47 @@ on:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
+  format:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    # This grabs the WPILib docker container
+    container: wpilib/roborio-cross-ubuntu:2020-18.04
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+    - name: Install add-apt-repository
+      run: |
+        sudo apt-get update -q
+        sudo apt-get install gnupg lsb-release software-properties-common -y
+
+    - name: Upgrade Git to 2.18+
+      run: |
+        sudo add-apt-repository ppa:git-core/ppa
+        sudo apt-get update -q
+        sudo apt-get install git -y
+
+    # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+
+    - name: Install clang-format
+      run: |
+        chmod +x .github/workflows/clang-format.sh
+        sudo ./.github/workflows/clang-format.sh 10
+
+    - name: Install wpiformat
+      run: sudo pip3 install wpiformat
+
+    - name: Run wpiformat
+      run: |
+        git checkout -b master
+        wpiformat -clang 10
+
+    # Ensure formatter made no changes
+    - name: Check wpiformat output
+      run: git --no-pager diff --exit-code HEAD
   build:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
@@ -25,14 +65,26 @@ jobs:
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
     - uses: actions/checkout@v2
 
-    # Grant execute permission for gradlew
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
 
-    # Runs a single command using the runners shell
     - name: Compile robot code for Athena
       run: ./gradlew frcUserProgramLinuxathenaReleaseExecutable
-      
-    # Runs a single command using the runners shell
-    - name: Run x86-64 unit tests
+  # This workflow contains a single job called "build"
+  test:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    # This grabs the WPILib docker container
+    container: wpilib/roborio-cross-ubuntu:2020-18.04
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+    # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+    - uses: actions/checkout@v2
+
+    - name: Grant execute permission for gradlew
+      run: chmod +x gradlew
+
+    - name: Compile and run x86-64 unit tests
       run: ./gradlew runFrcUserProgramTestLinuxx86-64ReleaseGoogleTestExe

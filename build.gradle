@@ -108,6 +108,13 @@ model {
               }
             }
 
+            binaries.all {
+                binary ->
+                binary.getTasks().withType(AbstractNativeSourceCompileTask) {
+                    it.dependsOn pythonTask
+                }
+            }
+
             sources.cpp {
                 source {
                     srcDir 'src/test/cpp'
