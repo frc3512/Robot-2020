@@ -13,7 +13,6 @@
 #include <frc/logging/CSVLogFile.h>
 #include <frc/system/plant/LinearSystemId.h>
 #include <frc/trajectory/Trajectory.h>
-#include <frc/trajectory/TrajectoryConfig.h>
 #include <units/units.h>
 #include <wpi/math>
 #include <wpi/mutex.h>
@@ -21,6 +20,10 @@
 #include "Constants.hpp"
 #include "ControllerLogger.hpp"
 #include "controllers/ControllerBase.hpp"
+
+namespace frc {
+class TrajectoryConfig;
+}  // namespace frc
 
 namespace frc3512 {
 

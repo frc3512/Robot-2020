@@ -5,7 +5,6 @@
 #include <algorithm>
 #include <cmath>
 
-#include <Eigen/QR>
 #include <frc/RobotController.h>
 #include <frc/StateSpaceUtil.h>
 #include <frc/controller/LinearQuadraticRegulator.h>
@@ -13,6 +12,7 @@
 #include <frc/kinematics/DifferentialDriveKinematics.h>
 #include <frc/system/NumericalJacobian.h>
 #include <frc/system/plant/DCMotor.h>
+#include <frc/trajectory/TrajectoryConfig.h>
 #include <frc/trajectory/TrajectoryGenerator.h>
 #include <frc/trajectory/constraint/DifferentialDriveVelocitySystemConstraint.h>
 #include <units/units.h>

@@ -7,6 +7,7 @@
 #include <string>
 
 #include <frc/RobotController.h>
+#include <frc/trajectory/TrajectoryConfig.h>
 
 #include "controllers/TurretController.hpp"
 #include "subsystems/Vision.hpp"

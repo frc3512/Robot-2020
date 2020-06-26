@@ -18,6 +18,7 @@ includeCppSys {
 }
 
 includeOtherLibs {
+  Eigen/
   frc/
   frc2/
   gtest/
@@ -26,6 +27,7 @@ includeOtherLibs {
   networktables/
   rev/
   simulation/
+  unsupported/
   wpi/
   cscore\.h$
   units\.h$

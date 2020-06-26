@@ -8,13 +8,16 @@
 #include <frc/Encoder.h>
 #include <frc/SpeedControllerGroup.h>
 #include <frc/drive/DifferentialDrive.h>
-#include <frc/trajectory/TrajectoryConfig.h>
 #include <rev/CANSparkMax.h>
 #include <wpi/mutex.h>
 
 #include "Constants.hpp"
 #include "controllers/DrivetrainController.hpp"
 #include "subsystems/ControllerSubsystemBase.hpp"
+
+namespace frc {
+class TrajectoryConfig;
+}  // namespace frc
 
 namespace frc3512 {
 
