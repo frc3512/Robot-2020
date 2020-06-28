@@ -298,7 +298,7 @@ Eigen::Matrix<double, 2, 5> DrivetrainController::ControllerGainForState(
 
 Eigen::Matrix<double, 2, 1> DrivetrainController::Controller(
     // This implements the linear time-varying differential drive controller in
-    // theorem 8.6.2 of https://tavsys.net/controls-in-frc.
+    // theorem 8.6.4 of https://tavsys.net/controls-in-frc.
     const Eigen::Matrix<double, 10, 1>& x,
     const Eigen::Matrix<double, 5, 1>& r) {
     Eigen::Matrix<double, 2, 5> K = ControllerGainForState(x);
