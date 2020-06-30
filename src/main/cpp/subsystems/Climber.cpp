@@ -13,7 +13,16 @@ using namespace frc3512::Constants::Robot;
 
 void Climber::SetTransverser(double speed) { m_transverser.Set(speed); }
 
-void Climber::SetElevator(double speed) { m_elevator.Set(speed); }
+void Climber::SetElevator(double speed) {
+    if (std::abs(speed) > 0.02) {
+        // Unlock climber if it's being commanded to move
+        m_pancake.Set(true);
+        m_elevator.Set(speed);
+    } else {
+        m_pancake.Set(false);
+        m_elevator.Set(0.0);
+    }
+}
 
 void Climber::TeleopPeriodic() {
     static frc::Joystick appendageStick1{kAppendageStick1Port};
@@ -41,7 +50,7 @@ void Climber::TeleopPeriodic() {
 
     // Climber elevator
     if (appendageStick1.GetRawButton(1)) {
-        SetElevator(std::abs(appendageStick1.GetY()));
+        SetElevator(appendageStick1.GetY());
     } else {
         SetElevator(0.0);
     }

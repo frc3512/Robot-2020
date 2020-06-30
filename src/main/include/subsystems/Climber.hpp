@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include <frc/Solenoid.h>
 #include <rev/CANSparkMax.h>
 
 #include "Constants.hpp"
@@ -42,6 +43,8 @@ private:
     rev::CANSparkMax m_transverser{
         frc3512::Constants::Climber::kTransverserPort,
         rev::CANSparkMax::MotorType::kBrushless};
+
+    frc::Solenoid m_pancake{frc3512::Constants::Climber::kClimberLock};
 };
 
 }  // namespace frc3512

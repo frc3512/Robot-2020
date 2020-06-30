@@ -78,6 +78,9 @@ constexpr int kElevatorPortRight = 3;
 
 // Transverser Motor
 constexpr int kTransverserPort = 13;
+
+// Solenoid Port
+constexpr int kClimberLock = 3;
 }  // namespace Climber
 
 constexpr auto kDt = 0.00505_s;
