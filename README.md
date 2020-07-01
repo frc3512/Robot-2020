@@ -24,7 +24,7 @@ We use clang-format 9.0 with wpiformat for C++ formatting.
 
 ## Build
 
-* `./make.py build`
+* `./gradlew-build-athena.sh`
 
 This runs a roboRIO build. Message parsers for the publish-subscribe framework
 will be automatically generated in `build/generated`. `build/generated/include`
@@ -33,22 +33,22 @@ start from that directory.
 
 ## Test
 
-* `./make.py test`
+* `./gradlew-test.sh`
 
 This runs a desktop build and executes all the unit tests in `src/test`.
 
 ## Deploy
 
-* `./make.py deploy`
+* `./gradlew deploy`
 
 This runs a roboRIO build if needed, copies the resulting binary to a roboRIO at
 10.35.12.2, and restarts it.
 
 ## Documentation
 
-* `./make.py docs`
+* `./gradlew-docs.sh`
 
-Doxygen 1.8.17 needs to be installed. The HTML documentation will be generated
+Doxygen 1.8.18 needs to be installed. The HTML documentation will be generated
 in `docs/html` with an index.html page as the root.
 
 ## Game

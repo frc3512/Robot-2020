@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-"""Called by make.py."""
+"""Called by the build system."""
 
 import argparse
 import os

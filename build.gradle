@@ -2,7 +2,6 @@ plugins {
     id "cpp"
     id "google-test-test-suite"
     id "edu.wpi.first.GradleRIO" version "2020.3.2"
-    id "org.ysb33r.doxygen" version "0.5"
 }
 
 task pythonTask(type: Exec) {
@@ -131,22 +130,5 @@ model {
             wpi.deps.googleTest(it)
             wpi.deps.vendor.cpp(it)
         }
-    }
-}
-
-doxygen {
-    description = 'Generate documentation'
-
-    project_name 'Robot-2020'
-
-    generate_html true
-    generate_latex false
-
-    source 'src/main/include'
-
-    outputDir 'docs/'
-
-    executables {
-        doxygen version: '1.8.17'
     }
 }
