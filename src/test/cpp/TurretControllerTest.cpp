@@ -49,7 +49,6 @@ TEST(TurretControllerTest, ReachesReferenceStaticDrivetrain) {
     controller.Reset();
     controller.Enable();
 
-    controller.SetMeasuredOutputs(0_rad);
     Eigen::Matrix<double, 10, 1> drivetrainXhat =
         Eigen::Matrix<double, 10, 1>::Zero();
     controller.SetDrivetrainStatus(drivetrainXhat);
@@ -108,14 +107,12 @@ TEST(TurretControllerTest, DISABLED_ReachesReferenceRotateInPlaceDrivetrain) {
     frc3512::TurretController turretController;
     turretController.Reset();
     turretController.Enable();
-    turretController.SetMeasuredOutputs(0_rad);
     Eigen::Matrix<double, 2, 1> turretX = Eigen::Matrix<double, 2, 1>::Zero();
 
     // Initialize drivetrain controller
     frc3512::DrivetrainController drivetrainController;
     drivetrainController.Reset(frc::Pose2d{0_m, 0_m, 0_rad});
     drivetrainController.Enable();
-    drivetrainController.SetMeasuredLocalOutputs(0_rad, 0_m, 0_m);
     drivetrainController.SetWaypoints(frc::Pose2d(0_m, 0_m, 0_rad), {},
                                       frc::Pose2d(4.8768_m, 2.7432_m, 0_rad));
     Eigen::Matrix<double, 10, 1> drivetrainX =
@@ -205,14 +202,12 @@ TEST(TurretControllerTest, ReachesReferenceSCurveDrivetrain) {
     frc3512::TurretController turretController;
     turretController.Reset();
     turretController.Enable();
-    turretController.SetMeasuredOutputs(0_rad);
     Eigen::Matrix<double, 2, 1> turretX = Eigen::Matrix<double, 2, 1>::Zero();
 
     // Initialize drivetrain controller
     frc3512::DrivetrainController drivetrainController;
     drivetrainController.Reset(frc::Pose2d{0_m, 0_m, 0_rad});
     drivetrainController.Enable();
-    drivetrainController.SetMeasuredLocalOutputs(0_rad, 0_m, 0_m);
     drivetrainController.SetWaypoints(frc::Pose2d(0_m, 0_m, 0_rad), {},
                                       frc::Pose2d(4.8768_m, 2.7432_m, 0_rad));
     Eigen::Matrix<double, 10, 1> drivetrainX =
@@ -303,7 +298,6 @@ TEST(TurretControllerTest, ReachesReferenceAutonDrivetrain) {
     frc3512::TurretController turretController;
     turretController.Reset();
     turretController.Enable();
-    turretController.SetMeasuredOutputs(0_rad);
     Eigen::Matrix<double, 2, 1> turretX = Eigen::Matrix<double, 2, 1>::Zero();
 
     // Initialize drivetrain controller
@@ -401,7 +395,6 @@ TEST(TurretControllerTest, ProperDistanceFromTarget) {
     frc3512::TurretController controller;
     controller.Reset();
     controller.Enable();
-    controller.SetMeasuredOutputs(0_rad);
     Eigen::Matrix<double, 10, 1> drivetrainXhat;
 
     drivetrainXhat << kDrivetrainX.to<double>(), kDrivetrainY.to<double>(),

@@ -22,7 +22,6 @@ TEST(FlywheelControllerTest, ReachesGoal) {
     controller.Reset();
     controller.Enable();
 
-    controller.SetMeasuredAngularVelocity(0_rad_per_s);
     controller.SetGoal(500.0_rad_per_s);
 
     Eigen::Matrix<double, 1, 1> x = Eigen::Matrix<double, 1, 1>::Zero();
