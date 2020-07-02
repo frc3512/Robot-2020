@@ -24,14 +24,17 @@ class FileWriter:
 
     def __exit__(self, type, value, traceback):
         self.file.close()
+
         try:
             with open(self.filename) as file:
                 old_contents = file.read()
         except FileNotFoundError:
             shutil.move(self.filename + ".tmp", self.filename)
+            return
 
         with open(self.filename + ".tmp") as file:
             new_contents = file.read()
+
         if old_contents != new_contents:
             shutil.move(self.filename + ".tmp", self.filename)
         else:
