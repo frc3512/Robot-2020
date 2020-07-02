@@ -22,10 +22,10 @@ namespace frc {
  * acceleration of any wheel of the robot while following the trajectory is
  * never higher than what can be achieved with the given maximum voltage.
  */
-class DrivetrainVelocitySystemConstraint : public TrajectoryConstraint {
+class DifferentialDriveVelocitySystemConstraint : public TrajectoryConstraint {
  public:
   /**
-   * Creates a new DrivetrainVelocitySystemConstraint.
+   * Creates a new DifferentialDriveVelocitySystemConstraint.
    *
    * @param system     The drivetrain state-space model.
    * @param trackWidth The distance between the drivetrain's wheels.
@@ -34,9 +34,9 @@ class DrivetrainVelocitySystemConstraint : public TrajectoryConstraint {
    *                   nominal battery voltage (12V) to account for "voltage
    *                   sag" due to current draw.
    */
-  DrivetrainVelocitySystemConstraint(const LinearSystem<2, 2, 2>& system,
-                                     units::meter_t trackWidth,
-                                     units::volt_t maxVoltage)
+  DifferentialDriveVelocitySystemConstraint(const LinearSystem<2, 2, 2>& system,
+                                            units::meter_t trackWidth,
+                                            units::volt_t maxVoltage)
       : m_system(system), m_trackWidth(trackWidth), m_maxVoltage(maxVoltage) {}
 
   units::meters_per_second_t MaxVelocity(

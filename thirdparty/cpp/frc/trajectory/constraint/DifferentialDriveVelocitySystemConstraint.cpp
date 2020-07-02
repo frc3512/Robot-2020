@@ -5,11 +5,12 @@
 /* the project.                                                               */
 /*----------------------------------------------------------------------------*/
 
-#include "frc/trajectory/constraint/DrivetrainVelocitySystemConstraint.h"
+#include "frc/trajectory/constraint/DifferentialDriveVelocitySystemConstraint.h"
 
 using namespace frc;
 
-units::meters_per_second_t DrivetrainVelocitySystemConstraint::MaxVelocity(
+units::meters_per_second_t
+DifferentialDriveVelocitySystemConstraint::MaxVelocity(
     const Pose2d& pose, curvature_t curvature,
     units::meters_per_second_t velocity) {
   // Calculate wheel velocity states from current velocity and curvature
@@ -28,7 +29,7 @@ units::meters_per_second_t DrivetrainVelocitySystemConstraint::MaxVelocity(
 }
 
 TrajectoryConstraint::MinMax
-DrivetrainVelocitySystemConstraint::MinMaxAcceleration(
+DifferentialDriveVelocitySystemConstraint::MinMaxAcceleration(
     const Pose2d& pose, curvature_t curvature,
     units::meters_per_second_t speed) {
   // Calculate wheel velocity states from current velocity and curvature

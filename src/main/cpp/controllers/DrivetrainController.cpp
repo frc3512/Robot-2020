@@ -12,7 +12,7 @@
 #include <frc/system/NumericalJacobian.h>
 #include <frc/system/plant/DCMotor.h>
 #include <frc/trajectory/TrajectoryGenerator.h>
-#include <frc/trajectory/constraint/DrivetrainVelocitySystemConstraint.h>
+#include <frc/trajectory/constraint/DifferentialDriveVelocitySystemConstraint.h>
 #include <units/units.h>
 
 #include "controllers/NormalizeAngle.hpp"
@@ -263,8 +263,8 @@ frc::TrajectoryConfig DrivetrainController::MakeTrajectoryConfig() const {
     auto plant = frc::IdentifyDrivetrainSystem(
         kLinearV.to<double>(), kLinearA.to<double>(), kAngularV.to<double>(),
         kAngularA.to<double>());
-    frc::DrivetrainVelocitySystemConstraint systemConstraint{plant, kWidth,
-                                                             8_V};
+    frc::DifferentialDriveVelocitySystemConstraint systemConstraint{
+        plant, kWidth, 8_V};
     config.AddConstraint(systemConstraint);
 
     return config;
