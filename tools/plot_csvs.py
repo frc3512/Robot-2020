@@ -22,7 +22,8 @@ def num_lines(csv_group):
 
 
 # Get list of files in current directory
-files = [os.path.join(dp, f) for dp, dn, fn in os.walk(".") for f in fn]
+prefix = "./build/test-results/frcUserProgramTest/linuxx86-64/release"
+files = [os.path.join(dp, f) for dp, dn, fn in os.walk(prefix) for f in fn]
 
 # Ignore files not matching optional pattern
 if len(sys.argv) > 1:
@@ -31,7 +32,8 @@ if len(sys.argv) > 1:
 # Maps subsystem name to tuple of csv_group and date
 filtered = {}
 file_rgx = re.compile(
-    r"^\./(?P<name>[A-Za-z ]+)-(?P<date>\d{4}-\d{2}-\d{2}-\d{2}_\d{2}_\d{2})\.csv$"
+    r"^" + re.escape(prefix) +
+    r"/(?P<name>[A-Za-z ]+)-(?P<date>\d{4}-\d{2}-\d{2}-\d{2}_\d{2}_\d{2})\.csv$"
 )
 for f in files:
     match = file_rgx.search(f)
@@ -54,7 +56,8 @@ for f in files:
 for csv_group in filtered.keys():
     plt.figure()
     plt.title(csv_group)
-    filename = csv_group + "-" + filtered[csv_group] + ".csv"
+    filename = prefix + os.path.sep + csv_group + "-" + filtered[
+        csv_group] + ".csv"
 
     # Get labels from first row of file
     with open(filename) as f:
