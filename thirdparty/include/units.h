@@ -80,7 +80,7 @@
 #include <cmath>
 #include <limits>
 
-#if defined(UNIT_LIB_ENABLE_IOSTREAM)
+#if !defined(UNIT_LIB_DISABLE_IOSTREAM)
 	#include <iostream>
 	#include <string>
 	#include <locale>
@@ -178,9 +178,9 @@ namespace units
  * @param		namespaceName namespace in which the new units will be encapsulated.
  * @param		nameSingular singular version of the unit name, e.g. 'meter'
  * @param		abbrev - abbreviated unit name, e.g. 'm'
- * @note		When UNIT_LIB_ENABLE_IOSTREAM is defined, the macro generates code
+ * @note		When UNIT_LIB_DISABLE_IOSTREAM is defined, the macro does not generate any code
  */
-#if !defined(UNIT_LIB_ENABLE_IOSTREAM)
+#if defined(UNIT_LIB_DISABLE_IOSTREAM)
 	#define UNIT_ADD_IO(namespaceName, nameSingular, abbrev)
 #else
 	#define UNIT_ADD_IO(namespaceName, nameSingular, abbrev)\
@@ -2185,7 +2185,7 @@ namespace units
 		return UnitType(value);
 	}
 
-#if defined(UNIT_LIB_ENABLE_IOSTREAM)
+#if !defined(UNIT_LIB_DISABLE_IOSTREAM)
 	template<class Units, typename T, template<typename> class NonLinearScale>
 	inline std::ostream& operator<<(std::ostream& os, const unit_t<Units, T, NonLinearScale>& obj) noexcept
 	{
@@ -2820,7 +2820,7 @@ namespace units
 	namespace dimensionless
 	{
 		typedef unit_t<scalar, UNIT_LIB_DEFAULT_TYPE, decibel_scale> dB_t;
-#if defined(UNIT_LIB_ENABLE_IOSTREAM)
+#if !defined(UNIT_LIB_DISABLE_IOSTREAM)
 		inline std::ostream& operator<<(std::ostream& os, const dB_t& obj) { os << obj() << " dB"; return os; }
 #endif
 		typedef dB_t dBi_t;

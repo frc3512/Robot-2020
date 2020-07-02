@@ -100,23 +100,21 @@ class KalmanFilter {
   /**
    * Returns the state estimate x-hat.
    */
-  const Eigen::Matrix<double, States, 1>& Xhat() const { return m_plant->X(); }
+  const Eigen::Matrix<double, States, 1>& Xhat() const { return m_xHat; }
 
   /**
    * Returns an element of the state estimate x-hat.
    *
    * @param i Row of x-hat.
    */
-  double Xhat(int i) const { return m_plant->X(i); }
+  double Xhat(int i) const { return m_xHat(i); }
 
   /**
    * Set initial state estimate x-hat.
    *
    * @param xHat The state estimate x-hat.
    */
-  void SetXhat(const Eigen::Matrix<double, States, 1>& xHat) {
-    m_plant->SetX(xHat);
-  }
+  void SetXhat(const Eigen::Matrix<double, States, 1>& xHat) { m_xHat = xHat; }
 
   /**
    * Set an element of the initial state estimate x-hat.
@@ -124,12 +122,12 @@ class KalmanFilter {
    * @param i     Row of x-hat.
    * @param value Value for element of x-hat.
    */
-  void SetXhat(int i, double value) { m_plant->SetX(i, value); }
+  void SetXhat(int i, double value) { m_xHat(i) = value; }
 
   /**
    * Resets the observer.
    */
-  void Reset() { m_plant->Reset(); }
+  void Reset() { m_xHat.setZero(); }
 
   /**
    * Project the model into the future with a new control input u.
@@ -138,7 +136,7 @@ class KalmanFilter {
    * @param dt Timestep for prediction.
    */
   void Predict(const Eigen::Matrix<double, Inputs, 1>& u, units::second_t dt) {
-    m_plant->SetX(m_plant->CalculateX(m_plant->X(), u, dt));
+    m_xHat = m_plant->CalculateX(m_xHat, u, dt);
 
     Eigen::Matrix<double, States, States> discA;
     Eigen::Matrix<double, States, States> discQ;
@@ -178,7 +176,7 @@ class KalmanFilter {
                const Eigen::Matrix<double, Rows, States>& C,
                const Eigen::Matrix<double, Rows, Inputs>& D,
                const Eigen::Matrix<double, Rows, Rows>& R) {
-    const auto& x = m_plant->X();
+    const auto& x = m_xHat;
     Eigen::Matrix<double, Rows, Rows> S = C * m_P * C.transpose() + R;
 
     // We want to put K = PC^T S^-1 into Ax = b form so we can solve it more
@@ -196,7 +194,7 @@ class KalmanFilter {
     Eigen::Matrix<double, States, Rows> K =
         S.transpose().ldlt().solve(C * m_P.transpose()).transpose();
 
-    m_plant->SetX(x + K * (y - (C * x + D * u)));
+    m_xHat = x + K * (y - (C * x + D * u));
     m_P = (Eigen::Matrix<double, States, States>::Identity() - K * C) * m_P;
   }
 
@@ -222,6 +220,11 @@ class KalmanFilter {
    * Discrete measurement noise covariance matrix.
    */
   Eigen::Matrix<double, Outputs, Outputs> m_discR;
+
+  /**
+   * State estimate x-hat.
+   */
+  Eigen::Matrix<double, States, 1> m_xHat;
 };
 
 }  // namespace frc

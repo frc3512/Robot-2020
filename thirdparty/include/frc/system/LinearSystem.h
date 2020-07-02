@@ -45,8 +45,6 @@ class LinearSystem {
     m_B = B;
     m_C = C;
     m_D = D;
-
-    Reset();
   }
 
   virtual ~LinearSystem() = default;
@@ -109,95 +107,6 @@ class LinearSystem {
   double D(int i, int j) const { return m_D(i, j); }
 
   /**
-   * Returns the current state x.
-   */
-  const Eigen::Matrix<double, States, 1>& X() const { return m_x; }
-
-  /**
-   * Returns an element of the current state x.
-   *
-   * @param i Row of x.
-   */
-  double X(int i) const { return m_x(i); }
-
-  /**
-   * Returns the current measurement vector y.
-   */
-  const Eigen::Matrix<double, Outputs, 1>& Y() const { return m_y; }
-
-  /**
-   * Returns an element of the current measurement vector y.
-   *
-   * @param i Row of y.
-   */
-  double Y(int i) const { return m_y(i); }
-
-  /**
-   * Returns the control input vector u.
-   */
-  const Eigen::Matrix<double, Inputs, 1>& U() const { return m_delayedU; }
-
-  /**
-   * Returns an element of the control input vector u.
-   *
-   * @param i Row of u.
-   */
-  double U(int i) const { return m_delayedU(i); }
-
-  /**
-   * Set the initial state x.
-   *
-   * @param x The initial state.
-   */
-  void SetX(const Eigen::Matrix<double, States, 1>& x) { m_x = x; }
-
-  /**
-   * Set an element of the initial state x.
-   *
-   * @param i     Row of x.
-   * @param value Value of element of x.
-   */
-  void SetX(int i, double value) { m_x(i) = value; }
-
-  /**
-   * Set the current measurement y.
-   *
-   * @param y The current measurement.
-   */
-  void SetY(const Eigen::Matrix<double, Outputs, 1>& y) { m_y = y; }
-
-  /**
-   * Set an element of the current measurement y.
-   *
-   * @param i     Row of y.
-   * @param value Value of element of y.
-   */
-  void SetY(int i, double value) { m_y(i) = value; }
-
-  /**
-   * Resets the plant.
-   */
-  void Reset() {
-    m_x.setZero();
-    m_y.setZero();
-    m_delayedU.setZero();
-  }
-
-  /**
-   * Computes the new x and y given the control input.
-   *
-   * @param x The current state.
-   * @param u The control input.
-   * @param dt Timestep for model update.
-   */
-  void Update(const Eigen::Matrix<double, States, 1>& x,
-              const Eigen::Matrix<double, Inputs, 1>& u, units::second_t dt) {
-    m_x = CalculateX(x, m_delayedU, dt);
-    m_y = CalculateY(m_x, m_delayedU);
-    m_delayedU = u;
-  }
-
-  /**
    * Computes the new x given the old x and the control input.
    *
    * This is used by state observers directly to run updates based on state
@@ -253,23 +162,6 @@ class LinearSystem {
    * Feedthrough matrix.
    */
   Eigen::Matrix<double, Outputs, Inputs> m_D;
-
-  /**
-   * State vector.
-   */
-  Eigen::Matrix<double, States, 1> m_x;
-
-  /**
-   * Output vector.
-   */
-  Eigen::Matrix<double, Outputs, 1> m_y;
-
-  /**
-   * Delayed u since predict and correct steps are run in reverse.
-   * It is up to the user (Or LinearSystemLoop) to clamp this input
-   * to what is physically achievable by the user's system.
-   */
-  Eigen::Matrix<double, Inputs, 1> m_delayedU;
 };
 
 }  // namespace frc

@@ -19,7 +19,7 @@
 #include "frc/system/LinearSystem.h"
 #include "frc/system/LinearSystemLoop.h"
 #include "frc/system/plant/DCMotor.h"
-#include "frc/system/plant/ElevatorSystem.h"
+#include "frc/system/plant/LinearSystemId.h"
 
 namespace frc {
 
@@ -40,7 +40,7 @@ class StateSpace : public testing::Test {
     // Gear ratio
     constexpr double G = 40.0 / 40.0;
 
-    return ElevatorSystem(motors, m, r, G);
+    return frc::LinearSystemId::ElevatorSystem(motors, m, r, G);
   }();
   LinearQuadraticRegulator<2, 1> controller{plant, {0.02, 0.4}, {12.0}, kDt};
   KalmanFilter<2, 1, 1> observer{plant, {0.05, 1.0}, {0.0001}, kDt};

@@ -112,7 +112,8 @@ private:
     Eigen::Matrix<double, 1, 1> m_y;
 
     frc::LinearSystem<1, 1, 1> m_plant =
-        frc::IdentifyVelocitySystem(kV.to<double>(), kA.to<double>());
+        frc::LinearSystemId::IdentifyVelocitySystem(kV.to<double>(),
+                                                    kA.to<double>());
     frc::LinearQuadraticRegulator<1, 1> m_lqr{
         m_plant, {80.0}, {12.0}, Constants::kDt};
     frc::LinearPlantInversionFeedforward<1, 1> m_ff{m_plant, Constants::kDt};

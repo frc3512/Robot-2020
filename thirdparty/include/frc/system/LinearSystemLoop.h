@@ -188,7 +188,6 @@ class LinearSystemLoop {
    * @param initialReference The initial reference.
    */
   void Reset(Eigen::Matrix<double, States, 1> initialState) {
-    m_plant.Reset();
     m_controller.Reset();
     m_feedforward.Reset(initialState);
     m_observer.Reset();

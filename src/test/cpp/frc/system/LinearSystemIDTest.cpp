@@ -6,13 +6,14 @@
 /*----------------------------------------------------------------------------*/
 
 #include <frc/system/LinearSystem.h>
-#include <frc/system/plant/LinearSystemId.h>
 #include <gtest/gtest.h>
 
 #include <units.h>
 
+#include "frc/system/plant/LinearSystemId.h"
+
 TEST(LinearSystemIDTest, IdentifyVelocitySystem) {
   double kv = 1.0;
   double ka = 0.5;
-  auto system = frc::IdentifyVelocitySystem(kv, ka);
+  auto system = frc::LinearSystemId::IdentifyVelocitySystem(kv, ka);
 }

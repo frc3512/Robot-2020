@@ -9,6 +9,7 @@
 #include <frc/RobotController.h>
 #include <frc/controller/LinearQuadraticRegulator.h>
 #include <frc/geometry/Pose2d.h>
+#include <frc/kinematics/DifferentialDriveKinematics.h>
 #include <frc/system/NumericalJacobian.h>
 #include <frc/system/plant/DCMotor.h>
 #include <frc/trajectory/TrajectoryGenerator.h>
@@ -260,11 +261,12 @@ void DrivetrainController::Reset(const frc::Pose2d& initialPose) {
 frc::TrajectoryConfig DrivetrainController::MakeTrajectoryConfig() const {
     frc::TrajectoryConfig config{kMaxV, kMaxA - 16.5_mps_sq};
 
-    auto plant = frc::IdentifyDrivetrainSystem(
+    auto plant = frc::LinearSystemId::IdentifyDrivetrainSystem(
         kLinearV.to<double>(), kLinearA.to<double>(), kAngularV.to<double>(),
         kAngularA.to<double>());
+    frc::DifferentialDriveKinematics kinematics{kWidth};
     frc::DifferentialDriveVelocitySystemConstraint systemConstraint{
-        plant, kWidth, 8_V};
+        plant, kinematics, 8_V};
     config.AddConstraint(systemConstraint);
 
     return config;
@@ -333,7 +335,7 @@ Eigen::Matrix<double, 10, 1> DrivetrainController::Dynamics(
     // constexpr auto k1 = (1 / m + rb * rb / J);
     // constexpr auto k2 = (1 / m - rb * rb / J);
 
-    auto plant = frc::IdentifyDrivetrainSystem(
+    auto plant = frc::LinearSystemId::IdentifyDrivetrainSystem(
         kLinearV.to<double>(), kLinearA.to<double>(), kAngularV.to<double>(),
         kAngularA.to<double>());
 

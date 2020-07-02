@@ -7,14 +7,26 @@
 
 #include "frc/trajectory/constraint/DifferentialDriveVelocitySystemConstraint.h"
 
+#include <algorithm>
+#include <limits>
+
+#include <units.h>
+#include <wpi/MathExtras.h>
+
 using namespace frc;
+
+DifferentialDriveVelocitySystemConstraint::
+    DifferentialDriveVelocitySystemConstraint(
+        LinearSystem<2, 2, 2> system, DifferentialDriveKinematics kinematics,
+        units::volt_t maxVoltage)
+    : m_system(system), m_kinematics(kinematics), m_maxVoltage(maxVoltage) {}
 
 units::meters_per_second_t
 DifferentialDriveVelocitySystemConstraint::MaxVelocity(
-    const Pose2d& pose, curvature_t curvature,
+    const Pose2d& pose, units::curvature_t curvature,
     units::meters_per_second_t velocity) {
-  // Calculate wheel velocity states from current velocity and curvature
-  auto [vl, vr] = ToWheelVelocities(velocity, curvature, m_trackWidth);
+  auto [vl, vr] =
+      m_kinematics.ToWheelSpeeds({velocity, 0_mps, velocity * curvature});
 
   Eigen::Vector2d x;
   x << vl.to<double>(), vr.to<double>();
@@ -30,25 +42,30 @@ DifferentialDriveVelocitySystemConstraint::MaxVelocity(
 
 TrajectoryConstraint::MinMax
 DifferentialDriveVelocitySystemConstraint::MinMaxAcceleration(
-    const Pose2d& pose, curvature_t curvature,
+    const Pose2d& pose, units::curvature_t curvature,
     units::meters_per_second_t speed) {
-  // Calculate wheel velocity states from current velocity and curvature
-  auto [vl, vr] = ToWheelVelocities(speed, curvature, m_trackWidth);
+  auto wheelSpeeds =
+      m_kinematics.ToWheelSpeeds({speed, 0_mps, speed * curvature});
+
   Eigen::Vector2d x;
-  x << vl.to<double>(), vr.to<double>();
+  x << wheelSpeeds.left.to<double>(), wheelSpeeds.right.to<double>();
 
   Eigen::Vector2d xDot;
   Eigen::Vector2d u;
 
-  // Get dx/dt for min u
+  // dx/dt for minimum u
   u << -m_maxVoltage.to<double>(), -m_maxVoltage.to<double>();
   xDot = m_system.A() * x + m_system.B() * u;
-  auto minAccel = units::meters_per_second_squared_t{(xDot(0) + xDot(1)) / 2.0};
+  units::meters_per_second_squared_t minChassisAcceleration;
+  minChassisAcceleration =
+      units::meters_per_second_squared_t((xDot(0, 0) + xDot(1, 0)) / 2.0);
 
-  // Get dx/dt for max u
+  // dx/dt for maximum u
   u << m_maxVoltage.to<double>(), m_maxVoltage.to<double>();
   xDot = m_system.A() * x + m_system.B() * u;
-  auto maxAccel = units::meters_per_second_squared_t{(xDot(0) + xDot(1)) / 2.0};
+  units::meters_per_second_squared_t maxChassisAcceleration;
+  maxChassisAcceleration =
+      units::meters_per_second_squared_t((xDot(0, 0) + xDot(1, 0)) / 2.0);
 
-  return {minAccel, maxAccel};
+  return {minChassisAcceleration, maxChassisAcceleration};
 }
