@@ -4,6 +4,10 @@ plugins {
     id "edu.wpi.first.GradleRIO" version "2020.3.2"
 }
 
+// Used for testing local publishes of WPILib
+// wpi.maven.useFrcMavenLocalDevelopment = true
+// wpi.wpilibVersion = '2020.424242.+'
+
 task pythonTask(type: Exec) {
     workingDir '.'
     commandLine 'python3', 'python/generate_messages.py', '--input', 'msgs', '--output', 'build/generated'
