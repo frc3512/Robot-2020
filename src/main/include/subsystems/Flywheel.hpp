@@ -6,7 +6,6 @@
 
 #include <frc/CounterBase.h>
 #include <frc/Encoder.h>
-#include <frc/RTNotifier.h>
 #include <frc/geometry/Pose2d.h>
 #include <frc2/Timer.h>
 #include <rev/CANSparkMax.h>

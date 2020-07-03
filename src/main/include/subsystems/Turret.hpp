@@ -7,7 +7,6 @@
 #include <frc/DigitalInput.h>
 #include <frc/DutyCycleEncoder.h>
 #include <frc/Encoder.h>
-#include <frc/RTNotifier.h>
 #include <frc/Timer.h>
 #include <rev/CANSparkMax.h>
 
