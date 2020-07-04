@@ -82,11 +82,8 @@ units::radian_t TurretController::CalculateHeading(Eigen::Vector2d target,
 }
 
 void TurretController::Update(units::second_t dt, units::second_t elapsedTime) {
-    positionLogger.Log(elapsedTime, m_u(Input::kVoltage), m_y(Output::kAngle),
-                       m_observer.Xhat(State::kAngle), m_nextR(State::kAngle));
-    velocityLogger.Log(elapsedTime, m_u(Input::kVoltage),
-                       m_observer.Xhat(State::kAngularVelocity),
-                       m_nextR(State::kAngularVelocity));
+    m_logger.Log(elapsedTime, GetReferences(), GetStates(), GetInputs(),
+                 GetOutputs());
 
     m_observer.Correct(m_u, m_y);
 

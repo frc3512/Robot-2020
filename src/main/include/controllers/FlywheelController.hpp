@@ -5,12 +5,12 @@
 #include <frc/controller/LinearPlantInversionFeedforward.h>
 #include <frc/controller/LinearQuadraticRegulator.h>
 #include <frc/estimator/KalmanFilter.h>
-#include <frc/logging/CSVLogFile.h>
 #include <frc/system/plant/LinearSystemId.h>
 #include <units/units.h>
 #include <wpi/math>
 
 #include "Constants.hpp"
+#include "ControllerLogger.hpp"
 #include "controllers/ControllerBase.hpp"
 
 namespace frc3512 {
@@ -127,12 +127,11 @@ private:
     bool m_isEnabled = false;
 
     // The loggers that generates the comma separated value files
-    frc::CSVLogFile velocityLogger{"Flywheel Velocities",
-                                   "Measured Angular Velocity (rad/s)",
-                                   "Estimated Angular Velocity (rad/s)",
-                                   "Angular Velocity Reference (rad/s)"};
-    frc::CSVLogFile voltageLogger{"Flywheel Voltages", "Controller Voltage (V)",
-                                  "Battery Voltage (V)"};
+    ControllerLogger<1, 1, 1> m_logger{
+        "Flywheel",
+        {ControllerLabel{"Angular velocity", "rad/s"}},
+        {ControllerLabel{"Voltage", "V"}},
+        {ControllerLabel{"Angular velocity", "rad/s"}}};
 
     Eigen::Matrix<double, 1, 1> m_u;
 };

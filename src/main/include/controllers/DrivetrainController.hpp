@@ -19,6 +19,7 @@
 #include <wpi/mutex.h>
 
 #include "Constants.hpp"
+#include "ControllerLogger.hpp"
 #include "controllers/ControllerBase.hpp"
 
 namespace frc3512 {
@@ -279,40 +280,22 @@ private:
     bool m_isEnabled = false;
     bool m_isOpenLoop = false;
 
-    // The loggers that generates the comma separated value files
-    frc::CSVLogFile positionLogger{"Drivetrain Positions",
-                                   "Estimated X (m)",
-                                   "Estimated Y (m)",
-                                   "X Ref (m)",
-                                   "Y Ref (m)",
-                                   "Measured Left Position (m)",
-                                   "Measured Right Position (m)",
-                                   "Estimated Left Position (m)",
-                                   "Estimated Right Position (m)"};
-    frc::CSVLogFile angleLogger{"Drivetrain Angles", "Measured Heading (rad)",
-                                "Estimated Heading (rad)", "Heading Ref (rad)",
-                                "Angle Error (rad)"};
-    frc::CSVLogFile velocityLogger{"Drivetrain Velocities",
-                                   "Estimated Left Vel (m/s)",
-                                   "Estimated Right Vel (m/s)",
-                                   "Left Vel Ref (m/s)", "Right Vel Ref (m/s)"};
-    frc::CSVLogFile voltageLogger{
-        "Drivetrain Voltages",     "Left Voltage (V)",
-        "Right Voltage (V)",       "Left Voltage Error (V)",
-        "Right Voltage Error (V)", "Battery Voltage (V)"};
-    frc::CSVLogFile errorCovLogger{
-        "Drivetrain Error Covariances",
-        "X Cov (m^2)",
-        "Y Cov (m^2)",
-        "Heading Cov (rad^2)",
-        "Left Vel Cov ((m/s)^2)",
-        "Right Vel Cov ((m/s)^2)",
-        "Left Pos Cov (m^2)",
-        "Right Pos Cov (m^2)",
-        "Left Voltage Error Cov (V^2)",
-        "Right Voltage Error Cov (V^2)",
-        "Angle Error Cov (rad^2)",
-    };
+    ControllerLogger<10, 2, 3> m_logger{
+        "Drivetrain",
+        {ControllerLabel{"X", "m"}, ControllerLabel{"Y", "m"},
+         ControllerLabel{"Heading", "rad"},
+         ControllerLabel{"Left velocity", "m/s"},
+         ControllerLabel{"Right velocity", "m/s"},
+         ControllerLabel{"Left position", "m"},
+         ControllerLabel{"Right position", "m"},
+         ControllerLabel{"Left voltage error", "V"},
+         ControllerLabel{"Right voltage error", "V"},
+         ControllerLabel{"Angular velocity error", "rad/s"}},
+        {ControllerLabel{"Left voltage", "V"},
+         ControllerLabel{"Right voltage", "V"}},
+        {ControllerLabel{"Heading", "rad"},
+         ControllerLabel{"Left position", "m"},
+         ControllerLabel{"Right position", "m"}}};
 
     /**
      * Converts velocity and curvature of drivetrain into left and right wheel

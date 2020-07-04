@@ -17,6 +17,7 @@
 #include <wpi/math>
 
 #include "Constants.hpp"
+#include "ControllerLogger.hpp"
 #include "TargetModel.hpp"
 #include "controllers/ControllerBase.hpp"
 
@@ -199,12 +200,12 @@ private:
     Eigen::Matrix<double, 10, 1> m_drivetrainNextXhat;
     frc::Pose2d m_turretNextPoseInGlobal;
 
-    frc::CSVLogFile positionLogger{
-        "Turret Position", "Voltage (V)", "Measured Angle (rad)",
-        "Estimated Angle (rad)", "Angle Reference (rad)"};
-    frc::CSVLogFile velocityLogger{"Turret Velocity", "Voltage (V)",
-                                   "Estimated Angular Velocity (rad/s)",
-                                   "Angular Velocity Reference (rad/s)"};
+    ControllerLogger<2, 1, 1> m_logger{
+        "Turret",
+        {ControllerLabel{"Angle", "rad"},
+         ControllerLabel{"Angular velocity", "rad/s"}},
+        {ControllerLabel{"Voltage", "V"}},
+        {ControllerLabel{"Angle", "rad"}}};
 
     Eigen::Matrix<double, 1, 1> m_u;
 

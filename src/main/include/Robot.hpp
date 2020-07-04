@@ -4,6 +4,7 @@
 
 #include <frc/Joystick.h>
 #include <frc/TimedRobot.h>
+#include <frc/logging/CSVLogFile.h>
 #include <frc2/Timer.h>
 
 #include "Constants.hpp"
@@ -128,5 +129,7 @@ private:
     frc2::Timer m_timer;
 
     AutonSelector m_autonSelector{kDsPort};
+
+    frc::CSVLogFile m_batteryLogger{"Battery", "Battery Voltage (V)"};
 };
 }  // namespace frc3512

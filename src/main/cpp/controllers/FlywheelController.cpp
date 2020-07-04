@@ -61,11 +61,8 @@ const frc::LinearSystem<1, 1, 1>& FlywheelController::GetPlant() const {
 
 void FlywheelController::Update(units::second_t dt,
                                 units::second_t elapsedTime) {
-    velocityLogger.Log(elapsedTime, m_y(Output::kAngularVelocity),
-                       m_observer.Xhat(State::kAngularVelocity),
-                       m_nextR(State::kAngularVelocity));
-    voltageLogger.Log(elapsedTime, m_u(Input::kVoltage),
-                      frc::RobotController::GetInputVoltage());
+    m_logger.Log(elapsedTime, GetReferences(), GetStates(), GetInputs(),
+                 GetOutputs());
 
     m_observer.Correct(m_u, m_y);
 

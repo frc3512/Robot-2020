@@ -119,6 +119,9 @@ Eigen::Matrix<double, 6, 1> DrivetrainController::EstimatedGlobalOutputs()
 
 void DrivetrainController::Update(units::second_t dt,
                                   units::second_t elapsedTime) {
+    m_logger.Log(elapsedTime, GetReferences(), GetStates(), GetInputs(),
+                 GetOutputs());
+
     if (!m_isOpenLoop) {
         frc::Trajectory::State ref;
 
@@ -131,40 +134,6 @@ void DrivetrainController::Update(units::second_t dt,
 
         auto [vlRef, vrRef] =
             ToWheelVelocities(ref.velocity, ref.curvature, kWidth);
-
-        positionLogger.Log(elapsedTime, m_observer.Xhat(State::kX),
-                           m_observer.Xhat(State::kY),
-                           ref.pose.Translation().X().to<double>(),
-                           ref.pose.Translation().Y().to<double>(),
-                           m_localY(LocalOutput::kLeftPosition),
-                           m_localY(LocalOutput::kRightPosition),
-                           m_observer.Xhat(State::kLeftPosition),
-                           m_observer.Xhat(State::kRightPosition));
-
-        angleLogger.Log(elapsedTime, m_localY(LocalOutput::kHeading),
-                        m_observer.Xhat(State::kHeading),
-                        ref.pose.Rotation().Radians().to<double>(),
-                        m_observer.Xhat(State::kAngularVelocityError));
-        velocityLogger.Log(elapsedTime, m_observer.Xhat(State::kLeftVelocity),
-                           m_observer.Xhat(State::kRightVelocity),
-                           vlRef.to<double>(), vrRef.to<double>());
-        voltageLogger.Log(elapsedTime, m_cappedU(Input::kLeftVoltage),
-                          m_cappedU(Input::kRightVoltage),
-                          m_observer.Xhat(State::kLeftVoltageError),
-                          m_observer.Xhat(State::kRightVoltageError),
-                          frc::RobotController::GetInputVoltage());
-        errorCovLogger.Log(
-            elapsedTime, m_observer.P(State::kX, State::kX),
-            m_observer.P(State::kY, State::kY),
-            m_observer.P(State::kHeading, State::kHeading),
-            m_observer.P(State::kLeftVelocity, State::kLeftVelocity),
-            m_observer.P(State::kRightVelocity, State::kRightVelocity),
-            m_observer.P(State::kLeftPosition, State::kLeftPosition),
-            m_observer.P(State::kRightPosition, State::kRightPosition),
-            m_observer.P(State::kLeftVoltageError, State::kLeftVoltageError),
-            m_observer.P(State::kRightVoltageError, State::kRightVoltageError),
-            m_observer.P(State::kAngularVelocityError,
-                         State::kAngularVelocityError));
 
         m_observer.Correct(m_appliedU, m_localY);
 
@@ -199,38 +168,6 @@ void DrivetrainController::Update(units::second_t dt,
             Enable();
         }
     } else {
-        positionLogger.Log(elapsedTime, m_observer.Xhat(State::kX),
-                           m_observer.Xhat(State::kY), 0, 0,
-                           m_localY(LocalOutput::kLeftPosition),
-                           m_localY(LocalOutput::kRightPosition),
-                           m_observer.Xhat(State::kLeftPosition),
-                           m_observer.Xhat(State::kRightPosition));
-
-        angleLogger.Log(elapsedTime, m_localY(LocalOutput::kHeading),
-                        m_observer.Xhat(State::kHeading), 0,
-                        m_observer.Xhat(State::kAngularVelocityError));
-        velocityLogger.Log(elapsedTime, m_observer.Xhat(State::kLeftVelocity),
-                           m_observer.Xhat(State::kRightVelocity),
-                           m_nextR(State::kLeftVelocity),
-                           m_nextR(State::kRightVelocity));
-        voltageLogger.Log(elapsedTime, m_appliedU(Input::kLeftVoltage),
-                          m_appliedU(Input::kRightVoltage),
-                          m_observer.Xhat(State::kLeftVoltageError),
-                          m_observer.Xhat(State::kRightVoltageError),
-                          frc::RobotController::GetInputVoltage());
-        errorCovLogger.Log(
-            elapsedTime, m_observer.P(State::kX, State::kX),
-            m_observer.P(State::kY, State::kY),
-            m_observer.P(State::kHeading, State::kHeading),
-            m_observer.P(State::kLeftVelocity, State::kLeftVelocity),
-            m_observer.P(State::kRightVelocity, State::kRightVelocity),
-            m_observer.P(State::kLeftPosition, State::kLeftPosition),
-            m_observer.P(State::kRightPosition, State::kRightPosition),
-            m_observer.P(State::kLeftVoltageError, State::kLeftVoltageError),
-            m_observer.P(State::kRightVoltageError, State::kRightVoltageError),
-            m_observer.P(State::kAngularVelocityError,
-                         State::kAngularVelocityError));
-
         m_observer.Correct(m_appliedU, m_localY);
         m_observer.Predict(m_appliedU, dt);
     }

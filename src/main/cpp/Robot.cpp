@@ -5,6 +5,7 @@
 #include <functional>
 
 #include <frc/DriverStation.h>
+#include <frc/RobotController.h>
 #include <wpi/raw_ostream.h>
 
 namespace frc3512 {
@@ -85,7 +86,12 @@ void Robot::TestInit() {
     m_turret.ResetEncoder();
 }
 
-void Robot::RobotPeriodic() { SubsystemBase::RunAllRobotPeriodic(); }
+void Robot::RobotPeriodic() {
+    SubsystemBase::RunAllRobotPeriodic();
+    m_batteryLogger.Log(
+        units::second_t{std::chrono::steady_clock::now().time_since_epoch()},
+        frc::RobotController::GetInputVoltage());
+}
 
 void Robot::DisabledPeriodic() {
     SubsystemBase::RunAllDisabledPeriodic();

@@ -10,6 +10,7 @@
 #include <algorithm>
 #include <chrono>
 #include <string>
+#include <tuple>
 #include <type_traits>
 
 #include <units.h>
@@ -44,6 +45,27 @@ class CSVLogFile {
       : m_logFile(filePrefix, "csv") {
     m_logFile << "\"Time (s)\",";
     LogValues(columnHeading, columnHeadings...);
+  }
+
+  /**
+   * Instantiate a LogFile passing in its prefix and its column headings.
+   *
+   * If you want the file to be saved in a existing directory, you can add
+   * its path before the file prefix. Exemple : to save the file in a usb stick
+   * on the roborio ("/media/sda1/") : LogFile("/media/sda1/log").
+   *
+   * @param filePrefix     The prefix of the LogFile.
+   * @param columnHeadings Titles of CSVLogFile columns.
+   */
+  template <typename... Values>
+  CSVLogFile(wpi::StringRef filePrefix,
+             const std::tuple<Values...>& columnHeadings)
+      : m_logFile(filePrefix, "csv") {
+    static_assert(sizeof...(Values) > 0,
+                  "At least one column heading is required");
+    m_logFile << "\"Time (s)\",";
+    std::apply(&CSVLogFile::LogValues<Values...>,
+               std::tuple_cat(std::tuple{this}, columnHeadings));
   }
 
   /**
