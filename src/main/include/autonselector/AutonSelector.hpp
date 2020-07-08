@@ -33,8 +33,6 @@ namespace frc3512 {
 
 class AutonSelector {
 public:
-    enum StatusLight : int8_t { active, standby, inactive };
-
     explicit AutonSelector(int port);
     ~AutonSelector();
 
