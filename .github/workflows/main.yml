@@ -18,6 +18,9 @@ jobs:
         sudo apt-get update -q
         sudo apt-get install gnupg lsb-release software-properties-common -y
 
+    # Ubuntu 18.04 comes with 2.17 by default, and checkout@v2 requires 2.18+ to
+    # check out a Git repo instead of download a .zip. wpiformat relies on Git
+    # metadata to function.
     - name: Upgrade Git to 2.18+
       run: |
         sudo add-apt-repository ppa:git-core/ppa
