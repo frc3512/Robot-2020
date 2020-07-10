@@ -1,0 +1,60 @@
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  format:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Fetch all history and metadata
+      run: |
+        git fetch --prune --unshallow
+        git checkout -b pr
+        git branch -f master origin/master
+
+    - name: Install clang-format
+      run: |
+        sudo apt-get install clang-format-10
+
+    - name: Set up Python 3.8
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.8
+
+    - name: Install wpiformat
+      run: pip3 install wpiformat
+
+    - name: Run wpiformat
+      run: wpiformat -clang 10
+
+    - name: Verify wpiformat made no changes
+      run: git --no-pager diff --exit-code HEAD
+  build:
+    runs-on: ubuntu-latest
+
+    container: wpilib/roborio-cross-ubuntu:2020-18.04
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Grant execute permission for gradlew
+      run: chmod +x gradlew
+
+    - name: Compile robot code for Athena
+      run: ./gradlew frcUserProgramLinuxathenaReleaseExecutable
+  test:
+    runs-on: ubuntu-latest
+
+    container: wpilib/roborio-cross-ubuntu:2020-18.04
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Grant execute permission for gradlew
+      run: chmod +x gradlew
+
+    - name: Compile and run x86-64 unit tests
+      run: ./gradlew runFrcUserProgramTestLinuxx86-64ReleaseGoogleTestExe
