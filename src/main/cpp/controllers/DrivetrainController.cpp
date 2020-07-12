@@ -177,15 +177,12 @@ void DrivetrainController::Update(units::second_t dt,
         m_r = m_nextR;
         m_observer.Predict(m_cappedU, dt);
 
-        {
-            std::lock_guard lock(m_trajectoryMutex);
-            if (ref.pose == m_goal) {
-                Disable();
-            } else {
-                Enable();
-            }
+        std::lock_guard lock(m_trajectoryMutex);
+        if (ref.pose == m_goal) {
+            Disable();
+        } else {
+            Enable();
         }
-
     } else {
         m_observer.Correct(m_appliedU, m_localY);
         m_observer.Predict(m_appliedU, dt);
