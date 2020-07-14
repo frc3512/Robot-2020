@@ -76,7 +76,7 @@ void Drivetrain::ResetEncoders() {
 }
 
 void Drivetrain::Reset(const frc::Pose2d& initialPose) {
-    m_controller.Reset(initialPose);
+    m_controller.Reset(initialPose, initialPose);
     ResetEncoders();
     ResetGyro();
     m_headingOffset = initialPose.Rotation().Radians();

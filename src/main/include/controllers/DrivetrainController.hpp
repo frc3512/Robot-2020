@@ -187,8 +187,9 @@ public:
      * Resets any internal state.
      *
      * @param initialPose Initial pose for state estimate.
+     * @param initialRef Initial pose for controller reference.
      */
-    void Reset(const frc::Pose2d& initialPose);
+    void Reset(const frc::Pose2d& initialPose, const frc::Pose2d& initialRef);
 
     /**
      * Returns a trajectory config with a differential drive dynamics constraint

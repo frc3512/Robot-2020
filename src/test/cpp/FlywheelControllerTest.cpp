@@ -19,7 +19,6 @@ TEST(FlywheelControllerTest, ReachesGoal) {
     frc::sim::RoboRioSim roboRIO{0};
 
     frc3512::FlywheelController controller;
-    controller.Reset();
     controller.Enable();
 
     controller.SetGoal(500.0_rad_per_s);

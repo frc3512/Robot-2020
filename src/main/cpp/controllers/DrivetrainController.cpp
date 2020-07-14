@@ -196,7 +196,8 @@ void DrivetrainController::Reset() {
     m_cappedU.setZero();
 }
 
-void DrivetrainController::Reset(const frc::Pose2d& initialPose) {
+void DrivetrainController::Reset(const frc::Pose2d& initialPose,
+                                 const frc::Pose2d& initialRef) {
     m_observer.Reset();
 
     Eigen::Matrix<double, 10, 1> xHat;
@@ -206,8 +207,12 @@ void DrivetrainController::Reset(const frc::Pose2d& initialPose) {
     xHat.block<7, 1>(3, 0).setZero();
     m_observer.SetXhat(xHat);
 
-    m_r.setZero();
     m_nextR.setZero();
+    m_nextR(0) = initialRef.Translation().X().to<double>();
+    m_nextR(1) = initialRef.Translation().Y().to<double>();
+    m_nextR(2) = initialRef.Rotation().Radians().to<double>();
+    m_r = m_nextR;
+
     m_cappedU.setZero();
 }
 

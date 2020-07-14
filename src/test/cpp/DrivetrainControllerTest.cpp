@@ -19,13 +19,21 @@ TEST(DrivetrainControllerTest, ReachesReference) {
 
     frc::sim::RoboRioSim roboRIO{0};
 
+    frc::Pose2d initialPose{12.65_m, 5.800_m - 0.343_m,
+                            units::radian_t{wpi::math::pi}};
+
     frc3512::DrivetrainController controller;
-    controller.Reset(frc::Pose2d(12.65_m, 5.800_m - 0.343_m,
-                                 units::radian_t{wpi::math::pi}));
+    controller.Reset(initialPose, initialPose);
     controller.SetOpenLoop(false);
     controller.Enable();
 
     Eigen::Matrix<double, 10, 1> x = Eigen::Matrix<double, 10, 1>::Zero();
+    x(frc3512::DrivetrainController::State::kX) =
+        initialPose.Translation().X().to<double>();
+    x(frc3512::DrivetrainController::State::kY) =
+        initialPose.Translation().Y().to<double>();
+    x(frc3512::DrivetrainController::State::kHeading) =
+        initialPose.Rotation().Radians().to<double>();
 
     Eigen::Matrix<double, 2, 1> u = Eigen::Matrix<double, 2, 1>::Zero();
 
@@ -99,7 +107,6 @@ TEST(DrivetrainControllerTest, CorrectsTowardGlobalY) {
     using frc3512::Constants::kDt;
 
     frc3512::DrivetrainController controller;
-    controller.Reset(frc::Pose2d{0_m, 0_m, 0_rad});
     controller.SetOpenLoop(false);
     controller.Enable();
 

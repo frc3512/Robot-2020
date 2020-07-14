@@ -12,7 +12,10 @@ using namespace frc3512::Constants::Turret;
 const frc::Pose2d TurretController::kDrivetrainToTurretFrame{
     2_in, 0_m, wpi::math::pi * 1_rad};
 
-TurretController::TurretController() { m_y.setZero(); }
+TurretController::TurretController() {
+    m_y.setZero();
+    Reset();
+}
 
 void TurretController::Enable() { m_isEnabled = true; }
 
