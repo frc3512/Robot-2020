@@ -131,6 +131,7 @@ void DrivetrainController::Update(units::second_t dt,
                                   units::second_t elapsedTime) {
     m_logger.Log(elapsedTime, GetReferences(), GetStates(), GetInputs(),
                  GetOutputs());
+    m_batteryLogger.Log(elapsedTime, frc::RobotController::GetInputVoltage());
 
     if (!m_isOpenLoop) {
         frc::Trajectory::State ref;

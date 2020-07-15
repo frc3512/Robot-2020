@@ -5,6 +5,7 @@
 #include <frc/controller/LinearPlantInversionFeedforward.h>
 #include <frc/controller/LinearQuadraticRegulator.h>
 #include <frc/estimator/KalmanFilter.h>
+#include <frc/logging/CSVLogFile.h>
 #include <frc/system/plant/LinearSystemId.h>
 #include <units/units.h>
 #include <wpi/math>
@@ -132,6 +133,7 @@ private:
         {ControllerLabel{"Angular velocity", "rad/s"}},
         {ControllerLabel{"Voltage", "V"}},
         {ControllerLabel{"Angular velocity", "rad/s"}}};
+    frc::CSVLogFile m_batteryLogger{"Flywheel battery", "Battery voltage (V)"};
 
     Eigen::Matrix<double, 1, 1> m_u;
 };

@@ -204,6 +204,7 @@ private:
          ControllerLabel{"Angular velocity", "rad/s"}},
         {ControllerLabel{"Voltage", "V"}},
         {ControllerLabel{"Angle", "rad"}}};
+    frc::CSVLogFile m_batteryLogger{"Turret battery", "Battery voltage (V)"};
 
     Eigen::Matrix<double, 1, 1> m_u;
 

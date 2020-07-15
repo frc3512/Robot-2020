@@ -130,6 +130,6 @@ private:
 
     AutonSelector m_autonSelector{kDsPort};
 
-    frc::CSVLogFile m_batteryLogger{"Battery", "Battery Voltage (V)"};
+    frc::CSVLogFile m_batteryLogger{"Battery", "Battery voltage (V)"};
 };
 }  // namespace frc3512

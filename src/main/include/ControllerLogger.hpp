@@ -37,12 +37,12 @@ public:
                      const std::array<ControllerLabel, States>& stateLabels,
                      const std::array<ControllerLabel, Inputs>& inputLabels,
                      const std::array<ControllerLabel, Outputs>& outputLabels)
-        : m_stateLogger{(controllerName + " States").str(),
+        : m_stateLogger{(controllerName + " states").str(),
                         std::tuple_cat(MakeReferenceLabels(stateLabels),
                                        MakeStateEstimateLabels(stateLabels))},
-          m_inputLogger{(controllerName + " Inputs").str(),
+          m_inputLogger{(controllerName + " inputs").str(),
                         MakeInputLabels(inputLabels)},
-          m_outputLogger{(controllerName + " Outputs").str(),
+          m_outputLogger{(controllerName + " outputs").str(),
                          MakeOutputLabels(outputLabels)} {}
 
     /**

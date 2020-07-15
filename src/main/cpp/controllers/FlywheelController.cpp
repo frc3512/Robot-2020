@@ -63,6 +63,7 @@ void FlywheelController::Update(units::second_t dt,
                                 units::second_t elapsedTime) {
     m_logger.Log(elapsedTime, GetReferences(), GetStates(), GetInputs(),
                  GetOutputs());
+    m_batteryLogger.Log(elapsedTime, frc::RobotController::GetInputVoltage());
 
     m_observer.Correct(m_u, m_y);
 

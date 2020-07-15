@@ -74,15 +74,15 @@ def make_groups(files):
     # suffixes and the same name stub like "Flywheel")
     category_rgx = re.compile(
         r"^" + re.escape(prefix) +
-        r"/(?P<category>[A-Za-z ]+) (States|Inputs|Outputs)" + postfix + r"$")
+        r"/(?P<category>[A-Za-z ]+) (states|inputs|outputs)" + postfix + r"$")
     file_groups = {}
     if files:
         print("Loading CSVs...")
     else:
         print("No data to plot.")
 
-    # Sorting the file list puts files into the order ["Inputs", "Outputs",
-    # "States". This means data series will be loaded in the order of "inputs,
+    # Sorting the file list puts files into the order ["inputs", "outputs",
+    # "states". This means data series will be loaded in the order of "inputs,
     # outputs, references, states] (references are logged before states). This
     # produces the desired dataset layering on plots.
     for f in sorted(files):

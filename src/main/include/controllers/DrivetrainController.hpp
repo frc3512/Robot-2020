@@ -293,6 +293,8 @@ private:
         {ControllerLabel{"Heading", "rad"},
          ControllerLabel{"Left position", "m"},
          ControllerLabel{"Right position", "m"}}};
+    frc::CSVLogFile m_batteryLogger{"Drivetrain battery",
+                                    "Battery voltage (V)"};
 
     /**
      * Converts velocity and curvature of drivetrain into left and right wheel
