@@ -54,6 +54,8 @@ void Vision::ProcessNewMeasurement() {
 
     auto latency = static_cast<int64_t>(m_latency.GetDouble(-1) * 1000);
 
+    // PnP data is transformation from camera's coordinate frame to target's
+    // coordinate frame
     std::vector<double> pose = m_pose.GetDoubleArray({0.0, 0.0, 0.0});
 
     // If we don't see the target, don't push data into the queue
