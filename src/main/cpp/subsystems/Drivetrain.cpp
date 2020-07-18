@@ -38,10 +38,6 @@ void Drivetrain::Drive(double throttle, double turn, bool isQuickTurn) {
     m_drive.CurvatureDrive(throttle, turn, isQuickTurn);
 }
 
-void Drivetrain::SetLeftManual(double value) { m_leftGrbx.Set(value); }
-
-void Drivetrain::SetRightManual(double value) { m_rightGrbx.Set(value); }
-
 units::radian_t Drivetrain::GetAngle() const {
     return units::degree_t{-m_gyro.GetAngle()} + m_headingOffset;
 }
@@ -117,8 +113,8 @@ void Drivetrain::ControllerPeriodic() {
     if (!m_controller.IsOpenLoop()) {
         // Set motor inputs
         auto u = m_controller.GetInputs();
-        SetLeftManual(u(0) / 12.0);
-        SetRightManual(u(1) / 12.0);
+        m_leftGrbx.SetVoltage(units::volt_t{u(0)});
+        m_rightGrbx.SetVoltage(units::volt_t{u(1)});
     }
     m_lastTime = now;
 }

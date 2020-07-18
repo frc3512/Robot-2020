@@ -36,19 +36,6 @@ public:
     void Drive(double throttle, double turn, bool isQuickTurn = false);
 
     /**
-     * Directly set wheel speeds (see GearBox::SetManual(double)).
-     *
-     * @param value speeds [0..1]
-     */
-    void SetLeftManual(double value);
-
-    /**
-     * Directly set wheel speeds (see GearBox::SetManual(double)).
-     *
-     * @param value speeds [0..1]
-     */
-    void SetRightManual(double value);
-    /**
      * Returns gyro angle.
      *
      * @return angle in degrees
