@@ -2,7 +2,6 @@
 
 #pragma once
 
-#include <frc/DigitalInput.h>
 #include <frc/controller/LinearPlantInversionFeedforward.h>
 #include <frc/controller/LinearQuadraticRegulator.h>
 #include <frc/estimator/KalmanFilter.h>
