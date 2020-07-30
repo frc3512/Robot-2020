@@ -83,7 +83,7 @@ class LinearSystemId {
    * @param kA The acceleration gain, in volt seconds^2 per distance.
    */
   static LinearSystem<1, 1, 1> IdentifyVelocitySystem(double kV, double kA) {
-    auto A = frc::MakeMatrix<1, 1>(-kV / kV);
+    auto A = frc::MakeMatrix<1, 1>(-kV / kA);
     auto B = frc::MakeMatrix<1, 1>(1.0 / kA);
     auto C = frc::MakeMatrix<1, 1>(1.0);
     auto D = frc::MakeMatrix<1, 1>(0.0);
