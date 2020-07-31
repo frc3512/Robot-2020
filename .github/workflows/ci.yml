@@ -17,6 +17,7 @@ jobs:
 
     - name: Install clang-format
       run: |
+        sudo apt-get update -q
         sudo apt-get install clang-format-10
 
     - name: Set up Python 3.8
