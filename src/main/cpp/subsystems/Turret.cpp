@@ -30,11 +30,11 @@ units::radian_t Turret::GetAngle() const {
     return units::radian_t{-m_encoder.GetDistance()};
 }
 
-bool Turret::IsPassedCCWLimit() const {
+bool Turret::HasPassedCCWLimit() const {
     return GetAngle() > (wpi::math::pi * 1_rad / 2.0);
 }
 
-bool Turret::IsPassedCWLimit() const {
+bool Turret::HasPassedCWLimit() const {
     return GetAngle() < -(wpi::math::pi * 1_rad / 2.0);
 }
 
@@ -50,7 +50,7 @@ void Turret::ControllerPeriodic() {
     m_controller.SetMeasuredOutputs(GetAngle());
 
     m_controller.SetDrivetrainStatus(m_drivetrain.GetNextXhat());
-    m_controller.SetHardLimitOutputs(IsPassedCCWLimit(), IsPassedCWLimit());
+    m_controller.SetHardLimitOutputs(HasPassedCWLimit(), HasPassedCWLimit());
     m_controller.Update(now - m_lastTime, now - GetStartTime());
 
     auto globalMeasurement = m_vision.GetGlobalMeasurement();
@@ -93,9 +93,9 @@ void Turret::ProcessMessage(const ButtonPacket& message) {
 
 void Turret::ProcessMessage(const POVPacket& message) {
     if (m_manualOverride) {
-        if (message.direction == 90 && !IsPassedCWLimit()) {
+        if (message.direction == 90 && !HasPassedCWLimit()) {
             SetVoltage(-4.0_V);
-        } else if (message.direction == 270 && !IsPassedCCWLimit()) {
+        } else if (message.direction == 270 && !HasPassedCCWLimit()) {
             SetVoltage(4.0_V);
         } else {
             SetVoltage(0.0_V);
