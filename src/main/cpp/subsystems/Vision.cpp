@@ -41,12 +41,7 @@ void Vision::TurnLEDOff() { m_ledIsOn.SetBoolean(false); }
 bool Vision::IsLEDOn() const { return !m_ledIsOn.GetBoolean(false); }
 
 std::optional<Vision::GlobalMeasurement> Vision::GetGlobalMeasurement() {
-    std::scoped_lock lock(m_measurementMutex);
-    if (m_measurements.size() > 0) {
-        return m_measurements.pop_back();
-    } else {
-        return std::nullopt;
-    }
+    return m_measurements.pop();
 }
 
 void Vision::ProcessNewMeasurement() {
@@ -83,6 +78,5 @@ void Vision::ProcessNewMeasurement() {
     auto timestampInt =
         chrono::duration_cast<chrono::microseconds>(timestamp).count();
 
-    std::scoped_lock lock(m_measurementMutex);
-    m_measurements.push_back({timestampInt, turretInGlobal});
+    m_measurements.push({timestampInt, turretInGlobal});
 }

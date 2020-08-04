@@ -5,7 +5,6 @@
 #include <ntcore_c.h>
 
 #include <memory>
-#include <optional>
 
 #include <frc/geometry/Translation2d.h>
 #include <frc/logging/CSVLogFile.h>
@@ -14,10 +13,9 @@
 #include <networktables/NetworkTableInstance.h>
 #include <units/units.h>
 #include <wpi/math>
-#include <wpi/mutex.h>
-#include <wpi/static_circular_buffer.h>
 
 #include "controllers/DrivetrainController.hpp"
+#include "static_concurrent_queue.hpp"
 #include "subsystems/SubsystemBase.hpp"
 
 namespace frc3512 {
@@ -73,7 +71,6 @@ private:
     nt::NetworkTableEntry m_pose;
     nt::NetworkTableEntry m_latency;
 
-    wpi::mutex m_measurementMutex;
-    wpi::static_circular_buffer<GlobalMeasurement, 8> m_measurements;
+    frc3512::static_concurrent_queue<GlobalMeasurement, 8> m_measurements;
 };
 }  // namespace frc3512
