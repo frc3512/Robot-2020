@@ -1,0 +1,12 @@
+#include "communications/PublishNodeBase.hpp"
+#include "communications/PacketType.hpp"
+
+void frc3512::PublishNodeBase::DeserializeAndProcessMessage(
+        wpi::SmallVectorImpl<char>& message) {
+    // Checks the first byte of the message for its ID to determine
+    // which packet to deserialize to, then processes it
+    auto packetType = static_cast<PacketType>(message[0]);
+    switch (packetType) {
+${DESERIAL_AND_PROC}
+    }
+}

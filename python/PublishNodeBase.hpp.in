@@ -1,0 +1,39 @@
+#pragma once
+
+#include <wpi/SmallVector.h>
+#include <wpi/mutex.h>
+
+${INCLUDES}
+
+namespace frc3512 {
+
+class PublishNodeBase {
+public:
+    /**
+     * Deserialize the provided message and process it via the ProcessMessage()
+     * function corresponding to the message type.
+     *
+     * Do NOT provide an implementation for this function. generate_messages.py
+     * generates one in PublishNodeBase.cpp.
+     *
+     * @param message The buffer containing the message to deserialize.
+     */
+    void DeserializeAndProcessMessage(wpi::SmallVectorImpl<char>& message);
+
+${FUNCTIONS}
+
+protected:
+    wpi::mutex m_mutex;
+
+private:
+    template <typename P>
+    void DeserializeImpl(wpi::SmallVectorImpl<char>& message) {
+        P packet;
+        packet.Deserialize(message.data(), message.size());
+        m_mutex.unlock();
+        ProcessMessage(packet);
+        m_mutex.lock();
+    }
+};
+
+}  // namespace frc3512

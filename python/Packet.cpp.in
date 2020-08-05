@@ -1,0 +1,27 @@
+#include "communications/${CLASS_NAME}.hpp"
+
+using namespace frc3512;
+
+${CLASS_NAME}::${CLASS_NAME}(${CTOR_ARGS}) {
+${CTOR_INIT}
+}
+
+${CLASS_NAME}::${CLASS_NAME}(Packet& packet) {
+    Deserialize(packet);
+}
+
+Packet ${CLASS_NAME}::Serialize() const {
+    Packet packet;
+${SERIAL}
+    return packet;
+}
+
+void ${CLASS_NAME}::Deserialize(Packet& packet) {
+${DESERIAL}
+}
+
+void ${CLASS_NAME}::Deserialize(const char* buf, size_t length) {
+    Packet packet;
+    packet.append(buf, length);
+    Deserialize(packet);
+}

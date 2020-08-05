@@ -1,0 +1,54 @@
+#pragma once
+
+#include <wpi/StringRef.h>
+
+#include <string>
+
+#include "communications/PacketType.hpp"
+#include "autonselector/Packet.hpp"
+
+namespace frc3512 {
+
+class ${CLASS_NAME} {
+public:
+${VARIABLES}
+
+    ${CLASS_NAME}() = default;
+
+    /**
+     * Construct a ${CLASS_NAME} with the given fields.
+     */
+    ${CTOR}
+
+    /**
+     * Deserializes the given packet
+     *
+     * @param packet The packet to deserialize
+     */
+    ${CLASS_NAME}(Packet& packet);
+
+    /**
+     * Serializes the given packet.
+     *
+     * The contents of the packet should be passed to whatever communication
+     * layer that takes a raw buffer
+     */
+    Packet Serialize() const;
+
+    /**
+     * Deserializes the given packet.
+     *
+     * @param packet The buffer containing the packet.
+     * @param size   The length of the packet.
+     */
+    void Deserialize(const char* buf, size_t size);
+
+    /**
+     * Deserializes the given packet.
+     *
+     * @param packet The packet to deserialize.
+     */
+    void Deserialize(Packet& packet);
+};
+
+}  // namespace frc3512

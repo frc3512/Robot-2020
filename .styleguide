@@ -11,9 +11,6 @@ cppSrcFileInclude {
 
 modifiableFileExclude {
   gradle/
-  python/
-  format.py
-  make.py
 }
 
 includeCppSys {
