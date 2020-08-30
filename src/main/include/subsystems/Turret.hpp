@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include <atomic>
 #include <limits>
 
 #include <frc/DigitalInput.h>
@@ -13,7 +14,6 @@
 #include "Constants.hpp"
 #include "controllers/TurretController.hpp"
 #include "subsystems/ControllerSubsystemBase.hpp"
-#include "subsystems/SubsystemBase.hpp"
 
 namespace frc3512 {
 
@@ -21,20 +21,27 @@ class Vision;
 class Drivetrain;
 
 /**
- *  State class which stores numerical values as "states" for the Turret to use.
- */
-enum TurretState { kIDLE = 0, kMostLeft, KMostRight };
-
-/**
  * Subsystem specifically designed for the Turret (bottom, movable part of the
  * Shooter)
  */
 class Turret : public ControllerSubsystemBase {
 public:
+    enum class Direction { kNone, kCCW, kCW };
+
     explicit Turret(Vision& vision, Drivetrain& drivetrain);
 
     Turret(const Turret&) = delete;
     Turret& operator=(const Turret&) = delete;
+
+    /**
+     * If called, permanently enables manual override.
+     */
+    void SetManualOverride();
+
+    /**
+     * Set direction turret should move during manual override.
+     */
+    void SetDirection(Direction direction);
 
     /**
      *  Set the velocity of the Spark Max, which is wired to the Turret.
@@ -97,10 +104,6 @@ public:
 
     frc::Pose2d GetNextPose() const;
 
-    void ProcessMessage(const ButtonPacket& message) override;
-
-    void ProcessMessage(const POVPacket& message) override;
-
 private:
 #ifndef RUNNING_FRC_TESTS
     frc::DutyCycleEncoder m_encoder{Constants::Turret::kEncoderPort};
@@ -118,8 +121,8 @@ private:
     Vision& m_vision;
     Drivetrain& m_drivetrain;
 
-    // TODO: Let the turret move on its once the absolute
-    // encoder is swapped off for a normal one
-    bool m_manualOverride = true;
+    // TODO: Let the turret move on its own once the turret encoder is trusted
+    // more
+    std::atomic<bool> m_manualOverride{true};
 };
 }  // namespace frc3512

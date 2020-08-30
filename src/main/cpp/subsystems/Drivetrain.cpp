@@ -15,8 +15,7 @@
 using namespace frc3512;
 using namespace frc3512::Constants::Robot;
 
-Drivetrain::Drivetrain(Vision& vision)
-    : ControllerSubsystemBase("Drivetrain"), m_vision(vision) {
+Drivetrain::Drivetrain(Vision& vision) : m_vision(vision) {
     m_drive.SetDeadband(kJoystickDeadband);
 
     m_leftGrbx.Set(0.0);
@@ -137,15 +136,4 @@ bool Drivetrain::AtGoal() const { return m_controller.AtGoal(); }
 
 Eigen::Matrix<double, 10, 1> Drivetrain::GetNextXhat() const {
     return m_controller.GetStates();
-}
-
-void Drivetrain::ProcessMessage(const HIDPacket& message) {
-    double y1 = message.y1;
-    double x2 = message.x2;
-
-    if (GetRawButton(message, 0, 1)) {
-        y1 *= 0.5;
-        x2 *= 0.5;
-    }
-    Drive(y1, x2, GetRawButton(message, 1, 2));
 }

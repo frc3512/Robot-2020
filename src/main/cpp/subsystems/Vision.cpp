@@ -17,7 +17,7 @@ using namespace frc3512;
 const frc::Transform2d Vision::kCameraInGlobalToTurretInGlobal{
     frc::Pose2d{}, frc::Pose2d{0_in, -1.0 * 3_in, 0_rad}};
 
-Vision::Vision() : SubsystemBase("Vision") {
+Vision::Vision() {
     m_inst = nt::NetworkTableInstance::GetDefault();
 #ifdef RUNNING_FRC_TESTS
     m_inst.StartLocal();

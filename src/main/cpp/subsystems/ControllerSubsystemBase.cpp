@@ -11,8 +11,7 @@ frc::RTNotifier ControllerSubsystemBase::m_notifier{
 std::chrono::steady_clock::time_point ControllerSubsystemBase::m_startTime{
     std::chrono::steady_clock::now()};
 
-ControllerSubsystemBase::ControllerSubsystemBase(std::string_view nodeName)
-    : SubsystemBase(nodeName) {
+ControllerSubsystemBase::ControllerSubsystemBase() {
     Disable();
     m_controllers.emplace_back(this);
 }

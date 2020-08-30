@@ -1,2 +1,0 @@
-int button
-bool pressed

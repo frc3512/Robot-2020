@@ -2,8 +2,6 @@
 
 #pragma once
 
-#include <string_view>
-
 #include <frc/RTNotifier.h>
 #include <wpi/SmallVector.h>
 
@@ -22,10 +20,8 @@ class ControllerSubsystemBase : public SubsystemBase {
 public:
     /**
      * Construct a controller subsystem.
-     *
-     * @param nodeName Name of pubsub node.
      */
-    explicit ControllerSubsystemBase(std::string_view nodeName);
+    ControllerSubsystemBase();
 
     virtual ~ControllerSubsystemBase();
 

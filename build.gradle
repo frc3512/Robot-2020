@@ -8,11 +8,6 @@ plugins {
 // wpi.maven.useFrcMavenLocalDevelopment = true
 // wpi.wpilibVersion = '2020.424242.+'
 
-task pythonTask(type: Exec) {
-    workingDir '.'
-    commandLine 'python3', 'python/generate_messages.py', '--input', 'msgs', '--output', 'build/generated'
-}
-
 // Define my targets (RoboRIO) and artifacts (deployable files)
 // This is added by GradleRIO's backing project EmbeddedTools.
 deploy {
@@ -77,13 +72,6 @@ model {
               }
             }
 
-            binaries.all {
-                binary ->
-                binary.getTasks().withType(AbstractNativeSourceCompileTask) {
-                    it.dependsOn pythonTask
-                }
-            }
-
             sources.cpp {
                 source {
                     srcDirs = ['src/main/cpp', 'thirdparty/cpp', 'build/generated/cpp']
@@ -109,13 +97,6 @@ model {
                   it.buildable = false
                 }
               }
-            }
-
-            binaries.all {
-                binary ->
-                binary.getTasks().withType(AbstractNativeSourceCompileTask) {
-                    it.dependsOn pythonTask
-                }
             }
 
             sources.cpp {

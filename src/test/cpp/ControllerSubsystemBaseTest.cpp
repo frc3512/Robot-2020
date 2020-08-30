@@ -10,8 +10,6 @@ class MockSubsystem : public frc3512::ControllerSubsystemBase {
 public:
     int periodicCount = 0;
 
-    MockSubsystem() : ControllerSubsystemBase("Mock") {}
-
     void ControllerPeriodic() override { periodicCount++; }
 };
 

@@ -19,8 +19,6 @@ namespace frc3512 {
  */
 class Climber : public SubsystemBase {
 public:
-    Climber() : SubsystemBase("Climber") {}
-
     /**
      *  Sets the transverser speed
      *
@@ -34,8 +32,6 @@ public:
      *  @param speed, sets the speed of the elevator.
      */
     void SetElevator(double speed);
-
-    void ProcessMessage(const HIDPacket& message) override;
 
 private:
     rev::CANSparkMax m_elevator{Constants::Climber::kElevatorPortRight,

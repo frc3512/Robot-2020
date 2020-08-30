@@ -2,27 +2,19 @@
 
 #pragma once
 
-#include <string_view>
-
 #include <wpi/SmallVector.h>
-
-#include "communications/PublishNode.hpp"
 
 namespace frc3512 {
 
 /**
- * A standardized base for subsystems implementing pubsub.
+ * A standardized base for subsystems.
  */
-class SubsystemBase : public PublishNode {
+class SubsystemBase {
 public:
     /**
-     * Constructs a pubsub subsystem.
-     *
-     * @param nodeName Name of pubsub node.
+     * Constructs a SubsystemBase.
      */
-    explicit SubsystemBase(std::string_view nodeName) : PublishNode(nodeName) {
-        m_subsystems.emplace_back(this);
-    }
+    SubsystemBase() { m_subsystems.emplace_back(this); }
 
     virtual ~SubsystemBase() = default;
 

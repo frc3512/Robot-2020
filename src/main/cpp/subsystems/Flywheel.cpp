@@ -9,8 +9,7 @@
 using namespace frc3512;
 using namespace std::chrono_literals;
 
-Flywheel::Flywheel(Turret& turret)
-    : ControllerSubsystemBase("Flywheel"), m_turret(turret) {
+Flywheel::Flywheel(Turret& turret) : m_turret(turret) {
     m_leftGrbx.Set(0.0);
     m_rightGrbx.Set(0.0);
     m_encoder.SetDistancePerPulse(FlywheelController::kDpP);

@@ -10,16 +10,7 @@
 
 namespace frc3512 {
 
-Robot::Robot() : PublishNode("Robot") {
-    m_drivetrain.Subscribe(*this);
-    m_flywheel.Subscribe(*this);
-    m_turret.Subscribe(*this);
-    m_intake.Subscribe(*this);
-    m_vision.Subscribe(*this);
-    m_climber.Subscribe(*this);
-
-    m_flywheel.Subscribe(m_turret);
-
+Robot::Robot() {
     m_autonSelector.AddAutoMethod(
         "No-op", [] {}, [] {});
     m_autonSelector.AddAutoMethod(
@@ -59,24 +50,10 @@ void Robot::TeleopInit() {
     SubsystemBase::RunAllTeleopInit();
 
     // Consumes button presses made in disabled
-    for (int i = 1; i <= 12; i++) {
-        if (m_driveStick1.GetRawButtonPressed(i)) {
-            ButtonPacket message{"DriveStick1", i, true};
-            Publish(message);
-        }
-        if (m_driveStick2.GetRawButtonPressed(i)) {
-            ButtonPacket message{"DriveStick2", i, true};
-            Publish(message);
-        }
-        if (m_appendageStick1.GetRawButtonPressed(i)) {
-            ButtonPacket message{"AppendageStick", i, true};
-            Publish(message);
-        }
-        if (m_appendageStick2.GetRawButtonPressed(i)) {
-            ButtonPacket message{"AppendageStick2", i, true};
-            Publish(message);
-        }
-    }
+    m_driveStick1.Update();
+    m_driveStick2.Update();
+    m_appendageStick1.Update();
+    m_appendageStick2.Update();
 
     ControllerSubsystemBase::Enable();
 }
@@ -118,25 +95,73 @@ void Robot::AutonomousPeriodic() {
 void Robot::TeleopPeriodic() {
     SubsystemBase::RunAllTeleopPeriodic();
 
-    for (int i = 2; i <= 12; i++) {
-        if (m_driveStick1.GetRawButtonPressed(i)) {
-            ButtonPacket message{"DriveStick1", i, true};
-            Publish(message);
-        }
-        if (m_appendageStick1.GetRawButtonPressed(i)) {
-            ButtonPacket message{"AppendageStick", i, true};
-            Publish(message);
-        }
-        if (m_appendageStick2.GetRawButtonPressed(i)) {
-            ButtonPacket message{"AppendageStick2", i, true};
-            Publish(message);
-        }
-        if (m_appendageStick2.GetRawButtonReleased(i)) {
-            ButtonPacket message{"AppendageStick2", i, false};
-            Publish(message);
+    m_driveStick1.Update();
+    m_driveStick2.Update();
+    m_appendageStick1.Update();
+    m_appendageStick2.Update();
+
+    // Drivetrain
+    double y = m_driveStick1.GetY();
+    double x = m_driveStick2.GetX();
+
+    if (m_driveStick1.GetRawButton(1)) {
+        y *= 0.5;
+        x *= 0.5;
+    }
+    m_drivetrain.Drive(y, x, m_driveStick2.GetRawButton(2));
+
+    // Turret manual override
+    if (m_appendageStick1.GetRawButtonPressed(11)) {
+        m_turret.SetManualOverride();
+    }
+
+    // Turrret manual spin
+    int pov = m_appendageStick1.GetPOV();
+    if (pov == 90) {
+        m_turret.SetDirection(Turret::Direction::kCW);
+    } else if (pov == 270) {
+        m_turret.SetDirection(Turret::Direction::kCCW);
+    } else {
+        m_turret.SetDirection(Turret::Direction::kNone);
+    }
+
+    // Intake
+    if (m_appendageStick2.GetRawButtonPressed(4)) {
+        m_intake.SetArmMotor(Intake::ArmMotorDirection::kIntake);
+        m_intake.SetFunnel(0.4);
+    } else if (m_appendageStick2.GetRawButtonPressed(6)) {
+        m_intake.SetArmMotor(Intake::ArmMotorDirection::kOuttake);
+        m_intake.SetFunnel(-0.4);
+    } else if (m_appendageStick2.GetRawButtonReleased(4)) {
+        m_intake.SetArmMotor(Intake::ArmMotorDirection::kIdle);
+        m_intake.SetFunnel(0.0);
+    } else if (m_appendageStick2.GetRawButtonReleased(6)) {
+        m_intake.SetArmMotor(Intake::ArmMotorDirection::kIdle);
+        m_intake.SetFunnel(0.0);
+    } else if (m_appendageStick2.GetRawButtonPressed(3)) {
+        if (m_intake.IsDeployed()) {
+            m_intake.Stow();
+        } else {
+            m_intake.Deploy();
         }
     }
 
+    // Climber traverser
+    if (m_appendageStick2.GetRawButton(2)) {
+        double x = m_appendageStick2.GetX();
+        m_climber.SetTransverser(x * 0.5 + wpi::sgn(x) * 0.5);
+    } else {
+        m_climber.SetTransverser(0.0);
+    }
+
+    // Climber elevator
+    if (m_appendageStick1.GetRawButton(1)) {
+        m_climber.SetElevator(std::abs(m_appendageStick1.GetY()));
+    } else {
+        m_climber.SetElevator(0.0);
+    }
+
+    // Shooting state machine
     switch (m_state) {
         // Wait until ball(s) are fully loaded in conveyor and trigger has been
         // pushed.
@@ -168,25 +193,6 @@ void Robot::TeleopPeriodic() {
             break;
         }
     }
-
-    POVPacket povMessage{"AppendageStick2", m_appendageStick1.GetPOV()};
-    Publish(povMessage);
-
-    auto& ds = frc::DriverStation::GetInstance();
-    HIDPacket hidMessage{"",
-                         m_driveStick1.GetX(),
-                         m_driveStick1.GetY(),
-                         ds.GetStickButtons(0),
-                         m_driveStick2.GetX(),
-                         m_driveStick2.GetY(),
-                         ds.GetStickButtons(1),
-                         m_appendageStick1.GetX(),
-                         m_appendageStick1.GetY(),
-                         ds.GetStickButtons(2),
-                         m_appendageStick2.GetX(),
-                         m_appendageStick2.GetY(),
-                         ds.GetStickButtons(3)};
-    Publish(hidMessage);
 }
 
 }  // namespace frc3512

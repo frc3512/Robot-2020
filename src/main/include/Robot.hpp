@@ -2,14 +2,13 @@
 
 #pragma once
 
-#include <frc/Joystick.h>
 #include <frc/TimedRobot.h>
 #include <frc/logging/CSVLogFile.h>
 #include <frc2/Timer.h>
 
+#include "CachedJoystick.hpp"
 #include "Constants.hpp"
 #include "autonselector/AutonSelector.hpp"
-#include "communications/PublishNode.hpp"
 #include "subsystems/Climber.hpp"
 #include "subsystems/Drivetrain.hpp"
 #include "subsystems/Flywheel.hpp"
@@ -21,7 +20,7 @@ namespace frc3512 {
 
 using namespace frc3512::Constants::Robot;
 
-class Robot : public frc::TimedRobot, public PublishNode {
+class Robot : public frc::TimedRobot {
 public:
     /**
      * States used for the multi-subsystem shooting procedure
@@ -120,10 +119,10 @@ private:
     Flywheel m_flywheel{m_turret};
     Intake m_intake{m_flywheel};
     Climber m_climber;
-    frc::Joystick m_driveStick1{kDriveStick1Port};
-    frc::Joystick m_driveStick2{kDriveStick2Port};
-    frc::Joystick m_appendageStick1{kAppendageStick1Port};
-    frc::Joystick m_appendageStick2{kAppendageStick2Port};
+    CachedJoystick m_driveStick1{kDriveStick1Port};
+    CachedJoystick m_driveStick2{kDriveStick2Port};
+    CachedJoystick m_appendageStick1{kAppendageStick1Port};
+    CachedJoystick m_appendageStick2{kAppendageStick2Port};
 
     ShootingState m_state = ShootingState::kIdle;
     frc2::Timer m_timer;

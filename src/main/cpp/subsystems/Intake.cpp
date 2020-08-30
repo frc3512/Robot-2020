@@ -52,30 +52,3 @@ void Intake::RobotPeriodic() {
         SetConveyor(0.0);
     }
 }
-
-void Intake::ProcessMessage(const ButtonPacket& message) {
-    if (message.topic == "Robot/AppendageStick2" && message.button == 4 &&
-        message.pressed) {
-        SetArmMotor(ArmMotorDirection::kIntake);
-        SetFunnel(0.4);
-    } else if (message.topic == "Robot/AppendageStick2" &&
-               message.button == 6 && message.pressed) {
-        SetArmMotor(ArmMotorDirection::kOuttake);
-        SetFunnel(-0.4);
-    } else if (message.topic == "Robot/AppendageStick2" &&
-               message.button == 4 && !message.pressed) {
-        SetArmMotor(ArmMotorDirection::kIdle);
-        SetFunnel(0.0);
-    } else if (message.topic == "Robot/AppendageStick2" &&
-               message.button == 6 && !message.pressed) {
-        SetArmMotor(ArmMotorDirection::kIdle);
-        SetFunnel(0.0);
-    } else if (message.topic == "Robot/AppendageStick2" &&
-               message.button == 3 && message.pressed) {
-        if (IsDeployed()) {
-            Stow();
-        } else {
-            Deploy();
-        }
-    }
-}

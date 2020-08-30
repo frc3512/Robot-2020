@@ -8,10 +8,7 @@
 using namespace frc3512;
 
 Turret::Turret(Vision& vision, Drivetrain& drivetrain)
-    : ControllerSubsystemBase("Turret"),
-      m_vision(vision),
-      m_drivetrain(drivetrain) {
-    m_motor.Set(0);
+    : m_vision(vision), m_drivetrain(drivetrain) {
 #ifndef RUNNING_FRC_TESTS
     m_encoder.SetDistancePerRotation(TurretController::kDpR);
 #else
@@ -20,7 +17,21 @@ Turret::Turret(Vision& vision, Drivetrain& drivetrain)
     Reset();
 }
 
+void Turret::SetDirection(Direction direction) {
+    if (m_manualOverride) {
+        if (direction == Direction::kCW && !HasPassedCWLimit()) {
+            SetVoltage(-4.0_V);
+        } else if (direction == Direction::kCCW && !HasPassedCCWLimit()) {
+            SetVoltage(4.0_V);
+        } else {
+            SetVoltage(0.0_V);
+        }
+    }
+}
+
 void Turret::SetVoltage(units::volt_t voltage) { m_motor.SetVoltage(voltage); }
+
+void Turret::SetManualOverride() { m_manualOverride = true; }
 
 void Turret::ResetEncoder() { m_encoder.Reset(); }
 
@@ -83,22 +94,3 @@ void Turret::ControllerPeriodic() {
 }
 
 frc::Pose2d Turret::GetNextPose() const { return m_controller.GetNextPose(); }
-
-void Turret::ProcessMessage(const ButtonPacket& message) {
-    if (message.topic == "Robot/AppendageStick" && message.button == 11 &&
-        message.pressed) {
-        m_manualOverride = true;
-    }
-}
-
-void Turret::ProcessMessage(const POVPacket& message) {
-    if (m_manualOverride) {
-        if (message.direction == 90 && !HasPassedCWLimit()) {
-            SetVoltage(-4.0_V);
-        } else if (message.direction == 270 && !HasPassedCCWLimit()) {
-            SetVoltage(4.0_V);
-        } else {
-            SetVoltage(0.0_V);
-        }
-    }
-}

@@ -29,8 +29,7 @@ public:
 
     enum class ArmMotorDirection { kIntake, kOuttake, kIdle };
 
-    explicit Intake(Flywheel& flywheel)
-        : SubsystemBase("Intake"), m_flywheel(flywheel) {}
+    explicit Intake(Flywheel& flywheel) : m_flywheel(flywheel) {}
 
     /**
      * Deploys the Intake
@@ -85,8 +84,6 @@ public:
     bool IsLowerSensorBlocked() const;
 
     void RobotPeriodic() override;
-
-    void ProcessMessage(const ButtonPacket& message) override;
 
 private:
     State m_state = State::kIdle;

@@ -1,9 +1,0 @@
-#pragma once
-
-#include <stdint.h>
-
-namespace frc3512 {
-
-enum class PacketType : int8_t {${ENUM_VALUES}};
-
-}  // namespace frc3512
