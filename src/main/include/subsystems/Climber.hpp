@@ -2,8 +2,6 @@
 
 #pragma once
 
-#include <frc/DoubleSolenoid.h>
-#include <frc/Solenoid.h>
 #include <rev/CANSparkMax.h>
 
 #include "Constants.hpp"
