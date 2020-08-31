@@ -49,7 +49,7 @@ public:
         static constexpr int kRightPosition = 6;
         static constexpr int kLeftVoltageError = 7;
         static constexpr int kRightVoltageError = 8;
-        static constexpr int kAngularVelocityError = 9;
+        static constexpr int kHeadingError = 9;
     };
 
     class Input {
@@ -287,7 +287,7 @@ private:
          ControllerLabel{"Right position", "m"},
          ControllerLabel{"Left voltage error", "V"},
          ControllerLabel{"Right voltage error", "V"},
-         ControllerLabel{"Angular velocity error", "rad/s"}},
+         ControllerLabel{"Heading error", "rad"}},
         {ControllerLabel{"Left voltage", "V"},
          ControllerLabel{"Right voltage", "V"}},
         {ControllerLabel{"Heading", "rad"},
