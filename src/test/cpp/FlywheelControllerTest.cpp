@@ -6,6 +6,7 @@
 #include <gtest/gtest.h>
 #include <simulation/RoboRioSim.h>
 #include <units/units.h>
+#include <wpi/MathExtras.h>
 
 #include "Constants.hpp"
 #include "RenameCSVs.hpp"
@@ -56,10 +57,12 @@ TEST(FlywheelControllerTest, ReachesGoal) {
             constexpr auto Rbat = 0.03_Ohm;
 
             constexpr auto motors = frc::DCMotor::NEO(2);
-            units::ampere_t load = motors.Current(
-                units::radians_per_second_t{
-                    x(0) / frc3512::FlywheelController::kGearRatio},
-                units::volt_t{u(0)});
+            units::ampere_t load =
+                motors.Current(
+                    units::radians_per_second_t{
+                        x(0) / frc3512::FlywheelController::kGearRatio},
+                    units::volt_t{u(0)}) *
+                wpi::sgn(u(0));
             units::volt_t vLoaded = Vbat - load * Rbat - load * Rbat;
             double dsVoltage =
                 vLoaded.to<double>() + frc::MakeWhiteNoiseVector(0.1)(0);

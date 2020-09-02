@@ -79,13 +79,18 @@ TEST(DrivetrainControllerTest, ReachesReference) {
             using Input = frc3512::DrivetrainController::Input;
             using State = frc3512::DrivetrainController::State;
             constexpr auto motors = frc::DCMotor::MiniCIM(3);
-            units::ampere_t loadIleft = motors.Current(
-                units::meters_per_second_t{x(State::kLeftVelocity)} / r * 1_rad,
-                units::volt_t{u(Input::kLeftVoltage)});
-            units::ampere_t loadIright = motors.Current(
-                units::meters_per_second_t{x(State::kRightVelocity)} / r *
-                    1_rad,
-                units::volt_t{u(Input::kRightVoltage)});
+            units::ampere_t loadIleft =
+                motors.Current(
+                    units::meters_per_second_t{x(State::kLeftVelocity)} / r *
+                        1_rad,
+                    units::volt_t{u(Input::kLeftVoltage)}) *
+                wpi::sgn(u(Input::kLeftVoltage));
+            units::ampere_t loadIright =
+                motors.Current(
+                    units::meters_per_second_t{x(State::kRightVelocity)} / r *
+                        1_rad,
+                    units::volt_t{u(Input::kRightVoltage)}) *
+                wpi::sgn(u(Input::kRightVoltage));
             units::volt_t vLoaded = Vbat - loadIleft * Rbat - loadIright * Rbat;
             double dsVoltage =
                 vLoaded.to<double>() + frc::MakeWhiteNoiseVector(0.1)(0);

@@ -6,6 +6,7 @@
 #include <gtest/gtest.h>
 #include <simulation/RoboRioSim.h>
 #include <units/units.h>
+#include <wpi/MathExtras.h>
 #include <wpi/math>
 
 #include "Constants.hpp"
@@ -90,16 +91,23 @@ void RunSimulation(
             constexpr auto turretMotor = frc::DCMotor::NEO(1);
             units::ampere_t turretLoad =
                 turretMotor.Current(units::radians_per_second_t{turretX(1)},
-                                    units::volt_t{turretU(0)});
+                                    units::volt_t{turretU(0)}) *
+                wpi::sgn(turretU(0));
             constexpr auto drivetrainMotors = frc::DCMotor::NEO(2);
-            units::ampere_t loadIleft = drivetrainMotors.Current(
-                units::meters_per_second_t{drivetrainX(State::kLeftVelocity)} /
-                    r * 1_rad,
-                units::volt_t{drivetrainU(Input::kLeftVoltage)});
-            units::ampere_t loadIright = drivetrainMotors.Current(
-                units::meters_per_second_t{drivetrainX(State::kRightVelocity)} /
-                    r * 1_rad,
-                units::volt_t{drivetrainU(Input::kRightVoltage)});
+            units::ampere_t loadIleft =
+                drivetrainMotors.Current(
+                    units::meters_per_second_t{
+                        drivetrainX(State::kLeftVelocity)} /
+                        r * 1_rad,
+                    units::volt_t{drivetrainU(Input::kLeftVoltage)}) *
+                wpi::sgn(drivetrainU(Input::kLeftVoltage));
+            units::ampere_t loadIright =
+                drivetrainMotors.Current(
+                    units::meters_per_second_t{
+                        drivetrainX(State::kRightVelocity)} /
+                        r * 1_rad,
+                    units::volt_t{drivetrainU(Input::kRightVoltage)}) *
+                wpi::sgn(drivetrainU(Input::kRightVoltage));
             units::volt_t vLoaded =
                 Vbat - turretLoad * Rbat - loadIleft * Rbat - loadIright * Rbat;
             double dsVoltage =
