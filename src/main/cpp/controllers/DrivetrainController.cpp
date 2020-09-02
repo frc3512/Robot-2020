@@ -311,15 +311,15 @@ Eigen::Matrix<double, 10, 1> DrivetrainController::Dynamics(
 
     double v = (x(State::kLeftVelocity) + x(State::kRightVelocity)) / 2.0;
 
-    Eigen::Matrix<double, 10, 1> result;
-    result(0) = v * std::cos(x(State::kHeading));
-    result(1) = v * std::sin(x(State::kHeading));
-    result(2) =
+    Eigen::Matrix<double, 10, 1> xdot;
+    xdot(0) = v * std::cos(x(State::kHeading));
+    xdot(1) = v * std::sin(x(State::kHeading));
+    xdot(2) =
         ((x(State::kRightVelocity) - x(State::kLeftVelocity)) / (2.0 * rb))
             .to<double>();
-    result.block<4, 1>(3, 0) = A * x.block<7, 1>(3, 0) + B * u;
-    result.block<3, 1>(7, 0).setZero();
-    return result;
+    xdot.block<4, 1>(3, 0) = A * x.block<7, 1>(3, 0) + B * u;
+    xdot.block<3, 1>(7, 0).setZero();
+    return xdot;
 }
 
 Eigen::Matrix<double, 3, 1> DrivetrainController::LocalMeasurementModel(
