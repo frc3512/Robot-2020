@@ -242,9 +242,9 @@ Eigen::Matrix<double, 2, 5> DrivetrainController::ControllerGainForState(
     // let the system stop.
     double velocity =
         (x0(State::kLeftVelocity) + x0(State::kRightVelocity)) / 2.0;
-    if (std::abs(velocity) < 1e-9) {
-        x0(State::kLeftVelocity) += 1e-9;
-        x0(State::kRightVelocity) += 1e-9;
+    if (std::abs(velocity) < 1e-5) {
+        x0(State::kLeftVelocity) += 1e-5;
+        x0(State::kRightVelocity) += 1e-5;
     }
 
     Eigen::Matrix<double, 5, 5> A =
