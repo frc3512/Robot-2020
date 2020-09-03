@@ -207,7 +207,7 @@ public:
 
     Eigen::Matrix<double, 2, 1> Controller(
         const Eigen::Matrix<double, 10, 1>& x,
-        const Eigen::Matrix<double, 5, 1>& r);
+        const Eigen::Matrix<double, 10, 1>& r);
 
     static Eigen::Matrix<double, 10, 1> Dynamics(
         const Eigen::Matrix<double, 10, 1>& x,

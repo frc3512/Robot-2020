@@ -159,9 +159,8 @@ void DrivetrainController::Update(units::second_t dt,
             vrRef.to<double>(), 0, 0, 0, 0, 0;
 
         if (m_isEnabled) {
-            m_cappedU =
-                Controller(m_observer.Xhat(), m_nextR.block<5, 1>(0, 0)) +
-                m_ff.Calculate(m_nextR);
+            m_cappedU = Controller(m_observer.Xhat(), m_nextR) +
+                        m_ff.Calculate(m_nextR);
         } else {
             m_cappedU = Eigen::Matrix<double, 2, 1>::Zero();
         }
@@ -261,7 +260,7 @@ Eigen::Matrix<double, 2, 1> DrivetrainController::Controller(
     // This implements the linear time-varying differential drive controller in
     // theorem 8.6.4 of https://tavsys.net/controls-in-frc.
     const Eigen::Matrix<double, 10, 1>& x,
-    const Eigen::Matrix<double, 5, 1>& r) {
+    const Eigen::Matrix<double, 10, 1>& r) {
     Eigen::Matrix<double, 2, 5> K = ControllerGainForState(x);
 
     Eigen::Matrix<double, 5, 5> inRobotFrame =
@@ -271,7 +270,8 @@ Eigen::Matrix<double, 2, 1> DrivetrainController::Controller(
     inRobotFrame(1, 0) = -std::sin(x(2));
     inRobotFrame(1, 1) = std::cos(x(2));
 
-    Eigen::Matrix<double, 5, 1> error = r - x.block<5, 1>(0, 0);
+    Eigen::Matrix<double, 5, 1> error =
+        r.block<5, 1>(0, 0) - x.block<5, 1>(0, 0);
     error(State::kHeading) = NormalizeAngle(error(State::kHeading));
     return K * inRobotFrame * error;
 }
