@@ -19,6 +19,9 @@ namespace frc3512 {
 
 class FlywheelController : public ControllerBase<1, 1, 1> {
 public:
+    static constexpr auto kV = 0.011_V / 1_rad_per_s;
+    static constexpr auto kA = 0.005515_V / 1_rad_per_s_sq;
+
     static constexpr double kGearRatio = 8.0;
     static constexpr double kDpP = (wpi::math::pi * 2.0) * kGearRatio / 512.0;
     static constexpr auto kMaxAngularVelocity = 1000.5_rad_per_s;
@@ -78,8 +81,6 @@ public:
     void Reset();
 
 private:
-    static constexpr auto kV = 0.011_V / 1_rad_per_s;
-    static constexpr auto kA = 0.005515_V / 1_rad_per_s_sq;
     static constexpr auto kAngularVelocityTolerance = 20.0_rad_per_s;
 
     frc::LinearSystem<1, 1, 1> m_plant =
@@ -88,8 +89,12 @@ private:
     frc::LinearQuadraticRegulator<1, 1> m_lqr{
         m_plant, {80.0}, {12.0}, Constants::kDt};
     frc::LinearPlantInversionFeedforward<1, 1> m_ff{m_plant, Constants::kDt};
+
     frc::KalmanFilter<1, 1, 1> m_observer{
-        m_plant, {700.0}, {50.0}, Constants::kDt};
+        m_plant,
+        {700.0},
+        {FlywheelController::kDpP / Constants::kDt.to<double>()},
+        Constants::kDt};
 
     // Controller reference
     Eigen::Matrix<double, 1, 1> m_r;

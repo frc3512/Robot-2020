@@ -44,8 +44,8 @@ units::radian_t Flywheel::GetAngle() {
     return units::radian_t{m_encoder.GetDistance()};
 }
 
-units::radians_per_second_t Flywheel::GetAngularVelocity() {
-    return units::radians_per_second_t{m_encoder.GetRate()};
+units::radians_per_second_t Flywheel::GetAngularVelocity() const {
+    return m_angularVelocity;
 }
 
 void Flywheel::EnableController() { m_controller.Enable(); }
@@ -91,10 +91,13 @@ bool Flywheel::IsReady() {
 void Flywheel::Reset() {
     m_controller.Reset();
     m_encoder.Reset();
+    m_angle = GetAngle();
+    m_lastAngle = m_angle;
 }
 
 void Flywheel::RobotPeriodic() {
     m_encoderEntry.SetDouble(GetAngle().to<double>());
+    m_angularVelocityEntry.SetDouble(GetAngularVelocity().to<double>());
     m_goalEntry.SetDouble(GetGoal().to<double>());
     m_isOnEntry.SetBoolean(IsOn());
     m_isReadyEntry.SetBoolean(IsReady());
@@ -102,6 +105,16 @@ void Flywheel::RobotPeriodic() {
 }
 
 void Flywheel::ControllerPeriodic() {
+    m_angle = GetAngle();
+    m_time = frc2::Timer::GetFPGATimestamp();
+
+    // WPILib uses the time between pulses in GetRate() to calculate velocity,
+    // but this is very noisy for high-resolution encoders. Instead, we
+    // calculate a velocity from the change in angle over change in time, which
+    // is more precise.
+    m_angularVelocity = m_velocityFilter.Calculate((m_angle - m_lastAngle) /
+                                                   (m_time - m_lastTime));
+
     Eigen::Matrix<double, 1, 1> y;
     y << GetAngularVelocity().to<double>();
     Eigen::Matrix<double, 1, 1> u = m_controller.UpdateAndLog(y);
@@ -110,13 +123,19 @@ void Flywheel::ControllerPeriodic() {
     if constexpr (frc::RobotBase::IsSimulation()) {
         m_flywheelSim.SetInput(frc::MakeMatrix<1, 1>(
             m_leftGrbx.Get() * frc::RobotController::GetInputVoltage()));
+        m_flywheelPositionSim.SetInput(frc::MakeMatrix<1, 1>(
+            m_leftGrbx.Get() * frc::RobotController::GetInputVoltage()));
 
         m_flywheelSim.Update(Constants::kDt);
+        m_flywheelPositionSim.Update(Constants::kDt);
 
-        m_encoderSim.SetRate(m_flywheelSim.GetAngularVelocity().to<double>());
+        m_encoderSim.SetDistance(m_flywheelPositionSim.GetOutput(0));
 
         frc::sim::RoboRioSim::SetVInVoltage(
             frc::sim::BatterySim::Calculate({m_flywheelSim.GetCurrentDraw()})
                 .to<double>());
     }
+
+    m_lastAngle = m_angle;
+    m_lastTime = m_time;
 }

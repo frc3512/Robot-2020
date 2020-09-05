@@ -3,9 +3,12 @@
 #pragma once
 
 #include <frc/Encoder.h>
+#include <frc/LinearFilter.h>
 #include <frc/geometry/Pose2d.h>
 #include <frc/simulation/EncoderSim.h>
 #include <frc/simulation/FlywheelSim.h>
+#include <frc/simulation/LinearSystemSim.h>
+#include <frc/system/LinearSystem.h>
 #include <frc2/Timer.h>
 #include <networktables/NetworkTableEntry.h>
 #include <networktables/NetworkTableInstance.h>
@@ -54,7 +57,7 @@ public:
      *
      * @return angular velocity in radians per second
      */
-    units::radians_per_second_t GetAngularVelocity();
+    units::radians_per_second_t GetAngularVelocity() const;
 
     /**
      * Enables the controller.
@@ -131,6 +134,15 @@ private:
                            Constants::Flywheel::kEncoderB};
 
     FlywheelController m_controller;
+    units::radian_t m_angle;
+    units::radian_t m_lastAngle;
+    units::second_t m_time = frc2::Timer::GetFPGATimestamp();
+    units::second_t m_lastTime = m_time - 5_ms;
+
+    // Filters out encoder quantization noise
+    units::radians_per_second_t m_angularVelocity = 0_rad_per_s;
+    frc::LinearFilter<units::radians_per_second_t> m_velocityFilter =
+        frc::LinearFilter<units::radians_per_second_t>::MovingAverage(4);
 
     frc2::Timer m_timer;
     mutable wpi::mutex m_controllerMutex;
@@ -140,6 +152,8 @@ private:
     nt::NetworkTableInstance m_inst = nt::NetworkTableInstance::GetDefault();
     nt::NetworkTableEntry m_encoderEntry =
         m_inst.GetEntry("Diagnostics/Flywheel/Encoder");
+    nt::NetworkTableEntry m_angularVelocityEntry =
+        m_inst.GetEntry("Diagnostics/Flywheel/Angular velocity");
     nt::NetworkTableEntry m_goalEntry =
         m_inst.GetEntry("Diagnostics/Flywheel/Goal");
     nt::NetworkTableEntry m_isOnEntry =
@@ -149,9 +163,16 @@ private:
     nt::NetworkTableEntry m_controllerEnabledEntry =
         m_inst.GetEntry("Diagnostics/Flywheel/Controller enabled");
 
-    // Simulation variables
-    frc::sim::FlywheelSim m_flywheelSim{
-        m_controller.GetPlant(), frc::DCMotor::NEO(2), 1.0 / 2.0, {50.0}};
+    // Measurement noise isn't added because the simulated encoder stores the
+    // count as an integer, which already introduces quantization noise.
+    frc::sim::FlywheelSim m_flywheelSim{m_controller.GetPlant(),
+                                        frc::DCMotor::NEO(2), 1.0 / 2.0};
+    frc::LinearSystem<2, 1, 1> m_flywheelPosition =
+        frc::LinearSystemId::IdentifyPositionSystem(
+            FlywheelController::kV.to<double>(),
+            FlywheelController::kA.to<double>());
+    frc::sim::LinearSystemSim<2, 1, 1> m_flywheelPositionSim{
+        m_flywheelPosition};
     frc::sim::EncoderSim m_encoderSim{m_encoder};
 };
 
