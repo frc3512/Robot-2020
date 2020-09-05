@@ -2,8 +2,6 @@
 
 #include "subsystems/Climber.hpp"
 
-#include <cmath>
-
 using namespace frc3512;
 using namespace frc3512::Constants::Climber;
 

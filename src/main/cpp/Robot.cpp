@@ -2,10 +2,12 @@
 
 #include "Robot.hpp"
 
+#include <cmath>
 #include <functional>
 
 #include <frc/DriverStation.h>
 #include <frc/RobotController.h>
+#include <wpi/MathExtras.h>
 #include <wpi/raw_ostream.h>
 
 namespace frc3512 {
