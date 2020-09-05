@@ -117,7 +117,6 @@ private:
     FlywheelController m_controller;
     std::chrono::steady_clock::time_point m_lastTime =
         std::chrono::steady_clock::now();
-    frc::Pose2d m_nextTurretPose;
     frc2::Timer m_timer;
     mutable wpi::mutex m_controllerMutex;
 
