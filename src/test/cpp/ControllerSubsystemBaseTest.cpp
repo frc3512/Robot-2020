@@ -29,6 +29,9 @@ TEST(ControllerSubsystemBase, ControllerPeriodic1) {
 }
 
 TEST(ControllerSubsystemBase, ControllerPeriodic2) {
+    // TODO: This test may spuriously fail if CI doesn't schedule processes in a
+    // timely manner. Use simulation time stepping (frc::sim::StepTiming())
+    // instead when WPILib 2021 is released.
     MockSubsystem subsystem1;
     MockSubsystem subsystem2;
 
