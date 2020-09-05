@@ -2,8 +2,6 @@
 
 #pragma once
 
-#include <mutex>
-
 #include <frc/CounterBase.h>
 #include <frc/Encoder.h>
 #include <frc/geometry/Pose2d.h>
@@ -106,17 +104,21 @@ private:
     const frc::Pose2d kTargetPoseInGlobal{TargetModel::kCenter.X(),
                                           TargetModel::kCenter.Y(),
                                           units::radian_t{wpi::math::pi}};
+
     lookup::unbounded_linear_table<units::meter_t, units::radians_per_second_t>
         m_table;
+
     rev::CANSparkMax m_leftGrbx{Constants::Flywheel::kLeftPort,
                                 rev::CANSparkMax::MotorType::kBrushless};
     rev::CANSparkMax m_rightGrbx{Constants::Flywheel::kRightPort,
                                  rev::CANSparkMax::MotorType::kBrushless};
     frc::Encoder m_encoder{Constants::Flywheel::kEncoderA,
                            Constants::Flywheel::kEncoderB};
+
     FlywheelController m_controller;
     std::chrono::steady_clock::time_point m_lastTime =
         std::chrono::steady_clock::now();
+
     frc2::Timer m_timer;
     mutable wpi::mutex m_controllerMutex;
 
