@@ -38,7 +38,7 @@ void Turret::ResetEncoder() { m_encoder.Reset(); }
 void Turret::Reset() { m_controller.Reset(); }
 
 units::radian_t Turret::GetAngle() const {
-    return units::radian_t{-m_encoder.GetDistance()};
+    return units::radian_t{-m_encoder.GetDistance()} + kOffset;
 }
 
 bool Turret::HasPassedCCWLimit() const {

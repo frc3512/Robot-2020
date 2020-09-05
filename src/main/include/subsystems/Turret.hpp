@@ -10,6 +10,7 @@
 #include <frc/Encoder.h>
 #include <frc/Timer.h>
 #include <rev/CANSparkMax.h>
+#include <units/units.h>
 
 #include "Constants.hpp"
 #include "controllers/TurretController.hpp"
@@ -105,6 +106,10 @@ public:
     frc::Pose2d GetNextPose() const;
 
 private:
+    // A CCW (positive) offset makes the encoder hit the soft limit sooner when
+    // rotating CCW
+    static constexpr units::radian_t kOffset = 20_deg;
+
 #ifndef RUNNING_FRC_TESTS
     frc::DutyCycleEncoder m_encoder{Constants::Turret::kEncoderPort};
 #else
