@@ -74,11 +74,15 @@ model {
 
             sources.cpp {
                 source {
-                    srcDirs = ['src/main/cpp', 'thirdparty/cpp']
+                    srcDirs = ['src/main/cpp',
+                               'thirdparty/wpimath/src/main/native/cpp',
+                               'thirdparty/wpiutil/src/main/native/cpp']
                     include '**/*.cpp', '**/*.cc'
                 }
                 exportedHeaders {
-                    srcDirs = ['src/main/include', 'thirdparty/include']
+                    srcDirs = ['src/main/include',
+                               'thirdparty/wpimath/src/main/native/include',
+                               'thirdparty/wpiutil/src/main/native/include']
                 }
             }
 
@@ -101,13 +105,17 @@ model {
 
             sources.cpp {
                 source {
-                    srcDir 'src/test/cpp'
+                    srcDirs = ['src/test/cpp',
+                               'thirdparty/wpimath/src/test/native/cpp',
+                               'thirdparty/wpiutil/src/test/native/cpp']
                     include '**/*.cpp'
                     include '**/*.cc'
                 }
 
                 exportedHeaders {
-                    srcDirs += ['src/test/include']
+                    srcDirs = ['src/test/include',
+                               'thirdparty/wpimath/src/test/native/include',
+                               'thirdparty/wpiutil/src/test/native/include']
                 }
             }
 

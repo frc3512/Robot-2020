@@ -1,0 +1,39 @@
+cppHeaderFileInclude {
+  \.h$
+  \.hpp$
+  \.inc$
+}
+
+cppSrcFileInclude {
+  \.cpp$
+}
+
+generatedFileExclude {
+  cpp/drake/
+  include/drake/
+  include/unsupported/
+  FRCNetComm\.java$
+  simulation/gz_msgs/src/include/simulation/gz_msgs/msgs\.h$
+  simulation/halsim_gui/src/main/native/include/portable-file-dialogs\.h$
+  units\.h$
+}
+
+repoRootNameOverride {
+  wpilib
+}
+
+includeOtherLibs {
+  ^cameraserver/
+  ^cscore
+  ^drake/
+  ^hal/
+  ^imgui
+  ^mockdata/
+  ^networktables/
+  ^ntcore
+  ^opencv2/
+  ^support/
+  ^units
+  ^vision/
+  ^wpi/
+}
