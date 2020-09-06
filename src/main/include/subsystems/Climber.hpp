@@ -33,6 +33,8 @@ public:
      */
     void SetElevator(double speed);
 
+    void TeleopPeriodic() override;
+
 private:
     rev::CANSparkMax m_elevator{Constants::Climber::kElevatorPortRight,
                                 rev::CANSparkMax::MotorType::kBrushless};

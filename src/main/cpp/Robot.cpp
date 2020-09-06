@@ -2,10 +2,10 @@
 
 #include "Robot.hpp"
 
-#include <cmath>
 #include <functional>
 
 #include <frc/DriverStation.h>
+#include <frc/Joystick.h>
 #include <frc/RobotController.h>
 #include <networktables/NetworkTable.h>
 #include <networktables/NetworkTableInstance.h>
@@ -62,12 +62,6 @@ void Robot::AutonomousInit() {
 void Robot::TeleopInit() {
     SubsystemBase::RunAllTeleopInit();
 
-    // Consumes button presses made in disabled
-    m_driveStick1.Update();
-    m_driveStick2.Update();
-    m_appendageStick1.Update();
-    m_appendageStick2.Update();
-
     ControllerSubsystemBase::Enable();
 }
 
@@ -100,91 +94,14 @@ void Robot::AutonomousPeriodic() {
 void Robot::TeleopPeriodic() {
     SubsystemBase::RunAllTeleopPeriodic();
 
-    m_driveStick1.Update();
-    m_driveStick2.Update();
-    m_appendageStick1.Update();
-    m_appendageStick2.Update();
-
-    // Drivetrain
-    double y = m_driveStick1.GetY();
-    double x = m_driveStick2.GetX();
-
-    if (m_driveStick1.GetRawButton(1)) {
-        y *= 0.5;
-        x *= 0.5;
-    }
-    m_drivetrain.Drive(y, x, m_driveStick2.GetRawButton(2));
-
-    // Turret manual override
-    if (m_appendageStick1.GetRawButtonPressed(11)) {
-        m_turret.SetManualOverride();
-    }
-
-    // Turrret manual spin
-    int pov = m_appendageStick1.GetPOV();
-    if (pov == 90) {
-        m_turret.SetDirection(Turret::Direction::kCW);
-    } else if (pov == 270) {
-        m_turret.SetDirection(Turret::Direction::kCCW);
-    } else {
-        m_turret.SetDirection(Turret::Direction::kNone);
-    }
-
-    // Intake
-    if (m_appendageStick2.GetRawButtonPressed(4)) {
-        m_intake.SetArmMotor(Intake::ArmMotorDirection::kIntake);
-        m_intake.SetFunnel(0.4);
-    } else if (m_appendageStick2.GetRawButtonPressed(6)) {
-        m_intake.SetArmMotor(Intake::ArmMotorDirection::kOuttake);
-        m_intake.SetFunnel(-0.4);
-    } else if (m_appendageStick2.GetRawButtonReleased(4)) {
-        m_intake.SetArmMotor(Intake::ArmMotorDirection::kIdle);
-        m_intake.SetFunnel(0.0);
-    } else if (m_appendageStick2.GetRawButtonReleased(6)) {
-        m_intake.SetArmMotor(Intake::ArmMotorDirection::kIdle);
-        m_intake.SetFunnel(0.0);
-    } else if (m_appendageStick2.GetRawButtonPressed(3)) {
-        if (m_intake.IsDeployed()) {
-            m_intake.Stow();
-        } else {
-            m_intake.Deploy();
-        }
-    }
-
-    // Climber traverser
-    if (m_appendageStick2.GetRawButton(2)) {
-        static constexpr double kMinInput = 0.5;
-
-        // This equation rescales the following function
-        //
-        //   [-1 .. 0) -> [-1 .. 0) and 0 -> 0 and (0 .. 1] -> (0 .. 1]
-        //
-        // to
-        //
-        //   [-1 .. 0) -> [-1 .. -0.5) and 0 -> 0 and (0 .. 1] -> (0.5 .. 1]
-        //
-        // This provides a minimum input of 0.5 in either direction to overcome
-        // friction while still linearly increasing to 1.
-        double x = m_appendageStick2.GetX();
-        m_climber.SetTransverser((1.0 - kMinInput) * x +
-                                 kMinInput * wpi::sgn(x));
-    } else {
-        m_climber.SetTransverser(0.0);
-    }
-
-    // Climber elevator
-    if (m_appendageStick1.GetRawButton(1)) {
-        m_climber.SetElevator(std::abs(m_appendageStick1.GetY()));
-    } else {
-        m_climber.SetElevator(0.0);
-    }
+    static frc::Joystick appendageStick2{kAppendageStick2Port};
 
     // Shooting state machine
     switch (m_state) {
         // Wait until ball(s) are fully loaded in conveyor and trigger has been
         // pushed.
         case ShootingState::kIdle: {
-            if (m_appendageStick2.GetRawButtonPressed(1)) {
+            if (appendageStick2.GetRawButtonPressed(1)) {
                 m_vision.TurnLEDOn();
                 m_flywheel.Shoot();
                 m_state = ShootingState::kStartFlywheel;

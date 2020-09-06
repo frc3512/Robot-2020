@@ -7,7 +7,6 @@
 #include <frc2/Timer.h>
 #include <networktables/NetworkTableEntry.h>
 
-#include "CachedJoystick.hpp"
 #include "Constants.hpp"
 #include "autonselector/AutonSelector.hpp"
 #include "subsystems/Climber.hpp"
@@ -118,10 +117,6 @@ private:
     Flywheel m_flywheel{m_turret};
     Intake m_intake{m_flywheel};
     Climber m_climber;
-    CachedJoystick m_driveStick1{kDriveStick1Port};
-    CachedJoystick m_driveStick2{kDriveStick2Port};
-    CachedJoystick m_appendageStick1{kAppendageStick1Port};
-    CachedJoystick m_appendageStick2{kAppendageStick2Port};
 
     ShootingState m_state = ShootingState::kIdle;
     frc2::Timer m_timer;

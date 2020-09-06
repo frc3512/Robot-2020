@@ -108,6 +108,8 @@ public:
 
     void TeleopInit() override { EnableController(); }
 
+    void TeleopPeriodic() override;
+
 private:
     // A CCW (positive) offset makes the encoder hit the soft limit sooner when
     // rotating CCW

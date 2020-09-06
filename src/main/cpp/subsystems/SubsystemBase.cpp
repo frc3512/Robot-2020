@@ -2,6 +2,8 @@
 
 #include "subsystems/SubsystemBase.hpp"
 
+#include <frc/DriverStation.h>
+
 using namespace frc3512;
 
 wpi::SmallVector<SubsystemBase*, 16> SubsystemBase::m_subsystems;
@@ -19,6 +21,15 @@ void SubsystemBase::RunAllAutonomousInit() {
 }
 
 void SubsystemBase::RunAllTeleopInit() {
+    // Consumes button edge events produced in disabled mode
+    auto& ds = frc::DriverStation::GetInstance();
+    for (int stick = 0; stick < frc::DriverStation::kJoystickPorts; ++stick) {
+        for (int button = 1; button < 32; ++button) {
+            ds.GetStickButtonPressed(stick, button);
+            ds.GetStickButtonReleased(stick, button);
+        }
+    }
+
     for (auto& subsystem : m_subsystems) {
         subsystem->TeleopInit();
     }

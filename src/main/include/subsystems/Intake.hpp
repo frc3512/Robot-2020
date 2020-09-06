@@ -85,6 +85,8 @@ public:
 
     void RobotPeriodic() override;
 
+    void TeleopPeriodic() override;
+
 private:
     State m_state = State::kIdle;
 

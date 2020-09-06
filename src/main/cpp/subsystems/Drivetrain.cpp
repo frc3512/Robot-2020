@@ -6,6 +6,7 @@
 #include <limits>
 #include <string>
 
+#include <frc/Joystick.h>
 #include <frc/RobotController.h>
 #include <frc/trajectory/TrajectoryConfig.h>
 
@@ -136,4 +137,18 @@ bool Drivetrain::AtGoal() const { return m_controller.AtGoal(); }
 
 Eigen::Matrix<double, 10, 1> Drivetrain::GetNextXhat() const {
     return m_controller.GetStates();
+}
+
+void Drivetrain::TeleopPeriodic() {
+    static frc::Joystick driveStick1{kDriveStick1Port};
+    static frc::Joystick driveStick2{kDriveStick2Port};
+
+    double y = driveStick1.GetY();
+    double x = driveStick2.GetX();
+
+    if (driveStick1.GetRawButton(1)) {
+        y *= 0.5;
+        x *= 0.5;
+    }
+    Drive(y, x, driveStick2.GetRawButton(2));
 }

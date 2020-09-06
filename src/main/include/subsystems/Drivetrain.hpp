@@ -173,6 +173,8 @@ public:
 
     void TeleopInit() override { m_controller.SetOpenLoop(true); }
 
+    void TeleopPeriodic() override;
+
 private:
     // Left gearbox used in position PID
     rev::CANSparkMax m_leftSlave{Constants::Drivetrain::kLeftSlavePort,

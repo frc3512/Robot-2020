@@ -2,10 +2,13 @@
 
 #include "subsystems/Intake.hpp"
 
+#include <frc/Joystick.h>
+
 #include "subsystems/Flywheel.hpp"
 
 using namespace frc3512;
 using namespace frc3512::Constants::Intake;
+using namespace frc3512::Constants::Robot;
 
 void Intake::Deploy() { m_arm.Set(frc::DoubleSolenoid::kForward); }
 
@@ -50,5 +53,29 @@ void Intake::RobotPeriodic() {
         SetConveyor(0.70);
     } else {
         SetConveyor(0.0);
+    }
+}
+
+void Intake::TeleopPeriodic() {
+    static frc::Joystick appendageStick2{kAppendageStick2Port};
+
+    if (appendageStick2.GetRawButtonPressed(4)) {
+        SetArmMotor(ArmMotorDirection::kIntake);
+        SetFunnel(0.4);
+    } else if (appendageStick2.GetRawButtonPressed(6)) {
+        SetArmMotor(ArmMotorDirection::kOuttake);
+        SetFunnel(-0.4);
+    } else if (appendageStick2.GetRawButtonReleased(4)) {
+        SetArmMotor(ArmMotorDirection::kIdle);
+        SetFunnel(0.0);
+    } else if (appendageStick2.GetRawButtonReleased(6)) {
+        SetArmMotor(ArmMotorDirection::kIdle);
+        SetFunnel(0.0);
+    } else if (appendageStick2.GetRawButtonPressed(3)) {
+        if (IsDeployed()) {
+            Stow();
+        } else {
+            Deploy();
+        }
     }
 }
