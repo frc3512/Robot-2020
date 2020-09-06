@@ -150,7 +150,8 @@ void Robot::TeleopPeriodic() {
 
     // Climber traverser
     if (m_appendageStick2.GetRawButton(2)) {
-        double x = m_appendageStick2.GetX();
+        static constexpr double kMinInput = 0.5;
+
         // This equation rescales the following function
         //
         //   [-1 .. 0) -> [-1 .. 0) and 0 -> 0 and (0 .. 1] -> (0 .. 1]
@@ -161,7 +162,9 @@ void Robot::TeleopPeriodic() {
         //
         // This provides a minimum input of 0.5 in either direction to overcome
         // friction while still linearly increasing to 1.
-        m_climber.SetTransverser(0.5 * (x + wpi::sgn(x)));
+        double x = m_appendageStick2.GetX();
+        m_climber.SetTransverser((1.0 - kMinInput) * x +
+                                 kMinInput * wpi::sgn(x));
     } else {
         m_climber.SetTransverser(0.0);
     }
