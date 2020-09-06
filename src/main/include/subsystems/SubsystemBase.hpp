@@ -24,12 +24,12 @@ public:
     virtual void DisabledInit() {}
 
     /**
-     * Initialization code for disabled mode should go here.
+     * Initialization code for autonomous mode should go here.
      */
     virtual void AutonomousInit() {}
 
     /**
-     * Initialization code for disabled mode should go here.
+     * Initialization code for teleop mode should go here.
      */
     virtual void TeleopInit() {}
 
