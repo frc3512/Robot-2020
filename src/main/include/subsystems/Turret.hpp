@@ -86,6 +86,11 @@ public:
     bool HasPassedCWLimit() const;
 
     /**
+     * Returns the projected pose of the turret.
+     */
+    frc::Pose2d GetNextPose() const;
+
+    /**
      * Enables the controller.
      */
     void EnableController();
@@ -102,8 +107,6 @@ public:
     void AutonomousInit() override { EnableController(); }
 
     void TeleopInit() override { EnableController(); }
-
-    frc::Pose2d GetNextPose() const;
 
 private:
     // A CCW (positive) offset makes the encoder hit the soft limit sooner when

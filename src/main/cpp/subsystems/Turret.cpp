@@ -49,6 +49,8 @@ bool Turret::HasPassedCWLimit() const {
     return GetAngle() < -(wpi::math::pi * 1_rad / 2.0);
 }
 
+frc::Pose2d Turret::GetNextPose() const { return m_controller.GetNextPose(); }
+
 void Turret::EnableController() {
     m_lastTime = std::chrono::steady_clock::now();
     m_controller.Enable();
@@ -92,5 +94,3 @@ void Turret::ControllerPeriodic() {
 
     m_lastTime = now;
 }
-
-frc::Pose2d Turret::GetNextPose() const { return m_controller.GetNextPose(); }
