@@ -6,7 +6,7 @@ using namespace frc3512;
 
 wpi::SmallVector<ControllerSubsystemBase*, 16>
     ControllerSubsystemBase::m_controllers;
-frc::RTNotifier ControllerSubsystemBase::m_notifier{
+frc::Notifier ControllerSubsystemBase::m_notifier{
     Constants::kControllerPrio, &ControllerSubsystemBase::RunControllers};
 std::chrono::steady_clock::time_point ControllerSubsystemBase::m_startTime{
     std::chrono::steady_clock::now()};

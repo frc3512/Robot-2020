@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include <frc/RTNotifier.h>
+#include <frc/Notifier.h>
 #include <wpi/SmallVector.h>
 
 #include "Constants.hpp"
@@ -26,12 +26,12 @@ public:
     virtual ~ControllerSubsystemBase();
 
     /**
-     * Enable the controllers (start RTNotifier periodic).
+     * Enable the controllers (start Notifier periodic).
      */
     static void Enable();
 
     /**
-     * Disable the controllers (stop RTNotifier).
+     * Disable the controllers (stop Notifier).
      */
     static void Disable();
 
@@ -51,7 +51,7 @@ protected:
 
 private:
     static wpi::SmallVector<ControllerSubsystemBase*, 16> m_controllers;
-    static frc::RTNotifier m_notifier;
+    static frc::Notifier m_notifier;
     static std::chrono::steady_clock::time_point m_startTime;
 
     /**
