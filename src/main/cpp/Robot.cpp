@@ -60,11 +60,6 @@ void Robot::TeleopInit() {
     ControllerSubsystemBase::Enable();
 }
 
-void Robot::TestInit() {
-    wpi::outs() << "Turret Encoder reset\n";
-    m_turret.ResetEncoder();
-}
-
 void Robot::RobotPeriodic() {
     SubsystemBase::RunAllRobotPeriodic();
     m_batteryLogger.Log(

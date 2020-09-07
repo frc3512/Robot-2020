@@ -35,8 +35,6 @@ public:
 
     void TeleopInit() override;
 
-    void TestInit() override;
-
     void RobotPeriodic() override;
 
     void DisabledPeriodic() override;
