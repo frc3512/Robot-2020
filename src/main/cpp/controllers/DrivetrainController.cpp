@@ -153,8 +153,7 @@ void DrivetrainController::UpdateController(units::second_t dt) {
 
         m_observer.Correct(m_appliedU, m_localY);
 
-        m_nextR << ref.pose.Translation().X().to<double>(),
-            ref.pose.Translation().Y().to<double>(),
+        m_nextR << ref.pose.X().to<double>(), ref.pose.Y().to<double>(),
             ref.pose.Rotation().Radians().to<double>(), vlRef.to<double>(),
             vrRef.to<double>(), 0, 0, 0, 0, 0;
 
@@ -213,15 +212,15 @@ void DrivetrainController::Reset(const frc::Pose2d& initialPose,
     m_observer.Reset();
 
     Eigen::Matrix<double, 10, 1> xHat;
-    xHat(0) = initialPose.Translation().X().to<double>();
-    xHat(1) = initialPose.Translation().Y().to<double>();
+    xHat(0) = initialPose.X().to<double>();
+    xHat(1) = initialPose.Y().to<double>();
     xHat(2) = initialPose.Rotation().Radians().to<double>();
     xHat.block<7, 1>(3, 0).setZero();
     m_observer.SetXhat(xHat);
 
     m_nextR.setZero();
-    m_nextR(0) = initialRef.Translation().X().to<double>();
-    m_nextR(1) = initialRef.Translation().Y().to<double>();
+    m_nextR(0) = initialRef.X().to<double>();
+    m_nextR(1) = initialRef.Y().to<double>();
     m_nextR(2) = initialRef.Rotation().Radians().to<double>();
     m_r = m_nextR;
 

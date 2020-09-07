@@ -239,7 +239,6 @@ TEST(TurretControllerTest, ProperDistanceFromTarget) {
     EXPECT_NEAR_UNITS(
         distance,
         629.25_in - kDrivetrainX +
-            frc3512::TurretController::kDrivetrainToTurretFrame.Translation()
-                .X(),
+            frc3512::TurretController::kDrivetrainToTurretFrame.X(),
         1e-6_m);
 }

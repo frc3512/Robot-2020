@@ -84,8 +84,7 @@ void Turret::ControllerPeriodic() {
             turretInGlobal.pose.TransformBy(turretInGlobalToDrivetrainInGlobal);
 
         m_drivetrain.CorrectWithGlobalOutputs(
-            drivetrainInGlobal.Translation().X(),
-            drivetrainInGlobal.Translation().Y(),
+            drivetrainInGlobal.X(), drivetrainInGlobal.Y(),
             globalMeasurement.value().timestamp);
     }
 

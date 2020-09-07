@@ -92,10 +92,8 @@ TEST(DrivetrainControllerTest, ReachesReferenceStraight) {
                             units::radian_t{wpi::math::pi}};
 
     Eigen::Matrix<double, 10, 1> x0 = Eigen::Matrix<double, 10, 1>::Zero();
-    x0(frc3512::DrivetrainController::State::kX) =
-        initialPose.Translation().X().to<double>();
-    x0(frc3512::DrivetrainController::State::kY) =
-        initialPose.Translation().Y().to<double>();
+    x0(frc3512::DrivetrainController::State::kX) = initialPose.X().to<double>();
+    x0(frc3512::DrivetrainController::State::kY) = initialPose.Y().to<double>();
     x0(frc3512::DrivetrainController::State::kHeading) =
         initialPose.Rotation().Radians().to<double>();
 

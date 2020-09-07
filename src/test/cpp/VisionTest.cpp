@@ -30,20 +30,17 @@ TEST(VisionTest, CalculateDrivetrainInGlobal) {
 
         auto globalMeasurement = vision.GetGlobalMeasurement();
         ASSERT_TRUE(globalMeasurement.has_value());
-        EXPECT_NEAR_UNITS(globalMeasurement.value().pose.Translation().X(),
-                          globalX, 0.05_m);
-        EXPECT_NEAR_UNITS(globalMeasurement.value().pose.Translation().Y(),
-                          globalY, 0.05_m);
+        EXPECT_NEAR_UNITS(globalMeasurement.value().pose.X(), globalX, 0.05_m);
+        EXPECT_NEAR_UNITS(globalMeasurement.value().pose.Y(), globalY, 0.05_m);
     };
 
     frc::Translation2d kTargetCenter{TargetModel::kCenter.X(),
                                      TargetModel::kCenter.Y()};
-    testMeasurement(
-        5_m, 0_m, 0_deg,
-        kTargetCenter.X() - 5_m +
-            frc3512::Vision::kCameraInGlobalToTurretInGlobal.Translation().X(),
-        kTargetCenter.Y() - 0_m +
-            frc3512::Vision::kCameraInGlobalToTurretInGlobal.Translation().Y());
+    testMeasurement(5_m, 0_m, 0_deg,
+                    kTargetCenter.X() - 5_m +
+                        frc3512::Vision::kCameraInGlobalToTurretInGlobal.X(),
+                    kTargetCenter.Y() - 0_m +
+                        frc3512::Vision::kCameraInGlobalToTurretInGlobal.Y());
     testMeasurement(5_m, 0_m, 45_deg, 12.3935_m, 5.73816_m);
     testMeasurement(5.0_m, -2.0_m, -45.0_deg, 11.0871_m, 0.0813087_m);
 
