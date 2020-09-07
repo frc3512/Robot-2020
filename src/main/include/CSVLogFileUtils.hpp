@@ -6,7 +6,7 @@
 
 #include <Eigen/Core>
 #include <frc/logging/CSVLogFile.h>
-#include <units/units.h>
+#include <units/time.h>
 
 namespace frc3512 {
 namespace detail {

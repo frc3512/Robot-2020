@@ -11,8 +11,6 @@ cppSrcFileInclude {
 
 modifiableFileExclude {
   gradle/
-  src/main/include/units_shim/units\.h$
-  \.patch$
 }
 
 includeCppSys {
@@ -29,8 +27,8 @@ includeOtherLibs {
   networktables/
   rev/
   simulation/
+  units/
   unsupported/
   wpi/
   cscore\.h$
-  units/units\.h$
 }

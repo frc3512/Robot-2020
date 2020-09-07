@@ -5,17 +5,17 @@ plugins {
 }
 
 // For testing development versions of WPILib
-// wpi.wpilibVersion = '2020.424242.+'
+wpi.wpilibVersion = '2020.3.2-234-gf9a3380'
 
 // For using local development artifacts
 // wpi.maven.useFrcMavenLocalDevelopment = true
 
 // For using remote development artifacts
-// repositories {
-//     maven {
-//         url = "https://file.tavsys.net/maven/development"
-//     }
-// }
+repositories {
+    maven {
+        url = "https://frcmaven.wpi.edu:443/artifactory/development"
+    }
+}
 
 // Define my targets (RoboRIO) and artifacts (deployable files)
 // This is added by GradleRIO's backing project EmbeddedTools.
@@ -83,15 +83,11 @@ model {
 
             sources.cpp {
                 source {
-                    srcDirs = ['src/main/cpp',
-                               'thirdparty/wpimath/src/main/native/cpp',
-                               'thirdparty/wpiutil/src/main/native/cpp']
+                    srcDirs = ['src/main/cpp']
                     include '**/*.cpp', '**/*.cc'
                 }
                 exportedHeaders {
-                    srcDirs = ['src/main/include',
-                               'thirdparty/wpimath/src/main/native/include',
-                               'thirdparty/wpiutil/src/main/native/include']
+                    srcDirs = ['src/main/include']
                 }
             }
 
@@ -114,17 +110,13 @@ model {
 
             sources.cpp {
                 source {
-                    srcDirs = ['src/test/cpp',
-                               'thirdparty/wpimath/src/test/native/cpp',
-                               'thirdparty/wpiutil/src/test/native/cpp']
+                    srcDirs = ['src/test/cpp']
                     include '**/*.cpp'
                     include '**/*.cc'
                 }
 
                 exportedHeaders {
-                    srcDirs = ['src/test/include',
-                               'thirdparty/wpimath/src/test/native/include',
-                               'thirdparty/wpiutil/src/test/native/include']
+                    srcDirs = ['src/test/include']
                 }
             }
 

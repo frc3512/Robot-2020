@@ -7,8 +7,6 @@
 
 #pragma once
 
-#include <units/units.h>
-
 #include "frc/trajectory/constraint/TrajectoryConstraint.h"
 
 namespace frc {
@@ -27,14 +25,14 @@ class MaxVelocityConstraint : public TrajectoryConstraint {
       : m_maxVelocity(units::math::abs(maxVelocity)) {}
 
   units::meters_per_second_t MaxVelocity(
-      const Pose2d& pose, curvature_t curvature,
-      units::meters_per_second_t velocity) override {
+      const Pose2d& pose, units::curvature_t curvature,
+      units::meters_per_second_t velocity) const override {
     return units::math::min(
         velocity, m_maxVelocity);  // NOLINT(build/include_what_you_use)
   }
 
-  MinMax MinMaxAcceleration(const Pose2d& pose, curvature_t curvature,
-                            units::meters_per_second_t speed) override {
+  MinMax MinMaxAcceleration(const Pose2d& pose, units::curvature_t curvature,
+                            units::meters_per_second_t speed) const override {
     return {};
   }
 

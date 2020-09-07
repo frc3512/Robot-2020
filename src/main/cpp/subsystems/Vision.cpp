@@ -9,6 +9,7 @@
 #include <frc/geometry/Pose2d.h>
 #include <frc/geometry/Transform2d.h>
 #include <networktables/NetworkTableInstance.h>
+#include <units/angle.h>
 
 #include "TargetModel.hpp"
 #include "subsystems/Turret.hpp"

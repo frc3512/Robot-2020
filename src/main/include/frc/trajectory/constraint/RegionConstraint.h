@@ -9,7 +9,7 @@
 
 #include <limits>
 
-#include <units/units.h>
+#include <units/length.h>
 
 #include "frc/geometry/Pose2d.h"
 #include "frc/geometry/Rotation2d.h"
@@ -44,8 +44,8 @@ class RegionConstraint : public TrajectoryConstraint {
   }
 
   units::meters_per_second_t MaxVelocity(
-      const Pose2d& pose, curvature_t curvature,
-      units::meters_per_second_t velocity) override {
+      const Pose2d& pose, units::curvature_t curvature,
+      units::meters_per_second_t velocity) const override {
     if (IsPoseInRegion(pose)) {
       return m_constraint.MaxVelocity(pose, curvature, velocity);
     } else {
@@ -54,8 +54,8 @@ class RegionConstraint : public TrajectoryConstraint {
     }
   }
 
-  MinMax MinMaxAcceleration(const Pose2d& pose, curvature_t curvature,
-                            units::meters_per_second_t speed) override {
+  MinMax MinMaxAcceleration(const Pose2d& pose, units::curvature_t curvature,
+                            units::meters_per_second_t speed) const override {
     if (IsPoseInRegion(pose)) {
       return m_constraint.MinMaxAcceleration(pose, curvature, speed);
     } else {

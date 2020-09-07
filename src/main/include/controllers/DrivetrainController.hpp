@@ -11,7 +11,12 @@
 #include <frc/estimator/ExtendedKalmanFilter.h>
 #include <frc/geometry/Pose2d.h>
 #include <frc/trajectory/Trajectory.h>
-#include <units/units.h>
+#include <units/angle.h>
+#include <units/angular_acceleration.h>
+#include <units/angular_velocity.h>
+#include <units/curvature.h>
+#include <units/length.h>
+#include <units/voltage.h>
 #include <wpi/math>
 #include <wpi/mutex.h>
 
@@ -223,7 +228,7 @@ private:
     static constexpr auto kLinearV = 3.02_V / 1_mps;
     static constexpr auto kLinearA = 0.642_V / 1_mps_sq;
     static constexpr auto kAngularV = 1.382_V / 1_rad_per_s;
-    static constexpr auto kAngularA = 0.08495_V / (1_rad_per_s / 1_s);
+    static constexpr auto kAngularA = 0.08495_V / 1_rad_per_s_sq;
     static constexpr auto kMaxV = 12_V / kLinearV;
     static constexpr auto kMaxA = 12_V / kLinearA;
 
@@ -282,7 +287,7 @@ private:
     static constexpr std::tuple<units::meters_per_second_t,
                                 units::meters_per_second_t>
     ToWheelVelocities(units::meters_per_second_t velocity,
-                      frc::curvature_t curvature, units::meter_t trackWidth) {
+                      units::curvature_t curvature, units::meter_t trackWidth) {
         // clang-format off
         // v = (v_r + v_l) / 2     (1)
         // w = (v_r - v_l) / (2r)  (2)

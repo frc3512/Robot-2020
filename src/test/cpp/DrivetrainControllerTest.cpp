@@ -3,10 +3,13 @@
 #include <cmath>
 
 #include <frc/StateSpaceUtil.h>
+#include <frc/simulation/RoboRioSim.h>
 #include <frc/system/plant/DCMotor.h>
 #include <gtest/gtest.h>
-#include <simulation/RoboRioSim.h>
-#include <units/units.h>
+#include <units/current.h>
+#include <units/time.h>
+#include <units/velocity.h>
+#include <units/voltage.h>
 
 #include "Constants.hpp"
 #include "RenameCSVs.hpp"
@@ -26,8 +29,6 @@ void RunSimulation(
     controller.Reset(initialPose, initialPose);
 
     Eigen::Matrix<double, 2, 1> u = Eigen::Matrix<double, 2, 1>::Zero();
-
-    frc::sim::RoboRioSim roboRIO{0};
 
     auto currentTime = 0_s;
     while (currentTime < 10_s) {
@@ -74,7 +75,7 @@ void RunSimulation(
             units::volt_t vLoaded = Vbat - loadIleft * Rbat - loadIright * Rbat;
             double dsVoltage =
                 vLoaded.to<double>() + frc::MakeWhiteNoiseVector(0.1)(0);
-            roboRIO.SetVInVoltage(dsVoltage);
+            frc::sim::RoboRioSim::SetVInVoltage(dsVoltage);
 
             u *= dsVoltage / 12.0;
         }
@@ -86,8 +87,6 @@ void RunSimulation(
 
 TEST(DrivetrainControllerTest, ReachesReferenceStraight) {
     using frc3512::Constants::kDt;
-
-    frc::sim::RoboRioSim roboRIO{0};
 
     frc::Pose2d initialPose{12.65_m, 5.800_m - 0.343_m,
                             units::radian_t{wpi::math::pi}};
@@ -116,8 +115,6 @@ TEST(DrivetrainControllerTest, ReachesReferenceStraight) {
 
 TEST(DrivetrainControllerTest, ReachesReferenceCurve) {
     using frc3512::Constants::kDt;
-
-    frc::sim::RoboRioSim roboRIO{0};
 
     frc3512::DrivetrainController controller;
     controller.SetWaypoints(frc::Pose2d(0_m, 0_m, 0_rad), {},

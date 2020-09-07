@@ -6,7 +6,10 @@
 #include <frc/controller/LinearQuadraticRegulator.h>
 #include <frc/estimator/KalmanFilter.h>
 #include <frc/system/plant/LinearSystemId.h>
-#include <units/units.h>
+#include <units/angular_acceleration.h>
+#include <units/angular_velocity.h>
+#include <units/time.h>
+#include <units/voltage.h>
 #include <wpi/math>
 
 #include "Constants.hpp"
@@ -98,7 +101,7 @@ public:
 
 private:
     static constexpr auto kV = 0.011_V / 1_rad_per_s;
-    static constexpr auto kA = 0.005515_V / (1_rad_per_s / 1_s);
+    static constexpr auto kA = 0.005515_V / 1_rad_per_s_sq;
     static constexpr auto kAngularVelocityTolerance = 20.0_rad_per_s;
 
     // The current sensor measurements.

@@ -2,10 +2,14 @@
 
 #include <string_view>
 
+#include <frc/simulation/RoboRioSim.h>
 #include <frc/system/plant/DCMotor.h>
 #include <gtest/gtest.h>
-#include <simulation/RoboRioSim.h>
-#include <units/units.h>
+#include <units/angle.h>
+#include <units/angular_velocity.h>
+#include <units/current.h>
+#include <units/time.h>
+#include <units/voltage.h>
 #include <wpi/MathExtras.h>
 #include <wpi/math>
 
@@ -49,8 +53,6 @@ void RunSimulation(
     Eigen::Matrix<double, 2, 1> drivetrainU =
         Eigen::Matrix<double, 2, 1>::Zero();
     Eigen::Matrix<double, 1, 1> turretU = Eigen::Matrix<double, 1, 1>::Zero();
-
-    frc::sim::RoboRioSim roboRIO{0};
 
     auto currentTime = 0_s;
     while (currentTime < 10_s) {
@@ -112,7 +114,7 @@ void RunSimulation(
                 Vbat - turretLoad * Rbat - loadIleft * Rbat - loadIright * Rbat;
             double dsVoltage =
                 vLoaded.to<double>() + frc::MakeWhiteNoiseVector(0.1)(0);
-            roboRIO.SetVInVoltage(dsVoltage);
+            frc::sim::RoboRioSim::SetVInVoltage(dsVoltage);
 
             drivetrainU *= dsVoltage / 12.0;
             turretU *= dsVoltage / 12.0;

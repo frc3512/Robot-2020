@@ -5,7 +5,7 @@
 #include <array>
 
 #include <Eigen/Core>
-#include <units/units.h>
+#include <units/time.h>
 #include <wpi/StringRef.h>
 
 #define NETWORK_LOGGING 1

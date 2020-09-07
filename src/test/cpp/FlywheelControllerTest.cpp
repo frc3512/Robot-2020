@@ -2,10 +2,13 @@
 
 #include <fstream>
 
+#include <frc/simulation/RoboRioSim.h>
 #include <frc/system/plant/DCMotor.h>
 #include <gtest/gtest.h>
-#include <simulation/RoboRioSim.h>
-#include <units/units.h>
+#include <units/angular_velocity.h>
+#include <units/current.h>
+#include <units/time.h>
+#include <units/voltage.h>
 #include <wpi/MathExtras.h>
 
 #include "Constants.hpp"
@@ -16,8 +19,6 @@ static constexpr bool kIdealModel = false;
 
 TEST(FlywheelControllerTest, ReachesGoal) {
     using frc3512::Constants::kDt;
-
-    frc::sim::RoboRioSim roboRIO{0};
 
     frc3512::FlywheelController controller;
     controller.Enable();
@@ -66,7 +67,7 @@ TEST(FlywheelControllerTest, ReachesGoal) {
             units::volt_t vLoaded = Vbat - load * Rbat - load * Rbat;
             double dsVoltage =
                 vLoaded.to<double>() + frc::MakeWhiteNoiseVector(0.1)(0);
-            roboRIO.SetVInVoltage(dsVoltage);
+            frc::sim::RoboRioSim::SetVInVoltage(dsVoltage);
 
             u *= dsVoltage / 12.0;
         }

@@ -10,7 +10,7 @@
 #include <algorithm>
 #include <limits>
 
-#include <units/units.h>
+#include <units/acceleration.h>
 #include <wpi/MathExtras.h>
 
 using namespace frc;
@@ -24,7 +24,7 @@ DifferentialDriveVelocitySystemConstraint::
 units::meters_per_second_t
 DifferentialDriveVelocitySystemConstraint::MaxVelocity(
     const Pose2d& pose, units::curvature_t curvature,
-    units::meters_per_second_t velocity) {
+    units::meters_per_second_t velocity) const {
   auto [vl, vr] =
       m_kinematics.ToWheelSpeeds({velocity, 0_mps, velocity * curvature});
 
@@ -43,7 +43,7 @@ DifferentialDriveVelocitySystemConstraint::MaxVelocity(
 TrajectoryConstraint::MinMax
 DifferentialDriveVelocitySystemConstraint::MinMaxAcceleration(
     const Pose2d& pose, units::curvature_t curvature,
-    units::meters_per_second_t speed) {
+    units::meters_per_second_t speed) const {
   auto wheelSpeeds =
       m_kinematics.ToWheelSpeeds({speed, 0_mps, speed * curvature});
 

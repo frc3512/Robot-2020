@@ -7,7 +7,7 @@
 
 #pragma once
 
-#include <units/units.h>
+#include <units/voltage.h>
 
 #include "frc/kinematics/DifferentialDriveKinematics.h"
 #include "frc/system/LinearSystem.h"
@@ -38,10 +38,10 @@ class DifferentialDriveVelocitySystemConstraint : public TrajectoryConstraint {
 
   units::meters_per_second_t MaxVelocity(
       const Pose2d& pose, units::curvature_t curvature,
-      units::meters_per_second_t velocity) override;
+      units::meters_per_second_t velocity) const override;
 
   MinMax MinMaxAcceleration(const Pose2d& pose, units::curvature_t curvature,
-                            units::meters_per_second_t speed) override;
+                            units::meters_per_second_t speed) const override;
 
  private:
   LinearSystem<2, 2, 2> m_system;

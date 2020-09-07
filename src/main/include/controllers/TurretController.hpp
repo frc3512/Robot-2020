@@ -11,7 +11,11 @@
 #include <frc/system/LinearSystemLoop.h>
 #include <frc/system/plant/LinearSystemId.h>
 #include <frc/trajectory/TrapezoidProfile.h>
-#include <units/units.h>
+#include <units/angle.h>
+#include <units/angular_acceleration.h>
+#include <units/angular_velocity.h>
+#include <units/length.h>
+#include <units/voltage.h>
 #include <wpi/math>
 
 #include "Constants.hpp"
@@ -149,9 +153,9 @@ public:
 
 private:
     static constexpr auto kV = 4.42_V / 1_rad_per_s;
-    static constexpr auto kA = 0.14_V / (1_rad_per_s / 1_s);
+    static constexpr auto kA = 0.14_V / 1_rad_per_s_sq;
     static constexpr auto kMaxV = 1.477996_rad_per_s;
-    static constexpr auto kMaxA = 7.782482_rad_per_s / 1_s;
+    static constexpr auto kMaxA = 7.782482_rad_per_s_sq;
 
     const frc::Pose2d targetPoseInGlobal{TargetModel::kCenter.X(),
                                          TargetModel::kCenter.Y(),

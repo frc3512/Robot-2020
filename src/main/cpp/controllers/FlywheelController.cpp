@@ -4,7 +4,6 @@
 
 #include <frc/RobotController.h>
 #include <frc/system/plant/LinearSystemId.h>
-#include <units/units.h>
 
 using namespace frc3512;
 using namespace frc3512::Constants;

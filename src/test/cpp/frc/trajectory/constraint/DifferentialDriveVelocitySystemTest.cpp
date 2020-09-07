@@ -6,7 +6,6 @@
 /*----------------------------------------------------------------------------*/
 
 #include <Eigen/LU>
-#include <units/units.h>
 #include <wpi/MathExtras.h>
 
 #include "frc/geometry/Pose2d.h"
