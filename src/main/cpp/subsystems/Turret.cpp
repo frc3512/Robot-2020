@@ -12,11 +12,7 @@ using namespace frc3512::Constants::Robot;
 
 Turret::Turret(Vision& vision, Drivetrain& drivetrain)
     : m_vision(vision), m_drivetrain(drivetrain) {
-#ifndef RUNNING_FRC_TESTS
     m_encoder.SetDistancePerRotation(TurretController::kDpR);
-#else
-    m_encoder.SetDistancePerPulse(TurretController::kDpR);
-#endif
     Reset();
 }
 

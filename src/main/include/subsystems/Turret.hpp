@@ -116,11 +116,7 @@ private:
     // rotating CCW
     static constexpr units::radian_t kOffset = 20_deg;
 
-#ifndef RUNNING_FRC_TESTS
     frc::DutyCycleEncoder m_encoder{Constants::Turret::kEncoderPort};
-#else
-    frc::Encoder m_encoder{Constants::Turret::kEncoderPort, 9};
-#endif
     rev::CANSparkMax m_motor{Constants::Turret::kPort,
                              rev::CANSparkMax::MotorType::kBrushless};
 
