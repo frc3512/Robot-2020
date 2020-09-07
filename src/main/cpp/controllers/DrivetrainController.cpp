@@ -15,7 +15,6 @@
 #include <frc/trajectory/TrajectoryConfig.h>
 #include <frc/trajectory/TrajectoryGenerator.h>
 #include <frc/trajectory/constraint/DifferentialDriveVelocitySystemConstraint.h>
-#include <units/units.h>
 
 #include "controllers/NormalizeAngle.hpp"
 
