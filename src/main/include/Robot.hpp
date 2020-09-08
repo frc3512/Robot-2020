@@ -125,6 +125,14 @@ private:
     ShootingState m_state = ShootingState::kIdle;
     frc2::Timer m_timer;
 
+    nt::NetworkTableEntry m_flywheelEntry;
+    nt::NetworkTableEntry m_drivetrainLeftEntry;
+    nt::NetworkTableEntry m_drivetrainRightEntry;
+    nt::NetworkTableEntry m_drivetrainGyroEntry;
+    nt::NetworkTableEntry m_turretEntry;
+    nt::NetworkTableEntry m_upperConveyorEntry;
+    nt::NetworkTableEntry m_lowerConveyorEntry;
+
     AutonSelector m_autonSelector{kDsPort};
 
     frc::CSVLogFile m_batteryLogger{"Battery", "Battery voltage (V)"};
