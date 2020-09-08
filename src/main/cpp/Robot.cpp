@@ -7,6 +7,9 @@
 
 #include <frc/DriverStation.h>
 #include <frc/RobotController.h>
+#include <networktables/NetworkTable.h>
+#include <networktables/NetworkTableEntry.h>
+#include <networktables/NetworkTableInstance.h>
 #include <wpi/MathExtras.h>
 #include <wpi/raw_ostream.h>
 
@@ -35,6 +38,16 @@ Robot::Robot() {
         "Right Side Shoot Three Balls",
         std::bind(&Robot::AutoRightSideShootThreeInit, this),
         std::bind(&Robot::AutoRightSideShootThreePeriodic, this));
+
+    nt::NetworkTableInstance inst = nt::NetworkTableInstance::GetDefault();
+    std::shared_ptr<nt::NetworkTable> table = inst.GetTable("Diagnostics");
+    m_flywheelEntry = table->GetEntry("Flywheel encoder");
+    m_drivetrainLeftEntry = table->GetEntry("Left drivetrain encoder");
+    m_drivetrainRightEntry = table->GetEntry("Right drivetrain encoder");
+    m_drivetrainGyroEntry = table->GetEntry("Drivetrain angle");
+    m_turretEntry = table->GetEntry("Turret angle");
+    m_upperConveyorEntry = table->GetEntry("Upper conveyor sensor");
+    m_lowerConveyorEntry = table->GetEntry("Lower conveyor sensor");
 }
 
 void Robot::DisabledInit() {
@@ -75,18 +88,15 @@ void Robot::RobotPeriodic() {
 void Robot::DisabledPeriodic() {
     SubsystemBase::RunAllDisabledPeriodic();
 
-    wpi::outs() << "Flywheel: " << m_flywheel.GetAngle().to<double>() << "\n";
-    wpi::outs() << "Drivetrain Left: "
-                << m_drivetrain.GetLeftPosition().to<double>() << "\n";
-    wpi::outs() << "Drivetrain Right: "
-                << m_drivetrain.GetRightPosition().to<double>() << "\n";
-    wpi::outs() << "Drivetrain Gyro: " << m_drivetrain.GetAngle().to<double>()
-                << "\n";
-    wpi::outs() << "Turret: " << m_turret.GetAngle().to<double>() << "\n";
-    wpi::outs() << "Upper Conveyor: " << m_intake.IsUpperSensorBlocked()
-                << "\n";
-    wpi::outs() << "Lower Conveyor: " << m_intake.IsLowerSensorBlocked()
-                << "\n";
+    m_flywheelEntry.SetDouble(m_flywheel.GetAngle().to<double>());
+    m_drivetrainLeftEntry.SetDouble(
+        m_drivetrain.GetLeftPosition().to<double>());
+    m_drivetrainRightEntry.SetDouble(
+        m_drivetrain.GetRightPosition().to<double>());
+    m_drivetrainGyroEntry.SetDouble(m_drivetrain.GetAngle().to<double>());
+    m_turretEntry.SetDouble(m_turret.GetAngle().to<double>());
+    m_upperConveyorEntry.SetBoolean(m_intake.IsUpperSensorBlocked());
+    m_lowerConveyorEntry.SetBoolean(m_intake.IsLowerSensorBlocked());
 }
 
 void Robot::AutonomousPeriodic() {
