@@ -5,6 +5,7 @@
 #include <frc/TimedRobot.h>
 #include <frc/logging/CSVLogFile.h>
 #include <frc2/Timer.h>
+#include <networktables/NetworkTableEntry.h>
 
 #include "CachedJoystick.hpp"
 #include "Constants.hpp"

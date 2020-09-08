@@ -8,10 +8,8 @@
 #include <frc/DriverStation.h>
 #include <frc/RobotController.h>
 #include <networktables/NetworkTable.h>
-#include <networktables/NetworkTableEntry.h>
 #include <networktables/NetworkTableInstance.h>
 #include <wpi/MathExtras.h>
-#include <wpi/raw_ostream.h>
 
 namespace frc3512 {
 
