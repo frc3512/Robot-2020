@@ -2,15 +2,9 @@
 
 #pragma once
 
-#include <ntcore_c.h>
-
-#include <memory>
-
 #include <frc/geometry/Translation2d.h>
 #include <frc/logging/CSVLogFile.h>
-#include <networktables/NetworkTable.h>
 #include <networktables/NetworkTableEntry.h>
-#include <networktables/NetworkTableInstance.h>
 #include <units/units.h>
 #include <wpi/math>
 
@@ -63,11 +57,7 @@ public:
     void ProcessNewMeasurement();
 
 private:
-    nt::NetworkTableInstance m_inst;
-    std::shared_ptr<nt::NetworkTable> m_ledTable;
     nt::NetworkTableEntry m_ledIsOn;
-    std::shared_ptr<nt::NetworkTable> m_poseTable;
-    std::shared_ptr<nt::NetworkTable> m_rpiTable;
     nt::NetworkTableEntry m_pose;
     nt::NetworkTableEntry m_latency;
 

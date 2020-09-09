@@ -1,6 +1,7 @@
 // Copyright (c) 2019-2020 FRC Team 3512. All Rights Reserved.
 
 #include <gtest/gtest.h>
+#include <networktables/NetworkTableInstance.h>
 
 #include "TargetModel.hpp"
 #include "subsystems/Vision.hpp"
@@ -10,13 +11,12 @@
 
 TEST(VisionTest, CalculateDrivetrainInGlobal) {
     frc3512::Vision vision;
+
     auto inst = nt::NetworkTableInstance::GetDefault();
     inst.StartLocal();
-    std::shared_ptr<nt::NetworkTable> poseTable =
-        inst.GetTable("chameleon-vision");
-    std::shared_ptr<nt::NetworkTable> rpiTable =
-        poseTable->GetSubTable("RPI-Cam");
-    nt::NetworkTableEntry pose = rpiTable->GetEntry("target-Pose");
+    auto poseTable = inst.GetTable("chameleon-vision");
+    auto rpiTable = poseTable->GetSubTable("RPI-Cam");
+    auto pose = rpiTable->GetEntry("target-Pose");
 
     auto testMeasurement = [&](units::inch_t x, units::inch_t y,
                                units::degree_t theta, units::inch_t globalX,

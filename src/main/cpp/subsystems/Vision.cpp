@@ -8,6 +8,7 @@
 #include <frc/RobotBase.h>
 #include <frc/geometry/Pose2d.h>
 #include <frc/geometry/Transform2d.h>
+#include <networktables/NetworkTableInstance.h>
 
 #include "TargetModel.hpp"
 #include "subsystems/Turret.hpp"
@@ -18,20 +19,22 @@ const frc::Transform2d Vision::kCameraInGlobalToTurretInGlobal{
     frc::Pose2d{}, frc::Pose2d{0_in, -1.0 * 3_in, 0_rad}};
 
 Vision::Vision() {
-    m_inst = nt::NetworkTableInstance::GetDefault();
+    auto inst = nt::NetworkTableInstance::GetDefault();
 #ifdef RUNNING_FRC_TESTS
-    m_inst.StartLocal();
+    inst.StartLocal();
 #else
-    m_inst.StartClient();
+    inst.StartClient();
 #endif
-    m_ledTable = m_inst.GetTable("LED Ring Light");
-    m_ledIsOn = m_ledTable->GetEntry("LED-State");
-    m_poseTable = m_inst.GetTable("chameleon-vision");
-    m_rpiTable = m_poseTable->GetSubTable("RPI-Cam");
-    m_pose = m_rpiTable->GetEntry("target-Pose");
-    m_latency = m_rpiTable->GetEntry("latency");
+
+    auto ledTable = inst.GetTable("LED Ring Light");
+    m_ledIsOn = ledTable->GetEntry("LED-State");
+
+    auto poseTable = inst.GetTable("chameleon-vision");
+    auto rpiTable = poseTable->GetSubTable("RPI-Cam");
+    m_pose = rpiTable->GetEntry("target-Pose");
     m_pose.AddListener(std::bind(&Vision::ProcessNewMeasurement, this),
                        NT_NOTIFY_NEW | NT_NOTIFY_UPDATE | NT_NOTIFY_LOCAL);
+    m_latency = rpiTable->GetEntry("latency");
 }
 
 void Vision::TurnLEDOn() { m_ledIsOn.SetBoolean(true); }

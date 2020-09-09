@@ -7,7 +7,6 @@
 #include <frc/DriverStation.h>
 #include <frc/Joystick.h>
 #include <frc/RobotController.h>
-#include <networktables/NetworkTable.h>
 #include <networktables/NetworkTableInstance.h>
 #include <wpi/MathExtras.h>
 
@@ -37,8 +36,8 @@ Robot::Robot() {
         std::bind(&Robot::AutoRightSideShootThreeInit, this),
         std::bind(&Robot::AutoRightSideShootThreePeriodic, this));
 
-    nt::NetworkTableInstance inst = nt::NetworkTableInstance::GetDefault();
-    std::shared_ptr<nt::NetworkTable> table = inst.GetTable("Diagnostics");
+    auto inst = nt::NetworkTableInstance::GetDefault();
+    auto table = inst.GetTable("Diagnostics");
     m_flywheelEntry = table->GetEntry("Flywheel encoder");
     m_drivetrainLeftEntry = table->GetEntry("Left drivetrain encoder");
     m_drivetrainRightEntry = table->GetEntry("Right drivetrain encoder");
