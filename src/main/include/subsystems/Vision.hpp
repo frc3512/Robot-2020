@@ -63,4 +63,5 @@ private:
 
     frc3512::static_concurrent_queue<GlobalMeasurement, 8> m_measurements;
 };
+
 }  // namespace frc3512
