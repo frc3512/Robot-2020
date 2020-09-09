@@ -134,15 +134,22 @@ void Robot::TeleopPeriodic() {
     if (m_appendageStick2.GetRawButtonPressed(4)) {
         m_intake.SetArmMotor(Intake::ArmMotorDirection::kIntake);
         m_intake.SetFunnel(0.4);
+        if (!m_intake.IsUpperSensorBlocked() && m_intake.IsLowerSensorBlocked()){
+            m_intake.SetConveyor(0.85);
+        }else {
+            m_intake.SetConveyor(0.0);
+        }
     } else if (m_appendageStick2.GetRawButtonPressed(6)) {
         m_intake.SetArmMotor(Intake::ArmMotorDirection::kOuttake);
         m_intake.SetFunnel(-0.4);
     } else if (m_appendageStick2.GetRawButtonReleased(4)) {
         m_intake.SetArmMotor(Intake::ArmMotorDirection::kIdle);
         m_intake.SetFunnel(0.0);
+        m_intake.SetConveyor(0.0);
     } else if (m_appendageStick2.GetRawButtonReleased(6)) {
         m_intake.SetArmMotor(Intake::ArmMotorDirection::kIdle);
         m_intake.SetFunnel(0.0);
+        m_intake.SetConveyor(0.0);
     } else if (m_appendageStick2.GetRawButtonPressed(3)) {
         if (m_intake.IsDeployed()) {
             m_intake.Stow();

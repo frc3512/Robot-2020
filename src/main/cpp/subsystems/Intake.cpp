@@ -27,8 +27,16 @@ void Intake::SetArmMotor(ArmMotorDirection armMotorState) {
 }
 
 void Intake::SetFunnel(double speed) {
-    m_funnelMotorLeft.Set(speed);
-    m_funnelMotorRight.Set(speed);
+    if (IsUpperSensorBlocked())
+    {
+        m_funnelMotorLeft.Set(0.0);
+        m_funnelMotorRight.Set(0.0);
+    }
+    else 
+    {
+        m_funnelMotorLeft.Set(speed);
+        m_funnelMotorRight.Set(speed);
+    }
 }
 
 void Intake::FeedBalls() {
@@ -46,6 +54,7 @@ bool Intake::IsLowerSensorBlocked() const { return !m_lowerSensor.Get(); }
 void Intake::RobotPeriodic() {
     if (m_flywheel.GetGoal() > 0_rad_per_s && m_flywheel.AtGoal()) {
         SetConveyor(0.85);
+        SetFunnel(0.4);
     } else if (IsLowerSensorBlocked() && !IsUpperSensorBlocked()) {
         SetConveyor(0.70);
     } else {
