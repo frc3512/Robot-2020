@@ -2,10 +2,13 @@
 
 #include "subsystems/Turret.hpp"
 
+#include <frc/Joystick.h>
+
 #include "subsystems/Drivetrain.hpp"
 #include "subsystems/Vision.hpp"
 
 using namespace frc3512;
+using namespace frc3512::Constants::Robot;
 
 Turret::Turret(Vision& vision, Drivetrain& drivetrain)
     : m_vision(vision), m_drivetrain(drivetrain) {
@@ -93,4 +96,23 @@ void Turret::ControllerPeriodic() {
     }
 
     m_lastTime = now;
+}
+
+void Turret::TeleopPeriodic() {
+    static frc::Joystick appendageStick1{kAppendageStick1Port};
+
+    // Turret manual override
+    if (appendageStick1.GetRawButtonPressed(11)) {
+        SetManualOverride();
+    }
+
+    // Turrret manual spin
+    int pov = appendageStick1.GetPOV();
+    if (pov == 90) {
+        SetDirection(Direction::kCW);
+    } else if (pov == 270) {
+        SetDirection(Direction::kCCW);
+    } else {
+        SetDirection(Direction::kNone);
+    }
 }
