@@ -14,6 +14,7 @@ Install the following OS packages.
 
 * gcc >= 7.3.0
 * python >= 3.6
+* rsync (optional, for CSV logging)
 
 Install the following python packages via `pip3 install --user package_name`.
 
