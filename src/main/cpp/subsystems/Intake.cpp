@@ -59,19 +59,18 @@ void Intake::RobotPeriodic() {
 void Intake::TeleopPeriodic() {
     static frc::Joystick appendageStick2{kAppendageStick2Port};
 
-    if (appendageStick2.GetRawButtonPressed(4)) {
+    if (appendageStick2.GetRawButton(4)) {
         SetArmMotor(ArmMotorDirection::kIntake);
         SetFunnel(0.4);
-    } else if (appendageStick2.GetRawButtonPressed(6)) {
+    } else if (appendageStick2.GetRawButton(6)) {
         SetArmMotor(ArmMotorDirection::kOuttake);
         SetFunnel(-0.4);
-    } else if (appendageStick2.GetRawButtonReleased(4)) {
+    } else {
         SetArmMotor(ArmMotorDirection::kIdle);
         SetFunnel(0.0);
-    } else if (appendageStick2.GetRawButtonReleased(6)) {
-        SetArmMotor(ArmMotorDirection::kIdle);
-        SetFunnel(0.0);
-    } else if (appendageStick2.GetRawButtonPressed(3)) {
+    }
+
+    if (appendageStick2.GetRawButtonPressed(3)) {
         if (IsDeployed()) {
             Stow();
         } else {
