@@ -55,9 +55,10 @@ in `docs/html` with an index.html page as the root.
 ## Logging
 
 * Make sure to have FRC toolchain from the setup section.
-* Open the tools directory `~/wpilib/2020/tools` and run `python3 ToolsUpdater.py`.
-* Open OutlineViewer by running `python3 OutlineViewer.py` and set the server location to
-10.35.12.2. The default port will work.
+* Open the tools directory `~/wpilib/2020/tools` and run
+  `python3 ToolsUpdater.py`.
+* Open OutlineViewer by running `python3 OutlineViewer.py` and set the server
+  location to 10.35.12.2. The default port will work.
 
 ## Game
 
