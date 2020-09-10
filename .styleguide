@@ -34,7 +34,3 @@ includeOtherLibs {
   cscore\.h$
   units/units\.h$
 }
-
-generatedFileExclude {
-  thirdparty/
-}

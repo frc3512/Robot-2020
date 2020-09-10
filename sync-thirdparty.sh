@@ -40,6 +40,9 @@ cp -r $SRC/wpimath/src/test/native/cpp/{controller,drake,EigenTest.cpp,estimator
 cp -r $SRC/wpimath/src/test/native/include/drake \
   thirdparty/wpimath/src/test/native/include
 
+cp $SRC/{.clang-format,.styleguide-license} thirdparty/wpimath
+cp $SRC/wpimath/.styleguide thirdparty/wpimath
+
 # Backport state-space library to customized 2020 units library
 pushd thirdparty/wpimath/src/main/native/include/frc
 find . -type f \( -name \*\.cpp -o -name \*\.h \) -exec sed -i 's!"units/!"units_shim/!g' {} \;
@@ -62,3 +65,6 @@ cp $SRC/wpiutil/src/main/native/include/wpi/static_circular_buffer.h \
 mkdir -p thirdparty/wpiutil/src/test/native/cpp
 cp $SRC/wpiutil/src/test/native/cpp/StaticCircularBufferTest.cpp \
   thirdparty/wpiutil/src/test/native/cpp
+
+cp $SRC/{.clang-format,.styleguide-license} thirdparty/wpiutil
+cp $SRC/wpiutil/.styleguide thirdparty/wpiutil
