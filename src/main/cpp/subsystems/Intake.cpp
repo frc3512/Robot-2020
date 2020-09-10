@@ -30,8 +30,13 @@ void Intake::SetArmMotor(ArmMotorDirection armMotorState) {
 }
 
 void Intake::SetFunnel(double speed) {
-    m_funnelMotorLeft.Set(speed);
-    m_funnelMotorRight.Set(speed);
+    if (!IsUpperSensorBlocked()) {
+        m_funnelMotorLeft.Set(speed);
+        m_funnelMotorRight.Set(speed);
+    } else {
+        m_funnelMotorLeft.Set(0.0);
+        m_funnelMotorRight.Set(0.0);
+    }
 }
 
 void Intake::FeedBalls() {
