@@ -4,9 +4,18 @@ plugins {
     id "edu.wpi.first.GradleRIO" version "2020.3.2"
 }
 
-// Used for testing local publishes of WPILib
-// wpi.maven.useFrcMavenLocalDevelopment = true
+// For testing development versions of WPILib
 // wpi.wpilibVersion = '2020.424242.+'
+
+// For using local development artifacts
+// wpi.maven.useFrcMavenLocalDevelopment = true
+
+// For using remote development artifacts
+// repositories {
+//     maven {
+//         url = "https://file.tavsys.net/maven/development"
+//     }
+// }
 
 // Define my targets (RoboRIO) and artifacts (deployable files)
 // This is added by GradleRIO's backing project EmbeddedTools.
