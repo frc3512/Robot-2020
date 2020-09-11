@@ -19,10 +19,10 @@ namespace frc3512 {
  * Generates CSV files for state-space controllers.
  */
 template <int States, int Inputs, int Outputs>
-class ControllerLogger {
+class CSVControllerLogger {
 public:
     /**
-     * Constructs a ControllerLogger.
+     * Constructs a CSVControllerLogger.
      *
      * @param controllerName Name of the controller log file.
      * @param stateLabels    Labels for states each consisting of its name and
@@ -32,10 +32,11 @@ public:
      * @param outputLabels   Labels for outputs each consisting of its name and
      *                       unit.
      */
-    ControllerLogger(wpi::StringRef controllerName,
-                     const std::array<ControllerLabel, States>& stateLabels,
-                     const std::array<ControllerLabel, Inputs>& inputLabels,
-                     const std::array<ControllerLabel, Outputs>& outputLabels)
+    CSVControllerLogger(
+        wpi::StringRef controllerName,
+        const std::array<ControllerLabel, States>& stateLabels,
+        const std::array<ControllerLabel, Inputs>& inputLabels,
+        const std::array<ControllerLabel, Outputs>& outputLabels)
         : m_stateLogger{(controllerName + " states").str(),
                         std::tuple_cat(MakeReferenceLabels(stateLabels),
                                        MakeStateEstimateLabels(stateLabels))},

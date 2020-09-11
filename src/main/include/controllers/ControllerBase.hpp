@@ -8,7 +8,13 @@
 #include <units/units.h>
 #include <wpi/StringRef.h>
 
-#include "ControllerLogger.hpp"
+#define NETWORK_LOGGING 1
+
+#if NETWORK_LOGGING
+#include "LiveGrapherControllerLogger.hpp"
+#else
+#include "CSVControllerLogger.hpp"
+#endif
 
 namespace frc3512 {
 
@@ -94,7 +100,11 @@ public:
     }
 
 private:
-    ControllerLogger<States, Inputs, Outputs> m_logger;
+#if NETWORK_LOGGING
+    LiveGrapherControllerLogger<States, Inputs, Outputs> m_logger;
+#else
+    CSVControllerLogger<States, Inputs, Outputs> m_logger;
+#endif
 };
 
 }  // namespace frc3512
