@@ -66,13 +66,10 @@ void Robot::TeleopInit() {
 
 void Robot::RobotPeriodic() {
     SubsystemBase::RunAllRobotPeriodic();
+
     m_batteryLogger.Log(
         units::second_t{std::chrono::steady_clock::now().time_since_epoch()},
         frc::RobotController::GetInputVoltage());
-}
-
-void Robot::DisabledPeriodic() {
-    SubsystemBase::RunAllDisabledPeriodic();
 
     m_flywheelEntry.SetDouble(m_flywheel.GetAngle().to<double>());
     m_drivetrainLeftEntry.SetDouble(
@@ -81,6 +78,11 @@ void Robot::DisabledPeriodic() {
         m_drivetrain.GetRightPosition().to<double>());
     m_drivetrainGyroEntry.SetDouble(m_drivetrain.GetAngle().to<double>());
     m_turretEntry.SetDouble(m_turret.GetAngle().to<double>());
+}
+
+void Robot::DisabledPeriodic() {
+    SubsystemBase::RunAllDisabledPeriodic();
+
     m_upperConveyorEntry.SetBoolean(m_intake.IsUpperSensorBlocked());
     m_lowerConveyorEntry.SetBoolean(m_intake.IsLowerSensorBlocked());
 }
