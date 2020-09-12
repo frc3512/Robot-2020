@@ -30,13 +30,8 @@ void Intake::SetArmMotor(ArmMotorDirection armMotorState) {
 }
 
 void Intake::SetFunnel(double speed) {
-    if (!IsUpperSensorBlocked()) {
-        m_funnelMotorLeft.Set(speed);
-        m_funnelMotorRight.Set(speed);
-    } else {
-        m_funnelMotorLeft.Set(0.0);
-        m_funnelMotorRight.Set(0.0);
-    }
+    m_funnelMotorLeft.Set(speed);
+    m_funnelMotorRight.Set(speed);
 }
 
 void Intake::FeedBalls() {
@@ -53,32 +48,37 @@ bool Intake::IsLowerSensorBlocked() const { return !m_lowerSensor.Get(); }
 
 void Intake::RobotPeriodic() {
     if (m_flywheel.IsReady()) {
-        // If ready to shoot, run the conveyor and funnel up.
+        // If ready to shoot, run the conveyor, funnel, and intake up.
         SetConveyor(0.85);
         SetFunnel(0.4);
-        SetArmMotor(ArmMotorDirection::kIdle);
+        SetArmMotor(ArmMotorDirection::kIntake);
     } else if (IsUpperSensorBlocked()) {
         // Otherwise, if the upper sensor is blocked, don't run any of the
         // intake stages.
         SetConveyor(0.0);
         SetFunnel(0.0);
-        SetArmMotor(ArmMotorDirection::kIdle);
     } else if (IsLowerSensorBlocked()) {
         // If the upper sensor isn't blocked and the lower sensor is, run the
-        // conveyor up.
+        // conveyor and funnel up.
         SetConveyor(0.70);
+        SetFunnel(0.4);
+    } else {
+        // If nothing is blocked then don't run the conveyor.
+        SetConveyor(0.0);
     }
 }
 
 void Intake::TeleopPeriodic() {
     static frc::Joystick appendageStick2{kAppendageStick2Port};
-
     // If the shooter isn't ready (the intake is preoccupied when the shooter is
     // ready) and the upper sensor isn't blocked, allow manually actuating the
     // funnel and arm.
-    if (!m_flywheel.IsReady() && !IsUpperSensorBlocked()) {
+    if (!m_flywheel.IsReady()) {
         if (appendageStick2.GetRawButton(4)) {
             SetFunnel(0.4);
+            if (!IsUpperSensorBlocked()) {
+                SetFunnel(0.4);
+            }
             SetArmMotor(ArmMotorDirection::kIntake);
         } else if (appendageStick2.GetRawButton(6)) {
             SetFunnel(-0.4);

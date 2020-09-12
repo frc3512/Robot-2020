@@ -50,6 +50,11 @@ Robot::Robot() {
 void Robot::DisabledInit() {
     SubsystemBase::RunAllDisabledInit();
     ControllerSubsystemBase::Disable();
+
+    m_flywheel.SetGoal(0_rad_per_s);
+    m_vision.TurnLEDOff();
+    m_timer.Stop();
+    m_state = ShootingState::kIdle;
 }
 
 void Robot::AutonomousInit() {
