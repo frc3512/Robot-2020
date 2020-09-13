@@ -53,8 +53,7 @@ void Intake::RobotPeriodic() {
         SetFunnel(0.4);
         SetArmMotor(ArmMotorDirection::kIntake);
     } else if (IsUpperSensorBlocked()) {
-        // Otherwise, if the upper sensor is blocked, don't run any of the
-        // intake stages.
+        // Otherwise, if the upper sensor is blocked, only allow arm actuation.
         SetConveyor(0.0);
         SetFunnel(0.0);
     } else if (IsLowerSensorBlocked()) {
@@ -63,22 +62,19 @@ void Intake::RobotPeriodic() {
         SetConveyor(0.70);
         SetFunnel(0.4);
     } else {
-        // If nothing is blocked then don't run the conveyor.
+        // If nothing is blocked, stop the conveyor.
         SetConveyor(0.0);
     }
 }
 
 void Intake::TeleopPeriodic() {
     static frc::Joystick appendageStick2{kAppendageStick2Port};
+
     // If the shooter isn't ready (the intake is preoccupied when the shooter is
-    // ready) and the upper sensor isn't blocked, allow manually actuating the
-    // funnel and arm.
+    // ready), allow manually actuating the funnel and arm.
     if (!m_flywheel.IsReady()) {
         if (appendageStick2.GetRawButton(4)) {
             SetFunnel(0.4);
-            if (!IsUpperSensorBlocked()) {
-                SetFunnel(0.4);
-            }
             SetArmMotor(ArmMotorDirection::kIntake);
         } else if (appendageStick2.GetRawButton(6)) {
             SetFunnel(-0.4);

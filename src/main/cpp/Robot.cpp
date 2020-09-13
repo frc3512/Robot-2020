@@ -51,6 +51,7 @@ void Robot::DisabledInit() {
     SubsystemBase::RunAllDisabledInit();
     ControllerSubsystemBase::Disable();
 
+    // Reset teleop shooting state machine when disabling robot
     m_flywheel.SetGoal(0_rad_per_s);
     m_vision.TurnLEDOff();
     m_timer.Stop();
