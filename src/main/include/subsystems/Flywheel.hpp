@@ -83,9 +83,10 @@ public:
     void Shoot();
 
     /**
-     * Returns true if flywheel is spinning.
+     * Returns true if flywheel is spinning and it has reached the goal angular
+     * velocity.
      */
-    bool IsShooting() const;
+    bool IsReady();
 
     /**
      * Resets sensors and the controller.

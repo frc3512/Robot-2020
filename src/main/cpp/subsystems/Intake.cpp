@@ -30,13 +30,8 @@ void Intake::SetArmMotor(ArmMotorDirection armMotorState) {
 }
 
 void Intake::SetFunnel(double speed) {
-    if (!IsUpperSensorBlocked()) {
-        m_funnelMotorLeft.Set(speed);
-        m_funnelMotorRight.Set(speed);
-    } else {
-        m_funnelMotorLeft.Set(0.0);
-        m_funnelMotorRight.Set(0.0);
-    }
+    m_funnelMotorLeft.Set(speed);
+    m_funnelMotorRight.Set(speed);
 }
 
 void Intake::FeedBalls() {
@@ -52,11 +47,22 @@ bool Intake::IsUpperSensorBlocked() const { return !m_upperSensor.Get(); }
 bool Intake::IsLowerSensorBlocked() const { return !m_lowerSensor.Get(); }
 
 void Intake::RobotPeriodic() {
-    if (m_flywheel.GetGoal() > 0_rad_per_s && m_flywheel.AtGoal()) {
+    if (m_flywheel.IsReady()) {
+        // If ready to shoot, run the conveyor, funnel, and intake up.
         SetConveyor(0.85);
-    } else if (IsLowerSensorBlocked() && !IsUpperSensorBlocked()) {
+        SetFunnel(0.4);
+        SetArmMotor(ArmMotorDirection::kIntake);
+    } else if (IsUpperSensorBlocked()) {
+        // Otherwise, if the upper sensor is blocked, only allow arm actuation.
+        SetConveyor(0.0);
+        SetFunnel(0.0);
+    } else if (IsLowerSensorBlocked()) {
+        // If the upper sensor isn't blocked and the lower sensor is, run the
+        // conveyor and funnel up.
         SetConveyor(0.70);
+        SetFunnel(0.4);
     } else {
+        // If nothing is blocked, stop the conveyor.
         SetConveyor(0.0);
     }
 }
@@ -64,15 +70,19 @@ void Intake::RobotPeriodic() {
 void Intake::TeleopPeriodic() {
     static frc::Joystick appendageStick2{kAppendageStick2Port};
 
-    if (appendageStick2.GetRawButton(4)) {
-        SetArmMotor(ArmMotorDirection::kIntake);
-        SetFunnel(0.4);
-    } else if (appendageStick2.GetRawButton(6)) {
-        SetArmMotor(ArmMotorDirection::kOuttake);
-        SetFunnel(-0.4);
-    } else {
-        SetArmMotor(ArmMotorDirection::kIdle);
-        SetFunnel(0.0);
+    // If the shooter isn't ready (the intake is preoccupied when the shooter is
+    // ready), allow manually actuating the funnel and arm.
+    if (!m_flywheel.IsReady()) {
+        if (appendageStick2.GetRawButton(4)) {
+            SetFunnel(0.4);
+            SetArmMotor(ArmMotorDirection::kIntake);
+        } else if (appendageStick2.GetRawButton(6)) {
+            SetFunnel(-0.4);
+            SetArmMotor(ArmMotorDirection::kOuttake);
+        } else {
+            SetFunnel(0.0);
+            SetArmMotor(ArmMotorDirection::kIdle);
+        }
     }
 
     if (appendageStick2.GetRawButtonPressed(3)) {
