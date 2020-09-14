@@ -39,6 +39,9 @@ Robot::Robot() {
     auto inst = nt::NetworkTableInstance::GetDefault();
     auto table = inst.GetTable("Diagnostics");
     m_flywheelEntry = table->GetEntry("Flywheel encoder");
+    m_flywheelGoalEntry = table->GetEntry("Flywheel goal");
+    m_isFlywheelOnEntry = table->GetEntry("Is flywheel on");
+    m_isFlywheelReadyEntry = table->GetEntry("Is flywheel ready");
     m_drivetrainLeftEntry = table->GetEntry("Left drivetrain encoder");
     m_drivetrainRightEntry = table->GetEntry("Right drivetrain encoder");
     m_drivetrainGyroEntry = table->GetEntry("Drivetrain angle");
@@ -78,20 +81,20 @@ void Robot::RobotPeriodic() {
         frc::RobotController::GetInputVoltage());
 
     m_flywheelEntry.SetDouble(m_flywheel.GetAngle().to<double>());
+    m_flywheelGoalEntry.SetDouble(m_flywheel.GetGoal().to<double>());
+    m_isFlywheelOnEntry.SetBoolean(m_flywheel.IsOn());
+    m_isFlywheelReadyEntry.SetBoolean(m_flywheel.IsReady());
     m_drivetrainLeftEntry.SetDouble(
         m_drivetrain.GetLeftPosition().to<double>());
     m_drivetrainRightEntry.SetDouble(
         m_drivetrain.GetRightPosition().to<double>());
     m_drivetrainGyroEntry.SetDouble(m_drivetrain.GetAngle().to<double>());
     m_turretEntry.SetDouble(m_turret.GetAngle().to<double>());
-}
-
-void Robot::DisabledPeriodic() {
-    SubsystemBase::RunAllDisabledPeriodic();
-
     m_upperConveyorEntry.SetBoolean(m_intake.IsUpperSensorBlocked());
     m_lowerConveyorEntry.SetBoolean(m_intake.IsLowerSensorBlocked());
 }
+
+void Robot::DisabledPeriodic() { SubsystemBase::RunAllDisabledPeriodic(); }
 
 void Robot::AutonomousPeriodic() {
     SubsystemBase::RunAllAutonomousPeriodic();

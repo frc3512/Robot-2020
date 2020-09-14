@@ -83,6 +83,11 @@ public:
     void Shoot();
 
     /**
+     * Returns true if the flywheel has been set to a nonzero goal.
+     */
+    bool IsOn() const;
+
+    /**
      * Returns true if flywheel is spinning and it has reached the goal angular
      * velocity.
      */

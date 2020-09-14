@@ -122,6 +122,9 @@ private:
     frc2::Timer m_timer;
 
     nt::NetworkTableEntry m_flywheelEntry;
+    nt::NetworkTableEntry m_flywheelGoalEntry;
+    nt::NetworkTableEntry m_isFlywheelOnEntry;
+    nt::NetworkTableEntry m_isFlywheelReadyEntry;
     nt::NetworkTableEntry m_drivetrainLeftEntry;
     nt::NetworkTableEntry m_drivetrainRightEntry;
     nt::NetworkTableEntry m_drivetrainGyroEntry;
