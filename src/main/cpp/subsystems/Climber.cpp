@@ -17,18 +17,14 @@ using namespace frc3512::Constants::Robot;
 Climber::Climber() {
     SetCANSparkMaxBusUsage(m_elevator, Usage::kPositionOnly);
     SetCANSparkMaxBusUsage(m_traverser, Usage::kMinimal);
-
-    // Converts rotations to meters
-    constexpr units::meter_t kDrumDiameter = 1_in;
-    constexpr double kGearRatio = 1.0 / 20.0;
-    m_elevatorEncoder.SetPositionConversionFactor(
-        wpi::math::pi * kDrumDiameter.to<double>() * kGearRatio);
 }
 
 void Climber::SetTraverser(double speed) { m_traverser.Set(speed); }
 
 void Climber::SetElevator(double speed) {
-    if (std::abs(speed) > 0.02) {
+    // Checks if the elevator's position is within the limits.
+    if (speed > 0.02 && GetElevatorPosition() <= 1.2287_m ||
+        speed < -0.02 && GetElevatorPosition() >= 0_m) {
         // Unlock climber if it's being commanded to move
         m_pancake.Set(true);
         m_elevator.Set(speed);
@@ -39,11 +35,15 @@ void Climber::SetElevator(double speed) {
 }
 
 units::meter_t Climber::GetElevatorPosition() {
-    return units::meter_t{m_elevatorEncoder.GetPosition()};
+    constexpr double kG = 1.0 / 20.0;  // Gear ratio
+
+    double rotations = m_elevatorEncoder.GetPosition();
+    return units::meter_t{0.04381 * wpi::math::pi * kG * rotations /
+                          (1.0 + 0.014983 * wpi::math::pi * kG * rotations)};
 }
 
 void Climber::RobotPeriodic() {
-    m_elevatorEncoderEntry.SetDouble(m_elevatorEncoder.GetPosition());
+    m_elevatorEncoderEntry.SetDouble(GetElevatorPosition().to<double>());
 }
 
 void Climber::TeleopPeriodic() {
