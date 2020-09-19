@@ -7,7 +7,6 @@
 #include <frc/estimator/KalmanFilter.h>
 #include <frc/geometry/Pose2d.h>
 #include <frc/geometry/Translation3d.h>
-#include <frc/logging/CSVLogFile.h>
 #include <frc/system/LinearSystem.h>
 #include <frc/system/LinearSystemLoop.h>
 #include <frc/system/plant/LinearSystemId.h>

@@ -10,7 +10,6 @@
 #include <frc/controller/ControlAffinePlantInversionFeedforward.h>
 #include <frc/estimator/ExtendedKalmanFilter.h>
 #include <frc/geometry/Pose2d.h>
-#include <frc/logging/CSVLogFile.h>
 #include <frc/trajectory/Trajectory.h>
 #include <units/units.h>
 #include <wpi/math>
