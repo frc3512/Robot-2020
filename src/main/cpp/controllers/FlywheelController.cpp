@@ -70,6 +70,7 @@ void FlywheelController::Update(units::second_t dt,
     // To conserve battery when the flywheel doesn't have to be spinning, don't
     // apply a negative voltage to slow down.
     if (m_nextR(0) == 0.0 || !m_isEnabled) {
+        m_lqr.Calculate(m_observer.Xhat(), m_nextR);
         m_u(0) = 0.0;
     } else {
         m_u = m_lqr.Calculate(m_observer.Xhat(), m_nextR) +

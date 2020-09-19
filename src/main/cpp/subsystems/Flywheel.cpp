@@ -54,9 +54,7 @@ void Flywheel::SetGoal(units::radians_per_second_t velocity) {
 }
 
 units::radians_per_second_t Flywheel::GetGoal() const {
-    auto ref = m_controller.GetReferences();
-    return units::radians_per_second_t{
-        ref(FlywheelController::State::kAngularVelocity)};
+    return m_controller.GetGoal();
 }
 
 bool Flywheel::AtGoal() {
