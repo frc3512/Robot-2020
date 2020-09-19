@@ -16,7 +16,6 @@
 #include <wpi/math>
 
 #include "Constants.hpp"
-#include "ControllerLogger.hpp"
 #include "TargetModel.hpp"
 #include "controllers/ControllerBase.hpp"
 
@@ -123,6 +122,8 @@ public:
 
     const Eigen::Matrix<double, 1, 1>& GetOutputs() const override;
 
+    void UpdateController(units::second_t dt) override;
+
     /**
      * Returns the turret plant.
      */
@@ -142,11 +143,6 @@ public:
      */
     units::radian_t CalculateHeading(Eigen::Vector2d target,
                                      Eigen::Vector2d turret);
-
-    /**
-     * Executes the control loop for a cycle.
-     */
-    void Update(units::second_t dt, units::second_t elapsedTime);
 
     /**
      * Resets any internal state.
@@ -196,14 +192,6 @@ private:
     frc::Pose2d m_drivetrainNextPoseInGlobal;
     Eigen::Matrix<double, 10, 1> m_drivetrainNextXhat;
     frc::Pose2d m_turretNextPoseInGlobal;
-
-    ControllerLogger<2, 1, 1> m_logger{
-        "Turret",
-        {ControllerLabel{"Angle", "rad"},
-         ControllerLabel{"Angular velocity", "rad/s"}},
-        {ControllerLabel{"Voltage", "V"}},
-        {ControllerLabel{"Angle", "rad"}}};
-    frc::CSVLogFile m_batteryLogger{"Turret battery", "Battery voltage (V)"};
 
     Eigen::Matrix<double, 1, 1> m_u;
 

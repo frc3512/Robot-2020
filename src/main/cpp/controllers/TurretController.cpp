@@ -12,7 +12,12 @@ using namespace frc3512::Constants::Turret;
 const frc::Pose2d TurretController::kDrivetrainToTurretFrame{
     2_in, 0_m, wpi::math::pi * 1_rad};
 
-TurretController::TurretController() {
+TurretController::TurretController()
+    : ControllerBase("Turret",
+                     {ControllerLabel{"Angle", "rad"},
+                      ControllerLabel{"Angular velocity", "rad/s"}},
+                     {ControllerLabel{"Voltage", "V"}},
+                     {ControllerLabel{"Angle", "rad"}}) {
     m_y.setZero();
     Reset();
 }
@@ -73,24 +78,7 @@ const Eigen::Matrix<double, 1, 1>& TurretController::GetOutputs() const {
     return m_y;
 }
 
-const frc::LinearSystem<2, 1, 1>& TurretController::GetPlant() const {
-    return m_plant;
-}
-
-frc::Pose2d TurretController::GetNextPose() const {
-    return m_turretNextPoseInGlobal;
-}
-
-units::radian_t TurretController::CalculateHeading(Eigen::Vector2d target,
-                                                   Eigen::Vector2d turret) {
-    return units::math::atan2(units::meter_t{target(1) - turret(1)},
-                              units::meter_t{target(0) - turret(0)});
-}
-
-void TurretController::Update(units::second_t dt, units::second_t elapsedTime) {
-    m_logger.Log(elapsedTime, GetReferences(), GetStates(), GetInputs(),
-                 GetOutputs());
-
+void TurretController::UpdateController(units::second_t dt) {
     m_observer.Correct(m_u, m_y);
 
     // Calculate next drivetrain and turret pose in global frame
@@ -147,6 +135,20 @@ void TurretController::Update(units::second_t dt, units::second_t elapsedTime) {
             kAngularVelocityTolerance;
 
     m_observer.Predict(m_u, dt);
+}
+
+const frc::LinearSystem<2, 1, 1>& TurretController::GetPlant() const {
+    return m_plant;
+}
+
+frc::Pose2d TurretController::GetNextPose() const {
+    return m_turretNextPoseInGlobal;
+}
+
+units::radian_t TurretController::CalculateHeading(Eigen::Vector2d target,
+                                                   Eigen::Vector2d turret) {
+    return units::math::atan2(units::meter_t{target(1) - turret(1)},
+                              units::meter_t{target(0) - turret(0)});
 }
 
 void TurretController::Reset() {

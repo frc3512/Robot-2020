@@ -17,7 +17,6 @@
 #include <wpi/mutex.h>
 
 #include "Constants.hpp"
-#include "ControllerLogger.hpp"
 #include "controllers/ControllerBase.hpp"
 
 namespace frc {
@@ -159,6 +158,8 @@ public:
 
     const Eigen::Matrix<double, 3, 1>& GetOutputs() const override;
 
+    void UpdateController(units::second_t dt) override;
+
     /**
      * Returns the estimated outputs based on the current state estimate.
      *
@@ -172,13 +173,6 @@ public:
      * This provides global measurements (including pose).
      */
     Eigen::Matrix<double, 2, 1> EstimatedGlobalOutputs() const;
-
-    /**
-     * Executes the control loop for a cycle.
-     *
-     * @param dt Timestep between each Update() call
-     */
-    void Update(units::second_t dt, units::second_t elapsedTime);
 
     /**
      * Resets any internal state.
@@ -272,31 +266,13 @@ private:
 
     frc::Trajectory m_trajectory;
     frc::Pose2d m_goal;
+    units::second_t m_timeSinceSetWaypoints = 0_s;
 
     wpi::mutex m_trajectoryMutex;
 
     bool m_atReferences = false;
     bool m_isEnabled = false;
     bool m_isOpenLoop = false;
-
-    ControllerLogger<10, 2, 3> m_logger{
-        "Drivetrain",
-        {ControllerLabel{"X", "m"}, ControllerLabel{"Y", "m"},
-         ControllerLabel{"Heading", "rad"},
-         ControllerLabel{"Left velocity", "m/s"},
-         ControllerLabel{"Right velocity", "m/s"},
-         ControllerLabel{"Left position", "m"},
-         ControllerLabel{"Right position", "m"},
-         ControllerLabel{"Left voltage error", "V"},
-         ControllerLabel{"Right voltage error", "V"},
-         ControllerLabel{"Heading error", "rad"}},
-        {ControllerLabel{"Left voltage", "V"},
-         ControllerLabel{"Right voltage", "V"}},
-        {ControllerLabel{"Heading", "rad"},
-         ControllerLabel{"Left position", "m"},
-         ControllerLabel{"Right position", "m"}}};
-    frc::CSVLogFile m_batteryLogger{"Drivetrain battery",
-                                    "Battery voltage (V)"};
 
     /**
      * Converts velocity and curvature of drivetrain into left and right wheel

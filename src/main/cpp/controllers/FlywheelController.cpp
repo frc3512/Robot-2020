@@ -9,7 +9,10 @@
 using namespace frc3512;
 using namespace frc3512::Constants;
 
-FlywheelController::FlywheelController() {
+FlywheelController::FlywheelController()
+    : ControllerBase("Flywheel", {ControllerLabel{"Angular velocity", "rad/s"}},
+                     {ControllerLabel{"Voltage", "V"}},
+                     {ControllerLabel{"Angular velocity", "rad/s"}}) {
     m_y.setZero();
     Reset();
 }
@@ -55,16 +58,7 @@ const Eigen::Matrix<double, 1, 1>& FlywheelController::GetOutputs() const {
     return m_y;
 }
 
-const frc::LinearSystem<1, 1, 1>& FlywheelController::GetPlant() const {
-    return m_plant;
-}
-
-void FlywheelController::Update(units::second_t dt,
-                                units::second_t elapsedTime) {
-    m_logger.Log(elapsedTime, GetReferences(), GetStates(), GetInputs(),
-                 GetOutputs());
-    m_batteryLogger.Log(elapsedTime, frc::RobotController::GetInputVoltage());
-
+void FlywheelController::UpdateController(units::second_t dt) {
     m_observer.Correct(m_u, m_y);
 
     // To conserve battery when the flywheel doesn't have to be spinning, don't
@@ -86,6 +80,10 @@ void FlywheelController::Update(units::second_t dt,
                kAngularVelocityTolerance;
     m_observer.Predict(m_u * frc::RobotController::GetInputVoltage() / 12.0,
                        dt);
+}
+
+const frc::LinearSystem<1, 1, 1>& FlywheelController::GetPlant() const {
+    return m_plant;
 }
 
 void FlywheelController::Reset() {

@@ -11,7 +11,6 @@
 #include <wpi/math>
 
 #include "Constants.hpp"
-#include "ControllerLogger.hpp"
 #include "controllers/ControllerBase.hpp"
 
 namespace frc3512 {
@@ -87,15 +86,12 @@ public:
 
     const Eigen::Matrix<double, 1, 1>& GetOutputs() const override;
 
+    void UpdateController(units::second_t dt) override;
+
     /**
      * Returns the flywheel plant.
      */
     const frc::LinearSystem<1, 1, 1>& GetPlant() const;
-
-    /**
-     * Executes the control loop for a cycle.
-     */
-    void Update(units::second_t dt, units::second_t elapsedTime);
 
     /**
      * Resets any internal state.
@@ -126,14 +122,6 @@ private:
 
     bool m_atGoal = false;
     bool m_isEnabled = false;
-
-    // The loggers that generates the comma separated value files
-    ControllerLogger<1, 1, 1> m_logger{
-        "Flywheel",
-        {ControllerLabel{"Angular velocity", "rad/s"}},
-        {ControllerLabel{"Voltage", "V"}},
-        {ControllerLabel{"Angular velocity", "rad/s"}}};
-    frc::CSVLogFile m_batteryLogger{"Flywheel battery", "Battery voltage (V)"};
 
     Eigen::Matrix<double, 1, 1> m_u;
 };

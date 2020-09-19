@@ -24,7 +24,22 @@ using namespace frc3512::Constants;
 const Eigen::Matrix<double, 2, 2> DrivetrainController::kGlobalR =
     frc::MakeCovMatrix(0.05, 0.05);
 
-DrivetrainController::DrivetrainController() {
+DrivetrainController::DrivetrainController()
+    : ControllerBase("Drivetrain",
+                     {ControllerLabel{"X", "m"}, ControllerLabel{"Y", "m"},
+                      ControllerLabel{"Heading", "rad"},
+                      ControllerLabel{"Left velocity", "m/s"},
+                      ControllerLabel{"Right velocity", "m/s"},
+                      ControllerLabel{"Left position", "m"},
+                      ControllerLabel{"Right position", "m"},
+                      ControllerLabel{"Left voltage error", "V"},
+                      ControllerLabel{"Right voltage error", "V"},
+                      ControllerLabel{"Heading error", "rad"}},
+                     {ControllerLabel{"Left voltage", "V"},
+                      ControllerLabel{"Right voltage", "V"}},
+                     {ControllerLabel{"Heading", "rad"},
+                      ControllerLabel{"Left position", "m"},
+                      ControllerLabel{"Right position", "m"}}) {
     m_localY.setZero();
     m_globalY.setZero();
     Reset();
@@ -61,6 +76,7 @@ void DrivetrainController::SetWaypoints(
     m_goal = end;
     m_trajectory = frc::TrajectoryGenerator::GenerateTrajectory(start, interior,
                                                                 end, config);
+    m_timeSinceSetWaypoints = 0_s;
 }
 
 bool DrivetrainController::AtGoal() const {
@@ -114,23 +130,8 @@ const Eigen::Matrix<double, 3, 1>& DrivetrainController::GetOutputs() const {
     return m_localY;
 }
 
-Eigen::Matrix<double, 3, 1> DrivetrainController::EstimatedLocalOutputs()
-    const {
-    return LocalMeasurementModel(m_observer.Xhat(),
-                                 Eigen::Matrix<double, 2, 1>::Zero());
-}
-
-Eigen::Matrix<double, 2, 1> DrivetrainController::EstimatedGlobalOutputs()
-    const {
-    return GlobalMeasurementModel(m_observer.Xhat(),
-                                  Eigen::Matrix<double, 2, 1>::Zero());
-}
-
-void DrivetrainController::Update(units::second_t dt,
-                                  units::second_t elapsedTime) {
-    m_logger.Log(elapsedTime, GetReferences(), GetStates(), GetInputs(),
-                 GetOutputs());
-    m_batteryLogger.Log(elapsedTime, frc::RobotController::GetInputVoltage());
+void DrivetrainController::UpdateController(units::second_t dt) {
+    m_timeSinceSetWaypoints += dt;
 
     if (!m_isOpenLoop) {
         frc::Trajectory::State ref;
@@ -139,7 +140,7 @@ void DrivetrainController::Update(units::second_t dt,
         {
             std::lock_guard lock(m_trajectoryMutex);
             if (m_trajectory.States().size() != 0) {
-                ref = m_trajectory.Sample(elapsedTime);
+                ref = m_trajectory.Sample(m_timeSinceSetWaypoints);
             } else {
                 ref.pose = frc::Pose2d(
                     units::meter_t{m_observer.Xhat(State::kX)},
@@ -186,6 +187,18 @@ void DrivetrainController::Update(units::second_t dt,
         m_observer.Correct(m_appliedU, m_localY);
         m_observer.Predict(m_appliedU, dt);
     }
+}
+
+Eigen::Matrix<double, 3, 1> DrivetrainController::EstimatedLocalOutputs()
+    const {
+    return LocalMeasurementModel(m_observer.Xhat(),
+                                 Eigen::Matrix<double, 2, 1>::Zero());
+}
+
+Eigen::Matrix<double, 2, 1> DrivetrainController::EstimatedGlobalOutputs()
+    const {
+    return GlobalMeasurementModel(m_observer.Xhat(),
+                                  Eigen::Matrix<double, 2, 1>::Zero());
 }
 
 void DrivetrainController::Reset() {
