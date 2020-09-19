@@ -9,12 +9,13 @@
 #include <wpi/math>
 
 #include "CANSparkMaxUtil.hpp"
+#include "subsystems/Turret.hpp"
 
 using namespace frc3512;
 using namespace frc3512::Constants::Climber;
 using namespace frc3512::Constants::Robot;
 
-Climber::Climber() {
+Climber::Climber(Turret& turret) : m_turret{turret} {
     SetCANSparkMaxBusUsage(m_elevator, Usage::kPositionOnly);
     SetCANSparkMaxBusUsage(m_traverser, Usage::kMinimal);
 }
@@ -38,8 +39,21 @@ void Climber::TeleopPeriodic() {
     // Climber traverser
     SetTraverser(appendageStick2.GetX());
 
-    // Climber elevator
-    if (appendageStick1.GetRawButton(1)) {
+    if (appendageStick1.GetRawButton(1) && appendageStick1.GetY()) {
+        // Move the turret out of the way of the climber and set new soft limit.
+        // Also, disable auto-aim.
+        m_turret.SetControlMode(TurretController::ControlMode::kClosedLoop);
+        m_turret.SetGoal(TurretController::kCCWLimit, 0_rad_per_s);
+        m_turret.SetCWLimit(Turret::kCWLimitForClimbing);
+    } else if (GetElevatorPosition() < 1.5_in) {
+        // Let turret move full range again once climber is back down
+        m_turret.SetCWLimit(TurretController::kCWLimit);
+    }
+
+    // Make sure the turret is out of the way of the climber elevator before
+    // moving it
+    if (appendageStick1.GetRawButton(1) && !m_turret.HasPassedCWLimit() &&
+        !m_turret.HasPassedCCWLimit()) {
         SetElevator(-appendageStick1.GetY());
     } else {
         SetElevator(0.0);

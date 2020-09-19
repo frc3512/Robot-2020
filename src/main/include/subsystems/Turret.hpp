@@ -35,6 +35,9 @@ class Turret : public SubsystemBase {
 public:
     enum class Direction { kNone, kCCW, kCW };
 
+    // CW limit for turret that allows climber to move
+    static constexpr units::radian_t kCWLimitForClimbing{0.375 * wpi::math::pi};
+
     explicit Turret(Vision& vision, Drivetrain& drivetrain, Flywheel& flywheel);
 
     Turret(Turret&&) = default;
@@ -77,6 +80,24 @@ public:
     bool HasPassedCWLimit() const;
 
     /**
+     * Set the limit for the CCW side of the turret
+     */
+    void SetCCWLimit(units::radian_t limit);
+
+    /**
+     * Set the limit for CW side of the turret
+     */
+    void SetCWLimit(units::radian_t limit);
+
+    /**
+     * Sets the end goal of the controller profile.
+     *
+     * @param goal Position in radians to set the goal to.
+     */
+    void SetGoal(units::radian_t angleGoal,
+                 units::radians_per_second_t angularVelocityGoal);
+
+    /**
      * Returns true if the turret has reached the goal heading.
      */
     bool AtGoal() const;
@@ -115,6 +136,9 @@ private:
     // over to 0 rad at 0.707 rad. The offset is half that to provide a 20
     // degree buffer on each side for the robot starting configuration.
     static constexpr auto kOffset = units::radian_t{0.380};
+
+    units::radian_t m_ccwLimit{wpi::math::pi / 2.0};
+    units::radian_t m_cwLimit{-wpi::math::pi / 2.0};
 
     frc::DutyCycleEncoder m_encoder{Constants::Turret::kEncoderPort};
     rev::CANSparkMax m_motor{Constants::Turret::kPort,

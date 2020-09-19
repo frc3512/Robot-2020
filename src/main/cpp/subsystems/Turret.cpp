@@ -60,12 +60,17 @@ units::radian_t Turret::GetAngle() const {
     return units::radian_t{-m_encoder.GetDistance()} + kOffset;
 }
 
-bool Turret::HasPassedCCWLimit() const {
-    return GetAngle() > TurretController::kCCWLimit;
-}
+bool Turret::HasPassedCCWLimit() const { return GetAngle() > m_ccwLimit; }
 
-bool Turret::HasPassedCWLimit() const {
-    return GetAngle() < TurretController::kCWLimit;
+bool Turret::HasPassedCWLimit() const { return GetAngle() < m_cwLimit; }
+
+void Turret::SetCCWLimit(units::radian_t limit) { m_ccwLimit = limit; }
+
+void Turret::SetCWLimit(units::radian_t limit) { m_cwLimit = limit; }
+
+void Turret::SetGoal(units::radian_t angleGoal,
+                     units::radians_per_second_t angularVelocityGoal) {
+    m_controller.SetGoal(angleGoal, angularVelocityGoal);
 }
 
 bool Turret::AtGoal() const { return m_controller.AtGoal(); }

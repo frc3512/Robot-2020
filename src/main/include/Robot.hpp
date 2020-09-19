@@ -238,7 +238,7 @@ private:
     Flywheel m_flywheel{m_drivetrain};
     Turret m_turret{m_vision, m_drivetrain, m_flywheel};
     Intake m_intake{m_flywheel};
-    Climber m_climber;
+    Climber m_climber{m_turret};
 
     ShootingState m_state = ShootingState::kIdle;
     frc2::Timer m_timer;

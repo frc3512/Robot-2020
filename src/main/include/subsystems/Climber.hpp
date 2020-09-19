@@ -14,6 +14,8 @@
 
 namespace frc3512 {
 
+class Turret;
+
 /**
  * The climber composes of an elevator and a traverser.
  *
@@ -24,7 +26,7 @@ namespace frc3512 {
  */
 class Climber : public SubsystemBase {
 public:
-    Climber();
+    explicit Climber(Turret& turret);
     Climber(Climber&&) = default;
     Climber& operator=(Climber&&) = default;
 
@@ -49,6 +51,8 @@ private:
                                  rev::CANSparkMax::MotorType::kBrushless};
 
     frc::Solenoid m_pancake{frc3512::Constants::Climber::kClimberLock};
+
+    Turret& m_turret;
 
     nt::NetworkTableInstance m_inst = nt::NetworkTableInstance::GetDefault();
     nt::NetworkTableEntry m_elevatorEncoderEntry =
