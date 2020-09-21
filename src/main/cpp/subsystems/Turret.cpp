@@ -66,7 +66,7 @@ void Turret::ControllerPeriodic() {
     m_controller.SetMeasuredOutputs(GetAngle());
 
     m_controller.SetDrivetrainStatus(m_drivetrain.GetNextXhat());
-    m_controller.SetHardLimitOutputs(HasPassedCWLimit(), HasPassedCWLimit());
+    m_controller.SetHardLimitOutputs(HasPassedCCWLimit(), HasPassedCWLimit());
     m_controller.Update(now - m_lastTime, now - GetStartTime());
 
     auto globalMeasurement = m_vision.GetGlobalMeasurement();
