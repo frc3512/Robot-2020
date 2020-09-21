@@ -4,12 +4,16 @@
 
 #include <frc/RobotController.h>
 
+#include "CANSparkMaxUtil.hpp"
 #include "subsystems/Turret.hpp"
 
 using namespace frc3512;
 using namespace std::chrono_literals;
 
 Flywheel::Flywheel(Turret& turret) : m_turret(turret) {
+    SetCANSparkMaxBusUsage(m_leftGrbx, Usage::kMinimal);
+    SetCANSparkMaxBusUsage(m_rightGrbx, Usage::kMinimal);
+
     m_encoder.SetDistancePerPulse(FlywheelController::kDpP);
     m_encoder.SetSamplesToAverage(5);
     m_rightGrbx.SetInverted(false);

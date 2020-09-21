@@ -4,6 +4,7 @@
 
 #include <frc/Joystick.h>
 
+#include "CANSparkMaxUtil.hpp"
 #include "subsystems/Drivetrain.hpp"
 #include "subsystems/Vision.hpp"
 
@@ -12,6 +13,8 @@ using namespace frc3512::Constants::Robot;
 
 Turret::Turret(Vision& vision, Drivetrain& drivetrain)
     : m_vision(vision), m_drivetrain(drivetrain) {
+    SetCANSparkMaxBusUsage(m_motor, Usage::kMinimal);
+
     m_encoder.SetDistancePerRotation(TurretController::kDpR);
     Reset();
 }

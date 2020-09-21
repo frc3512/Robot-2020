@@ -20,7 +20,7 @@ namespace frc3512 {
  */
 class Climber : public SubsystemBase {
 public:
-    Climber() = default;
+    Climber();
     Climber(Climber&&) = default;
     Climber& operator=(Climber&&) = default;
 

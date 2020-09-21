@@ -4,13 +4,18 @@
 
 #include <frc/Joystick.h>
 
+#include "CANSparkMaxUtil.hpp"
 #include "subsystems/Flywheel.hpp"
 
 using namespace frc3512;
 using namespace frc3512::Constants::Intake;
 using namespace frc3512::Constants::Robot;
 
-Intake::Intake(Flywheel& flywheel) : m_flywheel(flywheel) {}
+Intake::Intake(Flywheel& flywheel) : m_flywheel(flywheel) {
+    SetCANSparkMaxBusUsage(m_funnelMotorLeft, Usage::kMinimal);
+    SetCANSparkMaxBusUsage(m_funnelMotorRight, Usage::kMinimal);
+    SetCANSparkMaxBusUsage(m_conveyorMotor, Usage::kMinimal);
+}
 
 void Intake::Deploy() { m_arm.Set(frc::DoubleSolenoid::kForward); }
 

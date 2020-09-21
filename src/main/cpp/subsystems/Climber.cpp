@@ -7,9 +7,16 @@
 #include <frc/Joystick.h>
 #include <wpi/MathExtras.h>
 
+#include "CANSparkMaxUtil.hpp"
+
 using namespace frc3512;
 using namespace frc3512::Constants::Climber;
 using namespace frc3512::Constants::Robot;
+
+Climber::Climber() {
+    SetCANSparkMaxBusUsage(m_elevator, Usage::kMinimal);
+    SetCANSparkMaxBusUsage(m_traverser, Usage::kMinimal);
+}
 
 void Climber::SetTraverser(double speed) { m_traverser.Set(speed); }
 
