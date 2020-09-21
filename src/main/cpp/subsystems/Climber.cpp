@@ -11,7 +11,7 @@ using namespace frc3512;
 using namespace frc3512::Constants::Climber;
 using namespace frc3512::Constants::Robot;
 
-void Climber::SetTransverser(double speed) { m_transverser.Set(speed); }
+void Climber::SetTraverser(double speed) { m_traverser.Set(speed); }
 
 void Climber::SetElevator(double speed) {
     if (std::abs(speed) > 0.02) {
@@ -43,9 +43,9 @@ void Climber::TeleopPeriodic() {
         // This provides a minimum input of 0.5 in either direction to overcome
         // friction while still linearly increasing to 1.
         double x = appendageStick2.GetX();
-        SetTransverser((1.0 - kMinInput) * x + kMinInput * wpi::sgn(x));
+        SetTraverser((1.0 - kMinInput) * x + kMinInput * wpi::sgn(x));
     } else {
-        SetTransverser(0.0);
+        SetTraverser(0.0);
     }
 
     // Climber elevator

@@ -15,17 +15,17 @@ namespace frc3512 {
  *
  * To climb, the elevator reaches for the climbing bar, which can tilt in
  * different directions depending on how many robots are hanging on it. To keep
- * the bar level, the transverser can move left or right to equalize the robot
+ * the bar level, the traverser can move left or right to equalize the robot
  * weights on each side of the bar.
  */
 class Climber : public SubsystemBase {
 public:
     /**
-     *  Sets the transverser speed
+     *  Sets the traverser speed
      *
-     *  @param speed, sets the speed of the transverser.
+     *  @param speed, sets the speed of the traverser.
      */
-    void SetTransverser(double speed);
+    void SetTraverser(double speed);
 
     /**
      *  Sets the elevator speed
@@ -40,9 +40,8 @@ private:
     rev::CANSparkMax m_elevator{Constants::Climber::kElevatorPortRight,
                                 rev::CANSparkMax::MotorType::kBrushless};
 
-    rev::CANSparkMax m_transverser{
-        frc3512::Constants::Climber::kTransverserPort,
-        rev::CANSparkMax::MotorType::kBrushless};
+    rev::CANSparkMax m_traverser{frc3512::Constants::Climber::kTraverserPort,
+                                 rev::CANSparkMax::MotorType::kBrushless};
 
     frc::Solenoid m_pancake{frc3512::Constants::Climber::kClimberLock};
 };

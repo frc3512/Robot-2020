@@ -76,8 +76,8 @@ namespace Climber {
 // Side Elevator Motors
 constexpr int kElevatorPortRight = 3;
 
-// Transverser Motor
-constexpr int kTransverserPort = 13;
+// Traverser Motor
+constexpr int kTraverserPort = 13;
 
 // Solenoid Port
 constexpr int kClimberLock = 3;
