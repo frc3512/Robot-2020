@@ -29,9 +29,8 @@ public:
     static const frc::Pose2d kDrivetrainToTurretFrame;
 
     // State tolerances
-    static constexpr units::radian_t kAngleTolerance = 0.05_rad;
-    static constexpr units::radians_per_second_t kAngularVelocityTolerance =
-        2.0_rad_per_s;
+    static constexpr auto kAngleTolerance = 0.05_rad;
+    static constexpr auto kAngularVelocityTolerance = 2.0_rad_per_s;
 
     class State {
     public:
@@ -149,12 +148,10 @@ public:
     void Reset();
 
 private:
-    static constexpr decltype(1_V / 1_rad_per_s) kV = 4.42_V / 1_rad_per_s;
-    static constexpr decltype(1_V / (1_rad_per_s / 1_s)) kA =
-        0.14_V / (1_rad_per_s / 1_s);
-    static constexpr units::radians_per_second_t kMaxV = 1.477996_rad_per_s;
-    static constexpr decltype(1_rad_per_s / 1_s) kMaxA =
-        7.782482_rad_per_s / 1_s;
+    static constexpr auto kV = 4.42_V / 1_rad_per_s;
+    static constexpr auto kA = 0.14_V / (1_rad_per_s / 1_s);
+    static constexpr auto kMaxV = 1.477996_rad_per_s;
+    static constexpr auto kMaxA = 7.782482_rad_per_s / 1_s;
 
     const frc::Pose2d targetPoseInGlobal{TargetModel::kCenter.X(),
                                          TargetModel::kCenter.Y(),

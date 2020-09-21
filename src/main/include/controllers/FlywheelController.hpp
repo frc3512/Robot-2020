@@ -18,8 +18,7 @@ class FlywheelController : public ControllerBase<1, 1, 1> {
 public:
     static constexpr double kGearRatio = 8.0;
     static constexpr double kDpP = (wpi::math::pi * 2.0) * kGearRatio / 512.0;
-    static constexpr units::radians_per_second_t kMaxAngularVelocity =
-        1000.5_rad_per_s;
+    static constexpr auto kMaxAngularVelocity = 1000.5_rad_per_s;
 
     /**
      * Constructs a flywheel controller.
@@ -98,11 +97,9 @@ public:
     void Reset();
 
 private:
-    static constexpr decltype(1_V / 1_rad_per_s) kV = 0.011_V / 1_rad_per_s;
-    static constexpr decltype(1_V / (1_rad_per_s / 1_s)) kA =
-        0.005515_V / (1_rad_per_s / 1_s);
-    static constexpr units::radians_per_second_t kAngularVelocityTolerance =
-        20.0_rad_per_s;
+    static constexpr auto kV = 0.011_V / 1_rad_per_s;
+    static constexpr auto kA = 0.005515_V / (1_rad_per_s / 1_s);
+    static constexpr auto kAngularVelocityTolerance = 20.0_rad_per_s;
 
     // The current sensor measurements.
     Eigen::Matrix<double, 1, 1> m_y;

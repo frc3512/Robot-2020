@@ -220,14 +220,12 @@ private:
     static constexpr double kPositionTolerance = 0.5;  // meters
     static constexpr double kVelocityTolerance = 2.0;  // meters/second
     static constexpr double kAngleTolerance = 0.52;    // radians
-    static constexpr decltype(1_V / 1_mps) kLinearV = 3.02_V / 1_mps;
-    static constexpr decltype(1_V / 1_mps_sq) kLinearA = 0.642_V / 1_mps_sq;
-    static constexpr decltype(1_V / 1_rad_per_s) kAngularV =
-        1.382_V / 1_rad_per_s;
-    static constexpr decltype(1_V / (1_rad_per_s / 1_s)) kAngularA =
-        (0.3398_V / 4.0) / (1_rad_per_s / 1_s);
-    static constexpr units::meters_per_second_t kMaxV = 12_V / kLinearV;
-    static constexpr decltype(1_mps_sq) kMaxA = 12_V / kLinearA;
+    static constexpr auto kLinearV = 3.02_V / 1_mps;
+    static constexpr auto kLinearA = 0.642_V / 1_mps_sq;
+    static constexpr auto kAngularV = 1.382_V / 1_rad_per_s;
+    static constexpr auto kAngularA = 0.08495_V / (1_rad_per_s / 1_s);
+    static constexpr auto kMaxV = 12_V / kLinearV;
+    static constexpr auto kMaxA = 12_V / kLinearA;
 
     // Robot radius
     static constexpr auto rb = kWidth / 2.0;
