@@ -4,7 +4,9 @@
 
 #include <frc/StateSpaceUtil.h>
 #include <frc/simulation/RoboRioSim.h>
+#include <frc/simulation/SimHooks.h>
 #include <frc/system/plant/DCMotor.h>
+#include <frc2/Timer.h>
 #include <gtest/gtest.h>
 #include <units/current.h>
 #include <units/time.h>
@@ -30,8 +32,11 @@ void RunSimulation(
 
     Eigen::Matrix<double, 2, 1> u = Eigen::Matrix<double, 2, 1>::Zero();
 
-    auto currentTime = 0_s;
-    while (currentTime < 10_s) {
+    frc::sim::PauseTiming();
+
+    frc2::Timer currentTime;
+    currentTime.Start();
+    while (currentTime.Get() < 10_s) {
         auto dt = kDt;
         if constexpr (!kIdealModel) {
             dt += units::second_t{frc::MakeWhiteNoiseVector(0.001)(0)};
@@ -47,7 +52,7 @@ void RunSimulation(
         }
         controller.SetMeasuredLocalOutputs(
             units::radian_t{y(0)}, units::meter_t{y(1)}, units::meter_t{y(2)});
-        controller.Update(kDt, currentTime);
+        controller.Update(kDt, frc2::Timer::GetFPGATimestamp());
 
         u = controller.GetInputs();
 
@@ -81,8 +86,10 @@ void RunSimulation(
         }
 
         x = frc::RungeKutta(frc3512::DrivetrainController::Dynamics, x, u, dt);
-        currentTime += dt;
+        frc::sim::StepTiming(dt);
     }
+
+    frc::sim::ResumeTiming();
 }
 
 TEST(DrivetrainControllerTest, ReachesReferenceStraight) {

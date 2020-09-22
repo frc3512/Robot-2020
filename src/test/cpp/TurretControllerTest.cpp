@@ -3,7 +3,9 @@
 #include <string_view>
 
 #include <frc/simulation/RoboRioSim.h>
+#include <frc/simulation/SimHooks.h>
 #include <frc/system/plant/DCMotor.h>
+#include <frc2/Timer.h>
 #include <gtest/gtest.h>
 #include <units/angle.h>
 #include <units/angular_velocity.h>
@@ -54,8 +56,11 @@ void RunSimulation(
         Eigen::Matrix<double, 2, 1>::Zero();
     Eigen::Matrix<double, 1, 1> turretU = Eigen::Matrix<double, 1, 1>::Zero();
 
-    auto currentTime = 0_s;
-    while (currentTime < 10_s) {
+    frc::sim::PauseTiming();
+
+    frc2::Timer currentTime;
+    currentTime.Start();
+    while (currentTime.Get() < 10_s) {
         auto dt = kDt;
         if constexpr (!kIdealModel) {
             dt += units::second_t{frc::MakeWhiteNoiseVector(0.001)(0)};
@@ -72,12 +77,12 @@ void RunSimulation(
         drivetrainController.SetMeasuredLocalOutputs(
             units::radian_t{drivetrainY(0)}, units::meter_t{drivetrainY(1)},
             units::meter_t{drivetrainY(2)});
-        drivetrainController.Update(kDt, currentTime);
+        drivetrainController.Update(kDt, frc2::Timer::GetFPGATimestamp());
 
         // Update turret controller
         turretController.SetDrivetrainStatus(drivetrainX);
         turretController.SetMeasuredOutputs(units::radian_t{turretX(0)});
-        turretController.Update(kDt, currentTime);
+        turretController.Update(kDt, frc2::Timer::GetFPGATimestamp());
 
         drivetrainU = drivetrainController.GetInputs();
         turretU = turretController.GetInputs();
@@ -123,8 +128,10 @@ void RunSimulation(
         drivetrainX = frc::RungeKutta(frc3512::DrivetrainController::Dynamics,
                                       drivetrainX, drivetrainU, dt);
         turretX = turretController.GetPlant().CalculateX(turretX, turretU, dt);
-        currentTime += dt;
+        frc::sim::StepTiming(dt);
     }
+
+    frc::sim::ResumeTiming();
 }
 
 TEST(TurretControllerTest, ReachesReferenceStaticDrivetrain) {

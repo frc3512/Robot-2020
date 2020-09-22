@@ -48,6 +48,8 @@ DrivetrainController::DrivetrainController()
               Dynamics, Eigen::Matrix<double, 10, 1>::Zero(),
               Eigen::Matrix<double, 2, 1>::Zero())
               .block<5, 2>(0, 0);
+
+    m_timeSinceSetWaypoints.Start();
 }
 
 void DrivetrainController::Enable() { m_isEnabled = true; }
@@ -76,7 +78,7 @@ void DrivetrainController::SetWaypoints(
     m_goal = end;
     m_trajectory = frc::TrajectoryGenerator::GenerateTrajectory(start, interior,
                                                                 end, config);
-    m_timeSinceSetWaypoints = 0_s;
+    m_timeSinceSetWaypoints.Reset();
 }
 
 bool DrivetrainController::AtGoal() const {
@@ -131,8 +133,6 @@ const Eigen::Matrix<double, 3, 1>& DrivetrainController::GetOutputs() const {
 }
 
 void DrivetrainController::UpdateController(units::second_t dt) {
-    m_timeSinceSetWaypoints += dt;
-
     if (!m_isOpenLoop) {
         frc::Trajectory::State ref;
 
@@ -140,7 +140,7 @@ void DrivetrainController::UpdateController(units::second_t dt) {
         {
             std::lock_guard lock(m_trajectoryMutex);
             if (m_trajectory.States().size() != 0) {
-                ref = m_trajectory.Sample(m_timeSinceSetWaypoints);
+                ref = m_trajectory.Sample(m_timeSinceSetWaypoints.Get());
             } else {
                 ref.pose = frc::Pose2d(
                     units::meter_t{m_observer.Xhat(State::kX)},

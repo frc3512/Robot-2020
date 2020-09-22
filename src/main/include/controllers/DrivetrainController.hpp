@@ -11,6 +11,7 @@
 #include <frc/estimator/ExtendedKalmanFilter.h>
 #include <frc/geometry/Pose2d.h>
 #include <frc/trajectory/Trajectory.h>
+#include <frc2/Timer.h>
 #include <units/angle.h>
 #include <units/angular_acceleration.h>
 #include <units/angular_velocity.h>
@@ -268,7 +269,7 @@ private:
 
     frc::Trajectory m_trajectory;
     frc::Pose2d m_goal;
-    units::second_t m_timeSinceSetWaypoints = 0_s;
+    frc2::Timer m_timeSinceSetWaypoints;
 
     wpi::mutex m_trajectoryMutex;
 
