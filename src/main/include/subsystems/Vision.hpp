@@ -25,9 +25,7 @@ public:
 
     Vision();
 
-    ~Vision() override = default;
-
-    Vision& operator=(const Vision&) = delete;
+    ~Vision();
 
     /**
      * Turns on power to the LED ring light.
@@ -59,6 +57,7 @@ private:
     nt::NetworkTableEntry m_ledIsOn;
     nt::NetworkTableEntry m_pose;
     nt::NetworkTableEntry m_latency;
+    NT_EntryListener m_listenerHandle;
 
     frc3512::static_concurrent_queue<GlobalMeasurement, 8> m_measurements;
 };

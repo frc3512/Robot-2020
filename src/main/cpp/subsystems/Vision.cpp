@@ -21,11 +21,6 @@ const frc::Transform2d Vision::kCameraInGlobalToTurretInGlobal{
 
 Vision::Vision() {
     auto inst = nt::NetworkTableInstance::GetDefault();
-#ifdef RUNNING_FRC_TESTS
-    inst.StartLocal();
-#else
-    inst.StartClient();
-#endif
 
     auto ledTable = inst.GetTable("LED Ring Light");
     m_ledIsOn = ledTable->GetEntry("LED-State");
@@ -33,10 +28,13 @@ Vision::Vision() {
     auto poseTable = inst.GetTable("chameleon-vision");
     auto rpiTable = poseTable->GetSubTable("RPI-Cam");
     m_pose = rpiTable->GetEntry("target-Pose");
-    m_pose.AddListener(std::bind(&Vision::ProcessNewMeasurement, this),
-                       NT_NOTIFY_NEW | NT_NOTIFY_UPDATE | NT_NOTIFY_LOCAL);
+    m_listenerHandle =
+        m_pose.AddListener(std::bind(&Vision::ProcessNewMeasurement, this),
+                           NT_NOTIFY_NEW | NT_NOTIFY_UPDATE | NT_NOTIFY_LOCAL);
     m_latency = rpiTable->GetEntry("latency");
 }
+
+Vision::~Vision() { m_pose.RemoveListener(m_listenerHandle); }
 
 void Vision::TurnLEDOn() { m_ledIsOn.SetBoolean(true); }
 
