@@ -10,7 +10,6 @@
 #include <frc/geometry/Transform2d.h>
 #include <units/angle.h>
 
-#include "LoggingUtil.hpp"
 #include "TargetModel.hpp"
 #include "subsystems/Turret.hpp"
 
@@ -20,12 +19,9 @@ const frc::Transform2d Vision::kCameraInGlobalToTurretInGlobal{
     frc::Pose2d{}, frc::Pose2d{0_in, -1.0 * 3_in, 0_rad}};
 
 Vision::Vision() {
-    m_ledIsOn = GetNTEntry("LED Ring Light", "LED-State");
-    m_pose = GetNTEntry("chameleon-vision/RPI-Cam", "target-Pose");
     m_listenerHandle =
         m_pose.AddListener(std::bind(&Vision::ProcessNewMeasurement, this),
                            NT_NOTIFY_NEW | NT_NOTIFY_UPDATE | NT_NOTIFY_LOCAL);
-    m_latency = GetNTEntry("chameleon-vision/RPI-Cam", "latency");
 }
 
 Vision::~Vision() { m_pose.RemoveListener(m_listenerHandle); }

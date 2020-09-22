@@ -9,8 +9,6 @@
 #include <frc/RobotController.h>
 #include <wpi/MathExtras.h>
 
-#include "LoggingUtil.hpp"
-
 namespace frc3512 {
 
 Robot::Robot() {
@@ -36,19 +34,6 @@ Robot::Robot() {
         "Right Side Shoot Three Balls",
         std::bind(&Robot::AutoRightSideShootThreeInit, this),
         std::bind(&Robot::AutoRightSideShootThreePeriodic, this));
-
-    m_flywheelEntry = GetNTEntry("Diagnostics", "Flywheel encoder");
-    m_flywheelGoalEntry = GetNTEntry("Diagnostics", "Flywheel goal");
-    m_isFlywheelOnEntry = GetNTEntry("Diagnostics", "Is flywheel on");
-    m_isFlywheelReadyEntry = GetNTEntry("Diagnostics", "Is flywheel ready");
-    m_drivetrainLeftEntry =
-        GetNTEntry("Diagnostics", "Left drivetrain encoder");
-    m_drivetrainRightEntry =
-        GetNTEntry("Diagnostics", "Right drivetrain encoder");
-    m_drivetrainGyroEntry = GetNTEntry("Diagnostics", "Drivetrain angle");
-    m_turretEntry = GetNTEntry("Diagnostics", "Turret angle");
-    m_upperConveyorEntry = GetNTEntry("Diagnostics", "Upper conveyor sensor");
-    m_lowerConveyorEntry = GetNTEntry("Diagnostics", "Lower conveyor sensor");
 }
 
 void Robot::DisabledInit() {

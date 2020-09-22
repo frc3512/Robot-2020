@@ -8,6 +8,7 @@
 #include <networktables/NetworkTableEntry.h>
 
 #include "Constants.hpp"
+#include "LoggingUtil.hpp"
 #include "autonselector/AutonSelector.hpp"
 #include "subsystems/Climber.hpp"
 #include "subsystems/Drivetrain.hpp"
@@ -121,16 +122,26 @@ private:
     ShootingState m_state = ShootingState::kIdle;
     frc2::Timer m_timer;
 
-    nt::NetworkTableEntry m_flywheelEntry;
-    nt::NetworkTableEntry m_flywheelGoalEntry;
-    nt::NetworkTableEntry m_isFlywheelOnEntry;
-    nt::NetworkTableEntry m_isFlywheelReadyEntry;
-    nt::NetworkTableEntry m_drivetrainLeftEntry;
-    nt::NetworkTableEntry m_drivetrainRightEntry;
-    nt::NetworkTableEntry m_drivetrainGyroEntry;
-    nt::NetworkTableEntry m_turretEntry;
-    nt::NetworkTableEntry m_upperConveyorEntry;
-    nt::NetworkTableEntry m_lowerConveyorEntry;
+    nt::NetworkTableEntry m_flywheelEntry =
+        GetNTEntry("Diagnostics", "Flywheel encoder");
+    nt::NetworkTableEntry m_flywheelGoalEntry =
+        GetNTEntry("Diagnostics", "Flywheel goal");
+    nt::NetworkTableEntry m_isFlywheelOnEntry =
+        GetNTEntry("Diagnostics", "Is flywheel on");
+    nt::NetworkTableEntry m_isFlywheelReadyEntry =
+        GetNTEntry("Diagnostics", "Is flywheel ready");
+    nt::NetworkTableEntry m_drivetrainLeftEntry =
+        GetNTEntry("Diagnostics", "Left drivetrain encoder");
+    nt::NetworkTableEntry m_drivetrainRightEntry =
+        GetNTEntry("Diagnostics", "Right drivetrain encoder");
+    nt::NetworkTableEntry m_drivetrainGyroEntry =
+        GetNTEntry("Diagnostics", "Drivetrain angle");
+    nt::NetworkTableEntry m_turretEntry =
+        GetNTEntry("Diagnostics", "Turret angle");
+    nt::NetworkTableEntry m_upperConveyorEntry =
+        GetNTEntry("Diagnostics", "Upper conveyor sensor");
+    nt::NetworkTableEntry m_lowerConveyorEntry =
+        GetNTEntry("Diagnostics", "Lower conveyor sensor");
 
     AutonSelector m_autonSelector{kDsPort};
 
