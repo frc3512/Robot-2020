@@ -31,6 +31,9 @@ public:
 
     explicit Intake(Flywheel& flywheel) : m_flywheel(flywheel) {}
 
+    Intake(Intake&&) = default;
+    Intake& operator=(Intake&&) = default;
+
     /**
      * Deploys the Intake
      */

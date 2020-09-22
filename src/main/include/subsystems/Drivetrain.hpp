@@ -29,8 +29,9 @@ class Vision;
 class Drivetrain : public ControllerSubsystemBase {
 public:
     explicit Drivetrain(Vision& vision);
-    Drivetrain(const Drivetrain&) = delete;
-    Drivetrain& operator=(const Drivetrain&) = delete;
+
+    Drivetrain(Drivetrain&&) = default;
+    Drivetrain& operator=(Drivetrain&&) = default;
 
     /**
      * Drives robot with given speed and turn values [-1..1].

@@ -32,8 +32,8 @@ public:
 
     explicit Turret(Vision& vision, Drivetrain& drivetrain);
 
-    Turret(const Turret&) = delete;
-    Turret& operator=(const Turret&) = delete;
+    Turret(Turret&&) = default;
+    Turret& operator=(Turret&&) = default;
 
     /**
      * If called, permanently enables manual override.

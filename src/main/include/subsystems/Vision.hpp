@@ -24,8 +24,9 @@ public:
     };
 
     Vision();
-
     ~Vision();
+    Vision(Vision&&) = default;
+    Vision& operator=(Vision&&) = default;
 
     /**
      * Turns on power to the LED ring light.
