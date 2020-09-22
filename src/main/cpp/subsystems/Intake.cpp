@@ -10,6 +10,8 @@ using namespace frc3512;
 using namespace frc3512::Constants::Intake;
 using namespace frc3512::Constants::Robot;
 
+Intake::Intake(Flywheel& flywheel) : m_flywheel(flywheel) {}
+
 void Intake::Deploy() { m_arm.Set(frc::DoubleSolenoid::kForward); }
 
 void Intake::Stow() { m_arm.Set(frc::DoubleSolenoid::kReverse); }

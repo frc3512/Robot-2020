@@ -29,7 +29,7 @@ public:
 
     enum class ArmMotorDirection { kIntake, kOuttake, kIdle };
 
-    explicit Intake(Flywheel& flywheel) : m_flywheel(flywheel) {}
+    explicit Intake(Flywheel& flywheel);
 
     Intake(Intake&&) = default;
     Intake& operator=(Intake&&) = default;
