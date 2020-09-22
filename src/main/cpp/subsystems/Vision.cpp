@@ -8,9 +8,9 @@
 #include <frc/RobotBase.h>
 #include <frc/geometry/Pose2d.h>
 #include <frc/geometry/Transform2d.h>
-#include <networktables/NetworkTableInstance.h>
 #include <units/angle.h>
 
+#include "LoggingUtil.hpp"
 #include "TargetModel.hpp"
 #include "subsystems/Turret.hpp"
 
@@ -20,18 +20,12 @@ const frc::Transform2d Vision::kCameraInGlobalToTurretInGlobal{
     frc::Pose2d{}, frc::Pose2d{0_in, -1.0 * 3_in, 0_rad}};
 
 Vision::Vision() {
-    auto inst = nt::NetworkTableInstance::GetDefault();
-
-    auto ledTable = inst.GetTable("LED Ring Light");
-    m_ledIsOn = ledTable->GetEntry("LED-State");
-
-    auto poseTable = inst.GetTable("chameleon-vision");
-    auto rpiTable = poseTable->GetSubTable("RPI-Cam");
-    m_pose = rpiTable->GetEntry("target-Pose");
+    m_ledIsOn = GetNTEntry("LED Ring Light", "LED-State");
+    m_pose = GetNTEntry("chameleon-vision/RPI-Cam", "target-Pose");
     m_listenerHandle =
         m_pose.AddListener(std::bind(&Vision::ProcessNewMeasurement, this),
                            NT_NOTIFY_NEW | NT_NOTIFY_UPDATE | NT_NOTIFY_LOCAL);
-    m_latency = rpiTable->GetEntry("latency");
+    m_latency = GetNTEntry("chameleon-vision/RPI-Cam", "latency");
 }
 
 Vision::~Vision() { m_pose.RemoveListener(m_listenerHandle); }

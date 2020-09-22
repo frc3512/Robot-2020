@@ -3,6 +3,7 @@
 #include <gtest/gtest.h>
 #include <networktables/NetworkTableInstance.h>
 
+#include "LoggingUtil.hpp"
 #include "TargetModel.hpp"
 #include "subsystems/Vision.hpp"
 
@@ -12,18 +13,14 @@
 TEST(VisionTest, CalculateDrivetrainInGlobal) {
     frc3512::Vision vision;
 
-    auto inst = nt::NetworkTableInstance::GetDefault();
-    inst.StartLocal();
-    auto poseTable = inst.GetTable("chameleon-vision");
-    auto rpiTable = poseTable->GetSubTable("RPI-Cam");
-    auto pose = rpiTable->GetEntry("target-Pose");
+    auto pose = frc3512::GetNTEntry("chameleon-vision/RPI-Cam", "target-Pose");
 
     auto testMeasurement = [&](units::inch_t x, units::inch_t y,
                                units::degree_t theta, units::inch_t globalX,
                                units::inch_t globalY) {
         pose.SetDoubleArray({x.to<double>(), y.to<double>(),
                              theta.to<double>()});  // in, in, deg
-        inst.Flush();
+        nt::NetworkTableInstance::GetDefault().Flush();
 
         // Delay to ensure value propagates to tables
         std::this_thread::sleep_for(std::chrono::milliseconds(50));
@@ -43,6 +40,4 @@ TEST(VisionTest, CalculateDrivetrainInGlobal) {
                         frc3512::Vision::kCameraInGlobalToTurretInGlobal.Y());
     testMeasurement(5_m, 0_m, 45_deg, 12.3935_m, 5.73816_m);
     testMeasurement(5.0_m, -2.0_m, -45.0_deg, 11.0871_m, 0.0813087_m);
-
-    inst.StopLocal();
 }

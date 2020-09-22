@@ -7,8 +7,9 @@
 #include <frc/DriverStation.h>
 #include <frc/Joystick.h>
 #include <frc/RobotController.h>
-#include <networktables/NetworkTableInstance.h>
 #include <wpi/MathExtras.h>
+
+#include "LoggingUtil.hpp"
 
 namespace frc3512 {
 
@@ -36,18 +37,18 @@ Robot::Robot() {
         std::bind(&Robot::AutoRightSideShootThreeInit, this),
         std::bind(&Robot::AutoRightSideShootThreePeriodic, this));
 
-    auto inst = nt::NetworkTableInstance::GetDefault();
-    auto table = inst.GetTable("Diagnostics");
-    m_flywheelEntry = table->GetEntry("Flywheel encoder");
-    m_flywheelGoalEntry = table->GetEntry("Flywheel goal");
-    m_isFlywheelOnEntry = table->GetEntry("Is flywheel on");
-    m_isFlywheelReadyEntry = table->GetEntry("Is flywheel ready");
-    m_drivetrainLeftEntry = table->GetEntry("Left drivetrain encoder");
-    m_drivetrainRightEntry = table->GetEntry("Right drivetrain encoder");
-    m_drivetrainGyroEntry = table->GetEntry("Drivetrain angle");
-    m_turretEntry = table->GetEntry("Turret angle");
-    m_upperConveyorEntry = table->GetEntry("Upper conveyor sensor");
-    m_lowerConveyorEntry = table->GetEntry("Lower conveyor sensor");
+    m_flywheelEntry = GetNTEntry("Diagnostics", "Flywheel encoder");
+    m_flywheelGoalEntry = GetNTEntry("Diagnostics", "Flywheel goal");
+    m_isFlywheelOnEntry = GetNTEntry("Diagnostics", "Is flywheel on");
+    m_isFlywheelReadyEntry = GetNTEntry("Diagnostics", "Is flywheel ready");
+    m_drivetrainLeftEntry =
+        GetNTEntry("Diagnostics", "Left drivetrain encoder");
+    m_drivetrainRightEntry =
+        GetNTEntry("Diagnostics", "Right drivetrain encoder");
+    m_drivetrainGyroEntry = GetNTEntry("Diagnostics", "Drivetrain angle");
+    m_turretEntry = GetNTEntry("Diagnostics", "Turret angle");
+    m_upperConveyorEntry = GetNTEntry("Diagnostics", "Upper conveyor sensor");
+    m_lowerConveyorEntry = GetNTEntry("Diagnostics", "Lower conveyor sensor");
 }
 
 void Robot::DisabledInit() {
