@@ -2,6 +2,8 @@
 
 #pragma once
 
+#include <stdint.h>
+
 #include <atomic>
 
 #include <frc/DutyCycleEncoder.h>
@@ -132,9 +134,12 @@ private:
     // more
     std::atomic<bool> m_manualOverride{true};
 
+    uint32_t m_poseMeasurementFaultCounter = 0;
     nt::NetworkTableInstance m_inst = nt::NetworkTableInstance::GetDefault();
     nt::NetworkTableEntry m_headingEntry =
         m_inst.GetEntry("Diagnostics/Turret/Heading");
+    nt::NetworkTableEntry m_poseMeasurementFaultEntry =
+        m_inst.GetEntry("Diagnostics/Turret/Measurement fault counter");
 
     // Simulation variables
     frc::sim::LinearSystemSim<2, 1, 1> m_turretSim{m_controller.GetPlant(),

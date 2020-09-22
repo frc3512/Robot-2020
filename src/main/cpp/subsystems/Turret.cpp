@@ -124,9 +124,18 @@ void Turret::ControllerPeriodic() {
         auto drivetrainInGlobal =
             turretInGlobal.pose.TransformBy(turretInGlobalToDrivetrainInGlobal);
 
-        m_drivetrain.CorrectWithGlobalOutputs(
-            drivetrainInGlobal.X(), drivetrainInGlobal.Y(),
-            globalMeasurement.value().timestamp);
+        // If pose measurement is too far away from the state estimate, discard
+        // it and increment the fault counter
+        if (m_drivetrain.GetPose().Translation().Distance(
+                drivetrainInGlobal.Translation()) < 1_m) {
+            m_drivetrain.CorrectWithGlobalOutputs(
+                drivetrainInGlobal.X(), drivetrainInGlobal.Y(),
+                globalMeasurement.value().timestamp);
+        } else {
+            m_poseMeasurementFaultCounter++;
+            m_poseMeasurementFaultEntry.SetDouble(
+                m_poseMeasurementFaultCounter);
+        }
     }
 
     // Set motor input
