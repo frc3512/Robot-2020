@@ -5,9 +5,9 @@
 #include <frc/geometry/Translation2d.h>
 #include <frc/logging/CSVLogFile.h>
 #include <networktables/NetworkTableEntry.h>
+#include <networktables/NetworkTableInstance.h>
 #include <wpi/math>
 
-#include "LoggingUtil.hpp"
 #include "controllers/DrivetrainController.hpp"
 #include "static_concurrent_queue.hpp"
 #include "subsystems/SubsystemBase.hpp"
@@ -56,11 +56,13 @@ public:
     void ProcessNewMeasurement();
 
 private:
-    nt::NetworkTableEntry m_ledIsOn = GetNTEntry("LED Ring Light", "LED-State");
+    nt::NetworkTableInstance m_inst = nt::NetworkTableInstance::GetDefault();
+    nt::NetworkTableEntry m_ledIsOn =
+        m_inst.GetEntry("LED Ring Light/LED-State");
     nt::NetworkTableEntry m_pose =
-        GetNTEntry("chameleon-vision/RPI-Cam", "target-Pose");
+        m_inst.GetEntry("chameleon-vision/RPI-Cam/target-Pose");
     nt::NetworkTableEntry m_latency =
-        GetNTEntry("chameleon-vision/RPI-Cam", "latency");
+        m_inst.GetEntry("chameleon-vision/RPI-Cam/latency");
     NT_EntryListener m_listenerHandle;
 
     frc3512::static_concurrent_queue<GlobalMeasurement, 8> m_measurements;

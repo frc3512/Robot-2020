@@ -6,9 +6,9 @@
 #include <frc/logging/CSVLogFile.h>
 #include <frc2/Timer.h>
 #include <networktables/NetworkTableEntry.h>
+#include <networktables/NetworkTableInstance.h>
 
 #include "Constants.hpp"
-#include "LoggingUtil.hpp"
 #include "autonselector/AutonSelector.hpp"
 #include "subsystems/Climber.hpp"
 #include "subsystems/Drivetrain.hpp"
@@ -122,26 +122,27 @@ private:
     ShootingState m_state = ShootingState::kIdle;
     frc2::Timer m_timer;
 
+    nt::NetworkTableInstance m_inst = nt::NetworkTableInstance::GetDefault();
     nt::NetworkTableEntry m_flywheelEntry =
-        GetNTEntry("Diagnostics", "Flywheel encoder");
+        m_inst.GetEntry("Diagnostics/Flywheel encoder");
     nt::NetworkTableEntry m_flywheelGoalEntry =
-        GetNTEntry("Diagnostics", "Flywheel goal");
+        m_inst.GetEntry("Diagnostics/Flywheel goal");
     nt::NetworkTableEntry m_isFlywheelOnEntry =
-        GetNTEntry("Diagnostics", "Is flywheel on");
+        m_inst.GetEntry("Diagnostics/Is flywheel on");
     nt::NetworkTableEntry m_isFlywheelReadyEntry =
-        GetNTEntry("Diagnostics", "Is flywheel ready");
+        m_inst.GetEntry("Diagnostics/Is flywheel ready");
     nt::NetworkTableEntry m_drivetrainLeftEntry =
-        GetNTEntry("Diagnostics", "Left drivetrain encoder");
+        m_inst.GetEntry("Diagnostics/Left drivetrain encoder");
     nt::NetworkTableEntry m_drivetrainRightEntry =
-        GetNTEntry("Diagnostics", "Right drivetrain encoder");
+        m_inst.GetEntry("Diagnostics/Right drivetrain encoder");
     nt::NetworkTableEntry m_drivetrainGyroEntry =
-        GetNTEntry("Diagnostics", "Drivetrain angle");
+        m_inst.GetEntry("Diagnostics/Drivetrain angle");
     nt::NetworkTableEntry m_turretEntry =
-        GetNTEntry("Diagnostics", "Turret angle");
+        m_inst.GetEntry("Diagnostics/Turret angle");
     nt::NetworkTableEntry m_upperConveyorEntry =
-        GetNTEntry("Diagnostics", "Upper conveyor sensor");
+        m_inst.GetEntry("Diagnostics/Upper conveyor sensor");
     nt::NetworkTableEntry m_lowerConveyorEntry =
-        GetNTEntry("Diagnostics", "Lower conveyor sensor");
+        m_inst.GetEntry("Diagnostics/Lower conveyor sensor");
 
     AutonSelector m_autonSelector{kDsPort};
 
