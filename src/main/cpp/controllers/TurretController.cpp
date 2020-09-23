@@ -89,14 +89,14 @@ void TurretController::UpdateController(units::second_t dt) {
         m_drivetrainNextPoseInGlobal.TransformBy(drivetrainToTurretFrame);
 
     // Find angle reference for this timestep
-    units::radian_t turretThetaToTargetInGlobal =
+    auto turretHeadingForTargetInGlobal =
         CalculateHeading(ToVector2d(targetPoseInGlobal.Translation()),
                          ToVector2d(m_turretNextPoseInGlobal.Translation()));
-    units::radian_t drivetrainNextThetaInGlobal =
+    auto drivetrainNextHeadingInGlobal =
         m_drivetrainNextPoseInGlobal.Rotation().Radians();
-    units::radian_t turretDesiredHeadingInDrivetrain =
-        turretThetaToTargetInGlobal - drivetrainNextThetaInGlobal;
-    units::radian_t turretDesiredHeadingInTurret =
+    auto turretDesiredHeadingInDrivetrain =
+        turretHeadingForTargetInGlobal - drivetrainNextHeadingInGlobal;
+    auto turretDesiredHeadingInTurret =
         turretDesiredHeadingInDrivetrain -
         kDrivetrainToTurretFrame.Rotation().Radians();
 
