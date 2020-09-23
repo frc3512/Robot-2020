@@ -177,31 +177,26 @@ public:
     void TeleopPeriodic() override;
 
 private:
-    // Left gearbox used in position PID
-    rev::CANSparkMax m_leftSlave{Constants::Drivetrain::kLeftSlavePort,
-                                 rev::CANSparkMax::MotorType::kBrushless};
     rev::CANSparkMax m_leftMaster{Constants::Drivetrain::kLeftMasterPort,
                                   rev::CANSparkMax::MotorType::kBrushless};
+    rev::CANSparkMax m_leftSlave{Constants::Drivetrain::kLeftSlavePort,
+                                 rev::CANSparkMax::MotorType::kBrushless};
     frc::SpeedControllerGroup m_leftGrbx{m_leftMaster, m_leftSlave};
 
-    // Right gearbox used in position PID
-    rev::CANSparkMax m_rightSlave{Constants::Drivetrain::kRightSlavePort,
-                                  rev::CANSparkMax::MotorType::kBrushless};
     rev::CANSparkMax m_rightMaster{Constants::Drivetrain::kRightMasterPort,
                                    rev::CANSparkMax::MotorType::kBrushless};
+    rev::CANSparkMax m_rightSlave{Constants::Drivetrain::kRightSlavePort,
+                                  rev::CANSparkMax::MotorType::kBrushless};
     frc::SpeedControllerGroup m_rightGrbx{m_rightMaster, m_rightSlave};
 
-    // Left gearbox used in position PID
     frc::Encoder m_leftEncoder{Constants::Drivetrain::kLeftEncoderA,
                                Constants::Drivetrain::kLeftEncoderB};
 
-    // Right gearbox used in position PID
     frc::Encoder m_rightEncoder{Constants::Drivetrain::kRightEncoderA,
                                 Constants::Drivetrain::kRightEncoderB};
 
     frc::DifferentialDrive m_drive{m_leftGrbx, m_rightGrbx};
 
-    // Gyro used for angle PID
     frc::ADXRS450_Gyro m_gyro;
     units::radian_t m_headingOffset = 0_rad;
 
