@@ -2,22 +2,15 @@
 
 #include "subsystems/Drivetrain.hpp"
 
-#include <cmath>
-#include <limits>
-#include <string>
-
 #include <frc/Joystick.h>
 #include <frc/RobotController.h>
-#include <frc/trajectory/TrajectoryConfig.h>
 
 #include "CANSparkMaxUtil.hpp"
-#include "controllers/TurretController.hpp"
-#include "subsystems/Vision.hpp"
 
 using namespace frc3512;
 using namespace frc3512::Constants::Robot;
 
-Drivetrain::Drivetrain(Vision& vision) : m_vision(vision) {
+Drivetrain::Drivetrain() {
     SetCANSparkMaxBusUsage(m_leftMaster, Usage::kMinimal);
     SetCANSparkMaxBusUsage(m_leftSlave, Usage::kMinimal);
     SetCANSparkMaxBusUsage(m_rightMaster, Usage::kMinimal);

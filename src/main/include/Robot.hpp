@@ -113,7 +113,7 @@ private:
     // The order the subsystems are initialized determines the order the
     // controllers run in.
     Vision m_vision;
-    Drivetrain m_drivetrain{m_vision};
+    Drivetrain m_drivetrain;
     Turret m_turret{m_vision, m_drivetrain};
     Flywheel m_flywheel{m_turret};
     Intake m_intake{m_flywheel};

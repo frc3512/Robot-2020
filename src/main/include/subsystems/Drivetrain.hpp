@@ -21,14 +21,12 @@ class TrajectoryConfig;
 
 namespace frc3512 {
 
-class Vision;
-
 /**
  * Provides an interface for this year's drive train.
  */
 class Drivetrain : public ControllerSubsystemBase {
 public:
-    explicit Drivetrain(Vision& vision);
+    Drivetrain();
 
     Drivetrain(Drivetrain&&) = default;
     Drivetrain& operator=(Drivetrain&&) = default;
@@ -207,8 +205,6 @@ private:
 
     bool m_manualControl = true;
     wpi::mutex m_motorControllerMutex;
-
-    Vision& m_vision;
 };
 
 }  // namespace frc3512
