@@ -3,12 +3,10 @@
 #pragma once
 
 #include <atomic>
-#include <limits>
+#include <chrono>
 
-#include <frc/DigitalInput.h>
 #include <frc/DutyCycleEncoder.h>
-#include <frc/Encoder.h>
-#include <frc/Timer.h>
+#include <frc/geometry/Pose2d.h>
 #include <rev/CANSparkMax.h>
 #include <units/angle.h>
 #include <units/voltage.h>
