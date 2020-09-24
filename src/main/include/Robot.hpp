@@ -30,6 +30,8 @@ public:
 
     Robot();
 
+    void SimulationInit() override;
+
     void DisabledInit() override;
 
     void AutonomousInit() override;
@@ -37,6 +39,8 @@ public:
     void TeleopInit() override;
 
     void RobotPeriodic() override;
+
+    void SimulationPeriodic() override;
 
     void DisabledPeriodic() override;
 

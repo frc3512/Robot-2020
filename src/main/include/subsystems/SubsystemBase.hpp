@@ -19,6 +19,16 @@ public:
     virtual ~SubsystemBase() = default;
 
     /**
+     * Robot-wide simulation initialization code should go here.
+     *
+     * Users should override this method for default Robot-wide simulation
+     * related initialization which will be called when the robot is first
+     * started. It will be called exactly one time after RobotInit is called
+     * only when the robot is in simulation.
+     */
+    virtual void SimulationInit() {}
+
+    /**
      * Initialization code for disabled mode should go here.
      */
     virtual void DisabledInit() {}
@@ -39,6 +49,13 @@ public:
     virtual void RobotPeriodic() {}
 
     /**
+     * Periodic simulation code should go here.
+     *
+     * This function is called in a simulated robot after user code executes.
+     */
+    virtual void SimulationPeriodic() {}
+
+    /**
      * Periodic code for disabled mode should go here.
      */
     virtual void DisabledPeriodic() {}
@@ -52,6 +69,11 @@ public:
      * Periodic code for teleop mode should go here.
      */
     virtual void TeleopPeriodic() {}
+
+    /**
+     * Call all subsystems's SimulationInit().
+     */
+    static void RunAllSimulationInit();
 
     /**
      * Call all subsystems's DisabledInit().
@@ -72,6 +94,11 @@ public:
      * Call all subsystems's RobotPeriodic().
      */
     static void RunAllRobotPeriodic();
+
+    /**
+     * Call all subsystems's SimulationPeriodic().
+     */
+    static void RunAllSimulationPeriodic();
 
     /**
      * Call all subsystems's DisabledPeriodic().

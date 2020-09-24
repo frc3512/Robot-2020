@@ -8,6 +8,12 @@ using namespace frc3512;
 
 wpi::SmallVector<SubsystemBase*, 16> SubsystemBase::m_subsystems;
 
+void SubsystemBase::RunAllSimulationInit() {
+    for (auto& subsystem : m_subsystems) {
+        subsystem->SimulationInit();
+    }
+}
+
 void SubsystemBase::RunAllDisabledInit() {
     for (auto& subsystem : m_subsystems) {
         subsystem->DisabledInit();
@@ -38,6 +44,12 @@ void SubsystemBase::RunAllTeleopInit() {
 void SubsystemBase::RunAllRobotPeriodic() {
     for (auto& subsystem : m_subsystems) {
         subsystem->RobotPeriodic();
+    }
+}
+
+void SubsystemBase::RunAllSimulationPeriodic() {
+    for (auto& subsystem : m_subsystems) {
+        subsystem->SimulationPeriodic();
     }
 }
 

@@ -36,6 +36,8 @@ Robot::Robot() {
         std::bind(&Robot::AutoRightSideShootThreePeriodic, this));
 }
 
+void Robot::SimulationInit() { SubsystemBase::RunAllSimulationInit(); }
+
 void Robot::DisabledInit() {
     SubsystemBase::RunAllDisabledInit();
     ControllerSubsystemBase::Disable();
@@ -79,6 +81,8 @@ void Robot::RobotPeriodic() {
     m_upperConveyorEntry.SetBoolean(m_intake.IsUpperSensorBlocked());
     m_lowerConveyorEntry.SetBoolean(m_intake.IsLowerSensorBlocked());
 }
+
+void Robot::SimulationPeriodic() { SubsystemBase::RunAllSimulationPeriodic(); }
 
 void Robot::DisabledPeriodic() { SubsystemBase::RunAllDisabledPeriodic(); }
 
