@@ -13,6 +13,20 @@ using namespace frc3512::Constants::Turret;
 const frc::Pose2d TurretController::kDrivetrainToTurretFrame{
     2_in, 0_m, wpi::math::pi * 1_rad};
 
+template <typename Vector1, typename Vector2>
+auto Dot(const Vector1& a, const Vector2& b) -> decltype(auto) {
+    // (a_x i + a_y j) . (b_x i + b_y j)
+    // = a_x b_x + a_y b_y
+    return a.X() * b.X() + a.Y() * b.Y();
+}
+
+template <typename Vector1, typename Vector2>
+auto Cross(const Vector1& a, const Vector2& b) -> decltype(auto) {
+    // (a_x i + a_y j) x (b_x i + b_y j)
+    // = a_x b_y - a_y b_x
+    return a.X() * b.Y() - a.Y() * b.X();
+}
+
 TurretController::TurretController()
     : ControllerBase("Turret",
                      {ControllerLabel{"Angle", "rad"},
@@ -84,8 +98,8 @@ Eigen::Matrix<double, 1, 1> TurretController::Update(
 
     // Find angle reference for this timestep
     auto turretHeadingForTargetInGlobal =
-        CalculateHeading(ToVector2d(targetPoseInGlobal.Translation()),
-                         ToVector2d(m_turretNextPoseInGlobal.Translation()));
+        CalculateHeading(targetPoseInGlobal.Translation(),
+                         m_turretNextPoseInGlobal.Translation());
     auto turretDesiredHeadingInDrivetrain =
         turretHeadingForTargetInGlobal -
         m_drivetrainNextPoseInGlobal.Rotation().Radians();
@@ -96,15 +110,12 @@ Eigen::Matrix<double, 1, 1> TurretController::Update(
     // Find angular velocity reference for this timestep
     units::meters_per_second_t v =
         (m_drivetrainLeftVelocity + m_drivetrainRightVelocity) / 2.0;
-    units::meters_per_second_t v_x =
-        v * m_drivetrainNextPoseInGlobal.Rotation().Cos();
-    units::meters_per_second_t v_y =
-        v * m_drivetrainNextPoseInGlobal.Rotation().Sin();
+    frc::Velocity2d drivetrainVelocity{v,
+                                       m_drivetrainNextPoseInGlobal.Rotation()};
 
     auto turretDesiredAngularVelocity = CalculateAngularVelocity(
-        ToVector2d(v_x, v_y),
-        ToVector2d(targetPoseInGlobal.Translation() -
-                   m_turretNextPoseInGlobal.Translation()));
+        drivetrainVelocity, targetPoseInGlobal.Translation() -
+                                m_turretNextPoseInGlobal.Translation());
 
     SetGoal(turretDesiredHeadingInTurret, turretDesiredAngularVelocity);
 
@@ -159,14 +170,85 @@ frc::Pose2d TurretController::GetNextPose() const {
     return m_turretNextPoseInGlobal;
 }
 
-units::radian_t TurretController::CalculateHeading(Eigen::Vector2d target,
-                                                   Eigen::Vector2d turret) {
-    return units::math::atan2(units::meter_t{target(1) - turret(1)},
-                              units::meter_t{target(0) - turret(0)});
+units::radian_t TurretController::CalculateHeading(frc::Translation2d target,
+                                                   frc::Translation2d turret) {
+    units::meters_per_second_t drivetrainSpeed{
+        (m_drivetrainLeftVelocity + m_drivetrainRightVelocity) / 2.0};
+    units::radian_t drivetrainHeading =
+        m_drivetrainNextPoseInGlobal.Rotation().Radians();
+
+    frc::Velocity2d drivetrainVelocity{drivetrainSpeed,
+                                       frc::Rotation2d{drivetrainHeading}};
+
+    return units::math::atan2(target.Y() - turret.Y(),
+                              target.X() - turret.X()) +
+           CalculateHeadingAdjustment(turret, drivetrainVelocity,
+                                      650_rad_per_s);
+}
+
+units::radian_t TurretController::CalculateHeadingAdjustment(
+    frc::Translation2d turretTranslationInGlobal,
+    frc::Velocity2d drivetrainVelocity,
+    units::radians_per_second_t flywheelAngularSpeed) {
+    static constexpr auto kFlywheelRadius = 4_in;
+
+    // +y
+    // ^
+    // |
+    // |<.
+    // |  \ +w
+    // |  |
+    // ------> +x (out of the shooter)
+    //
+    //   ___ v_b,top = 0
+    //  -   -
+    // |  b  | --> v_b,middle
+    //  -___-
+    //   ___ v_b,bottom = v_f
+    //  -   -
+    // |  f  |
+    //
+    // v = ω x r
+    // v_f = 0 i + -ω_f k x r_f j
+    // v_f i = ω_f r_f i
+    // v_f = ω_f r_f
+    //
+    // v_b,top i = 0 i
+    // v_b,top = 0
+    // v_b,bottom i = v_f i = ω_f r_f i
+    // v_b,bottom = v_f = ω_f r_f
+    //
+    // v_b,middle = v_b,top + ω_b k x -r_b j
+    // v_b,middle i = 0 i + ω_b r_b i
+    // v_b,middle = ω_b r_b
+    //
+    // v_b,top = v_b,bottom + ω_b k x 2r_b j
+    // 0 i = v_f i - ω_b 2r_b i
+    // 0 = v_f - ω_b 2r_b
+    // ω_b = v_f / (2r_b)
+    //
+    // v_b,middle = (v_f / (2r_b)) r_b
+    // v_b,middle = ω_f r_f / 2
+    units::meters_per_second_t ballSpeed =
+        flywheelAngularSpeed * kFlywheelRadius / 2.0 / 1_rad;
+
+    frc::Translation2d targetPosition{TargetModel::kCenter.X(),
+                                      TargetModel::kCenter.Y()};
+
+    auto targetVelocity = -drivetrainVelocity;
+
+    return units::math::asin(
+        Cross(targetPosition - turretTranslationInGlobal, targetVelocity) /
+        ((targetPosition - turretTranslationInGlobal).Norm() * ballSpeed));
 }
 
 units::radians_per_second_t TurretController::CalculateAngularVelocity(
-    Eigen::Vector2d v, Eigen::Vector2d r) {
+    frc::Velocity2d v, frc::Translation2d r) {
+    // No Translation2d::operator* exists that takes a 1/s and gives a
+    // Velocity2d.
+    frc::Translation2d v2{units::meter_t{v.X().to<double>()},
+                          units::meter_t{v.Y().to<double>()}};
+
     // We want the angular velocity around the target. We know:
     //
     // 1) velocity vector of the turret in the global frame
@@ -185,12 +267,7 @@ units::radians_per_second_t TurretController::CalculateAngularVelocity(
     // |w| = |v_perp| / |r|
     // |w| = |(v - proj_r(v))| / |r|
     // |w| = |(v - v . r / (r . r) * r| / |r|
-    return units::radians_per_second_t{(v - v.dot(r) / r.dot(r) * r).norm() /
-                                       r.norm()};
-}
-
-Eigen::Vector2d TurretController::ToVector2d(frc::Translation2d translation) {
-    Eigen::Vector2d result;
-    result << translation.X().to<double>(), translation.Y().to<double>();
-    return result;
+    // |w| = |(v - r * (v . r / (r . r))| / |r|
+    return units::radians_per_second_t{
+        ((v2 - r * (Dot(v2, r) / Dot(r, r))).Norm() / r.Norm()).to<double>()};
 }

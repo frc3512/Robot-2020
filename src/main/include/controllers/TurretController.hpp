@@ -6,7 +6,9 @@
 #include <frc/controller/LinearQuadraticRegulator.h>
 #include <frc/estimator/KalmanFilter.h>
 #include <frc/geometry/Pose2d.h>
+#include <frc/geometry/Translation2d.h>
 #include <frc/geometry/Translation3d.h>
+#include <frc/geometry/Velocity2d.h>
 #include <frc/system/LinearSystem.h>
 #include <frc/system/LinearSystemLoop.h>
 #include <frc/system/plant/LinearSystemId.h>
@@ -121,8 +123,21 @@ public:
      * @param target Next timestep's X and Y of the target in the global frame
      * @param turret Next timestep's X and Y of the turret in the global frame
      */
-    units::radian_t CalculateHeading(Eigen::Vector2d target,
-                                     Eigen::Vector2d turret);
+    units::radian_t CalculateHeading(frc::Translation2d target,
+                                     frc::Translation2d turret);
+
+    /**
+     * Returns the heading adjustment needed to hit a moving target.
+     *
+     * @param turretTranslationInGlobal Turret translation to the target in the
+     *                                  global frame.
+     * @param drivetrainVelocity        Drivetrain velocity vector.
+     * @param flywheelAngularSpeed      Flywheel angular speed.
+     */
+    static units::radian_t CalculateHeadingAdjustment(
+        frc::Translation2d turretTranslationInGlobal,
+        frc::Velocity2d drivetrainVelocity,
+        units::radians_per_second_t flywheelAngularSpeed);
 
     /**
      * Returns the angular velocity the turret should follow to stay pointing at
@@ -132,8 +147,8 @@ public:
      * @param r Next timestep's translation from the turret to the target in the
      *          global frame.
      */
-    units::radians_per_second_t CalculateAngularVelocity(Eigen::Vector2d v,
-                                                         Eigen::Vector2d r);
+    units::radians_per_second_t CalculateAngularVelocity(frc::Velocity2d v,
+                                                         frc::Translation2d r);
 
 private:
     static constexpr auto kV = 4.42_V / 1_rad_per_s;
@@ -172,15 +187,6 @@ private:
     units::meters_per_second_t m_drivetrainLeftVelocity = 0_mps;
     units::meters_per_second_t m_drivetrainRightVelocity = 0_mps;
     frc::Pose2d m_turretNextPoseInGlobal;
-
-    static Eigen::Vector2d ToVector2d(frc::Translation2d translation);
-
-    template <typename Unit>
-    static Eigen::Vector2d ToVector2d(Unit x, Unit y) {
-        Eigen::Vector2d result;
-        result << x.template to<double>(), y.template to<double>();
-        return result;
-    }
 };
 
 }  // namespace frc3512

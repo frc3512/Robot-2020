@@ -1,5 +1,7 @@
 // Copyright (c) 2019-2020 FRC Team 3512. All Rights Reserved.
 
+#include <cmath>
+
 #include <frc/simulation/SimHooks.h>
 #include <gtest/gtest.h>
 #include <units/math.h>
@@ -17,11 +19,8 @@ TEST(TurretControllerTest, CalculateHeading) {
     frc3512::TurretController controller;
     controller.Enable();
 
-    Eigen::Vector2d targetTranslationInGlobal;
-    targetTranslationInGlobal << 4.0, 2.0;
-
-    Eigen::Vector2d turretTranslationInGlobal;
-    turretTranslationInGlobal << 2.0, 0.0;
+    frc::Translation2d targetTranslationInGlobal{4_m, 2_m};
+    frc::Translation2d turretTranslationInGlobal{2_m, 0_m};
 
     auto theta = controller.CalculateHeading(targetTranslationInGlobal,
                                              turretTranslationInGlobal);
@@ -36,29 +35,56 @@ TEST(TurretControllerTest, CalculateAngularVelocity) {
     controller.Reset();
     controller.Enable();
 
-    Eigen::Vector2d targetTranslationInGlobal;
-    targetTranslationInGlobal << 4.0, 2.0;
+    frc::Translation2d targetTranslationInGlobal{4_m, 2_m};
+    frc::Translation2d turretTranslationInGlobal{2_m, 0_m};
 
-    Eigen::Vector2d turretTranslationInGlobal;
-    turretTranslationInGlobal << 2.0, 0.0;
-
-    Eigen::Vector2d translationToTargetInGlobal =
+    auto translationToTargetInGlobal =
         targetTranslationInGlobal - turretTranslationInGlobal;
 
     // Moving along x axis
-    Eigen::Vector2d turretVelocityInGlobal;
-    turretVelocityInGlobal << 2.0, 0.0;
+    frc::Velocity2d turretVelocityInGlobal{2_mps, 0_mps};
 
     // Component of v perpendicular to target should be 1/std::sqrt(2) * v =
     // std::sqrt(2)
     //
     // Magnitude of translation to target is sqrt(2^2 + 2^2) = 2 sqrt(2)
     //
-    // Omega = v perp / r to target = std::sqrt(2) / (2 sqrt(2)) = 0.5
+    // ω = v perp / r to target = std::sqrt(2) / (2 sqrt(2)) = 0.5
     auto omega = controller.CalculateAngularVelocity(
         turretVelocityInGlobal, translationToTargetInGlobal);
 
     EXPECT_EQ(omega, 0.5_rad_per_s);
+}
+
+TEST(TurretControllerTest, CalculateHeadingAdjustment) {
+    constexpr auto kDrivetrainSpeed = 3.5_mps;
+    constexpr auto kBallSpeed = 15_mps;
+
+    frc::Translation2d targetPosition{TargetModel::kCenter.X(),
+                                      TargetModel::kCenter.Y()};
+    auto turretPosition = targetPosition - frc::Translation2d{2_m, 0_m};
+
+    constexpr units::radian_t kDrivetrainHeading{wpi::math::pi / 2.0};
+
+    frc::Velocity2d drivetrainVelocity{kDrivetrainSpeed,
+                                       frc::Rotation2d{kDrivetrainHeading}};
+
+    auto flywheelAngularSpeed = kBallSpeed / 4_in * 2.0 * 1_rad;
+    auto ballHeading =
+        units::math::atan2(targetPosition.Y() - turretPosition.Y(),
+                           targetPosition.X() - turretPosition.X()) +
+        frc3512::TurretController::CalculateHeadingAdjustment(
+            turretPosition, drivetrainVelocity, flywheelAngularSpeed);
+
+    frc::Velocity2d ballVelocity{kBallSpeed, frc::Rotation2d{ballHeading}};
+
+    // Verify drivetrain velocity vector + ball velocity vector intersects
+    // target
+    auto sum = drivetrainVelocity + ballVelocity;
+    auto targetDisplacement = targetPosition - turretPosition;
+    EXPECT_EQ(
+        units::math::atan2(sum.Y(), sum.X()),
+        units::math::atan2(targetDisplacement.Y(), targetDisplacement.X()));
 }
 
 TEST(TurretControllerTest, ProperDistanceFromTarget) {
