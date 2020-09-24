@@ -22,9 +22,9 @@ Turret::Turret(Vision& vision, Drivetrain& drivetrain)
 void Turret::SetDirection(Direction direction) {
     if (m_manualOverride) {
         if (direction == Direction::kCW && !HasPassedCWLimit()) {
-            SetVoltage(-4.0_V);
+            SetVoltage(-7.0_V);
         } else if (direction == Direction::kCCW && !HasPassedCCWLimit()) {
-            SetVoltage(4.0_V);
+            SetVoltage(7.0_V);
         } else {
             SetVoltage(0.0_V);
         }
