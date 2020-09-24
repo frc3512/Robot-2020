@@ -93,10 +93,9 @@ void TurretController::UpdateController(units::second_t dt) {
     auto turretHeadingForTargetInGlobal =
         CalculateHeading(ToVector2d(targetPoseInGlobal.Translation()),
                          ToVector2d(m_turretNextPoseInGlobal.Translation()));
-    auto drivetrainNextHeadingInGlobal =
-        m_drivetrainNextPoseInGlobal.Rotation().Radians();
     auto turretDesiredHeadingInDrivetrain =
-        turretHeadingForTargetInGlobal - drivetrainNextHeadingInGlobal;
+        turretHeadingForTargetInGlobal -
+        m_drivetrainNextPoseInGlobal.Rotation().Radians();
     auto turretDesiredHeadingInTurret =
         turretDesiredHeadingInDrivetrain -
         kDrivetrainToTurretFrame.Rotation().Radians();
