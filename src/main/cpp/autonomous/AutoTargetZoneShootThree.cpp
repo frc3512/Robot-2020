@@ -24,7 +24,7 @@ void Robot::AutoTargetZoneShootThreePeriodic() {
                 frc::Pose2d(12.65_m, 2.6_m + kPathWeaverFudge,
                             units::radian_t{wpi::math::pi}),
                 {},
-                frc::Pose2d(12.65_m - DrivetrainController::kLength,
+                frc::Pose2d(12.65_m - Drivetrain::kLength,
                             2.6_m + kPathWeaverFudge,
                             units::radian_t{wpi::math::pi}));
             state = State::kDriveAwayFromGoal;

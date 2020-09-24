@@ -25,8 +25,8 @@ void Robot::AutoLoadingZoneDriveForwardPeriodic() {
                 frc::Pose2d(12.65_m, 5.800_m + kPathWeaverFudge,
                             units::radian_t{wpi::math::pi}),
                 {},
-                frc::Pose2d(12.65_m - DrivetrainController::kLength - 0.5_m,
-                            5.800_m, units::radian_t{wpi::math::pi}));
+                frc::Pose2d(12.65_m - Drivetrain::kLength - 0.5_m, 5.800_m,
+                            units::radian_t{wpi::math::pi}));
             state = State::kIdle;
             break;
         }

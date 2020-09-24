@@ -20,6 +20,7 @@
 #include "TargetModel.hpp"
 #include "controllers/DrivetrainController.hpp"
 #include "controllers/TurretController.hpp"
+#include "subsystems/Drivetrain.hpp"
 
 #define EXPECT_NEAR_UNITS(val1, val2, eps) \
     EXPECT_LE(units::math::abs((val1) - (val2)), eps)
@@ -230,7 +231,7 @@ TEST(TurretControllerTest, ReachesReferenceAutonDrivetrain) {
     drivetrainController.Enable();
     drivetrainController.SetWaypoints(
         initialPose, {},
-        frc::Pose2d(12.65_m - frc3512::DrivetrainController::kLength, 5.800_m,
+        frc::Pose2d(12.65_m - frc3512::Drivetrain::kLength, 5.800_m,
                     units::radian_t{wpi::math::pi}));
 
     // Initialize turret controller

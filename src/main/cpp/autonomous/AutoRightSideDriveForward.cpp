@@ -25,7 +25,7 @@ void Robot::AutoRightSideDriveForwardPeriodic() {
                 frc::Pose2d(12.65_m, 0.7500_m + kPathWeaverFudge,
                             units::radian_t{wpi::math::pi}),
                 {},
-                frc::Pose2d(12.65_m - DrivetrainController::kLength,
+                frc::Pose2d(12.65_m - Drivetrain::kLength,
                             0.7500_m + kPathWeaverFudge,
                             units::radian_t{wpi::math::pi}));
             state = State::kIdle;

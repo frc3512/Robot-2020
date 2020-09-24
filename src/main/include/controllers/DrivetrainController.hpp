@@ -37,7 +37,6 @@ public:
     static constexpr double kDpP =
         (2.0 * wpi::math::pi * kWheelRadius.to<double>()) * kDriveGearRatio /
         2048.0;
-    static constexpr units::meter_t kLength = 0.9398_m;
     static constexpr units::meter_t kWidth = 0.990405073902434_m;
 
     static constexpr std::array<double, 5> kControllerQ{0.0625, 0.125, 2.5,

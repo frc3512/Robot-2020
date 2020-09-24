@@ -38,7 +38,7 @@ void Robot::AutoRightSideShootThreePeriodic() {
                     frc::Pose2d(12.65_m, 0.7500_m + kPathWeaverFudge,
                                 units::radian_t{wpi::math::pi}),
                     {},
-                    frc::Pose2d(12.65_m - DrivetrainController::kLength - 0.5_m,
+                    frc::Pose2d(12.65_m - Drivetrain::kLength - 0.5_m,
                                 0.7500_m + kPathWeaverFudge,
                                 units::radian_t{wpi::math::pi}));
                 state = State::kIdle;

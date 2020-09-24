@@ -2,17 +2,24 @@
 
 #pragma once
 
+#include <memory>
 #include <vector>
 
+#include <Eigen/Core>
 #include <frc/ADXRS450_Gyro.h>
 #include <frc/Encoder.h>
 #include <frc/SpeedControllerGroup.h>
 #include <frc/drive/DifferentialDrive.h>
+#include <frc/geometry/Pose2d.h>
+#include <frc/geometry/Translation2d.h>
 #include <rev/CANSparkMax.h>
+#include <units/angle.h>
+#include <units/angular_velocity.h>
+#include <units/length.h>
+#include <units/velocity.h>
 #include <wpi/mutex.h>
 
 #include "Constants.hpp"
-#include "controllers/DrivetrainController.hpp"
 #include "subsystems/ControllerSubsystemBase.hpp"
 
 namespace frc {
@@ -21,12 +28,17 @@ class TrajectoryConfig;
 
 namespace frc3512 {
 
+class DrivetrainController;
+
 /**
  * Provides an interface for this year's drive train.
  */
 class Drivetrain : public ControllerSubsystemBase {
 public:
+    static constexpr units::meter_t kLength = 0.9398_m;
+
     Drivetrain();
+    virtual ~Drivetrain();
 
     Drivetrain(Drivetrain&&) = default;
     Drivetrain& operator=(Drivetrain&&) = default;
@@ -163,14 +175,11 @@ public:
 
     Eigen::Matrix<double, 10, 1> GetNextXhat() const;
 
-    void DisabledInit() override { DisableController(); }
+    void DisabledInit() override;
 
-    void AutonomousInit() override {
-        EnableController();
-        m_controller.SetOpenLoop(false);
-    }
+    void AutonomousInit() override;
 
-    void TeleopInit() override { m_controller.SetOpenLoop(true); }
+    void TeleopInit() override;
 
     void TeleopPeriodic() override;
 
@@ -199,7 +208,7 @@ private:
     units::radian_t m_headingOffset = 0_rad;
 
     // Controller
-    DrivetrainController m_controller;
+    std::unique_ptr<DrivetrainController> m_controller;
     std::chrono::steady_clock::time_point m_lastTime =
         std::chrono::steady_clock::now();
 
