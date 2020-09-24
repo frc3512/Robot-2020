@@ -2,8 +2,6 @@
 
 #include "subsystems/Flywheel.hpp"
 
-#include <frc/RobotController.h>
-
 #include "CANSparkMaxUtil.hpp"
 #include "subsystems/Turret.hpp"
 
