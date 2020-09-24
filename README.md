@@ -21,7 +21,7 @@ Install the following python packages via `pip3 install --user package_name`.
 * wpiformat (optional)
   * https://github.com/wpilibsuite/styleguide/blob/master/wpiformat/README.rst
 
-We use clang-format 9.0 with wpiformat for C++ formatting.
+We use the latest version of clang-format with wpiformat for C++ formatting.
 
 ## Build
 
