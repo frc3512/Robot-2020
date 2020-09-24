@@ -7,7 +7,10 @@
 
 namespace frc3512 {
 
+namespace {
 enum class State { kInit, kDriveAwayFromGoal, kIdle };
+}  // namespace
+
 static State state;
 
 void Robot::AutoTargetZoneShootThreeInit() { state = State::kInit; }

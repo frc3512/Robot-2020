@@ -7,7 +7,10 @@
 
 namespace frc3512 {
 
+namespace {
 enum class State { kInit, kIdle };
+}  // namespace
+
 static State state;
 
 void Robot::AutoLoadingZoneDriveForwardInit() { state = State::kInit; }
