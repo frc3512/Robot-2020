@@ -2,13 +2,14 @@
 
 #pragma once
 
+#include <stdint.h>
+
+#include <frc/geometry/Pose2d.h>
+#include <frc/geometry/Transform2d.h>
 #include <frc/geometry/Translation2d.h>
-#include <frc/logging/CSVLogFile.h>
 #include <networktables/NetworkTableEntry.h>
 #include <networktables/NetworkTableInstance.h>
-#include <wpi/math>
 
-#include "controllers/DrivetrainController.hpp"
 #include "static_concurrent_queue.hpp"
 #include "subsystems/SubsystemBase.hpp"
 
