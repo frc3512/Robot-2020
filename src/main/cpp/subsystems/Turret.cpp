@@ -54,14 +54,14 @@ bool Turret::HasPassedCWLimit() const {
 frc::Pose2d Turret::GetNextPose() const { return m_controller.GetNextPose(); }
 
 void Turret::EnableController() {
-    m_lastTime = std::chrono::steady_clock::now();
+    m_lastTime = frc2::Timer::GetFPGATimestamp();
     m_controller.Enable();
 }
 
 void Turret::DisableController() { m_controller.Disable(); }
 
 void Turret::ControllerPeriodic() {
-    auto now = std::chrono::steady_clock::now();
+    auto now = frc2::Timer::GetFPGATimestamp();
     m_controller.SetMeasuredOutputs(GetAngle());
 
     m_controller.SetDrivetrainStatus(m_drivetrain.GetNextXhat());

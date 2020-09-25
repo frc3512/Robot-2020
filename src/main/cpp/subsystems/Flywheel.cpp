@@ -2,11 +2,15 @@
 
 #include "subsystems/Flywheel.hpp"
 
+#include <frc/RobotBase.h>
+#include <frc/RobotController.h>
+#include <frc/simulation/BatterySim.h>
+#include <frc/simulation/RoboRioSim.h>
+
 #include "CANSparkMaxUtil.hpp"
 #include "subsystems/Turret.hpp"
 
 using namespace frc3512;
-using namespace std::chrono_literals;
 
 Flywheel::Flywheel(Turret& turret) : m_turret(turret) {
     SetCANSparkMaxBusUsage(m_leftGrbx, Usage::kMinimal);
@@ -41,7 +45,7 @@ units::radians_per_second_t Flywheel::GetAngularVelocity() {
 }
 
 void Flywheel::EnableController() {
-    m_lastTime = std::chrono::steady_clock::now();
+    m_lastTime = frc2::Timer::GetFPGATimestamp();
     m_controller.Enable();
 }
 
@@ -89,11 +93,26 @@ void Flywheel::Reset() {
 }
 
 void Flywheel::ControllerPeriodic() {
-    auto now = std::chrono::steady_clock::now();
+    auto now = frc2::Timer::GetFPGATimestamp();
     m_controller.SetMeasuredAngularVelocity(GetAngularVelocity());
     m_controller.Update(now - m_lastTime, now - GetStartTime());
+
     // Set motor input
     auto u = m_controller.GetInputs();
     SetVoltage(units::volt_t{u(FlywheelController::Input::kVoltage)});
+
+    if constexpr (frc::RobotBase::IsSimulation()) {
+        m_flywheelSim.SetInput(frc::MakeMatrix<1, 1>(
+            m_leftGrbx.Get() * frc::RobotController::GetInputVoltage()));
+
+        m_flywheelSim.Update(now - m_lastTime);
+
+        m_encoderSim.SetRate(m_flywheelSim.GetAngularVelocity().to<double>());
+
+        frc::sim::RoboRioSim::SetVInVoltage(
+            frc::sim::BatterySim::Calculate({m_flywheelSim.GetCurrentDraw()})
+                .to<double>());
+    }
+
     m_lastTime = now;
 }

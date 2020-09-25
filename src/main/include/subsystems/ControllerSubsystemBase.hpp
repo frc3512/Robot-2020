@@ -3,6 +3,7 @@
 #pragma once
 
 #include <frc/Notifier.h>
+#include <units/time.h>
 #include <wpi/SmallVector.h>
 
 #include "Constants.hpp"
@@ -38,7 +39,7 @@ public:
     /**
      * Returns the time at which controllers were enabled.
      */
-    static std::chrono::steady_clock::time_point GetStartTime();
+    static units::second_t GetStartTime();
 
 protected:
     /**
@@ -52,7 +53,7 @@ protected:
 private:
     static wpi::SmallVector<ControllerSubsystemBase*, 16> m_controllers;
     static frc::Notifier m_notifier;
-    static std::chrono::steady_clock::time_point m_startTime;
+    static units::second_t m_startTime;
 
     /**
      * Calls ControllerPeriodic() on each subsystem.

@@ -82,7 +82,7 @@ void Drivetrain::Reset(const frc::Pose2d& initialPose) {
 }
 
 void Drivetrain::EnableController() {
-    m_lastTime = std::chrono::steady_clock::now();
+    m_lastTime = frc2::Timer::GetFPGATimestamp();
     m_controller->Enable();
     m_drive.SetSafetyEnabled(false);
 }
@@ -110,7 +110,7 @@ void Drivetrain::ControllerPeriodic() {
     m_controller->SetMeasuredLocalOutputs(GetAngle(), GetLeftPosition(),
                                           GetRightPosition());
 
-    auto now = std::chrono::steady_clock::now();
+    auto now = frc2::Timer::GetFPGATimestamp();
     m_controller->Update(now - m_lastTime, now - GetStartTime());
 
     if (!m_controller->IsOpenLoop()) {

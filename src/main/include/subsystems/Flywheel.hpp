@@ -2,10 +2,10 @@
 
 #pragma once
 
-#include <chrono>
-
 #include <frc/Encoder.h>
 #include <frc/geometry/Pose2d.h>
+#include <frc/simulation/EncoderSim.h>
+#include <frc/simulation/FlywheelSim.h>
 #include <frc2/Timer.h>
 #include <rev/CANSparkMax.h>
 #include <units/angle.h>
@@ -128,13 +128,22 @@ private:
                            Constants::Flywheel::kEncoderB};
 
     FlywheelController m_controller;
-    std::chrono::steady_clock::time_point m_lastTime =
-        std::chrono::steady_clock::now();
+    units::second_t m_lastTime = frc2::Timer::GetFPGATimestamp();
 
     frc2::Timer m_timer;
     mutable wpi::mutex m_controllerMutex;
 
     Turret& m_turret;
+
+    // Simulation variables
+    static constexpr bool kIdealModel = false;
+    frc::sim::FlywheelSim m_flywheelSim{m_controller.GetPlant(),
+                                        frc::DCMotor::NEO(2),
+                                        1.0 / 2.0,
+                                        !kIdealModel,
+                                        {50.0}};
+    frc::sim::EncoderSim m_encoderSim{m_encoder};
+    frc2::Timer m_deltaTimer;
 };
 
 }  // namespace frc3512

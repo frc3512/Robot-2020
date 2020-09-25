@@ -8,6 +8,13 @@ using namespace frc3512;
 
 wpi::SmallVector<SubsystemBase*, 16> SubsystemBase::m_subsystems;
 
+SubsystemBase::SubsystemBase() { m_subsystems.emplace_back(this); }
+
+SubsystemBase::~SubsystemBase() {
+    m_subsystems.erase(
+        std::remove(m_subsystems.begin(), m_subsystems.end(), this));
+}
+
 void SubsystemBase::RunAllSimulationInit() {
     for (auto& subsystem : m_subsystems) {
         subsystem->SimulationInit();

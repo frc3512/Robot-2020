@@ -3,10 +3,10 @@
 #pragma once
 
 #include <atomic>
-#include <chrono>
 
 #include <frc/DutyCycleEncoder.h>
 #include <frc/geometry/Pose2d.h>
+#include <frc2/Timer.h>
 #include <rev/CANSparkMax.h>
 #include <units/angle.h>
 #include <units/voltage.h>
@@ -118,8 +118,7 @@ private:
     rev::CANSparkMax m_motor{Constants::Turret::kPort,
                              rev::CANSparkMax::MotorType::kBrushless};
 
-    std::chrono::steady_clock::time_point m_lastTime =
-        std::chrono::steady_clock::now();
+    units::second_t m_lastTime = frc2::Timer::GetFPGATimestamp();
 
     TurretController m_controller;
 

@@ -8,7 +8,7 @@
 #include <units/time.h>
 #include <wpi/StringRef.h>
 
-#define NETWORK_LOGGING 1
+#define NETWORK_LOGGING 0
 
 #if NETWORK_LOGGING
 #include "LiveGrapherControllerLogger.hpp"

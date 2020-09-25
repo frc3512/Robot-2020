@@ -14,9 +14,9 @@ public:
     /**
      * Constructs a SubsystemBase.
      */
-    SubsystemBase() { m_subsystems.emplace_back(this); }
+    SubsystemBase();
 
-    virtual ~SubsystemBase() = default;
+    virtual ~SubsystemBase();
 
     /**
      * Robot-wide simulation initialization code should go here.

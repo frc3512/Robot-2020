@@ -12,6 +12,7 @@
 #include <frc/drive/DifferentialDrive.h>
 #include <frc/geometry/Pose2d.h>
 #include <frc/geometry/Translation2d.h>
+#include <frc2/Timer.h>
 #include <rev/CANSparkMax.h>
 #include <units/angle.h>
 #include <units/angular_velocity.h>
@@ -209,8 +210,7 @@ private:
 
     // Controller
     std::unique_ptr<DrivetrainController> m_controller;
-    std::chrono::steady_clock::time_point m_lastTime =
-        std::chrono::steady_clock::now();
+    units::second_t m_lastTime = frc2::Timer::GetFPGATimestamp();
 
     bool m_manualControl = true;
     wpi::mutex m_motorControllerMutex;
