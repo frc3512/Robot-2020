@@ -4,6 +4,7 @@
 
 #include <frc/TimedRobot.h>
 #include <frc/logging/CSVLogFile.h>
+#include <frc/simulation/JoystickSim.h>
 #include <frc2/Timer.h>
 #include <networktables/NetworkTableEntry.h>
 #include <networktables/NetworkTableInstance.h>
@@ -151,6 +152,13 @@ private:
     AutonSelector m_autonSelector{kDsPort};
 
     frc::CSVLogFile m_batteryLogger{"Battery", "Battery voltage (V)"};
+
+    frc::sim::JoystickSim m_driveStick1{Constants::Robot::kDriveStick1Port};
+    frc::sim::JoystickSim m_driveStick2{Constants::Robot::kDriveStick2Port};
+    frc::sim::JoystickSim m_appendageStick1{
+        Constants::Robot::kAppendageStick1Port};
+    frc::sim::JoystickSim m_appendageStick2{
+        Constants::Robot::kAppendageStick2Port};
 };
 
 }  // namespace frc3512

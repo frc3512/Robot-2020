@@ -10,6 +10,7 @@
 #include <frc/controller/ControlAffinePlantInversionFeedforward.h>
 #include <frc/estimator/ExtendedKalmanFilter.h>
 #include <frc/geometry/Pose2d.h>
+#include <frc/system/plant/LinearSystemId.h>
 #include <frc/trajectory/Trajectory.h>
 #include <frc2/Timer.h>
 #include <units/angle.h>
@@ -163,6 +164,11 @@ public:
     const Eigen::Matrix<double, 3, 1>& GetOutputs() const override;
 
     void UpdateController(units::second_t dt) override;
+
+    /**
+     * Returns the drivetrains plant.
+     */
+    frc::LinearSystem<2, 2, 2> GetPlant() const;
 
     /**
      * Returns the estimated outputs based on the current state estimate.

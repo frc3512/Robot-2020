@@ -12,6 +12,9 @@
 #include <frc/drive/DifferentialDrive.h>
 #include <frc/geometry/Pose2d.h>
 #include <frc/geometry/Translation2d.h>
+#include <frc/simulation/DifferentialDrivetrainSim.h>
+#include <frc/simulation/EncoderSim.h>
+#include <frc/simulation/SimDeviceSim.h>
 #include <frc2/Timer.h>
 #include <rev/CANSparkMax.h>
 #include <units/angle.h>
@@ -214,6 +217,13 @@ private:
 
     bool m_manualControl = true;
     wpi::mutex m_motorControllerMutex;
+
+    // Simulation variables
+    frc::sim::DifferentialDrivetrainSim m_drivetrainSim;
+    frc::sim::EncoderSim m_leftEncoderSim{m_leftEncoder};
+    frc::sim::EncoderSim m_rightEncoderSim{m_rightEncoder};
+    frc::sim::SimDeviceSim m_gyroSimDevice{"ADXRS450_Gyro[0]"};
+    hal::SimDouble m_gyroAngleHandle = m_gyroSimDevice.GetDouble("Angle");
 };
 
 }  // namespace frc3512

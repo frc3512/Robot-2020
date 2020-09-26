@@ -3,7 +3,10 @@
 #include "subsystems/Drivetrain.hpp"
 
 #include <frc/Joystick.h>
+#include <frc/RobotBase.h>
 #include <frc/RobotController.h>
+#include <frc/simulation/BatterySim.h>
+#include <frc/simulation/RoboRioSim.h>
 
 #include "CANSparkMaxUtil.hpp"
 #include "controllers/DrivetrainController.hpp"
@@ -11,7 +14,12 @@
 using namespace frc3512;
 using namespace frc3512::Constants::Robot;
 
-Drivetrain::Drivetrain() : m_controller{new DrivetrainController} {
+Drivetrain::Drivetrain()
+    : m_controller{new DrivetrainController},
+      m_drivetrainSim{m_controller->GetPlant(), DrivetrainController::kWidth,
+                      frc::DCMotor::NEO(2),
+                      DrivetrainController::kDriveGearRatio,
+                      DrivetrainController::kWheelRadius} {
     SetCANSparkMaxBusUsage(m_leftMaster, Usage::kMinimal);
     SetCANSparkMaxBusUsage(m_leftSlave, Usage::kMinimal);
     SetCANSparkMaxBusUsage(m_rightMaster, Usage::kMinimal);
@@ -79,6 +87,16 @@ void Drivetrain::Reset(const frc::Pose2d& initialPose) {
     ResetEncoders();
     ResetGyro();
     m_headingOffset = initialPose.Rotation().Radians();
+
+    if constexpr (frc::RobotBase::IsSimulation()) {
+        Eigen::Matrix<double, 7, 1> x = Eigen::Matrix<double, 7, 1>::Zero();
+
+        using State = frc::sim::DifferentialDrivetrainSim::State;
+        x(State::kX) = initialPose.X().to<double>();
+        x(State::kY) = initialPose.Y().to<double>();
+        x(State::kHeading) = initialPose.Rotation().Radians().to<double>();
+        m_drivetrainSim.SetState(x);
+    }
 }
 
 void Drivetrain::EnableController() {
@@ -119,6 +137,31 @@ void Drivetrain::ControllerPeriodic() {
         m_leftGrbx.SetVoltage(units::volt_t{u(0)});
         m_rightGrbx.SetVoltage(units::volt_t{u(1)});
     }
+
+    if constexpr (frc::RobotBase::IsSimulation()) {
+        auto batteryVoltage = frc::RobotController::GetInputVoltage();
+        m_drivetrainSim.SetInputs(
+            units::volt_t{m_leftGrbx.Get() * batteryVoltage},
+            units::volt_t{m_rightGrbx.Get() * batteryVoltage});
+
+        m_drivetrainSim.Update(now - m_lastTime);
+
+        using State = frc::sim::DifferentialDrivetrainSim::State;
+        m_leftEncoderSim.SetDistance(
+            m_drivetrainSim.GetState(State::kLeftPosition));
+        m_rightEncoderSim.SetDistance(
+            m_drivetrainSim.GetState(State::kRightPosition));
+
+        m_gyroAngleHandle.Set(-units::degree_t{
+            units::radian_t{m_drivetrainSim.GetState(State::kHeading)} -
+            m_headingOffset}
+                                   .to<double>());
+
+        frc::sim::RoboRioSim::SetVInVoltage(
+            frc::sim::BatterySim::Calculate({m_drivetrainSim.GetCurrentDraw()})
+                .to<double>());
+    }
+
     m_lastTime = now;
 }
 

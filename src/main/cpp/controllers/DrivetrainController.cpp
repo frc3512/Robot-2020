@@ -188,6 +188,12 @@ void DrivetrainController::UpdateController(units::second_t dt) {
     }
 }
 
+frc::LinearSystem<2, 2, 2> DrivetrainController::GetPlant() const {
+    return frc::LinearSystemId::IdentifyDrivetrainSystem(
+        kLinearV.to<double>(), kLinearA.to<double>(), kAngularV.to<double>(),
+        kAngularA.to<double>());
+}
+
 Eigen::Matrix<double, 3, 1> DrivetrainController::EstimatedLocalOutputs()
     const {
     return LocalMeasurementModel(m_observer.Xhat(),
