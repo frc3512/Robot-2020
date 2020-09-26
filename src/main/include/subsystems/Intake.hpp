@@ -116,4 +116,5 @@ private:
     frc::DoubleSolenoid m_arm{Constants::Intake::kArmForward,
                               Constants::Intake::kArmReverse};
 };
+
 }  // namespace frc3512

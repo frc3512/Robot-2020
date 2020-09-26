@@ -152,4 +152,5 @@ private:
 
     frc::CSVLogFile m_batteryLogger{"Battery", "Battery voltage (V)"};
 };
+
 }  // namespace frc3512

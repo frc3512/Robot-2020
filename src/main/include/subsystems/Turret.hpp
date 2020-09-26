@@ -129,4 +129,5 @@ private:
     // more
     std::atomic<bool> m_manualOverride{true};
 };
+
 }  // namespace frc3512
