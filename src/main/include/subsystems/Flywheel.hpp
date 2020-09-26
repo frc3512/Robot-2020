@@ -143,7 +143,6 @@ private:
                                         !kIdealModel,
                                         {50.0}};
     frc::sim::EncoderSim m_encoderSim{m_encoder};
-    frc2::Timer m_deltaTimer;
 };
 
 }  // namespace frc3512
