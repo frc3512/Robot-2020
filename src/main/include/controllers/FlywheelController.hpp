@@ -65,13 +65,6 @@ public:
     bool AtGoal() const;
 
     /**
-     * Set input.
-     *
-     * @param u Voltage applied to the flywheel
-     */
-    void SetMeasuredInputs(units::volt_t u);
-
-    /**
      * Sets the current encoder measurement.
      *
      * @param angularVelocity Anglular velocity of the flywheel in radians.

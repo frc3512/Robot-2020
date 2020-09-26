@@ -32,10 +32,6 @@ units::radians_per_second_t FlywheelController::GetGoal() const {
 
 bool FlywheelController::AtGoal() const { return m_atGoal; }
 
-void FlywheelController::SetMeasuredInputs(units::volt_t u) {
-    m_u << u.to<double>();
-}
-
 void FlywheelController::SetMeasuredAngularVelocity(
     units::radians_per_second_t angularVelocity) {
     m_y << angularVelocity.to<double>();
