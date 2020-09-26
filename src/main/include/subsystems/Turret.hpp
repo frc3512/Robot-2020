@@ -6,6 +6,8 @@
 
 #include <frc/DutyCycleEncoder.h>
 #include <frc/geometry/Pose2d.h>
+#include <frc/simulation/LinearSystemSim.h>
+#include <frc/simulation/SimDeviceSim.h>
 #include <frc2/Timer.h>
 #include <rev/CANSparkMax.h>
 #include <units/angle.h>
@@ -44,41 +46,28 @@ public:
     void SetDirection(Direction direction);
 
     /**
-     *  Set the velocity of the Spark Max, which is wired to the Turret.
+     * Resets the controller.
      *
-     *  Can be seen as a way of having it turn in a certain direction.
-     *  This depends on the value given to it.
-     *
-     *  @param velocity between [-1.0 ... 1.0]
+     * @param initialHeading The initial turret heading in the drivetrain frame.
      */
-    void SetVoltage(units::volt_t voltage);
+    void Reset(units::radian_t initialHeading = 0_rad);
 
     /**
-     *  Resets encoder
-     */
-    void ResetEncoder();
-
-    /**
-     * Resets the controller
-     */
-    void Reset();
-
-    /**
-     * Returns the angle of the turret
+     * Returns the angle of the turret.
      *
      * @return angle in radians
      */
     units::radian_t GetAngle() const;
 
     /**
-     * Returns if encoder has passed the counter-clockwise limit
+     * Returns if encoder has passed the counter-clockwise limit.
      *
      * @return 'true' means triggered
      */
     bool HasPassedCCWLimit() const;
 
     /**
-     * Returns if encoder has passed the clockwise limit
+     * Returns if encoder has passed the clockwise limit.
      *
      * @return 'true' means triggered
      */
@@ -98,6 +87,16 @@ public:
      * Disables the controller.
      */
     void DisableController();
+
+    /**
+     * Returns true if the turret has reached the goal heading.
+     */
+    bool AtGoal() const;
+
+    /**
+     * Returns the voltage applied to turret motor.
+     */
+    units::volt_t GetMotorOutput() const;
 
     void ControllerPeriodic() override;
 
@@ -127,7 +126,29 @@ private:
 
     // TODO: Let the turret move on its own once the turret encoder is trusted
     // more
-    std::atomic<bool> m_manualOverride{true};
+    std::atomic<bool> m_manualOverride{false};
+
+    // Simulation variables
+    static constexpr bool kIdealModel = false;
+    frc::sim::LinearSystemSim<2, 1, 1> m_turretSim{
+        m_controller.GetPlant(), !kIdealModel, {0.001}};
+    frc::sim::SimDeviceSim m_encoderSimDevice{"DutyCycleEncoder[0]"};
+    hal::SimDouble m_encoderSimPosition =
+        m_encoderSimDevice.GetDouble("Position");
+
+    /**
+     * Set voltage output of turret motor.
+     *
+     * This also applies soft limits using the turret encoder.
+     */
+    void SetVoltage(units::volt_t voltage);
+
+    /**
+     * Converts given turret heading to DutyCycleEncoder Get() result in turns.
+     *
+     * @param heading The heading to convert.
+     */
+    static double HeadingToEncoderTurns(units::radian_t heading);
 };
 
 }  // namespace frc3512

@@ -1,200 +1,243 @@
 // Copyright (c) 2019-2020 FRC Team 3512. All Rights Reserved.
 
-#include <frc/simulation/RoboRioSim.h>
+#include <frc/simulation/JoystickSim.h>
 #include <frc/simulation/SimHooks.h>
-#include <frc/system/plant/DCMotor.h>
 #include <frc2/Timer.h>
 #include <gtest/gtest.h>
-#include <units/angle.h>
-#include <units/angular_velocity.h>
-#include <units/current.h>
-#include <units/time.h>
-#include <units/voltage.h>
-#include <wpi/MathExtras.h>
 #include <wpi/math>
 
 #include "Constants.hpp"
 #include "RenameCSVs.hpp"
-#include "controllers/DrivetrainController.hpp"
-#include "controllers/TurretController.hpp"
 #include "subsystems/Drivetrain.hpp"
+#include "subsystems/Turret.hpp"
+#include "subsystems/Vision.hpp"
 
-#define EXPECT_NEAR_UNITS(val1, val2, eps) \
-    EXPECT_LE(units::math::abs((val1) - (val2)), eps)
+TEST(TurretTest, ConfigSpaceLimits) {
+    using namespace frc3512::Constants::Robot;
 
-static constexpr bool kIdealModel = true;
-
-void RunSimulation(
-    frc3512::DrivetrainController& drivetrainController,
-    frc3512::TurretController& turretController,
-    Eigen::Matrix<double, 10, 1> drivetrainX =
-        Eigen::Matrix<double, 10, 1>::Zero(),
-    Eigen::Matrix<double, 2, 1> turretX = Eigen::Matrix<double, 2, 1>::Zero()) {
-    using frc3512::Constants::kDt;
-
-    Eigen::Matrix<double, 2, 1> drivetrainU =
-        Eigen::Matrix<double, 2, 1>::Zero();
-    Eigen::Matrix<double, 1, 1> turretU = Eigen::Matrix<double, 1, 1>::Zero();
+    static constexpr int kPovCW = 90;
+    static constexpr int kPovCCW = 270;
 
     frc::sim::PauseTiming();
 
-    frc2::Timer currentTime;
-    currentTime.Start();
-    while (currentTime.Get() < 10_s) {
-        auto dt = kDt;
-        if constexpr (!kIdealModel) {
-            dt += units::second_t{frc::MakeWhiteNoiseVector(0.001)(0)};
-        }
+    frc::sim::JoystickSim appendageStick1{kAppendageStick1Port};
 
-        // Update drivetrain controller
-        Eigen::Matrix<double, 3, 1> drivetrainY =
-            frc3512::DrivetrainController::LocalMeasurementModel(
-                drivetrainX, Eigen::Matrix<double, 2, 1>::Zero());
-        // Add measurement noise to drivetrain controller
-        if constexpr (!kIdealModel) {
-            drivetrainY += frc::MakeWhiteNoiseVector(0.0001, 0.005, 0.005);
-        }
-        drivetrainController.SetMeasuredLocalOutputs(
-            units::radian_t{drivetrainY(0)}, units::meter_t{drivetrainY(1)},
-            units::meter_t{drivetrainY(2)});
-        drivetrainController.Update(kDt, frc2::Timer::GetFPGATimestamp());
+    frc3512::Vision vision;
+    frc3512::Drivetrain drivetrain;
+    frc3512::Turret turret{vision, drivetrain};
+    turret.SetManualOverride();
 
-        // Update turret controller
-        turretController.SetDrivetrainStatus(drivetrainX);
-        turretController.SetMeasuredOutputs(units::radian_t{turretX(0)});
-        turretController.Update(kDt, frc2::Timer::GetFPGATimestamp());
+    frc3512::SubsystemBase::RunAllTeleopInit();
+    frc3512::ControllerSubsystemBase::Enable();
 
-        drivetrainU = drivetrainController.GetInputs();
-        turretU = turretController.GetInputs();
+    frc::Notifier teleopPeriodic{&frc3512::SubsystemBase::RunAllTeleopPeriodic};
+    teleopPeriodic.StartPeriodic(20_ms);
 
-        // Account for battery voltage drop due to current draw for the turret
-        if constexpr (!kIdealModel) {
-            constexpr auto Vbat = 12_V;
-            constexpr auto Rbat = 0.03_Ohm;
-            constexpr auto r = 0.0746125_m;  // Drivetrain wheel radius
+    // Verify turret can move CCW and CW when it isn't at the soft limits
+    appendageStick1.SetPOV(kPovCW);
+    frc::sim::StepTiming(5_ms);
+    frc::sim::StepTiming(5_ms);
+    frc::sim::StepTiming(5_ms);
+    frc::sim::StepTiming(5_ms);
+    EXPECT_LT(turret.GetMotorOutput(), 0_V);
+    appendageStick1.SetPOV(kPovCCW);
+    frc::sim::StepTiming(5_ms);
+    frc::sim::StepTiming(5_ms);
+    frc::sim::StepTiming(5_ms);
+    frc::sim::StepTiming(5_ms);
+    EXPECT_GT(turret.GetMotorOutput(), 0_V);
 
-            using Input = frc3512::DrivetrainController::Input;
-            using State = frc3512::DrivetrainController::State;
-            constexpr auto turretMotor = frc::DCMotor::NEO(1);
-            units::ampere_t turretLoad =
-                turretMotor.Current(units::radians_per_second_t{turretX(1)},
-                                    units::volt_t{turretU(0)}) *
-                wpi::sgn(turretU(0));
-            constexpr auto drivetrainMotors = frc::DCMotor::NEO(2);
-            units::ampere_t loadIleft =
-                drivetrainMotors.Current(
-                    units::meters_per_second_t{
-                        drivetrainX(State::kLeftVelocity)} /
-                        r * 1_rad,
-                    units::volt_t{drivetrainU(Input::kLeftVoltage)}) *
-                wpi::sgn(drivetrainU(Input::kLeftVoltage));
-            units::ampere_t loadIright =
-                drivetrainMotors.Current(
-                    units::meters_per_second_t{
-                        drivetrainX(State::kRightVelocity)} /
-                        r * 1_rad,
-                    units::volt_t{drivetrainU(Input::kRightVoltage)}) *
-                wpi::sgn(drivetrainU(Input::kRightVoltage));
-            units::volt_t vLoaded =
-                Vbat - turretLoad * Rbat - loadIleft * Rbat - loadIright * Rbat;
-            double dsVoltage =
-                vLoaded.to<double>() + frc::MakeWhiteNoiseVector(0.1)(0);
-            frc::sim::RoboRioSim::SetVInVoltage(dsVoltage);
-
-            drivetrainU *= dsVoltage / 12.0;
-            turretU *= dsVoltage / 12.0;
-        }
-
-        drivetrainX = frc::RungeKutta(frc3512::DrivetrainController::Dynamics,
-                                      drivetrainX, drivetrainU, dt);
-        turretX = turretController.GetPlant().CalculateX(turretX, turretU, dt);
-        frc::sim::StepTiming(dt);
+    // Move turret into CW limit
+    while (!turret.HasPassedCWLimit()) {
+        appendageStick1.SetPOV(kPovCW);
+        frc::sim::StepTiming(5_ms);
+        frc::sim::StepTiming(5_ms);
+        frc::sim::StepTiming(5_ms);
+        frc::sim::StepTiming(5_ms);
     }
+
+    // Don't let turret move past CW limit
+    appendageStick1.SetPOV(kPovCW);
+    frc::sim::StepTiming(5_ms);
+    frc::sim::StepTiming(5_ms);
+    frc::sim::StepTiming(5_ms);
+    frc::sim::StepTiming(5_ms);
+    EXPECT_EQ(turret.GetMotorOutput(), 0_V);
+
+    // Let turret move away from CW limit
+    appendageStick1.SetPOV(kPovCCW);
+    frc::sim::StepTiming(5_ms);
+    frc::sim::StepTiming(5_ms);
+    frc::sim::StepTiming(5_ms);
+    frc::sim::StepTiming(5_ms);
+    EXPECT_GT(turret.GetMotorOutput(), 0_V);
+
+    // Move turret into CCW limit
+    while (!turret.HasPassedCCWLimit()) {
+        appendageStick1.SetPOV(kPovCCW);
+        frc::sim::StepTiming(5_ms);
+        frc::sim::StepTiming(5_ms);
+        frc::sim::StepTiming(5_ms);
+        frc::sim::StepTiming(5_ms);
+    }
+
+    // Don't let turret move past CCW limit
+    appendageStick1.SetPOV(kPovCCW);
+    frc::sim::StepTiming(5_ms);
+    frc::sim::StepTiming(5_ms);
+    frc::sim::StepTiming(5_ms);
+    frc::sim::StepTiming(5_ms);
+    EXPECT_EQ(turret.GetMotorOutput(), 0_V);
+
+    // Let turret move away from CCW limit
+    appendageStick1.SetPOV(kPovCW);
+    frc::sim::StepTiming(5_ms);
+    frc::sim::StepTiming(5_ms);
+    frc::sim::StepTiming(5_ms);
+    frc::sim::StepTiming(5_ms);
+    EXPECT_LT(turret.GetMotorOutput(), 0_V);
+
+    frc3512::SubsystemBase::RunAllDisabledInit();
+    frc3512::ControllerSubsystemBase::Disable();
 
     frc::sim::ResumeTiming();
 }
 
-TEST(TurretTest, ReachesReferenceStaticDrivetrain) {
-    // Initialize drivetrain controller
-    frc3512::DrivetrainController drivetrainController;
-    drivetrainController.Enable();
+TEST(TurretTest, DISABLED_ReachesReferenceStaticDrivetrain) {
+    frc::sim::PauseTiming();
 
-    // Initialize turret controller
-    frc3512::TurretController turretController;
-    turretController.Enable();
+    frc3512::Vision vision;
+    frc3512::Drivetrain drivetrain;
+    frc3512::Turret turret{vision, drivetrain};
 
-    RunSimulation(drivetrainController, turretController);
+    frc3512::SubsystemBase::RunAllAutonomousInit();
+    frc3512::ControllerSubsystemBase::Enable();
+
+    frc::Notifier autonomousPeriodic{
+        &frc3512::SubsystemBase::RunAllAutonomousPeriodic};
+    autonomousPeriodic.StartPeriodic(20_ms);
+
+    frc2::Timer currentTime;
+    currentTime.Start();
+    while (currentTime.Get() < 10_s) {
+        frc::sim::StepTiming(frc3512::Constants::kDt);
+    }
+
+    frc3512::SubsystemBase::RunAllDisabledInit();
+    frc3512::ControllerSubsystemBase::Disable();
+
+    frc::sim::ResumeTiming();
 
     RenameCSVs("TurretTest Static", "./Turret ");
 
-    EXPECT_TRUE(turretController.AtGoal());
+    EXPECT_TRUE(turret.AtGoal());
 }
 
 TEST(TurretTest, DISABLED_ReachesReferenceRotateInPlaceDrivetrain) {
     // TODO: Make the drivetrain actually rotate in place instead of follow an
     // s-curve.
 
-    // Initialize drivetrain controller
-    frc3512::DrivetrainController drivetrainController;
-    drivetrainController.Enable();
-    drivetrainController.SetWaypoints(frc::Pose2d(0_m, 0_m, 0_rad), {},
-                                      frc::Pose2d(4.8768_m, 2.7432_m, 0_rad));
+    frc::sim::PauseTiming();
 
-    // Initialize turret controller
-    frc3512::TurretController turretController;
-    turretController.Enable();
+    frc3512::Vision vision;
+    frc3512::Drivetrain drivetrain;
+    frc3512::Turret turret{vision, drivetrain};
 
-    RunSimulation(drivetrainController, turretController);
+    frc3512::SubsystemBase::RunAllAutonomousInit();
+    frc3512::ControllerSubsystemBase::Enable();
+
+    drivetrain.SetWaypoints(frc::Pose2d(0_m, 0_m, 0_rad), {},
+                            frc::Pose2d(4.8768_m, 2.7432_m, 0_rad));
+
+    frc::Notifier autonomousPeriodic{
+        &frc3512::SubsystemBase::RunAllAutonomousPeriodic};
+    autonomousPeriodic.StartPeriodic(20_ms);
+
+    frc2::Timer currentTime;
+    currentTime.Start();
+    while (currentTime.Get() < 10_s) {
+        frc::sim::StepTiming(frc3512::Constants::kDt);
+    }
+
+    frc3512::SubsystemBase::RunAllDisabledInit();
+    frc3512::ControllerSubsystemBase::Disable();
+
+    frc::sim::ResumeTiming();
 
     RenameCSVs("TurretTest RotateInPlace", "./Drivetrain ");
     RenameCSVs("TurretTest RotateInPlace", "./Turret ");
 
-    EXPECT_TRUE(turretController.AtGoal());
+    EXPECT_TRUE(turret.AtGoal());
 }
 
-TEST(TurretTest, ReachesReferenceSCurveDrivetrain) {
-    // Initialize drivetrain controller
-    frc3512::DrivetrainController drivetrainController;
-    drivetrainController.Enable();
-    drivetrainController.SetWaypoints(frc::Pose2d(0_m, 0_m, 0_rad), {},
-                                      frc::Pose2d(4.8768_m, 2.7432_m, 0_rad));
+TEST(TurretTest, DISABLED_ReachesReferenceSCurveDrivetrain) {
+    frc::sim::PauseTiming();
 
-    // Initialize turret controller
-    frc3512::TurretController turretController;
-    turretController.Enable();
+    frc3512::Vision vision;
+    frc3512::Drivetrain drivetrain;
+    frc3512::Turret turret{vision, drivetrain};
 
-    RunSimulation(drivetrainController, turretController);
+    frc3512::SubsystemBase::RunAllAutonomousInit();
+    frc3512::ControllerSubsystemBase::Enable();
+
+    drivetrain.SetWaypoints(frc::Pose2d(0_m, 0_m, 0_rad), {},
+                            frc::Pose2d(4.8768_m, 2.7432_m, 0_rad));
+
+    frc::Notifier autonomousPeriodic{
+        &frc3512::SubsystemBase::RunAllAutonomousPeriodic};
+    autonomousPeriodic.StartPeriodic(20_ms);
+
+    frc2::Timer currentTime;
+    currentTime.Start();
+    while (currentTime.Get() < 10_s) {
+        frc::sim::StepTiming(frc3512::Constants::kDt);
+    }
+
+    frc3512::SubsystemBase::RunAllDisabledInit();
+    frc3512::ControllerSubsystemBase::Disable();
+
+    frc::sim::ResumeTiming();
 
     RenameCSVs("TurretTest SCurve", "./Drivetrain ");
     RenameCSVs("TurretTest SCurve", "./Turret ");
 
-    EXPECT_TRUE(turretController.AtGoal());
+    EXPECT_TRUE(turret.AtGoal());
 }
 
 TEST(TurretTest, ReachesReferenceAutonDrivetrain) {
-    frc::Pose2d initialPose{12.65_m, 5.800_m, units::radian_t{wpi::math::pi}};
+    frc::sim::PauseTiming();
 
-    // Initialize drivetrain controller
-    frc3512::DrivetrainController drivetrainController;
-    drivetrainController.Reset(initialPose, initialPose);
-    drivetrainController.Enable();
-    drivetrainController.SetWaypoints(
+    frc3512::Vision vision;
+    frc3512::Drivetrain drivetrain;
+    frc3512::Turret turret{vision, drivetrain};
+
+    frc3512::SubsystemBase::RunAllAutonomousInit();
+    frc3512::ControllerSubsystemBase::Enable();
+
+    frc::Pose2d initialPose{12.65_m, 5.800_m, units::radian_t{wpi::math::pi}};
+    drivetrain.SetWaypoints(
         initialPose, {},
         frc::Pose2d(12.65_m - frc3512::Drivetrain::kLength, 5.800_m,
                     units::radian_t{wpi::math::pi}));
+    drivetrain.Reset(initialPose);
 
-    // Initialize turret controller
-    frc3512::TurretController turretController;
-    turretController.Enable();
+    frc::Notifier autonomousPeriodic{
+        &frc3512::SubsystemBase::RunAllAutonomousPeriodic};
+    autonomousPeriodic.StartPeriodic(20_ms);
 
-    Eigen::Matrix<double, 10, 1> drivetrainX =
-        Eigen::Matrix<double, 10, 1>::Zero();
-    drivetrainX(2) = wpi::math::pi;
+    frc2::Timer currentTime;
+    currentTime.Start();
+    while (currentTime.Get() < 10_s) {
+        frc::sim::StepTiming(frc3512::Constants::kDt);
+    }
 
-    RunSimulation(drivetrainController, turretController, drivetrainX);
+    frc3512::SubsystemBase::RunAllDisabledInit();
+    frc3512::ControllerSubsystemBase::Disable();
+
+    frc::sim::ResumeTiming();
 
     RenameCSVs("TurretTest Auton", "./Drivetrain ");
     RenameCSVs("TurretTest Auton", "./Turret ");
 
-    EXPECT_TRUE(turretController.AtGoal());
+    EXPECT_TRUE(turret.AtGoal());
 }

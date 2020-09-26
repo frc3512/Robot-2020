@@ -50,11 +50,6 @@ void TurretController::SetMeasuredOutputs(units::radian_t angle) {
     m_y << angle.to<double>();
 }
 
-void TurretController::SetHardLimitOutputs(bool leftLimit, bool rightLimit) {
-    m_atLeftLimit = leftLimit;
-    m_atRightLimit = rightLimit;
-}
-
 void TurretController::SetDrivetrainStatus(
     const Eigen::Matrix<double, 10, 1>& nextXhat) {
     m_drivetrainNextPoseInGlobal =
@@ -129,17 +124,22 @@ void TurretController::UpdateController(units::second_t dt) {
 
     Eigen::Matrix<double, 2, 1> error = m_nextR - m_observer.Xhat();
     error(0) = NormalizeAngle(error(0));
-    m_u << m_lqr.K() * error + m_ff.Calculate(m_nextR);
 
-    if (m_atLeftLimit && m_u(0) > 0) {
-        m_u << 0;
-    } else if (m_atRightLimit && m_u(0) < 0) {
-        m_u << 0;
-    } else if (!m_isEnabled) {
-        m_u << 0;
+    if (m_isEnabled) {
+        m_u << m_lqr.K() * error + m_ff.Calculate(m_nextR);
+
+        units::radian_t heading{m_observer.Xhat(State::kAngle)};
+        if (heading > kCCWLimit && m_u(0) > 0.0) {
+            m_u << 0.0;
+        } else if (heading < kCWLimit && m_u(0) < 0.0) {
+            m_u << 0.0;
+        }
+
+        m_u *= 12.0 / frc::RobotController::GetInputVoltage();
+        m_u = frc::NormalizeInputVector<1>(m_u, 12.0);
+    } else {
+        m_u << 0.0;
     }
-    m_u *= 12.0 / frc::RobotController::GetInputVoltage();
-    m_u = frc::NormalizeInputVector<1>(m_u, 12.0);
 
     m_atReferences =
         units::math::abs(units::radian_t{m_nextR(State::kAngle) -

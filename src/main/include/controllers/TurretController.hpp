@@ -36,6 +36,10 @@ public:
     static constexpr auto kAngleTolerance = 0.05_rad;
     static constexpr auto kAngularVelocityTolerance = 2.0_rad_per_s;
 
+    // Turret configuration space limits
+    static constexpr units::radian_t kCCWLimit{wpi::math::pi / 2.0};
+    static constexpr units::radian_t kCWLimit{-wpi::math::pi / 2.0};
+
     class State {
     public:
         static constexpr int kAngle = 0;
@@ -101,15 +105,6 @@ public:
      * @param measuredAngle Angle of the carriage in radians.
      */
     void SetMeasuredOutputs(units::radian_t angle);
-
-    /**
-     * Sets the current hard limit outputs based on whether if either the left
-     * or right sensors were triggered.
-     *
-     * @param leftLimit Output of right hall effect, 'true' meaning triggered
-     * @param rightLimit Output of left hall effect, 'true' meaning triggered
-     */
-    void SetHardLimitOutputs(bool leftLimit, bool rightLimit);
 
     /**
      * Sets the current estimated global pose of the drivetrain.
@@ -196,8 +191,8 @@ private:
     Eigen::Matrix<double, 2, 1> m_nextR;
 
     bool m_atReferences = false;
-    bool m_atLeftLimit = false;
-    bool m_atRightLimit = false;
+    bool m_atCCWLimit = false;
+    bool m_atCWLimit = false;
     bool m_isEnabled = false;
 
     frc::Pose2d m_drivetrainNextPoseInGlobal;
