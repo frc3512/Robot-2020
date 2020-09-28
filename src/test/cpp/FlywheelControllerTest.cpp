@@ -1,14 +1,11 @@
 // Copyright (c) 2020 FRC Team 3512. All Rights Reserved.
 
-#include <thread>
-
 #include <frc/Notifier.h>
 #include <frc/simulation/SimHooks.h>
 #include <frc2/Timer.h>
 #include <gtest/gtest.h>
 
 #include "RenameCSVs.hpp"
-#include "TestUtil.hpp"
 #include "subsystems/ControllerSubsystemBase.hpp"
 #include "subsystems/Drivetrain.hpp"
 #include "subsystems/Flywheel.hpp"
@@ -39,8 +36,7 @@ TEST(FlywheelControllerTest, ReachesGoal) {
         auto noise = units::math::min(
             0_s,
             units::second_t{frc::MakeWhiteNoiseVector(0.001)(0)} + 0.001_s);
-        frc3512::sim::StepTimingToNextNotifier(noise);
-        std::this_thread::sleep_for(std::chrono::milliseconds(5));
+        frc::sim::StepTiming(frc3512::Constants::kDt + noise);
     }
 
     frc3512::ControllerSubsystemBase::Disable();

@@ -5,17 +5,16 @@ plugins {
 }
 
 // For testing development versions of WPILib
-wpi.wpilibVersion = '2020.3.2-234-gf9a3380'
+wpi.wpilibVersion = '2020.3.2-252-g693daaf'
+
+// For automatically using the newest development version of WPILib
+// wpi.wpilibVersion = '2020.+'
+
+// For using remote development artifacts
+wpi.maven.useDevelopment = true
 
 // For using local development artifacts
 // wpi.maven.useFrcMavenLocalDevelopment = true
-
-// For using remote development artifacts
-repositories {
-    maven {
-        url = "https://frcmaven.wpi.edu:443/artifactory/development"
-    }
-}
 
 // Define my targets (RoboRIO) and artifacts (deployable files)
 // This is added by GradleRIO's backing project EmbeddedTools.
