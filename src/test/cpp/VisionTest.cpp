@@ -3,6 +3,7 @@
 #include <gtest/gtest.h>
 #include <networktables/NetworkTableEntry.h>
 #include <networktables/NetworkTableInstance.h>
+#include <units/math.h>
 
 #include "TargetModel.hpp"
 #include "subsystems/Vision.hpp"

@@ -7,13 +7,12 @@
 #include <units/math.h>
 
 #include "RenameCSVs.hpp"
-#include "subsystems/ControllerSubsystemBase.hpp"
 #include "subsystems/Drivetrain.hpp"
 #include "subsystems/Flywheel.hpp"
 #include "subsystems/Turret.hpp"
 #include "subsystems/Vision.hpp"
 
-TEST(FlywheelControllerTest, ReachesGoal) {
+TEST(FlywheelTest, ReachesGoal) {
     frc::sim::PauseTiming();
 
     frc3512::Vision vision;
