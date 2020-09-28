@@ -39,6 +39,7 @@ TEST(FlywheelTest, ReachesGoal) {
         frc::sim::StepTiming(frc3512::Constants::kDt + noise);
     }
 
+    frc3512::SubsystemBase::RunAllDisabledInit();
     frc3512::ControllerSubsystemBase::Disable();
 
     frc::sim::ResumeTiming();
