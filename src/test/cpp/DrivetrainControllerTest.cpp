@@ -9,10 +9,7 @@
 #include <frc/system/plant/DCMotor.h>
 #include <frc2/Timer.h>
 #include <gtest/gtest.h>
-#include <units/current.h>
-#include <units/time.h>
-#include <units/velocity.h>
-#include <units/voltage.h>
+#include <units/math.h>
 
 #include "Constants.hpp"
 #include "RenameCSVs.hpp"

@@ -4,6 +4,7 @@
 #include <frc/simulation/SimHooks.h>
 #include <frc2/Timer.h>
 #include <gtest/gtest.h>
+#include <units/math.h>
 
 #include "RenameCSVs.hpp"
 #include "subsystems/ControllerSubsystemBase.hpp"
