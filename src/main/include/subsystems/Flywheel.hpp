@@ -77,8 +77,7 @@ public:
     units::radians_per_second_t GetGoal() const;
 
     /**
-     * Takes the projected distance of the flywheel to the target and sets an
-     * angular velocity goal determined by the lookup table
+     * Returns true if the flywheel has reached the goal angular velocity.
      */
     bool AtGoal();
 
