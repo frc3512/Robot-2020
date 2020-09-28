@@ -48,7 +48,7 @@ TEST(DrivetrainTest, ReachesReferenceStraight) {
 
     frc::sim::ResumeTiming();
 
-    RenameCSVs("DrivetrainControllerTest Straight", "./Drivetrain ");
+    RenameCSVs("DrivetrainTest Straight", "./Drivetrain ");
 
     EXPECT_TRUE(drivetrain.AtGoal());
 }
@@ -88,7 +88,7 @@ TEST(DrivetrainTest, ReachesReferenceCurve) {
 
     frc::sim::ResumeTiming();
 
-    RenameCSVs("DrivetrainControllerTest Curve", "./Drivetrain ");
+    RenameCSVs("DrivetrainTest Curve", "./Drivetrain ");
 
     EXPECT_TRUE(drivetrain.AtGoal());
 }

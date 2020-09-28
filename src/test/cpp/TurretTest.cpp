@@ -125,7 +125,7 @@ TEST(TurretTest, ReachesReferenceStaticDrivetrain) {
 
     RunSimulation(drivetrainController, turretController);
 
-    RenameCSVs("TurretControllerTest Static", "./Turret ");
+    RenameCSVs("TurretTest Static", "./Turret ");
 
     EXPECT_TRUE(turretController.AtGoal());
 }
@@ -146,8 +146,8 @@ TEST(TurretTest, DISABLED_ReachesReferenceRotateInPlaceDrivetrain) {
 
     RunSimulation(drivetrainController, turretController);
 
-    RenameCSVs("TurretController RotateInPlace", "./Drivetrain ");
-    RenameCSVs("TurretController RotateInPlace", "./Turret ");
+    RenameCSVs("TurretTest RotateInPlace", "./Drivetrain ");
+    RenameCSVs("TurretTest RotateInPlace", "./Turret ");
 
     EXPECT_TRUE(turretController.AtGoal());
 }
@@ -165,8 +165,8 @@ TEST(TurretTest, ReachesReferenceSCurveDrivetrain) {
 
     RunSimulation(drivetrainController, turretController);
 
-    RenameCSVs("TurretControllerTest SCurve", "./Drivetrain ");
-    RenameCSVs("TurretControllerTest SCurve", "./Turret ");
+    RenameCSVs("TurretTest SCurve", "./Drivetrain ");
+    RenameCSVs("TurretTest SCurve", "./Turret ");
 
     EXPECT_TRUE(turretController.AtGoal());
 }
@@ -193,8 +193,8 @@ TEST(TurretTest, ReachesReferenceAutonDrivetrain) {
 
     RunSimulation(drivetrainController, turretController, drivetrainX);
 
-    RenameCSVs("TurretControllerTest Auton", "./Drivetrain ");
-    RenameCSVs("TurretControllerTest Auton", "./Turret ");
+    RenameCSVs("TurretTest Auton", "./Drivetrain ");
+    RenameCSVs("TurretTest Auton", "./Turret ");
 
     EXPECT_TRUE(turretController.AtGoal());
 }

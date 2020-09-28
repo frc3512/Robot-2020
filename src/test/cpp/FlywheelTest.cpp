@@ -43,7 +43,7 @@ TEST(FlywheelTest, ReachesGoal) {
 
     frc::sim::ResumeTiming();
 
-    RenameCSVs("FlywheelControllerTest", "./Flywheel ");
+    RenameCSVs("FlywheelTest", "./Flywheel ");
 
     EXPECT_TRUE(flywheel.AtGoal());
 }
