@@ -152,10 +152,10 @@ void Drivetrain::ControllerPeriodic() {
         m_rightEncoderSim.SetDistance(
             m_drivetrainSim.GetState(State::kRightPosition));
 
-        m_gyroAngleHandle.Set(-units::degree_t{
+        m_gyroSimAngle.Set(-units::degree_t{
             units::radian_t{m_drivetrainSim.GetState(State::kHeading)} -
             m_headingOffset}
-                                   .to<double>());
+                                .to<double>());
 
         frc::sim::RoboRioSim::SetVInVoltage(
             frc::sim::BatterySim::Calculate({m_drivetrainSim.GetCurrentDraw()})
