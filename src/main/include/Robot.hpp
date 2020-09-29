@@ -114,7 +114,8 @@ public:
     void AutoRightSideShootThreePeriodic();
 
 private:
-    const units::meter_t kPathWeaverFudge = -0.343_m;
+    static constexpr units::meter_t kPathWeaverFudge{-0.343};
+
     // The order the subsystems are initialized determines the order the
     // controllers run in.
     Vision m_vision;
