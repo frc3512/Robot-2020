@@ -33,7 +33,7 @@ void Turret::SetDirection(Direction direction) {
     }
 }
 
-void Turret::SetManualOverride() { m_manualOverride = true; }
+void Turret::SetManualOverride(bool enable) { m_manualOverride = enable; }
 
 void Turret::Reset(units::radian_t initialHeading) {
     m_controller.Reset();
@@ -126,7 +126,7 @@ void Turret::TeleopPeriodic() {
 
     // Turret manual override
     if (appendageStick1.GetRawButtonPressed(11)) {
-        SetManualOverride();
+        SetManualOverride(true);
     }
 
     // Turrret manual spin

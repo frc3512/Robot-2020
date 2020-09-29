@@ -36,9 +36,11 @@ public:
     Turret& operator=(Turret&&) = default;
 
     /**
-     * If called, permanently enables manual override.
+     * Set manual override.
+     *
+     * @param enable True if manual override should be enabled.
      */
-    void SetManualOverride();
+    void SetManualOverride(bool enable);
 
     /**
      * Set direction turret should move during manual override.
@@ -126,7 +128,7 @@ private:
 
     // TODO: Let the turret move on its own once the turret encoder is trusted
     // more
-    std::atomic<bool> m_manualOverride{false};
+    std::atomic<bool> m_manualOverride{true};
 
     // Simulation variables
     static constexpr bool kIdealModel = false;

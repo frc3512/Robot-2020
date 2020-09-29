@@ -25,7 +25,7 @@ TEST(TurretTest, ConfigSpaceLimits) {
     frc3512::Vision vision;
     frc3512::Drivetrain drivetrain;
     frc3512::Turret turret{vision, drivetrain};
-    turret.SetManualOverride();
+    turret.SetManualOverride(true);
 
     frc3512::SubsystemBase::RunAllTeleopInit();
     frc3512::ControllerSubsystemBase::Enable();
@@ -109,6 +109,7 @@ TEST(TurretTest, DISABLED_ReachesReferenceStaticDrivetrain) {
     frc3512::Vision vision;
     frc3512::Drivetrain drivetrain;
     frc3512::Turret turret{vision, drivetrain};
+    turret.SetManualOverride(false);
 
     frc3512::SubsystemBase::RunAllAutonomousInit();
     frc3512::ControllerSubsystemBase::Enable();
@@ -142,6 +143,7 @@ TEST(TurretTest, DISABLED_ReachesReferenceRotateInPlaceDrivetrain) {
     frc3512::Vision vision;
     frc3512::Drivetrain drivetrain;
     frc3512::Turret turret{vision, drivetrain};
+    turret.SetManualOverride(false);
 
     frc3512::SubsystemBase::RunAllAutonomousInit();
     frc3512::ControllerSubsystemBase::Enable();
@@ -176,6 +178,7 @@ TEST(TurretTest, DISABLED_ReachesReferenceSCurveDrivetrain) {
     frc3512::Vision vision;
     frc3512::Drivetrain drivetrain;
     frc3512::Turret turret{vision, drivetrain};
+    turret.SetManualOverride(false);
 
     frc3512::SubsystemBase::RunAllAutonomousInit();
     frc3512::ControllerSubsystemBase::Enable();
@@ -210,6 +213,7 @@ TEST(TurretTest, ReachesReferenceAutonDrivetrain) {
     frc3512::Vision vision;
     frc3512::Drivetrain drivetrain;
     frc3512::Turret turret{vision, drivetrain};
+    turret.SetManualOverride(false);
 
     frc3512::SubsystemBase::RunAllAutonomousInit();
     frc3512::ControllerSubsystemBase::Enable();
