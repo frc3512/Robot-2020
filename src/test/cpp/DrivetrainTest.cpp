@@ -10,9 +10,16 @@
 #include "RenameCSVs.hpp"
 #include "subsystems/Drivetrain.hpp"
 
-TEST(DrivetrainTest, ReachesReferenceStraight) {
-    frc::sim::PauseTiming();
+namespace {
+class DrivetrainTest : public testing::Test {
+protected:
+    void SetUp() override { frc::sim::PauseTiming(); }
 
+    void TearDown() override { frc::sim::ResumeTiming(); }
+};
+}  // namespace
+
+TEST_F(DrivetrainTest, ReachesReferenceStraight) {
     frc3512::Drivetrain drivetrain;
 
     frc3512::SubsystemBase::RunAllAutonomousInit();
@@ -46,16 +53,12 @@ TEST(DrivetrainTest, ReachesReferenceStraight) {
     frc3512::SubsystemBase::RunAllDisabledInit();
     frc3512::ControllerSubsystemBase::Disable();
 
-    frc::sim::ResumeTiming();
-
     RenameCSVs("DrivetrainTest Straight", "./Drivetrain ");
 
     EXPECT_TRUE(drivetrain.AtGoal());
 }
 
-TEST(DrivetrainTest, ReachesReferenceCurve) {
-    frc::sim::PauseTiming();
-
+TEST_F(DrivetrainTest, ReachesReferenceCurve) {
     frc3512::Drivetrain drivetrain;
 
     frc3512::SubsystemBase::RunAllAutonomousInit();
@@ -85,8 +88,6 @@ TEST(DrivetrainTest, ReachesReferenceCurve) {
 
     frc3512::SubsystemBase::RunAllDisabledInit();
     frc3512::ControllerSubsystemBase::Disable();
-
-    frc::sim::ResumeTiming();
 
     RenameCSVs("DrivetrainTest Curve", "./Drivetrain ");
 

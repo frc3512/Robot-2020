@@ -12,9 +12,16 @@
 #include "subsystems/Turret.hpp"
 #include "subsystems/Vision.hpp"
 
-TEST(FlywheelTest, ReachesGoal) {
-    frc::sim::PauseTiming();
+namespace {
+class FlywheelTest : public testing::Test {
+protected:
+    void SetUp() override { frc::sim::PauseTiming(); }
 
+    void TearDown() override { frc::sim::ResumeTiming(); }
+};
+}  // namespace
+
+TEST_F(FlywheelTest, ReachesGoal) {
     frc3512::Vision vision;
     frc3512::Drivetrain drivetrain;
     frc3512::Turret turret{vision, drivetrain};
@@ -41,8 +48,6 @@ TEST(FlywheelTest, ReachesGoal) {
 
     frc3512::SubsystemBase::RunAllDisabledInit();
     frc3512::ControllerSubsystemBase::Disable();
-
-    frc::sim::ResumeTiming();
 
     RenameCSVs("FlywheelTest", "./Flywheel ");
 

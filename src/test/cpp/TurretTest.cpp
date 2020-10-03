@@ -12,13 +12,20 @@
 #include "subsystems/Turret.hpp"
 #include "subsystems/Vision.hpp"
 
-TEST(TurretTest, ConfigSpaceLimits) {
+namespace {
+class TurretTest : public testing::Test {
+protected:
+    void SetUp() override { frc::sim::PauseTiming(); }
+
+    void TearDown() override { frc::sim::ResumeTiming(); }
+};
+}  // namespace
+
+TEST_F(TurretTest, ConfigSpaceLimits) {
     using namespace frc3512::Constants::Robot;
 
     static constexpr int kPovCW = 90;
     static constexpr int kPovCCW = 270;
-
-    frc::sim::PauseTiming();
 
     frc::sim::JoystickSim appendageStick1{kAppendageStick1Port};
 
@@ -99,13 +106,9 @@ TEST(TurretTest, ConfigSpaceLimits) {
 
     frc3512::SubsystemBase::RunAllDisabledInit();
     frc3512::ControllerSubsystemBase::Disable();
-
-    frc::sim::ResumeTiming();
 }
 
 TEST(TurretTest, DISABLED_ReachesReferenceStaticDrivetrain) {
-    frc::sim::PauseTiming();
-
     frc3512::Vision vision;
     frc3512::Drivetrain drivetrain;
     frc3512::Turret turret{vision, drivetrain};
@@ -127,18 +130,14 @@ TEST(TurretTest, DISABLED_ReachesReferenceStaticDrivetrain) {
     frc3512::SubsystemBase::RunAllDisabledInit();
     frc3512::ControllerSubsystemBase::Disable();
 
-    frc::sim::ResumeTiming();
-
     RenameCSVs("TurretTest Static", "./Turret ");
 
     EXPECT_TRUE(turret.AtGoal());
 }
 
-TEST(TurretTest, DISABLED_ReachesReferenceRotateInPlaceDrivetrain) {
+TEST_F(TurretTest, DISABLED_ReachesReferenceRotateInPlaceDrivetrain) {
     // TODO: Make the drivetrain actually rotate in place instead of follow an
     // s-curve.
-
-    frc::sim::PauseTiming();
 
     frc3512::Vision vision;
     frc3512::Drivetrain drivetrain;
@@ -163,8 +162,6 @@ TEST(TurretTest, DISABLED_ReachesReferenceRotateInPlaceDrivetrain) {
 
     frc3512::SubsystemBase::RunAllDisabledInit();
     frc3512::ControllerSubsystemBase::Disable();
-
-    frc::sim::ResumeTiming();
 
     RenameCSVs("TurretTest RotateInPlace", "./Drivetrain ");
     RenameCSVs("TurretTest RotateInPlace", "./Turret ");
@@ -172,9 +169,7 @@ TEST(TurretTest, DISABLED_ReachesReferenceRotateInPlaceDrivetrain) {
     EXPECT_TRUE(turret.AtGoal());
 }
 
-TEST(TurretTest, DISABLED_ReachesReferenceSCurveDrivetrain) {
-    frc::sim::PauseTiming();
-
+TEST_F(TurretTest, DISABLED_ReachesReferenceSCurveDrivetrain) {
     frc3512::Vision vision;
     frc3512::Drivetrain drivetrain;
     frc3512::Turret turret{vision, drivetrain};
@@ -199,17 +194,13 @@ TEST(TurretTest, DISABLED_ReachesReferenceSCurveDrivetrain) {
     frc3512::SubsystemBase::RunAllDisabledInit();
     frc3512::ControllerSubsystemBase::Disable();
 
-    frc::sim::ResumeTiming();
-
     RenameCSVs("TurretTest SCurve", "./Drivetrain ");
     RenameCSVs("TurretTest SCurve", "./Turret ");
 
     EXPECT_TRUE(turret.AtGoal());
 }
 
-TEST(TurretTest, ReachesReferenceAutonDrivetrain) {
-    frc::sim::PauseTiming();
-
+TEST_F(TurretTest, ReachesReferenceAutonDrivetrain) {
     frc3512::Vision vision;
     frc3512::Drivetrain drivetrain;
     frc3512::Turret turret{vision, drivetrain};
@@ -237,8 +228,6 @@ TEST(TurretTest, ReachesReferenceAutonDrivetrain) {
 
     frc3512::SubsystemBase::RunAllDisabledInit();
     frc3512::ControllerSubsystemBase::Disable();
-
-    frc::sim::ResumeTiming();
 
     RenameCSVs("TurretTest Auton", "./Drivetrain ");
     RenameCSVs("TurretTest Auton", "./Turret ");
