@@ -7,6 +7,7 @@
 #include <frc/RobotController.h>
 #include <frc/simulation/BatterySim.h>
 #include <frc/simulation/RoboRioSim.h>
+#include <frc/simulation/SimDeviceSim.h>
 
 #include "CANSparkMaxUtil.hpp"
 #include "controllers/DrivetrainController.hpp"
@@ -20,6 +21,9 @@ Drivetrain::Drivetrain()
                       frc::DCMotor::NEO(2),
                       DrivetrainController::kDriveGearRatio,
                       DrivetrainController::kWheelRadius} {
+    frc::sim::SimDeviceSim gyroSim{"ADXRS450_Gyro[0]"};
+    m_angleSim = gyroSim.GetDouble("Angle");
+
     SetCANSparkMaxBusUsage(m_leftMaster, Usage::kMinimal);
     SetCANSparkMaxBusUsage(m_leftSlave, Usage::kMinimal);
     SetCANSparkMaxBusUsage(m_rightMaster, Usage::kMinimal);
@@ -152,10 +156,10 @@ void Drivetrain::ControllerPeriodic() {
         m_rightEncoderSim.SetDistance(
             m_drivetrainSim.GetState(State::kRightPosition));
 
-        m_gyroSimAngle.Set(-units::degree_t{
+        m_angleSim.Set(-units::degree_t{
             units::radian_t{m_drivetrainSim.GetState(State::kHeading)} -
             m_headingOffset}
-                                .to<double>());
+                            .to<double>());
 
         frc::sim::RoboRioSim::SetVInVoltage(
             frc::sim::BatterySim::Calculate({m_drivetrainSim.GetCurrentDraw()})

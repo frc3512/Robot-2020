@@ -7,7 +7,6 @@
 #include <frc/DutyCycleEncoder.h>
 #include <frc/geometry/Pose2d.h>
 #include <frc/simulation/LinearSystemSim.h>
-#include <frc/simulation/SimDeviceSim.h>
 #include <frc2/Timer.h>
 #include <rev/CANSparkMax.h>
 #include <units/angle.h>
@@ -134,9 +133,7 @@ private:
     static constexpr bool kIdealModel = false;
     frc::sim::LinearSystemSim<2, 1, 1> m_turretSim{
         m_controller.GetPlant(), !kIdealModel, {0.001}};
-    frc::sim::SimDeviceSim m_encoderSimDevice{"DutyCycleEncoder[0]"};
-    hal::SimDouble m_encoderSimPosition =
-        m_encoderSimDevice.GetDouble("Position");
+    hal::SimDouble m_positionSim;
 
     /**
      * Set voltage output of turret motor.

@@ -222,8 +222,7 @@ private:
     frc::sim::DifferentialDrivetrainSim m_drivetrainSim;
     frc::sim::EncoderSim m_leftEncoderSim{m_leftEncoder};
     frc::sim::EncoderSim m_rightEncoderSim{m_rightEncoder};
-    frc::sim::SimDeviceSim m_gyroSimDevice{"ADXRS450_Gyro[0]"};
-    hal::SimDouble m_gyroSimAngle = m_gyroSimDevice.GetDouble("Angle");
+    hal::SimDouble m_angleSim;
 };
 
 }  // namespace frc3512

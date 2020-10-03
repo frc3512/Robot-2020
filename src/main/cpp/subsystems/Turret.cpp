@@ -5,6 +5,7 @@
 #include <frc/Joystick.h>
 #include <frc/RobotBase.h>
 #include <frc/RobotController.h>
+#include <frc/simulation/SimDeviceSim.h>
 
 #include "CANSparkMaxUtil.hpp"
 #include "subsystems/Drivetrain.hpp"
@@ -15,6 +16,9 @@ using namespace frc3512::Constants::Robot;
 
 Turret::Turret(Vision& vision, Drivetrain& drivetrain)
     : m_vision(vision), m_drivetrain(drivetrain) {
+    frc::sim::SimDeviceSim encoderSim{"DutyCycleEncoder[0]"};
+    m_positionSim = encoderSim.GetDouble("Position");
+
     SetCANSparkMaxBusUsage(m_motor, Usage::kMinimal);
 
     m_encoder.SetDistancePerRotation(TurretController::kDpR);
@@ -42,7 +46,7 @@ void Turret::Reset(units::radian_t initialHeading) {
         Eigen::Matrix<double, 2, 1> x = Eigen::Matrix<double, 2, 1>::Zero();
         m_turretSim.SetState(x);
 
-        m_encoderSimPosition.Set(HeadingToEncoderTurns(initialHeading));
+        m_positionSim.Set(HeadingToEncoderTurns(initialHeading));
     }
 }
 
@@ -114,7 +118,7 @@ void Turret::ControllerPeriodic() {
 
         m_turretSim.Update(now - m_lastTime);
 
-        m_encoderSimPosition.Set(
+        m_positionSim.Set(
             HeadingToEncoderTurns(units::radian_t{m_turretSim.Y(0)}));
     }
 
