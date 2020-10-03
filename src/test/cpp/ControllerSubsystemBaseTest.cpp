@@ -1,10 +1,17 @@
 // Copyright (c) 2020 FRC Team 3512. All Rights Reserved.
 
-#include <thread>
-
+#include <frc/simulation/SimHooks.h>
 #include <gtest/gtest.h>
 
 #include "subsystems/ControllerSubsystemBase.hpp"
+
+namespace {
+class ControllerSubsystemBaseTest : public testing::Test {
+protected:
+    void SetUp() override { frc::sim::PauseTiming(); }
+
+    void TearDown() override { frc::sim::ResumeTiming(); }
+};
 
 class MockSubsystem : public frc3512::ControllerSubsystemBase {
 public:
@@ -12,15 +19,17 @@ public:
 
     void ControllerPeriodic() override { periodicCount++; }
 };
+}  // namespace
 
-TEST(ControllerSubsystemBase, ControllerPeriodic1) {
+TEST_F(ControllerSubsystemBaseTest, ControllerPeriodic1) {
     MockSubsystem subsystem;
 
     // Enable at 0ms
     frc3512::ControllerSubsystemBase::Enable();
 
     // ControllerPeriodic() will run at 5ms and 10ms timestamps
-    std::this_thread::sleep_for(std::chrono::milliseconds(12));
+    frc::sim::StepTiming(5.1_ms);
+    frc::sim::StepTiming(5.1_ms);
 
     // Disable before reaching 15ms
     frc3512::ControllerSubsystemBase::Disable();
@@ -28,10 +37,7 @@ TEST(ControllerSubsystemBase, ControllerPeriodic1) {
     EXPECT_EQ(subsystem.periodicCount, 2);
 }
 
-TEST(ControllerSubsystemBase, ControllerPeriodic2) {
-    // TODO: This test may spuriously fail if CI doesn't schedule processes in a
-    // timely manner. Use simulation time stepping (frc::sim::StepTiming())
-    // instead when WPILib 2021 is released.
+TEST_F(ControllerSubsystemBaseTest, ControllerPeriodic2) {
     MockSubsystem subsystem1;
     MockSubsystem subsystem2;
 
@@ -39,7 +45,8 @@ TEST(ControllerSubsystemBase, ControllerPeriodic2) {
     frc3512::ControllerSubsystemBase::Enable();
 
     // ControllerPeriodic() will run at 5ms and 10ms timestamps
-    std::this_thread::sleep_for(std::chrono::milliseconds(12));
+    frc::sim::StepTiming(5.1_ms);
+    frc::sim::StepTiming(5.1_ms);
 
     // Disable before reaching 15ms
     frc3512::ControllerSubsystemBase::Disable();
