@@ -16,12 +16,6 @@ FlywheelController::FlywheelController()
     Reset();
 }
 
-void FlywheelController::Enable() { m_isEnabled = true; }
-
-void FlywheelController::Disable() { m_isEnabled = false; }
-
-bool FlywheelController::IsEnabled() const { return m_isEnabled; }
-
 void FlywheelController::SetGoal(units::radians_per_second_t angularVelocity) {
     m_nextR << angularVelocity.to<double>();
 }
@@ -58,7 +52,7 @@ void FlywheelController::Update(units::second_t dt) {
 
     // To conserve battery when the flywheel doesn't have to be spinning, don't
     // apply a negative voltage to slow down.
-    if (m_nextR(0) == 0.0 || !m_isEnabled) {
+    if (m_nextR(0) == 0.0 || !IsEnabled()) {
         m_lqr.Calculate(m_observer.Xhat(), m_nextR);
         m_u(0) = 0.0;
     } else {

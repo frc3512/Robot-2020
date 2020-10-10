@@ -119,8 +119,6 @@ private:
     rev::CANSparkMax m_motor{Constants::Turret::kPort,
                              rev::CANSparkMax::MotorType::kBrushless};
 
-    units::second_t m_lastTime = frc2::Timer::GetFPGATimestamp();
-
     TurretController m_controller;
 
     Vision& m_vision;

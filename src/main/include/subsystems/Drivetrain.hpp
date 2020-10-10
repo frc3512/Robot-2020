@@ -214,7 +214,6 @@ private:
 
     // Controller
     std::unique_ptr<DrivetrainController> m_controller;
-    units::second_t m_lastTime = frc2::Timer::GetFPGATimestamp();
 
     bool m_manualControl = true;
     wpi::mutex m_motorControllerMutex;

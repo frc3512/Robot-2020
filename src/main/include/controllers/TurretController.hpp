@@ -62,16 +62,6 @@ public:
     TurretController& operator=(const TurretController&) = delete;
 
     /**
-     * Enables the control loop.
-     */
-    void Enable();
-
-    /**
-     * Disables the control loop.
-     */
-    void Disable();
-
-    /**
      * Sets the end goal of the controller profile.
      *
      * @param goal Position in radians to set the goal to.
@@ -193,7 +183,6 @@ private:
     bool m_atReferences = false;
     bool m_atCCWLimit = false;
     bool m_atCWLimit = false;
-    bool m_isEnabled = false;
 
     frc::Pose2d m_drivetrainNextPoseInGlobal;
     Eigen::Matrix<double, 10, 1> m_drivetrainNextXhat;

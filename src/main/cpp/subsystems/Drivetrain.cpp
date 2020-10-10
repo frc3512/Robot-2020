@@ -104,7 +104,6 @@ void Drivetrain::Reset(const frc::Pose2d& initialPose) {
 }
 
 void Drivetrain::EnableController() {
-    m_lastTime = frc2::Timer::GetFPGATimestamp();
     m_controller->Enable();
     m_drive.SetSafetyEnabled(false);
 }
@@ -133,7 +132,7 @@ void Drivetrain::ControllerPeriodic() {
                                           GetRightPosition());
 
     auto now = frc2::Timer::GetFPGATimestamp();
-    m_controller->UpdateAndLog(now - m_lastTime);
+    m_controller->UpdateAndLog();
 
     if (!m_controller->IsOpenLoop()) {
         // Set motor inputs
@@ -148,7 +147,7 @@ void Drivetrain::ControllerPeriodic() {
             units::volt_t{m_leftGrbx.Get() * batteryVoltage},
             units::volt_t{m_rightGrbx.Get() * batteryVoltage});
 
-        m_drivetrainSim.Update(now - m_lastTime);
+        m_drivetrainSim.Update(Constants::kDt);
 
         using State = frc::sim::DifferentialDrivetrainSim::State;
         m_leftEncoderSim.SetDistance(
@@ -165,8 +164,6 @@ void Drivetrain::ControllerPeriodic() {
             frc::sim::BatterySim::Calculate({m_drivetrainSim.GetCurrentDraw()})
                 .to<double>());
     }
-
-    m_lastTime = now;
 }
 
 void Drivetrain::SetWaypoints(const frc::Pose2d& start,

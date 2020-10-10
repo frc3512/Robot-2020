@@ -1,5 +1,6 @@
 // Copyright (c) 2019-2020 FRC Team 3512. All Rights Reserved.
 
+#include <frc/simulation/SimHooks.h>
 #include <gtest/gtest.h>
 #include <units/math.h>
 #include <wpi/math>
@@ -66,13 +67,14 @@ TEST(TurretControllerTest, ProperDistanceFromTarget) {
 
     frc3512::TurretController controller;
     controller.Enable();
+    frc::sim::StepTiming(frc3512::Constants::kDt);
 
     Eigen::Matrix<double, 10, 1> drivetrainXhat;
     drivetrainXhat << kDrivetrainX.to<double>(), kDrivetrainY.to<double>(),
         wpi::math::pi, 0, 0, 0, 0, 0, 0, 0;
 
     controller.SetDrivetrainStatus(drivetrainXhat);
-    controller.UpdateAndLog(frc3512::Constants::kDt);
+    controller.UpdateAndLog();
     auto turretPose = controller.GetNextPose();
 
     const frc::Pose2d kTargetPoseInGlobal{TargetModel::kCenter.X(),

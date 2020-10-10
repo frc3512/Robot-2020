@@ -52,12 +52,6 @@ DrivetrainController::DrivetrainController()
     m_timeSinceSetWaypoints.Start();
 }
 
-void DrivetrainController::Enable() { m_isEnabled = true; }
-
-void DrivetrainController::Disable() { m_isEnabled = false; }
-
-bool DrivetrainController::IsEnabled() const { return m_isEnabled; }
-
 void DrivetrainController::SetOpenLoop(bool manualControl) {
     m_isOpenLoop = manualControl;
 }
@@ -157,7 +151,7 @@ void DrivetrainController::Update(units::second_t dt) {
             ref.pose.Rotation().Radians().to<double>(), vlRef.to<double>(),
             vrRef.to<double>(), 0, 0, 0, 0, 0;
 
-        if (m_isEnabled) {
+        if (IsEnabled()) {
             m_cappedU = Controller(m_observer.Xhat(), m_nextR) +
                         m_ff.Calculate(m_nextR);
         } else {

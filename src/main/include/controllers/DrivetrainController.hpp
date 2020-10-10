@@ -85,10 +85,6 @@ public:
     DrivetrainController(const DrivetrainController&) = delete;
     DrivetrainController& operator=(const DrivetrainController&) = delete;
 
-    void Enable();
-    void Disable();
-    bool IsEnabled() const;
-
     void SetOpenLoop(bool manualControl);
     bool IsOpenLoop() const;
 
@@ -279,7 +275,6 @@ private:
     wpi::mutex m_trajectoryMutex;
 
     bool m_atReferences = false;
-    bool m_isEnabled = false;
     bool m_isOpenLoop = false;
 
     /**

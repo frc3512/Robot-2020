@@ -23,10 +23,6 @@ TurretController::TurretController()
     Reset();
 }
 
-void TurretController::Enable() { m_isEnabled = true; }
-
-void TurretController::Disable() { m_isEnabled = false; }
-
 void TurretController::SetGoal(
     units::radian_t angleGoal,
     units::radians_per_second_t angularVelocityGoal) {
@@ -125,7 +121,7 @@ void TurretController::Update(units::second_t dt) {
     Eigen::Matrix<double, 2, 1> error = m_nextR - m_observer.Xhat();
     error(0) = NormalizeAngle(error(0));
 
-    if (m_isEnabled) {
+    if (IsEnabled()) {
         m_u << m_lqr.K() * error + m_ff.Calculate(m_nextR);
 
         units::radian_t heading{m_observer.Xhat(State::kAngle)};

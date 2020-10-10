@@ -46,10 +46,6 @@ public:
         static constexpr int kAngularVelocity = 0;
     };
 
-    void Enable();
-    void Disable();
-    bool IsEnabled() const;
-
     /**
      * Sets the goal.
      *
@@ -113,7 +109,6 @@ private:
     Eigen::Matrix<double, 1, 1> m_nextR;
 
     bool m_atGoal = false;
-    bool m_isEnabled = false;
 
     Eigen::Matrix<double, 1, 1> m_u;
 };

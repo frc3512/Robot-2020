@@ -44,10 +44,7 @@ units::radians_per_second_t Flywheel::GetAngularVelocity() {
     return units::radians_per_second_t{m_encoder.GetRate()};
 }
 
-void Flywheel::EnableController() {
-    m_lastTime = frc2::Timer::GetFPGATimestamp();
-    m_controller.Enable();
-}
+void Flywheel::EnableController() { m_controller.Enable(); }
 
 void Flywheel::DisableController() { m_controller.Disable(); }
 
@@ -93,9 +90,8 @@ void Flywheel::Reset() {
 }
 
 void Flywheel::ControllerPeriodic() {
-    auto now = frc2::Timer::GetFPGATimestamp();
     m_controller.SetMeasuredAngularVelocity(GetAngularVelocity());
-    m_controller.UpdateAndLog(now - m_lastTime);
+    m_controller.UpdateAndLog();
 
     // Set motor input
     auto u = m_controller.GetInputs();
@@ -105,7 +101,7 @@ void Flywheel::ControllerPeriodic() {
         m_flywheelSim.SetInput(frc::MakeMatrix<1, 1>(
             m_leftGrbx.Get() * frc::RobotController::GetInputVoltage()));
 
-        m_flywheelSim.Update(now - m_lastTime);
+        m_flywheelSim.Update(Constants::kDt);
 
         m_encoderSim.SetRate(m_flywheelSim.GetAngularVelocity().to<double>());
 
@@ -113,6 +109,4 @@ void Flywheel::ControllerPeriodic() {
             frc::sim::BatterySim::Calculate({m_flywheelSim.GetCurrentDraw()})
                 .to<double>());
     }
-
-    m_lastTime = now;
 }

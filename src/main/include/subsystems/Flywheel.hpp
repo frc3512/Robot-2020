@@ -128,7 +128,6 @@ private:
                            Constants::Flywheel::kEncoderB};
 
     FlywheelController m_controller;
-    units::second_t m_lastTime = frc2::Timer::GetFPGATimestamp();
 
     frc2::Timer m_timer;
     mutable wpi::mutex m_controllerMutex;

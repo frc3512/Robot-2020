@@ -50,6 +50,26 @@ public:
         : m_logger{controllerName, stateLabels, inputLabels, outputLabels} {}
 
     /**
+     * Enables the control loop.
+     */
+    void Enable() {
+        // m_lastTime is reset so that a large time delta isn't generated from
+        // Update() not being called in a while.
+        m_lastTime = frc2::Timer::GetFPGATimestamp();
+        m_isEnabled = true;
+    }
+
+    /**
+     * Disables the control loop.
+     */
+    void Disable() { m_isEnabled = false; }
+
+    /**
+     * Returns true if the control loop is enabled.
+     */
+    bool IsEnabled() const { return m_isEnabled; }
+
+    /**
      * Returns the current references.
      *
      * See the State class in the derived class for what each element correspond
@@ -84,13 +104,13 @@ public:
     /**
      * Logs the current controller information, then executes the control loop
      * for a cycle.
-     *
-     * @param dt The time since the last call to this function.
      */
-    void UpdateAndLog(units::second_t dt) {
-        m_logger.Log(frc2::Timer::GetFPGATimestamp() - m_startTime,
-                     GetReferences(), GetStates(), GetInputs(), GetOutputs());
-        Update(dt);
+    void UpdateAndLog() {
+        auto now = frc2::Timer::GetFPGATimestamp();
+        m_logger.Log(now - m_startTime, GetReferences(), GetStates(),
+                     GetInputs(), GetOutputs());
+        Update(now - m_lastTime);
+        m_lastTime = now;
     }
 
 protected:
@@ -108,7 +128,9 @@ private:
     CSVControllerLogger<States, Inputs, Outputs> m_logger;
 #endif
 
+    units::second_t m_lastTime = frc2::Timer::GetFPGATimestamp();
     units::second_t m_startTime = frc2::Timer::GetFPGATimestamp();
+    bool m_isEnabled = false;
 };
 
 }  // namespace frc3512

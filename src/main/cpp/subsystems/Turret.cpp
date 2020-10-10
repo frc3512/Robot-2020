@@ -66,10 +66,7 @@ bool Turret::HasPassedCWLimit() const {
 
 frc::Pose2d Turret::GetNextPose() const { return m_controller.GetNextPose(); }
 
-void Turret::EnableController() {
-    m_lastTime = frc2::Timer::GetFPGATimestamp();
-    m_controller.Enable();
-}
+void Turret::EnableController() { m_controller.Enable(); }
 
 void Turret::DisableController() { m_controller.Disable(); }
 
@@ -104,7 +101,7 @@ void Turret::ControllerPeriodic() {
     m_controller.SetMeasuredOutputs(GetAngle());
 
     m_controller.SetDrivetrainStatus(m_drivetrain.GetNextXhat());
-    m_controller.UpdateAndLog(now - m_lastTime);
+    m_controller.UpdateAndLog();
 
     auto globalMeasurement = m_vision.GetGlobalMeasurement();
     if (globalMeasurement) {
@@ -135,13 +132,11 @@ void Turret::ControllerPeriodic() {
         m_turretSim.SetInput(frc::MakeMatrix<1, 1>(
             m_motor.Get() * frc::RobotController::GetInputVoltage()));
 
-        m_turretSim.Update(now - m_lastTime);
+        m_turretSim.Update(Constants::kDt);
 
         m_positionSim.Set(
             HeadingToEncoderTurns(units::radian_t{m_turretSim.Y(0)}));
     }
-
-    m_lastTime = now;
 }
 
 void Turret::SetVoltage(units::volt_t voltage) {
