@@ -6,7 +6,7 @@
 #include <gtest/gtest.h>
 #include <units/math.h>
 
-#include "RenameCSVs.hpp"
+#include "CSVTestUtil.hpp"
 #include "subsystems/Drivetrain.hpp"
 #include "subsystems/Flywheel.hpp"
 #include "subsystems/Turret.hpp"
@@ -49,7 +49,7 @@ TEST_F(FlywheelTest, ReachesGoal) {
     frc3512::SubsystemBase::RunAllDisabledInit();
     frc3512::ControllerSubsystemBase::Disable();
 
-    RenameCSVs("FlywheelTest", "./Flywheel ");
+    frc3512::AddPrefixToCSVs("FlywheelTest");
 
     EXPECT_TRUE(flywheel.AtGoal());
 }

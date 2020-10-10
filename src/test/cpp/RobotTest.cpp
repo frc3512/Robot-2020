@@ -3,7 +3,7 @@
 #include <frc/RobotBase.h>
 #include <gtest/gtest.h>
 
-#include "RenameCSVs.hpp"
+#include "CSVTestUtil.hpp"
 #include "Robot.hpp"
 
 // Make sure robot initializes
@@ -11,7 +11,5 @@ TEST(RobotTest, Init) {
     frc::RunHALInitialization();
     frc3512::Robot robot;
 
-    RenameCSVs("RobotTest", "./Drivetrain ");
-    RenameCSVs("RobotTest", "./Flywheel ");
-    RenameCSVs("RobotTest", "./Turret ");
+    frc3512::AddPrefixToCSVs("RobotTest");
 }

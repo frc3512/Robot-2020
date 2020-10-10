@@ -5,8 +5,8 @@
 #include <units/math.h>
 #include <wpi/math>
 
+#include "CSVTestUtil.hpp"
 #include "Constants.hpp"
-#include "RenameCSVs.hpp"
 #include "TargetModel.hpp"
 #include "controllers/TurretController.hpp"
 
@@ -84,7 +84,7 @@ TEST(TurretControllerTest, ProperDistanceFromTarget) {
     auto distance =
         turretPose.Translation().Distance(kTargetPoseInGlobal.Translation());
 
-    RenameCSVs("TurretControllerTest ProperDistanceFromTarget", "./Turret ");
+    frc3512::AddPrefixToCSVs("TurretControllerTest ProperDistanceFromTarget");
 
     EXPECT_NEAR_UNITS(
         distance,

@@ -6,8 +6,8 @@
 #include <gtest/gtest.h>
 #include <units/math.h>
 
+#include "CSVTestUtil.hpp"
 #include "Constants.hpp"
-#include "RenameCSVs.hpp"
 #include "subsystems/Drivetrain.hpp"
 
 namespace {
@@ -53,7 +53,7 @@ TEST_F(DrivetrainTest, ReachesReferenceStraight) {
     frc3512::SubsystemBase::RunAllDisabledInit();
     frc3512::ControllerSubsystemBase::Disable();
 
-    RenameCSVs("DrivetrainTest Straight", "./Drivetrain ");
+    frc3512::AddPrefixToCSVs("DrivetrainTest Straight");
 
     EXPECT_TRUE(drivetrain.AtGoal());
 }
@@ -89,7 +89,7 @@ TEST_F(DrivetrainTest, ReachesReferenceCurve) {
     frc3512::SubsystemBase::RunAllDisabledInit();
     frc3512::ControllerSubsystemBase::Disable();
 
-    RenameCSVs("DrivetrainTest Curve", "./Drivetrain ");
+    frc3512::AddPrefixToCSVs("DrivetrainTest Curve");
 
     EXPECT_TRUE(drivetrain.AtGoal());
 }

@@ -6,8 +6,8 @@
 #include <gtest/gtest.h>
 #include <wpi/math>
 
+#include "CSVTestUtil.hpp"
 #include "Constants.hpp"
-#include "RenameCSVs.hpp"
 #include "subsystems/Drivetrain.hpp"
 #include "subsystems/Turret.hpp"
 #include "subsystems/Vision.hpp"
@@ -130,7 +130,7 @@ TEST(TurretTest, DISABLED_ReachesReferenceStaticDrivetrain) {
     frc3512::SubsystemBase::RunAllDisabledInit();
     frc3512::ControllerSubsystemBase::Disable();
 
-    RenameCSVs("TurretTest Static", "./Turret ");
+    frc3512::AddPrefixToCSVs("TurretTest Static");
 
     EXPECT_TRUE(turret.AtGoal());
 }
@@ -163,8 +163,7 @@ TEST_F(TurretTest, DISABLED_ReachesReferenceRotateInPlaceDrivetrain) {
     frc3512::SubsystemBase::RunAllDisabledInit();
     frc3512::ControllerSubsystemBase::Disable();
 
-    RenameCSVs("TurretTest RotateInPlace", "./Drivetrain ");
-    RenameCSVs("TurretTest RotateInPlace", "./Turret ");
+    frc3512::AddPrefixToCSVs("TurretTest RotateInPlace");
 
     EXPECT_TRUE(turret.AtGoal());
 }
@@ -194,8 +193,7 @@ TEST_F(TurretTest, DISABLED_ReachesReferenceSCurveDrivetrain) {
     frc3512::SubsystemBase::RunAllDisabledInit();
     frc3512::ControllerSubsystemBase::Disable();
 
-    RenameCSVs("TurretTest SCurve", "./Drivetrain ");
-    RenameCSVs("TurretTest SCurve", "./Turret ");
+    frc3512::AddPrefixToCSVs("TurretTest SCurve");
 
     EXPECT_TRUE(turret.AtGoal());
 }
@@ -229,8 +227,7 @@ TEST_F(TurretTest, ReachesReferenceAutonDrivetrain) {
     frc3512::SubsystemBase::RunAllDisabledInit();
     frc3512::ControllerSubsystemBase::Disable();
 
-    RenameCSVs("TurretTest Auton", "./Drivetrain ");
-    RenameCSVs("TurretTest Auton", "./Turret ");
+    frc3512::AddPrefixToCSVs("TurretTest Auton");
 
     EXPECT_TRUE(turret.AtGoal());
 }
