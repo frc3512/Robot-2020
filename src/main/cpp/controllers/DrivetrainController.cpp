@@ -132,7 +132,7 @@ const Eigen::Matrix<double, 3, 1>& DrivetrainController::GetOutputs() const {
     return m_localY;
 }
 
-void DrivetrainController::UpdateController(units::second_t dt) {
+void DrivetrainController::Update(units::second_t dt) {
     if (!m_isOpenLoop) {
         frc::Trajectory::State ref;
 

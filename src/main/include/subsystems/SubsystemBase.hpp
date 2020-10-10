@@ -116,7 +116,7 @@ public:
     static void RunAllTeleopPeriodic();
 
 private:
-    static wpi::SmallVector<SubsystemBase*, 16> m_subsystems;
+    static wpi::SmallVector<SubsystemBase*, 8> m_subsystems;
 };
 
 }  // namespace frc3512

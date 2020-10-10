@@ -72,7 +72,7 @@ TEST(TurretControllerTest, ProperDistanceFromTarget) {
         wpi::math::pi, 0, 0, 0, 0, 0, 0, 0;
 
     controller.SetDrivetrainStatus(drivetrainXhat);
-    controller.Update(frc3512::Constants::kDt, 0_s);
+    controller.UpdateAndLog(frc3512::Constants::kDt);
     auto turretPose = controller.GetNextPose();
 
     const frc::Pose2d kTargetPoseInGlobal{TargetModel::kCenter.X(),

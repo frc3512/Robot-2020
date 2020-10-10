@@ -2,16 +2,19 @@
 
 #include "subsystems/ControllerSubsystemBase.hpp"
 
-#include <frc2/Timer.h>
+#include "Constants.hpp"
 
 using namespace frc3512;
 
-wpi::SmallVector<ControllerSubsystemBase*, 16>
+wpi::SmallVector<ControllerSubsystemBase*, 8>
     ControllerSubsystemBase::m_controllers;
+
 frc::Notifier ControllerSubsystemBase::m_notifier{
-    Constants::kControllerPrio, &ControllerSubsystemBase::RunControllers};
-units::second_t ControllerSubsystemBase::m_startTime{
-    frc2::Timer::GetFPGATimestamp()};
+    Constants::kControllerPrio, [] {
+        for (auto& controller : m_controllers) {
+            controller->ControllerPeriodic();
+        }
+    }};
 
 ControllerSubsystemBase::ControllerSubsystemBase() {
     Disable();
@@ -27,16 +30,7 @@ ControllerSubsystemBase::~ControllerSubsystemBase() {
 }
 
 void ControllerSubsystemBase::Enable() {
-    m_startTime = frc2::Timer::GetFPGATimestamp();
     m_notifier.StartPeriodic(frc3512::Constants::kDt);
 }
 
 void ControllerSubsystemBase::Disable() { m_notifier.Stop(); }
-
-units::second_t ControllerSubsystemBase::GetStartTime() { return m_startTime; }
-
-void ControllerSubsystemBase::RunControllers() {
-    for (auto& controller : m_controllers) {
-        controller->ControllerPeriodic();
-    }
-}

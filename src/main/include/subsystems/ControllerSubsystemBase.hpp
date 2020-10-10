@@ -3,10 +3,8 @@
 #pragma once
 
 #include <frc/Notifier.h>
-#include <units/time.h>
 #include <wpi/SmallVector.h>
 
-#include "Constants.hpp"
 #include "subsystems/SubsystemBase.hpp"
 
 namespace frc3512 {
@@ -36,11 +34,6 @@ public:
      */
     static void Disable();
 
-    /**
-     * Returns the time at which controllers were enabled.
-     */
-    static units::second_t GetStartTime();
-
 protected:
     /**
      * This function runs a controller asynchronously every 5 ms.
@@ -51,14 +44,8 @@ protected:
     virtual void ControllerPeriodic() = 0;
 
 private:
-    static wpi::SmallVector<ControllerSubsystemBase*, 16> m_controllers;
+    static wpi::SmallVector<ControllerSubsystemBase*, 8> m_controllers;
     static frc::Notifier m_notifier;
-    static units::second_t m_startTime;
-
-    /**
-     * Calls ControllerPeriodic() on each subsystem.
-     */
-    static void RunControllers();
 };
 
 }  // namespace frc3512

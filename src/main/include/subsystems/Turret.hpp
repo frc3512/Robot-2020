@@ -99,8 +99,6 @@ public:
      */
     units::volt_t GetMotorOutput() const;
 
-    void ControllerPeriodic() override;
-
     void DisabledInit() override { DisableController(); }
 
     void AutonomousInit() override { EnableController(); }
@@ -108,6 +106,9 @@ public:
     void TeleopInit() override { EnableController(); }
 
     void TeleopPeriodic() override;
+
+protected:
+    void ControllerPeriodic() override;
 
 private:
     // A CCW (positive) offset makes the encoder hit the soft limit sooner when

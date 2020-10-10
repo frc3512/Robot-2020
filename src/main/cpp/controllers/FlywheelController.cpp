@@ -53,7 +53,7 @@ const Eigen::Matrix<double, 1, 1>& FlywheelController::GetOutputs() const {
     return m_y;
 }
 
-void FlywheelController::UpdateController(units::second_t dt) {
+void FlywheelController::Update(units::second_t dt) {
     m_observer.Correct(m_u, m_y);
 
     // To conserve battery when the flywheel doesn't have to be spinning, don't

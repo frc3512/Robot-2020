@@ -6,7 +6,7 @@
 
 using namespace frc3512;
 
-wpi::SmallVector<SubsystemBase*, 16> SubsystemBase::m_subsystems;
+wpi::SmallVector<SubsystemBase*, 8> SubsystemBase::m_subsystems;
 
 SubsystemBase::SubsystemBase() { m_subsystems.emplace_back(this); }
 

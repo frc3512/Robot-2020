@@ -95,7 +95,7 @@ void Flywheel::Reset() {
 void Flywheel::ControllerPeriodic() {
     auto now = frc2::Timer::GetFPGATimestamp();
     m_controller.SetMeasuredAngularVelocity(GetAngularVelocity());
-    m_controller.Update(now - m_lastTime, now - GetStartTime());
+    m_controller.UpdateAndLog(now - m_lastTime);
 
     // Set motor input
     auto u = m_controller.GetInputs();

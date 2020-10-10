@@ -143,8 +143,6 @@ public:
     void CorrectWithGlobalOutputs(units::meter_t x, units::meter_t y,
                                   int64_t timestamp);
 
-    void ControllerPeriodic() override;
-
     /**
      * Sets the waypoints for a generated trajectory.
      *
@@ -186,6 +184,9 @@ public:
     void TeleopInit() override;
 
     void TeleopPeriodic() override;
+
+protected:
+    void ControllerPeriodic() override;
 
 private:
     rev::CANSparkMax m_leftMaster{Constants::Drivetrain::kLeftMasterPort,

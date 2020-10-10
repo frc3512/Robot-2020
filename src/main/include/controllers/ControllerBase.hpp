@@ -5,6 +5,7 @@
 #include <array>
 
 #include <Eigen/Core>
+#include <frc2/Timer.h>
 #include <units/time.h>
 #include <wpi/StringRef.h>
 
@@ -81,23 +82,24 @@ public:
     virtual const Eigen::Matrix<double, Outputs, 1>& GetOutputs() const = 0;
 
     /**
+     * Logs the current controller information, then executes the control loop
+     * for a cycle.
+     *
+     * @param dt The time since the last call to this function.
+     */
+    void UpdateAndLog(units::second_t dt) {
+        m_logger.Log(frc2::Timer::GetFPGATimestamp() - m_startTime,
+                     GetReferences(), GetStates(), GetInputs(), GetOutputs());
+        Update(dt);
+    }
+
+protected:
+    /**
      * Executes the control loop for a cycle.
      *
      * @param dt The time since the last call to this function.
      */
-    virtual void UpdateController(units::second_t dt) = 0;
-
-    /**
-     * Executes the control loop for a cycle.
-     *
-     * @param dt          The time since the last call to Update().
-     * @param elapsedTime The elapsed time to use for logging.
-     */
-    void Update(units::second_t dt, units::second_t elapsedTime) {
-        m_logger.Log(elapsedTime, GetReferences(), GetStates(), GetInputs(),
-                     GetOutputs());
-        UpdateController(dt);
-    }
+    virtual void Update(units::second_t dt) = 0;
 
 private:
 #if NETWORK_LOGGING
@@ -105,6 +107,8 @@ private:
 #else
     CSVControllerLogger<States, Inputs, Outputs> m_logger;
 #endif
+
+    units::second_t m_startTime = frc2::Timer::GetFPGATimestamp();
 };
 
 }  // namespace frc3512

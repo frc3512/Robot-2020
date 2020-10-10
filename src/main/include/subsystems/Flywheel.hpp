@@ -109,6 +109,7 @@ public:
 
     void TeleopInit() override { EnableController(); }
 
+protected:
     void ControllerPeriodic() override;
 
 private:

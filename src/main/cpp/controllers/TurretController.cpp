@@ -74,7 +74,7 @@ const Eigen::Matrix<double, 1, 1>& TurretController::GetOutputs() const {
     return m_y;
 }
 
-void TurretController::UpdateController(units::second_t dt) {
+void TurretController::Update(units::second_t dt) {
     m_observer.Correct(m_u, m_y);
 
     // Calculate next drivetrain and turret pose in global frame

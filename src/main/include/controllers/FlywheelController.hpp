@@ -80,7 +80,7 @@ public:
 
     const Eigen::Matrix<double, 1, 1>& GetOutputs() const override;
 
-    void UpdateController(units::second_t dt) override;
+    void Update(units::second_t dt) override;
 
     /**
      * Returns the flywheel plant.

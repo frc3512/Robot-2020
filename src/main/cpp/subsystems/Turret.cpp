@@ -80,12 +80,31 @@ units::volt_t Turret::GetMotorOutput() const {
            units::volt_t{frc::RobotController::GetInputVoltage()};
 }
 
+void Turret::TeleopPeriodic() {
+    static frc::Joystick appendageStick1{kAppendageStick1Port};
+
+    // Turret manual override
+    if (appendageStick1.GetRawButtonPressed(11)) {
+        SetManualOverride(true);
+    }
+
+    // Turrret manual spin
+    int pov = appendageStick1.GetPOV();
+    if (pov == 90) {
+        SetDirection(Direction::kCW);
+    } else if (pov == 270) {
+        SetDirection(Direction::kCCW);
+    } else {
+        SetDirection(Direction::kNone);
+    }
+}
+
 void Turret::ControllerPeriodic() {
     auto now = frc2::Timer::GetFPGATimestamp();
     m_controller.SetMeasuredOutputs(GetAngle());
 
     m_controller.SetDrivetrainStatus(m_drivetrain.GetNextXhat());
-    m_controller.Update(now - m_lastTime, now - GetStartTime());
+    m_controller.UpdateAndLog(now - m_lastTime);
 
     auto globalMeasurement = m_vision.GetGlobalMeasurement();
     if (globalMeasurement) {
@@ -123,25 +142,6 @@ void Turret::ControllerPeriodic() {
     }
 
     m_lastTime = now;
-}
-
-void Turret::TeleopPeriodic() {
-    static frc::Joystick appendageStick1{kAppendageStick1Port};
-
-    // Turret manual override
-    if (appendageStick1.GetRawButtonPressed(11)) {
-        SetManualOverride(true);
-    }
-
-    // Turrret manual spin
-    int pov = appendageStick1.GetPOV();
-    if (pov == 90) {
-        SetDirection(Direction::kCW);
-    } else if (pov == 270) {
-        SetDirection(Direction::kCCW);
-    } else {
-        SetDirection(Direction::kNone);
-    }
 }
 
 void Turret::SetVoltage(units::volt_t voltage) {

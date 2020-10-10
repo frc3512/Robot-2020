@@ -133,7 +133,7 @@ void Drivetrain::ControllerPeriodic() {
                                           GetRightPosition());
 
     auto now = frc2::Timer::GetFPGATimestamp();
-    m_controller->Update(now - m_lastTime, now - GetStartTime());
+    m_controller->UpdateAndLog(now - m_lastTime);
 
     if (!m_controller->IsOpenLoop()) {
         // Set motor inputs
