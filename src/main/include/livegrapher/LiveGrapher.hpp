@@ -97,7 +97,7 @@ private:
      */
     static constexpr uint8_t GraphID(uint8_t id) {
         // Masks six low-order bits
-        return id & 0x2F;
+        return id & 0x3F;
     }
 
     void ThreadMain();
