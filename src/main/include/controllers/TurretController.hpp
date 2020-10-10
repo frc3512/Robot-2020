@@ -181,8 +181,6 @@ private:
     Eigen::Matrix<double, 2, 1> m_nextR;
 
     bool m_atReferences = false;
-    bool m_atCCWLimit = false;
-    bool m_atCWLimit = false;
 
     frc::Pose2d m_drivetrainNextPoseInGlobal;
     Eigen::Matrix<double, 10, 1> m_drivetrainNextXhat;
