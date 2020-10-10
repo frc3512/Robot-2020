@@ -97,7 +97,6 @@ void Turret::TeleopPeriodic() {
 }
 
 void Turret::ControllerPeriodic() {
-    auto now = frc2::Timer::GetFPGATimestamp();
     m_controller.SetMeasuredOutputs(GetAngle());
 
     m_controller.SetDrivetrainStatus(m_drivetrain.GetNextXhat());

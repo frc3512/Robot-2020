@@ -131,7 +131,6 @@ void Drivetrain::ControllerPeriodic() {
     m_controller->SetMeasuredLocalOutputs(GetAngle(), GetLeftPosition(),
                                           GetRightPosition());
 
-    auto now = frc2::Timer::GetFPGATimestamp();
     m_controller->UpdateAndLog();
 
     if (!m_controller->IsOpenLoop()) {
