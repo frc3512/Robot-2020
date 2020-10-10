@@ -173,7 +173,7 @@ private:
         LiveGrapher& liveGrapher, units::second_t time,
         const std::array<std::string, sizeof...(I)>& labels, const T& vec,
         std::index_sequence<I...>) {
-        (liveGrapher.AddData(time, labels[I], vec(I)), ...);
+        (liveGrapher.AddData(labels[I], time, vec(I)), ...);
     }
 
     template <int Rows, typename Indices = std::make_index_sequence<Rows>>
