@@ -9,13 +9,8 @@
 #include <units/time.h>
 #include <wpi/StringRef.h>
 
-#define NETWORK_LOGGING 0
-
-#if NETWORK_LOGGING
-#include "LiveGrapherControllerLogger.hpp"
-#else
 #include "CSVControllerLogger.hpp"
-#endif
+#include "LiveGrapherControllerLogger.hpp"
 
 namespace frc3512 {
 
@@ -47,7 +42,9 @@ public:
                    const std::array<ControllerLabel, States>& stateLabels,
                    const std::array<ControllerLabel, Inputs>& inputLabels,
                    const std::array<ControllerLabel, Outputs>& outputLabels)
-        : m_logger{controllerName, stateLabels, inputLabels, outputLabels} {}
+        : m_csvLogger{controllerName, stateLabels, inputLabels, outputLabels},
+          m_liveGrapher{controllerName, stateLabels, inputLabels,
+                        outputLabels} {}
 
     /**
      * Enables the control loop.
@@ -107,8 +104,11 @@ public:
      */
     void UpdateAndLog() {
         auto now = frc2::Timer::GetFPGATimestamp();
-        m_logger.Log(now - m_startTime, GetReferences(), GetStates(),
-                     GetInputs(), GetOutputs());
+        m_csvLogger.Log(now - m_startTime, GetReferences(), GetStates(),
+                        GetInputs(), GetOutputs());
+        m_liveGrapher.Log(now - m_startTime, GetReferences(), GetStates(),
+                          GetInputs(), GetOutputs());
+
         Update(now - m_lastTime);
         m_lastTime = now;
     }
@@ -122,11 +122,8 @@ protected:
     virtual void Update(units::second_t dt) = 0;
 
 private:
-#if NETWORK_LOGGING
-    LiveGrapherControllerLogger<States, Inputs, Outputs> m_logger;
-#else
-    CSVControllerLogger<States, Inputs, Outputs> m_logger;
-#endif
+    CSVControllerLogger<States, Inputs, Outputs> m_csvLogger;
+    LiveGrapherControllerLogger<States, Inputs, Outputs> m_liveGrapher;
 
     units::second_t m_lastTime = frc2::Timer::GetFPGATimestamp();
     units::second_t m_startTime = frc2::Timer::GetFPGATimestamp();

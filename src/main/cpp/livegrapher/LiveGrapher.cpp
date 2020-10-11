@@ -23,6 +23,11 @@ LiveGrapher::~LiveGrapher() {
 }
 
 void LiveGrapher::AddData(const std::string& dataset, float value) {
+    // Do nothing if there's no active connections to receive the data
+    if (m_connList.empty()) {
+        return;
+    }
+
     // HACK: The dataset argument uses const std::string& instead of
     // std::string_view because std::map doesn't have a find(std::string_view)
     // overload.
@@ -39,6 +44,11 @@ void LiveGrapher::AddData(const std::string& dataset, float value) {
 
 void LiveGrapher::AddData(const std::string& dataset,
                           std::chrono::milliseconds time, float value) {
+    // Do nothing if there's no active connections to receive the data
+    if (m_connList.empty()) {
+        return;
+    }
+
     // HACK: The dataset argument uses const std::string& instead of
     // std::string_view because std::map doesn't have a find(std::string_view)
     // overload.
