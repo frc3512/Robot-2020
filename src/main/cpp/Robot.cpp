@@ -111,9 +111,18 @@ void Robot::TeleopPeriodic() {
         // Allow the flywheel to spin up to the correct angular velocity.
         case ShootingState::kStartFlywheel: {
             if (m_flywheel.AtGoal()) {
-                m_timer.Reset();
-                m_timer.Start();
-                m_state = ShootingState::kStartConveyor;
+                // AtGoal() returns true if either the flywheel is at the goal
+                // or a timeout occurred. If a timeout occurred, the flywheel
+                // may not be moving due to flywheel motor issues. Only start
+                // the conveyor if the flywheel is moving to avoid jams.
+                if (m_flywheel.GetAngularVelocity() > 0_rad_per_s) {
+                    m_timer.Reset();
+                    m_timer.Start();
+                    m_state = ShootingState::kStartConveyor;
+                } else {
+                    m_flywheel.SetGoal(0_rad_per_s);
+                    m_state = ShootingState::kIdle;
+                }
             }
             break;
         }
