@@ -77,8 +77,8 @@ public:
     /**
      * Returns the current state estimate.
      *
-     * See the State class in the derived class for what each element correspond
-     * to.
+     * See the State class in the derived class for what each element
+     * corresponds to.
      */
     virtual const Eigen::Matrix<double, States, 1>& GetStates() const = 0;
 
@@ -88,43 +88,43 @@ public:
      * See the Input class in the derived class for what each element
      * corresponds to.
      */
-    virtual const Eigen::Matrix<double, Inputs, 1>& GetInputs() const = 0;
-
-    /**
-     * Returns the currently set local outputs.
-     *
-     * See the Output class in the derived class for what each element
-     * corresponds to.
-     */
-    virtual const Eigen::Matrix<double, Outputs, 1>& GetOutputs() const = 0;
+    const Eigen::Matrix<double, Inputs, 1>& GetInputs() const { return m_u; }
 
     /**
      * Logs the current controller information, then executes the control loop
      * for a cycle.
+     *
+     * @param y The measurements for this timestep.
      */
-    void UpdateAndLog() {
+    Eigen::Matrix<double, Inputs, 1> UpdateAndLog(
+        const Eigen::Matrix<double, Outputs, 1>& y) {
         auto now = frc2::Timer::GetFPGATimestamp();
-        m_csvLogger.Log(now - m_startTime, GetReferences(), GetStates(),
-                        GetInputs(), GetOutputs());
-        m_liveGrapher.Log(now - m_startTime, GetReferences(), GetStates(),
-                          GetInputs(), GetOutputs());
+        m_csvLogger.Log(now - m_startTime, GetReferences(), GetStates(), m_u,
+                        y);
+        m_liveGrapher.Log(now - m_startTime, GetReferences(), GetStates(), m_u,
+                          y);
 
-        Update(now - m_lastTime);
+        m_u = Update(y, now - m_lastTime);
         m_lastTime = now;
+        return m_u;
     }
 
 protected:
     /**
-     * Executes the control loop for a cycle.
+     * Executes the control loop for a cycle and returns the input.
      *
+     * @param y  The measurements for this timestep.
      * @param dt The time since the last call to this function.
      */
-    virtual void Update(units::second_t dt) = 0;
+    virtual Eigen::Matrix<double, Inputs, 1> Update(
+        const Eigen::Matrix<double, Outputs, 1>& y, units::second_t dt) = 0;
 
 private:
     CSVControllerLogger<States, Inputs, Outputs> m_csvLogger;
     LiveGrapherControllerLogger<States, Inputs, Outputs> m_liveGrapher;
 
+    Eigen::Matrix<double, Inputs, 1> m_u =
+        Eigen::Matrix<double, Inputs, 1>::Zero();
     units::second_t m_lastTime = frc2::Timer::GetFPGATimestamp();
     units::second_t m_startTime = frc2::Timer::GetFPGATimestamp();
     bool m_isEnabled = false;

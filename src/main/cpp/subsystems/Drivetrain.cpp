@@ -123,19 +123,13 @@ void Drivetrain::CorrectWithGlobalOutputs(units::meter_t x, units::meter_t y,
 }
 
 void Drivetrain::ControllerPeriodic() {
-    m_controller->SetMeasuredInputs(
-        units::volt_t{m_leftGrbx.Get() *
-                      frc::RobotController::GetInputVoltage()},
-        units::volt_t{m_rightGrbx.Get() *
-                      frc::RobotController::GetInputVoltage()});
-    m_controller->SetMeasuredLocalOutputs(GetAngle(), GetLeftPosition(),
-                                          GetRightPosition());
-
-    m_controller->UpdateAndLog();
+    Eigen::Matrix<double, 3, 1> y;
+    y << GetAngle().to<double>(), GetLeftPosition().to<double>(),
+        GetRightPosition().to<double>();
+    Eigen::Matrix<double, 2, 1> u = m_controller->UpdateAndLog(y);
 
     if (!m_controller->IsOpenLoop()) {
         // Set motor inputs
-        auto u = m_controller->GetInputs();
         m_leftGrbx.SetVoltage(units::volt_t{u(0)});
         m_rightGrbx.SetVoltage(units::volt_t{u(1)});
     }

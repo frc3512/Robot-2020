@@ -12,7 +12,6 @@ FlywheelController::FlywheelController()
     : ControllerBase("Flywheel", {ControllerLabel{"Angular velocity", "rad/s"}},
                      {ControllerLabel{"Voltage", "V"}},
                      {ControllerLabel{"Angular velocity", "rad/s"}}) {
-    m_y.setZero();
     Reset();
 }
 
@@ -26,11 +25,6 @@ units::radians_per_second_t FlywheelController::GetGoal() const {
 
 bool FlywheelController::AtGoal() const { return m_atGoal; }
 
-void FlywheelController::SetMeasuredAngularVelocity(
-    units::radians_per_second_t angularVelocity) {
-    m_y << angularVelocity.to<double>();
-}
-
 const Eigen::Matrix<double, 1, 1>& FlywheelController::GetReferences() const {
     return m_lqr.R();
 }
@@ -39,36 +33,32 @@ const Eigen::Matrix<double, 1, 1>& FlywheelController::GetStates() const {
     return m_observer.Xhat();
 }
 
-const Eigen::Matrix<double, 1, 1>& FlywheelController::GetInputs() const {
-    return m_u;
-}
+Eigen::Matrix<double, 1, 1> FlywheelController::Update(
+    const Eigen::Matrix<double, 1, 1>& y, units::second_t dt) {
+    m_observer.Correct(GetInputs(), y);
 
-const Eigen::Matrix<double, 1, 1>& FlywheelController::GetOutputs() const {
-    return m_y;
-}
-
-void FlywheelController::Update(units::second_t dt) {
-    m_observer.Correct(m_u, m_y);
+    Eigen::Matrix<double, 1, 1> u;
 
     // To conserve battery when the flywheel doesn't have to be spinning, don't
     // apply a negative voltage to slow down.
     if (m_nextR(0) == 0.0 || !IsEnabled()) {
-        m_lqr.Calculate(m_observer.Xhat(), m_nextR);
-        m_u(0) = 0.0;
+        m_lqr.Calculate(m_observer.Xhat(), m_r);
+        u(0) = 0.0;
     } else {
-        m_u = m_lqr.Calculate(m_observer.Xhat(), m_nextR) +
-              m_ff.Calculate(m_nextR);
+        u = m_lqr.Calculate(m_observer.Xhat(), m_r) + m_ff.Calculate(m_nextR);
     }
 
-    m_u *= 12.0 / frc::RobotController::GetInputVoltage();
-    m_u = frc::NormalizeInputVector<1>(m_u, 12.0);
+    u *= 12.0 / frc::RobotController::GetInputVoltage();
+    u = frc::NormalizeInputVector<1>(u, 12.0);
 
     m_atGoal = units::math::abs(units::radians_per_second_t{
                    m_lqr.R(State::kAngularVelocity) -
                    m_observer.Xhat(State::kAngularVelocity)}) <
                kAngularVelocityTolerance;
-    m_observer.Predict(m_u * frc::RobotController::GetInputVoltage() / 12.0,
-                       dt);
+    m_r = m_nextR;
+    m_observer.Predict(u * frc::RobotController::GetInputVoltage() / 12.0, dt);
+
+    return u;
 }
 
 const frc::LinearSystem<1, 1, 1>& FlywheelController::GetPlant() const {
@@ -77,6 +67,6 @@ const frc::LinearSystem<1, 1, 1>& FlywheelController::GetPlant() const {
 
 void FlywheelController::Reset() {
     m_observer.Reset();
+    m_r.setZero();
     m_nextR.setZero();
-    m_u.setZero();
 }

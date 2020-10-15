@@ -15,7 +15,6 @@ TEST(DrivetrainControllerTest, CorrectsTowardGlobalY) {
     controller.SetOpenLoop(false);
     controller.Enable();
 
-    controller.SetMeasuredLocalOutputs(0_rad, 0_m, 0_m);
     controller.SetWaypoints(frc::Pose2d(0_m, 0_m, 0_rad), {},
                             frc::Pose2d(4.8768_m, 2.7432_m, 0_rad));
 

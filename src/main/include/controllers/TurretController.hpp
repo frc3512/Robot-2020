@@ -90,13 +90,6 @@ public:
     bool AtGoal() const;
 
     /**
-     * Sets the current encoder measurement.
-     *
-     * @param measuredAngle Angle of the carriage in radians.
-     */
-    void SetMeasuredOutputs(units::radian_t angle);
-
-    /**
      * Sets the current estimated global pose of the drivetrain.
      */
     void SetDrivetrainStatus(const Eigen::Matrix<double, 10, 1>& nextXhat);
@@ -105,11 +98,8 @@ public:
 
     const Eigen::Matrix<double, 2, 1>& GetStates() const override;
 
-    const Eigen::Matrix<double, 1, 1>& GetInputs() const override;
-
-    const Eigen::Matrix<double, 1, 1>& GetOutputs() const override;
-
-    void Update(units::second_t dt) override;
+    Eigen::Matrix<double, 1, 1> Update(const Eigen::Matrix<double, 1, 1>& y,
+                                       units::second_t dt) override;
 
     /**
      * Returns the turret plant.
@@ -157,13 +147,9 @@ private:
                                          TargetModel::kCenter.Y(),
                                          units::radian_t{wpi::math::pi}};
 
-    // The current sensor measurement.
-    Eigen::Matrix<double, 1, 1> m_y;
     frc::TrapezoidProfile<units::radians>::State m_goal;
-
     frc::TrapezoidProfile<units::radians>::Constraints m_constraints{kMaxV,
                                                                      kMaxA};
-
     frc::TrapezoidProfile<units::radians>::State m_profiledReference;
 
     frc::LinearSystem<2, 1, 1> m_plant =
@@ -178,6 +164,8 @@ private:
     frc::LinearSystemLoop<2, 1, 1> m_loop{m_plant, m_lqr, m_ff, m_observer,
                                           12_V};
 
+    // Controller reference
+    Eigen::Matrix<double, 2, 1> m_r;
     Eigen::Matrix<double, 2, 1> m_nextR;
 
     bool m_atReferences = false;
@@ -185,8 +173,6 @@ private:
     frc::Pose2d m_drivetrainNextPoseInGlobal;
     Eigen::Matrix<double, 10, 1> m_drivetrainNextXhat;
     frc::Pose2d m_turretNextPoseInGlobal;
-
-    Eigen::Matrix<double, 1, 1> m_u;
 
     static Eigen::Vector2d ToVector2d(frc::Translation2d translation);
 

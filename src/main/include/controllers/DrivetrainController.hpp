@@ -120,25 +120,6 @@ public:
      */
     bool AtGoal() const;
 
-    /**
-     * Set inputs.
-     *
-     * @param leftU Voltage applied to the left drivetrain
-     * @param rightU Voltage applied to the right drivetrain
-     */
-    void SetMeasuredInputs(units::volt_t leftU, units::volt_t rightU);
-
-    /**
-     * Set local measurements.
-     *
-     * @param heading       Angle of the robot.
-     * @param leftPosition  Encoder count of left side in meters.
-     * @param rightPosition Encoder count of right side in meters.
-     */
-    void SetMeasuredLocalOutputs(units::radian_t heading,
-                                 units::meter_t leftPosition,
-                                 units::meter_t rightPosition);
-
     void Predict(const Eigen::Matrix<double, 2, 1>& u, units::second_t dt);
 
     /**
@@ -155,30 +136,13 @@ public:
 
     const Eigen::Matrix<double, 10, 1>& GetStates() const override;
 
-    const Eigen::Matrix<double, 2, 1>& GetInputs() const override;
-
-    const Eigen::Matrix<double, 3, 1>& GetOutputs() const override;
-
-    void Update(units::second_t dt) override;
+    Eigen::Matrix<double, 2, 1> Update(const Eigen::Matrix<double, 3, 1>& y,
+                                       units::second_t dt) override;
 
     /**
      * Returns the drivetrains plant.
      */
     frc::LinearSystem<2, 2, 2> GetPlant() const;
-
-    /**
-     * Returns the estimated outputs based on the current state estimate.
-     *
-     * This provides only local measurements.
-     */
-    Eigen::Matrix<double, 3, 1> EstimatedLocalOutputs() const;
-
-    /**
-     * Returns the estimated outputs based on the current state estimate.
-     *
-     * This provides global measurements (including pose).
-     */
-    Eigen::Matrix<double, 2, 1> EstimatedGlobalOutputs() const;
 
     /**
      * Resets any internal state.
@@ -237,12 +201,6 @@ private:
     // Robot radius
     static constexpr auto rb = kWidth / 2.0;
 
-    // The current voltage inputs
-    Eigen::Matrix<double, 2, 1> m_appliedU;
-
-    // The current sensor measurements
-    Eigen::Matrix<double, 3, 1> m_localY;
-
     // TODO: Find a good measurement covariance for global measurements
     static const Eigen::Matrix<double, 2, 2> kGlobalR;
 
@@ -261,9 +219,7 @@ private:
 
     // Controller reference
     Eigen::Matrix<double, 10, 1> m_r;
-
     Eigen::Matrix<double, 10, 1> m_nextR;
-    Eigen::Matrix<double, 2, 1> m_cappedU;
 
     frc::Trajectory m_trajectory;
     frc::Pose2d m_goal;

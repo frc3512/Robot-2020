@@ -95,16 +95,13 @@ void Flywheel::RobotPeriodic() {
     m_isOnEntry.SetBoolean(IsOn());
     m_isReadyEntry.SetBoolean(IsReady());
     m_controllerEnabledEntry.SetBoolean(m_controller.IsEnabled());
-    m_inputEntry.SetDouble(m_controller.GetInputs()(0));
 }
 
 void Flywheel::ControllerPeriodic() {
-    m_controller.SetMeasuredAngularVelocity(GetAngularVelocity());
-    m_controller.UpdateAndLog();
-
-    // Set motor input
-    auto u = m_controller.GetInputs();
-    SetVoltage(units::volt_t{u(FlywheelController::Input::kVoltage)});
+    Eigen::Matrix<double, 1, 1> y;
+    y << GetAngularVelocity().to<double>();
+    Eigen::Matrix<double, 1, 1> u = m_controller.UpdateAndLog(y);
+    SetVoltage(units::volt_t{u(0)});
 
     if constexpr (frc::RobotBase::IsSimulation()) {
         m_flywheelSim.SetInput(frc::MakeMatrix<1, 1>(

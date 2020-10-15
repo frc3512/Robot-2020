@@ -40,7 +40,6 @@ DrivetrainController::DrivetrainController()
                      {ControllerLabel{"Heading", "rad"},
                       ControllerLabel{"Left position", "m"},
                       ControllerLabel{"Right position", "m"}}) {
-    m_localY.setZero();
     Reset();
 
     m_B = frc::NumericalJacobianU<10, 10, 2>(
@@ -81,18 +80,6 @@ bool DrivetrainController::AtGoal() const {
     return m_goal == ref && m_atReferences;
 }
 
-void DrivetrainController::SetMeasuredInputs(units::volt_t leftU,
-                                             units::volt_t rightU) {
-    m_appliedU << leftU.to<double>(), rightU.to<double>();
-}
-
-void DrivetrainController::SetMeasuredLocalOutputs(
-    units::radian_t heading, units::meter_t leftPosition,
-    units::meter_t rightPosition) {
-    m_localY << heading.to<double>(), leftPosition.to<double>(),
-        rightPosition.to<double>();
-}
-
 void DrivetrainController::Predict(const Eigen::Matrix<double, 2, 1>& u,
                                    units::second_t dt) {
     m_observer.Predict(u, dt);
@@ -110,22 +97,19 @@ void DrivetrainController::CorrectWithGlobalOutputs(units::meter_t x,
 
 const Eigen::Matrix<double, 10, 1>& DrivetrainController::GetReferences()
     const {
-    return m_nextR;
+    return m_r;
 }
 
 const Eigen::Matrix<double, 10, 1>& DrivetrainController::GetStates() const {
     return m_observer.Xhat();
 }
 
-const Eigen::Matrix<double, 2, 1>& DrivetrainController::GetInputs() const {
-    return m_cappedU;
-}
+Eigen::Matrix<double, 2, 1> DrivetrainController::Update(
+    const Eigen::Matrix<double, 3, 1>& y, units::second_t dt) {
+    m_observer.Correct(GetInputs(), y);
 
-const Eigen::Matrix<double, 3, 1>& DrivetrainController::GetOutputs() const {
-    return m_localY;
-}
+    Eigen::Matrix<double, 2, 1> u;
 
-void DrivetrainController::Update(units::second_t dt) {
     if (!m_isOpenLoop) {
         frc::Trajectory::State ref;
 
@@ -144,19 +128,16 @@ void DrivetrainController::Update(units::second_t dt) {
         auto [vlRef, vrRef] =
             ToWheelVelocities(ref.velocity, ref.curvature, kWidth);
 
-        m_observer.Correct(m_appliedU, m_localY);
-
         m_nextR << ref.pose.X().to<double>(), ref.pose.Y().to<double>(),
             ref.pose.Rotation().Radians().to<double>(), vlRef.to<double>(),
             vrRef.to<double>(), 0, 0, 0, 0, 0;
 
         if (IsEnabled()) {
-            m_cappedU = Controller(m_observer.Xhat(), m_nextR) +
-                        m_ff.Calculate(m_nextR);
+            u = Controller(m_observer.Xhat(), m_r) + m_ff.Calculate(m_nextR);
         } else {
-            m_cappedU = Eigen::Matrix<double, 2, 1>::Zero();
+            u = Eigen::Matrix<double, 2, 1>::Zero();
         }
-        ScaleCapU(&m_cappedU);
+        ScaleCapU(&u);
 
         Eigen::Matrix<double, 5, 1> error =
             m_r.block<5, 1>(0, 0) - m_observer.Xhat().block<5, 1>(0, 0);
@@ -167,7 +148,7 @@ void DrivetrainController::Update(units::second_t dt) {
                          std::abs(error(4)) < kVelocityTolerance;
 
         m_r = m_nextR;
-        m_observer.Predict(m_cappedU, dt);
+        m_observer.Predict(u, dt);
 
         std::scoped_lock lock(m_trajectoryMutex);
         if (ref.pose == m_goal) {
@@ -176,9 +157,10 @@ void DrivetrainController::Update(units::second_t dt) {
             Enable();
         }
     } else {
-        m_observer.Correct(m_appliedU, m_localY);
-        m_observer.Predict(m_appliedU, dt);
+        m_observer.Predict(u, dt);
     }
+
+    return u;
 }
 
 frc::LinearSystem<2, 2, 2> DrivetrainController::GetPlant() const {
@@ -187,23 +169,10 @@ frc::LinearSystem<2, 2, 2> DrivetrainController::GetPlant() const {
         kAngularA.to<double>());
 }
 
-Eigen::Matrix<double, 3, 1> DrivetrainController::EstimatedLocalOutputs()
-    const {
-    return LocalMeasurementModel(m_observer.Xhat(),
-                                 Eigen::Matrix<double, 2, 1>::Zero());
-}
-
-Eigen::Matrix<double, 2, 1> DrivetrainController::EstimatedGlobalOutputs()
-    const {
-    return GlobalMeasurementModel(m_observer.Xhat(),
-                                  Eigen::Matrix<double, 2, 1>::Zero());
-}
-
 void DrivetrainController::Reset() {
     m_observer.Reset();
     m_r.setZero();
     m_nextR.setZero();
-    m_cappedU.setZero();
 }
 
 void DrivetrainController::Reset(const frc::Pose2d& initialPose,
@@ -222,8 +191,6 @@ void DrivetrainController::Reset(const frc::Pose2d& initialPose,
     m_nextR(1) = initialRef.Y().to<double>();
     m_nextR(2) = initialRef.Rotation().Radians().to<double>();
     m_r = m_nextR;
-
-    m_cappedU.setZero();
 }
 
 frc::TrajectoryConfig DrivetrainController::MakeTrajectoryConfig() const {

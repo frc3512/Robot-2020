@@ -101,10 +101,11 @@ void Turret::TeleopPeriodic() {
 }
 
 void Turret::ControllerPeriodic() {
-    m_controller.SetMeasuredOutputs(GetAngle());
-
     m_controller.SetDrivetrainStatus(m_drivetrain.GetNextXhat());
-    m_controller.UpdateAndLog();
+
+    Eigen::Matrix<double, 1, 1> y;
+    y << GetAngle().to<double>();
+    Eigen::Matrix<double, 1, 1> u = m_controller.UpdateAndLog(y);
 
     auto globalMeasurement = m_vision.GetGlobalMeasurement();
     if (globalMeasurement) {
@@ -127,8 +128,7 @@ void Turret::ControllerPeriodic() {
 
     // Set motor input
     if (!m_manualOverride) {
-        auto u = m_controller.GetInputs();
-        SetVoltage(units::volt_t{u(TurretController::Input::kVoltage)});
+        SetVoltage(units::volt_t{u(0)});
     }
 
     if constexpr (frc::RobotBase::IsSimulation()) {

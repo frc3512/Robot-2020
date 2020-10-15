@@ -19,7 +19,6 @@ TurretController::TurretController()
                       ControllerLabel{"Angular velocity", "rad/s"}},
                      {ControllerLabel{"Voltage", "V"}},
                      {ControllerLabel{"Angle", "rad"}}) {
-    m_y.setZero();
     Reset();
 }
 
@@ -42,10 +41,6 @@ bool TurretController::AtGoal() const {
     return m_goal == ref && m_atReferences;
 }
 
-void TurretController::SetMeasuredOutputs(units::radian_t angle) {
-    m_y << angle.to<double>();
-}
-
 void TurretController::SetDrivetrainStatus(
     const Eigen::Matrix<double, 10, 1>& nextXhat) {
     m_drivetrainNextPoseInGlobal =
@@ -55,23 +50,18 @@ void TurretController::SetDrivetrainStatus(
 }
 
 const Eigen::Matrix<double, 2, 1>& TurretController::GetReferences() const {
-    return m_nextR;
+    return m_r;
 }
 
 const Eigen::Matrix<double, 2, 1>& TurretController::GetStates() const {
     return m_observer.Xhat();
 }
 
-const Eigen::Matrix<double, 1, 1>& TurretController::GetInputs() const {
-    return m_u;
-}
+Eigen::Matrix<double, 1, 1> TurretController::Update(
+    const Eigen::Matrix<double, 1, 1>& y, units::second_t dt) {
+    m_observer.Correct(GetInputs(), y);
 
-const Eigen::Matrix<double, 1, 1>& TurretController::GetOutputs() const {
-    return m_y;
-}
-
-void TurretController::Update(units::second_t dt) {
-    m_observer.Correct(m_u, m_y);
+    Eigen::Matrix<double, 1, 1> u;
 
     // Calculate next drivetrain and turret pose in global frame
     frc::Transform2d drivetrainToTurretFrame{
@@ -118,23 +108,23 @@ void TurretController::Update(units::second_t dt) {
     auto profiledReference = profile.Calculate(Constants::kDt);
     SetReferences(profiledReference.position, profiledReference.velocity);
 
-    Eigen::Matrix<double, 2, 1> error = m_nextR - m_observer.Xhat();
+    Eigen::Matrix<double, 2, 1> error = m_r - m_observer.Xhat();
     error(0) = NormalizeAngle(error(0));
 
     if (IsEnabled()) {
-        m_u << m_lqr.K() * error + m_ff.Calculate(m_nextR);
+        u << m_lqr.K() * error + m_ff.Calculate(m_nextR);
 
         units::radian_t heading{m_observer.Xhat(State::kAngle)};
-        if (heading > kCCWLimit && m_u(0) > 0.0) {
-            m_u << 0.0;
-        } else if (heading < kCWLimit && m_u(0) < 0.0) {
-            m_u << 0.0;
+        if (heading > kCCWLimit && u(0) > 0.0) {
+            u << 0.0;
+        } else if (heading < kCWLimit && u(0) < 0.0) {
+            u << 0.0;
         }
 
-        m_u *= 12.0 / frc::RobotController::GetInputVoltage();
-        m_u = frc::NormalizeInputVector<1>(m_u, 12.0);
+        u *= 12.0 / frc::RobotController::GetInputVoltage();
+        u = frc::NormalizeInputVector<1>(u, 12.0);
     } else {
-        m_u << 0.0;
+        u << 0.0;
     }
 
     m_atReferences =
@@ -146,7 +136,10 @@ void TurretController::Update(units::second_t dt) {
             m_observer.Xhat(State::kAngularVelocity)}) <
             kAngularVelocityTolerance;
 
-    m_observer.Predict(m_u, dt);
+    m_r = m_nextR;
+    m_observer.Predict(u, dt);
+
+    return u;
 }
 
 const frc::LinearSystem<2, 1, 1>& TurretController::GetPlant() const {
@@ -190,8 +183,8 @@ units::radians_per_second_t TurretController::CalculateAngularVelocity(
 void TurretController::Reset() {
     m_observer.Reset();
     m_ff.Reset(Eigen::Matrix<double, 2, 1>::Zero());
+    m_r.setZero();
     m_nextR.setZero();
-    m_u.setZero();
 }
 
 Eigen::Vector2d TurretController::ToVector2d(frc::Translation2d translation) {

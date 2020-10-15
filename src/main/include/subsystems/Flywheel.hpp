@@ -149,8 +149,6 @@ private:
         m_inst.GetEntry("Diagnostics/Flywheel/IsReady");
     nt::NetworkTableEntry m_controllerEnabledEntry =
         m_inst.GetEntry("Diagnostics/Flywheel/Controller enabled");
-    nt::NetworkTableEntry m_inputEntry =
-        m_inst.GetEntry("Diagnostics/Flywheel/Input");
 
     // Simulation variables
     static constexpr bool kIdealModel = false;

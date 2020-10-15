@@ -60,23 +60,12 @@ public:
      */
     bool AtGoal() const;
 
-    /**
-     * Sets the current encoder measurement.
-     *
-     * @param angularVelocity Anglular velocity of the flywheel in radians.
-     */
-    void SetMeasuredAngularVelocity(
-        units::radians_per_second_t angularVelocity);
-
     const Eigen::Matrix<double, 1, 1>& GetReferences() const override;
 
     const Eigen::Matrix<double, 1, 1>& GetStates() const override;
 
-    const Eigen::Matrix<double, 1, 1>& GetInputs() const override;
-
-    const Eigen::Matrix<double, 1, 1>& GetOutputs() const override;
-
-    void Update(units::second_t dt) override;
+    Eigen::Matrix<double, 1, 1> Update(const Eigen::Matrix<double, 1, 1>& y,
+                                       units::second_t dt) override;
 
     /**
      * Returns the flywheel plant.
@@ -93,9 +82,6 @@ private:
     static constexpr auto kA = 0.005515_V / 1_rad_per_s_sq;
     static constexpr auto kAngularVelocityTolerance = 20.0_rad_per_s;
 
-    // The current sensor measurements.
-    Eigen::Matrix<double, 1, 1> m_y;
-
     frc::LinearSystem<1, 1, 1> m_plant =
         frc::LinearSystemId::IdentifyVelocitySystem(kV.to<double>(),
                                                     kA.to<double>());
@@ -106,10 +92,9 @@ private:
         m_plant, {700.0}, {50.0}, Constants::kDt};
 
     // Controller reference
+    Eigen::Matrix<double, 1, 1> m_r;
     Eigen::Matrix<double, 1, 1> m_nextR;
 
     bool m_atGoal = false;
-
-    Eigen::Matrix<double, 1, 1> m_u;
 };
 }  // namespace frc3512
