@@ -9,12 +9,11 @@ using namespace frc3512;
 wpi::SmallVector<ControllerSubsystemBase*, 8>
     ControllerSubsystemBase::m_controllers;
 
-frc::Notifier ControllerSubsystemBase::m_notifier{
-    Constants::kControllerPrio, [] {
-        for (auto& controller : m_controllers) {
-            controller->ControllerPeriodic();
-        }
-    }};
+frc::Notifier ControllerSubsystemBase::m_notifier{[] {
+    for (auto& controller : m_controllers) {
+        controller->ControllerPeriodic();
+    }
+}};
 
 ControllerSubsystemBase::ControllerSubsystemBase() {
     Disable();
