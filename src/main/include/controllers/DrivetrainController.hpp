@@ -242,11 +242,8 @@ private:
 
     // The current sensor measurements
     Eigen::Matrix<double, 3, 1> m_localY;
-    Eigen::Matrix<double, 2, 1> m_globalY;
-    int64_t m_timestampGlobalY;
-    bool m_isNewGlobalY = false;
 
-    // TODO: Find the good measurement covariance for global measurements
+    // TODO: Find a good measurement covariance for global measurements
     static const Eigen::Matrix<double, 2, 2> kGlobalR;
 
     // Design observer. See the enums above for lists of the states, inputs, and

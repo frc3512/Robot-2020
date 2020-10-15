@@ -41,7 +41,6 @@ DrivetrainController::DrivetrainController()
                       ControllerLabel{"Left position", "m"},
                       ControllerLabel{"Right position", "m"}}) {
     m_localY.setZero();
-    m_globalY.setZero();
     Reset();
 
     m_B = frc::NumericalJacobianU<10, 10, 2>(
