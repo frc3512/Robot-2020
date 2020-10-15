@@ -49,7 +49,7 @@ Drivetrain::Drivetrain()
 Drivetrain::~Drivetrain() {}
 
 void Drivetrain::Drive(double throttle, double turn, bool isQuickTurn) {
-    std::lock_guard lock(m_motorControllerMutex);
+    std::scoped_lock lock(m_motorControllerMutex);
     m_drive.CurvatureDrive(throttle, turn, isQuickTurn);
 }
 

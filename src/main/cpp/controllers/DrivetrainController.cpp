@@ -68,7 +68,7 @@ void DrivetrainController::SetWaypoints(
 void DrivetrainController::SetWaypoints(
     const frc::Pose2d& start, const std::vector<frc::Translation2d>& interior,
     const frc::Pose2d& end, frc::TrajectoryConfig& config) {
-    std::lock_guard lock(m_trajectoryMutex);
+    std::scoped_lock lock(m_trajectoryMutex);
     m_goal = end;
     m_trajectory = frc::TrajectoryGenerator::GenerateTrajectory(start, interior,
                                                                 end, config);
@@ -132,7 +132,7 @@ void DrivetrainController::Update(units::second_t dt) {
 
         // Only sample the trajectory if one was created.
         {
-            std::lock_guard lock(m_trajectoryMutex);
+            std::scoped_lock lock(m_trajectoryMutex);
             if (m_trajectory.States().size() != 0) {
                 ref = m_trajectory.Sample(m_timeSinceSetWaypoints.Get());
             } else {
@@ -170,7 +170,7 @@ void DrivetrainController::Update(units::second_t dt) {
         m_r = m_nextR;
         m_observer.Predict(m_cappedU, dt);
 
-        std::lock_guard lock(m_trajectoryMutex);
+        std::scoped_lock lock(m_trajectoryMutex);
         if (ref.pose == m_goal) {
             Disable();
         } else {
