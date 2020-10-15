@@ -7,10 +7,19 @@
 #include <atomic>
 #include <chrono>
 #include <map>
-#include <mutex>
 #include <string>
 #include <thread>
 #include <vector>
+
+#if defined(__FRC_ROBORIO__)
+#include <wpi/mutex.h>
+#else
+#include <mutex>
+
+namespace wpi {
+using mutex = ::std::mutex;
+}  // namespace wpi
+#endif
 
 #include "livegrapher/ClientConnection.hpp"
 #include "livegrapher/SocketSelector.hpp"
@@ -69,7 +78,7 @@ public:
 
 private:
     std::thread m_thread;
-    std::mutex m_connListMutex;
+    wpi::mutex m_connListMutex;
     std::atomic<bool> m_isRunning{false};
     TcpListener m_listener;
     SocketSelector m_selector;
