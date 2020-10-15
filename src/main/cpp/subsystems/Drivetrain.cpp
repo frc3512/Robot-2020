@@ -193,6 +193,12 @@ void Drivetrain::AutonomousInit() {
 
 void Drivetrain::TeleopInit() { m_controller->SetOpenLoop(true); }
 
+void Drivetrain::RobotPeriodic() {
+    m_leftEncoderEntry.SetDouble(GetLeftPosition().to<double>());
+    m_rightEncoderEntry.SetDouble(GetRightPosition().to<double>());
+    m_headingEntry.SetDouble(GetAngle().to<double>());
+}
+
 void Drivetrain::TeleopPeriodic() {
     static frc::Joystick driveStick1{kDriveStick1Port};
     static frc::Joystick driveStick2{kDriveStick2Port};

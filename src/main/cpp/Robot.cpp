@@ -67,19 +67,6 @@ void Robot::RobotPeriodic() {
     m_batteryLogger.Log(
         units::second_t{std::chrono::steady_clock::now().time_since_epoch()},
         frc::RobotController::GetInputVoltage());
-
-    m_flywheelEntry.SetDouble(m_flywheel.GetAngle().to<double>());
-    m_flywheelGoalEntry.SetDouble(m_flywheel.GetGoal().to<double>());
-    m_isFlywheelOnEntry.SetBoolean(m_flywheel.IsOn());
-    m_isFlywheelReadyEntry.SetBoolean(m_flywheel.IsReady());
-    m_drivetrainLeftEntry.SetDouble(
-        m_drivetrain.GetLeftPosition().to<double>());
-    m_drivetrainRightEntry.SetDouble(
-        m_drivetrain.GetRightPosition().to<double>());
-    m_drivetrainGyroEntry.SetDouble(m_drivetrain.GetAngle().to<double>());
-    m_turretEntry.SetDouble(m_turret.GetAngle().to<double>());
-    m_upperConveyorEntry.SetBoolean(m_intake.IsUpperSensorBlocked());
-    m_lowerConveyorEntry.SetBoolean(m_intake.IsLowerSensorBlocked());
 }
 
 void Robot::SimulationPeriodic() { SubsystemBase::RunAllSimulationPeriodic(); }

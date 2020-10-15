@@ -105,6 +105,9 @@ void Intake::RobotPeriodic() {
     } else {
         SetConveyor(0.0);
     }
+
+    m_upperSensorEntry.SetBoolean(IsUpperSensorBlocked());
+    m_lowerSensorEntry.SetBoolean(IsLowerSensorBlocked());
 }
 
 void Intake::TeleopPeriodic() {

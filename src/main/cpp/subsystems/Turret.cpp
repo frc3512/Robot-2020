@@ -77,6 +77,10 @@ units::volt_t Turret::GetMotorOutput() const {
            units::volt_t{frc::RobotController::GetInputVoltage()};
 }
 
+void Turret::RobotPeriodic() {
+    m_headingEntry.SetDouble(GetAngle().to<double>());
+}
+
 void Turret::TeleopPeriodic() {
     static frc::Joystick appendageStick1{kAppendageStick1Port};
 

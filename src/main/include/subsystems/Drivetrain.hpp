@@ -16,6 +16,8 @@
 #include <frc/simulation/EncoderSim.h>
 #include <frc/simulation/SimDeviceSim.h>
 #include <frc2/Timer.h>
+#include <networktables/NetworkTableEntry.h>
+#include <networktables/NetworkTableInstance.h>
 #include <rev/CANSparkMax.h>
 #include <units/angle.h>
 #include <units/angular_velocity.h>
@@ -183,6 +185,8 @@ public:
 
     void TeleopInit() override;
 
+    void RobotPeriodic() override;
+
     void TeleopPeriodic() override;
 
 protected:
@@ -217,6 +221,14 @@ private:
 
     bool m_manualControl = true;
     wpi::mutex m_motorControllerMutex;
+
+    nt::NetworkTableInstance m_inst = nt::NetworkTableInstance::GetDefault();
+    nt::NetworkTableEntry m_leftEncoderEntry =
+        m_inst.GetEntry("Diagnostics/Drivetrain/Left encoder");
+    nt::NetworkTableEntry m_rightEncoderEntry =
+        m_inst.GetEntry("Diagnostics/Drivetrain/Right encoder");
+    nt::NetworkTableEntry m_headingEntry =
+        m_inst.GetEntry("Diagnostics/Drivetrain/Heading");
 
     // Simulation variables
     frc::sim::DifferentialDrivetrainSim m_drivetrainSim;

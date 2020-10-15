@@ -6,8 +6,6 @@
 #include <frc/logging/CSVLogFile.h>
 #include <frc/simulation/JoystickSim.h>
 #include <frc2/Timer.h>
-#include <networktables/NetworkTableEntry.h>
-#include <networktables/NetworkTableInstance.h>
 
 #include "Constants.hpp"
 #include "autonselector/AutonSelector.hpp"
@@ -127,28 +125,6 @@ private:
 
     ShootingState m_state = ShootingState::kIdle;
     frc2::Timer m_timer;
-
-    nt::NetworkTableInstance m_inst = nt::NetworkTableInstance::GetDefault();
-    nt::NetworkTableEntry m_flywheelEntry =
-        m_inst.GetEntry("Diagnostics/Flywheel encoder");
-    nt::NetworkTableEntry m_flywheelGoalEntry =
-        m_inst.GetEntry("Diagnostics/Flywheel goal");
-    nt::NetworkTableEntry m_isFlywheelOnEntry =
-        m_inst.GetEntry("Diagnostics/Is flywheel on");
-    nt::NetworkTableEntry m_isFlywheelReadyEntry =
-        m_inst.GetEntry("Diagnostics/Is flywheel ready");
-    nt::NetworkTableEntry m_drivetrainLeftEntry =
-        m_inst.GetEntry("Diagnostics/Left drivetrain encoder");
-    nt::NetworkTableEntry m_drivetrainRightEntry =
-        m_inst.GetEntry("Diagnostics/Right drivetrain encoder");
-    nt::NetworkTableEntry m_drivetrainGyroEntry =
-        m_inst.GetEntry("Diagnostics/Drivetrain angle");
-    nt::NetworkTableEntry m_turretEntry =
-        m_inst.GetEntry("Diagnostics/Turret angle");
-    nt::NetworkTableEntry m_upperConveyorEntry =
-        m_inst.GetEntry("Diagnostics/Upper conveyor sensor");
-    nt::NetworkTableEntry m_lowerConveyorEntry =
-        m_inst.GetEntry("Diagnostics/Lower conveyor sensor");
 
     AutonSelector m_autonSelector{kDsPort};
 

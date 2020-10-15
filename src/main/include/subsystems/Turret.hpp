@@ -8,6 +8,8 @@
 #include <frc/geometry/Pose2d.h>
 #include <frc/simulation/LinearSystemSim.h>
 #include <frc2/Timer.h>
+#include <networktables/NetworkTableEntry.h>
+#include <networktables/NetworkTableInstance.h>
 #include <rev/CANSparkMax.h>
 #include <units/angle.h>
 #include <units/voltage.h>
@@ -105,6 +107,8 @@ public:
 
     void TeleopInit() override { EnableController(); }
 
+    void RobotPeriodic() override;
+
     void TeleopPeriodic() override;
 
 protected:
@@ -127,6 +131,10 @@ private:
     // TODO: Let the turret move on its own once the turret encoder is trusted
     // more
     std::atomic<bool> m_manualOverride{true};
+
+    nt::NetworkTableInstance m_inst = nt::NetworkTableInstance::GetDefault();
+    nt::NetworkTableEntry m_headingEntry =
+        m_inst.GetEntry("Diagnostics/Turret/Heading");
 
     // Simulation variables
     static constexpr bool kIdealModel = false;

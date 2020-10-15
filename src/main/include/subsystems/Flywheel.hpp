@@ -7,6 +7,8 @@
 #include <frc/simulation/EncoderSim.h>
 #include <frc/simulation/FlywheelSim.h>
 #include <frc2/Timer.h>
+#include <networktables/NetworkTableEntry.h>
+#include <networktables/NetworkTableInstance.h>
 #include <rev/CANSparkMax.h>
 #include <units/angle.h>
 #include <units/angular_velocity.h>
@@ -109,6 +111,8 @@ public:
 
     void TeleopInit() override { EnableController(); }
 
+    void RobotPeriodic() override;
+
 protected:
     void ControllerPeriodic() override;
 
@@ -133,6 +137,20 @@ private:
     mutable wpi::mutex m_controllerMutex;
 
     Turret& m_turret;
+
+    nt::NetworkTableInstance m_inst = nt::NetworkTableInstance::GetDefault();
+    nt::NetworkTableEntry m_encoderEntry =
+        m_inst.GetEntry("Diagnostics/Flywheel/Encoder");
+    nt::NetworkTableEntry m_goalEntry =
+        m_inst.GetEntry("Diagnostics/Flywheel/Goal");
+    nt::NetworkTableEntry m_isOnEntry =
+        m_inst.GetEntry("Diagnostics/Flywheel/IsOn");
+    nt::NetworkTableEntry m_isReadyEntry =
+        m_inst.GetEntry("Diagnostics/Flywheel/IsReady");
+    nt::NetworkTableEntry m_controllerEnabledEntry =
+        m_inst.GetEntry("Diagnostics/Flywheel/Controller enabled");
+    nt::NetworkTableEntry m_inputEntry =
+        m_inst.GetEntry("Diagnostics/Flywheel/Input");
 
     // Simulation variables
     static constexpr bool kIdealModel = false;

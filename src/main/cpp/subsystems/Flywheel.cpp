@@ -89,6 +89,15 @@ void Flywheel::Reset() {
     m_encoder.Reset();
 }
 
+void Flywheel::RobotPeriodic() {
+    m_encoderEntry.SetDouble(GetAngle().to<double>());
+    m_goalEntry.SetDouble(GetGoal().to<double>());
+    m_isOnEntry.SetBoolean(IsOn());
+    m_isReadyEntry.SetBoolean(IsReady());
+    m_controllerEnabledEntry.SetBoolean(m_controller.IsEnabled());
+    m_inputEntry.SetDouble(m_controller.GetInputs()(0));
+}
+
 void Flywheel::ControllerPeriodic() {
     m_controller.SetMeasuredAngularVelocity(GetAngularVelocity());
     m_controller.UpdateAndLog();

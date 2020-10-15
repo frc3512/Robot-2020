@@ -5,6 +5,8 @@
 #include <frc/DigitalInput.h>
 #include <frc/DoubleSolenoid.h>
 #include <frc2/Timer.h>
+#include <networktables/NetworkTableEntry.h>
+#include <networktables/NetworkTableInstance.h>
 #include <rev/CANSparkMax.h>
 #include <wpi/mutex.h>
 
@@ -115,6 +117,12 @@ private:
 
     frc::DoubleSolenoid m_arm{Constants::Intake::kArmForward,
                               Constants::Intake::kArmReverse};
+
+    nt::NetworkTableInstance m_inst = nt::NetworkTableInstance::GetDefault();
+    nt::NetworkTableEntry m_upperSensorEntry =
+        m_inst.GetEntry("Diagnostics/Intake/Upper sensor blocked");
+    nt::NetworkTableEntry m_lowerSensorEntry =
+        m_inst.GetEntry("Diagnostics/Intake/Lower sensor blocked");
 };
 
 }  // namespace frc3512
