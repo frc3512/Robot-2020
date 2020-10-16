@@ -16,10 +16,14 @@ Flywheel::Flywheel(Turret& turret) : m_turret(turret) {
     SetCANSparkMaxBusUsage(m_leftGrbx, Usage::kMinimal);
     SetCANSparkMaxBusUsage(m_rightGrbx, Usage::kMinimal);
 
+    // Ensures CANSparkMax::Get() returns an initialized value
+    m_leftGrbx.Set(0.0);
+    m_rightGrbx.Set(0.0);
+
     m_encoder.SetDistancePerPulse(FlywheelController::kDpP);
     m_encoder.SetSamplesToAverage(5);
-    m_rightGrbx.SetInverted(false);
     m_leftGrbx.SetInverted(false);
+    m_rightGrbx.SetInverted(false);
     SetGoal(0_rad_per_s);
     Reset();
 

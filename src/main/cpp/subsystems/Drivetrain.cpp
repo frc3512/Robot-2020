@@ -31,6 +31,7 @@ Drivetrain::Drivetrain()
 
     m_drive.SetDeadband(kJoystickDeadband);
 
+    // Ensures CANSparkMax::Get() returns an initialized value
     m_leftGrbx.Set(0.0);
     m_rightGrbx.Set(0.0);
 

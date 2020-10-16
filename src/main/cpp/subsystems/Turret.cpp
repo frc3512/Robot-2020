@@ -21,6 +21,9 @@ Turret::Turret(Vision& vision, Drivetrain& drivetrain)
 
     SetCANSparkMaxBusUsage(m_motor, Usage::kMinimal);
 
+    // Ensures CANSparkMax::Get() returns an initialized value
+    m_motor.Set(0.0);
+
     m_encoder.SetDistancePerRotation(TurretController::kDpR);
     Reset();
 }

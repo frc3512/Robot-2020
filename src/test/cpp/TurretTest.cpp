@@ -40,13 +40,15 @@ TEST_F(TurretTest, ConfigSpaceLimits) {
     frc::Notifier teleopPeriodic{&frc3512::SubsystemBase::RunAllTeleopPeriodic};
     teleopPeriodic.StartPeriodic(20_ms);
 
-    // Verify turret can move CCW and CW when it isn't at the soft limits
+    // Verify turret can move CW when it isn't at the soft limits
     appendageStick1.SetPOV(kPovCW);
     frc::sim::StepTiming(5_ms);
     frc::sim::StepTiming(5_ms);
     frc::sim::StepTiming(5_ms);
     frc::sim::StepTiming(5_ms);
     EXPECT_LT(turret.GetMotorOutput(), 0_V);
+
+    // Verify turret can move CCW when it isn't at the soft limits
     appendageStick1.SetPOV(kPovCCW);
     frc::sim::StepTiming(5_ms);
     frc::sim::StepTiming(5_ms);
@@ -57,9 +59,6 @@ TEST_F(TurretTest, ConfigSpaceLimits) {
     // Move turret into CW limit
     while (!turret.HasPassedCWLimit()) {
         appendageStick1.SetPOV(kPovCW);
-        frc::sim::StepTiming(5_ms);
-        frc::sim::StepTiming(5_ms);
-        frc::sim::StepTiming(5_ms);
         frc::sim::StepTiming(5_ms);
     }
 
@@ -83,9 +82,6 @@ TEST_F(TurretTest, ConfigSpaceLimits) {
     while (!turret.HasPassedCCWLimit()) {
         appendageStick1.SetPOV(kPovCCW);
         frc::sim::StepTiming(5_ms);
-        frc::sim::StepTiming(5_ms);
-        frc::sim::StepTiming(5_ms);
-        frc::sim::StepTiming(5_ms);
     }
 
     // Don't let turret move past CCW limit
@@ -106,6 +102,8 @@ TEST_F(TurretTest, ConfigSpaceLimits) {
 
     frc3512::SubsystemBase::RunAllDisabledInit();
     frc3512::ControllerSubsystemBase::Disable();
+
+    frc3512::AddPrefixToCSVs("TurretTest ConfigSpaceLimits");
 }
 
 TEST(TurretTest, DISABLED_ReachesReferenceStaticDrivetrain) {
