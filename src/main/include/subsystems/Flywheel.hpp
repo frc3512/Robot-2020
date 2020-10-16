@@ -18,7 +18,7 @@
 #include <wpi/mutex.h>
 
 #include "Constants.hpp"
-#include "LinearTable.hpp"
+#include "LerpTable.hpp"
 #include "TargetModel.hpp"
 #include "controllers/FlywheelController.hpp"
 #include "subsystems/ControllerSubsystemBase.hpp"
@@ -121,8 +121,7 @@ private:
                                           TargetModel::kCenter.Y(),
                                           units::radian_t{wpi::math::pi}};
 
-    lookup::unbounded_linear_table<units::meter_t, units::radians_per_second_t>
-        m_table;
+    LerpTable<units::meter_t, units::radians_per_second_t> m_table;
 
     rev::CANSparkMax m_leftGrbx{Constants::Flywheel::kLeftPort,
                                 rev::CANSparkMax::MotorType::kBrushless};

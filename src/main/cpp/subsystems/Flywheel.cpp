@@ -24,11 +24,11 @@ Flywheel::Flywheel(Turret& turret) : m_turret(turret) {
     Reset();
 
     // TODO: add more entries to the look up table
-    m_table.insert(125_in, 450_rad_per_s);
-    m_table.insert(200_in, 510_rad_per_s);
-    m_table.insert(268_in, 525_rad_per_s);
-    m_table.insert(312_in, 550_rad_per_s);
-    m_table.insert(326_in, 650_rad_per_s);
+    m_table.Insert(125_in, 450_rad_per_s);
+    m_table.Insert(200_in, 510_rad_per_s);
+    m_table.Insert(268_in, 525_rad_per_s);
+    m_table.Insert(312_in, 550_rad_per_s);
+    m_table.Insert(326_in, 650_rad_per_s);
 }
 
 void Flywheel::SetVoltage(units::volt_t voltage) {
@@ -69,8 +69,8 @@ bool Flywheel::AtGoal() {
 void Flywheel::Shoot() {
     std::scoped_lock lock(m_controllerMutex);
     auto turretPose = m_turret.GetNextPose();
-    auto angularVelocity = m_table.linear_interp(
-        turretPose.Translation().Distance(kTargetPoseInGlobal.Translation()));
+    auto angularVelocity = m_table[turretPose.Translation().Distance(
+        kTargetPoseInGlobal.Translation())];
     SetGoal(angularVelocity);
 }
 
