@@ -137,9 +137,8 @@ private:
         m_inst.GetEntry("Diagnostics/Turret/Heading");
 
     // Simulation variables
-    static constexpr bool kIdealModel = false;
-    frc::sim::LinearSystemSim<2, 1, 1> m_turretSim{
-        m_controller.GetPlant(), !kIdealModel, {0.001}};
+    frc::sim::LinearSystemSim<2, 1, 1> m_turretSim{m_controller.GetPlant(),
+                                                   {0.001}};
     hal::SimDouble m_positionSim;
 
     /**

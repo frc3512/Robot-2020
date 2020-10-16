@@ -150,12 +150,8 @@ private:
         m_inst.GetEntry("Diagnostics/Flywheel/Controller enabled");
 
     // Simulation variables
-    static constexpr bool kIdealModel = false;
-    frc::sim::FlywheelSim m_flywheelSim{m_controller.GetPlant(),
-                                        frc::DCMotor::NEO(2),
-                                        1.0 / 2.0,
-                                        !kIdealModel,
-                                        {50.0}};
+    frc::sim::FlywheelSim m_flywheelSim{
+        m_controller.GetPlant(), frc::DCMotor::NEO(2), 1.0 / 2.0, {50.0}};
     frc::sim::EncoderSim m_encoderSim{m_encoder};
 };
 

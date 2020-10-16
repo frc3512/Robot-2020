@@ -138,7 +138,7 @@ void Turret::ControllerPeriodic() {
         m_turretSim.Update(Constants::kDt);
 
         m_positionSim.Set(
-            HeadingToEncoderTurns(units::radian_t{m_turretSim.Y(0)}));
+            HeadingToEncoderTurns(units::radian_t{m_turretSim.GetOutput(0)}));
     }
 }
 

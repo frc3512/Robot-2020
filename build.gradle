@@ -5,7 +5,7 @@ plugins {
 }
 
 // For testing development versions of WPILib
-wpi.wpilibVersion = '2020.3.2-252-g693daaf'
+wpi.wpilibVersion = '2020.3.2-269-g0614321'
 
 // For automatically using the newest development version of WPILib
 // wpi.wpilibVersion = '2020.+'
