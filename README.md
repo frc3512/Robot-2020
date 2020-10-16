@@ -49,7 +49,7 @@ This runs a roboRIO build if needed, copies the resulting binary to a roboRIO at
 
 * `./gradlew-docs.sh`
 
-Doxygen 1.8.18 needs to be installed. The HTML documentation will be generated
+Doxygen 1.8.20 needs to be installed. The HTML documentation will be generated
 in `docs/html` with an index.html page as the root.
 
 ## Logging

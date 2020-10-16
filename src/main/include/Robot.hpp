@@ -20,6 +20,9 @@ namespace frc3512 {
 
 using namespace frc3512::Constants::Robot;
 
+/**
+ * The main robot class.
+ */
 class Robot : public frc::TimedRobot {
 public:
     /**
