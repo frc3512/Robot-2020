@@ -23,54 +23,65 @@ Install the following python packages via `pip3 install --user package_name`.
 
 We use the latest version of clang-format with wpiformat for C++ formatting.
 
-## Build
+## Build options
+
+### Build everything
 
 * `./gradlew build`
 
 This runs a roboRIO and desktop build and runs the desktop tests. This may take
 a while, so more specific builds (see below) are recommended instead.
 
-## Athena build
+### Build (athena)
 
 * `./gradlew-build-athena.sh`
 
 This runs a roboRIO build.
 
-## Test
-
-* `./gradlew-test.sh`
-
-This runs a desktop build and executes all the unit tests in `src/test`.
-
-## Deploy
+### Deploy
 
 * `./gradlew deploy`
 
 This runs a roboRIO build if needed, copies the resulting binary to a roboRIO at
 10.35.12.2, and restarts it.
 
-## Documentation
+### Test
+
+* `./gradlew-test.sh`
+
+This builds the robot code's unit tests in `src/test` and runs them. They are
+useful for ensuring parts of the robot code continue to work correctly after
+implementing new features or refactoring existing functionality.
+
+### Simulation GUI
+
+* `./gradlew-simgui.sh`
+
+This builds the robot code for desktop and runs the simulation GUI.
+
+### Documentation
 
 * `./gradlew-docs.sh`
 
-Doxygen 1.8.20 needs to be installed. The HTML documentation will be generated
-in `docs/html` with an index.html page as the root.
+Doxygen 1.8.20 needs to be installed. This generates HTML documentation for the
+robot code from in-source Doxygen comments and places it in `docs/html` with an
+index.html page as the root.
 
-## gdb
+### GDB
 
 * `./gradlew-gdb.sh`
 
-This runs a debug build of the robot code in the GNU debugger (gdb). Once the
-build completes and gdb's prompt appears, enter `run` to start the robot
+This runs a debug build of the robot code in the GNU debugger (GDB). Once the
+build completes and GDB's prompt appears, enter `run` to start the robot
 program. It may take a while due to the debugger having to load a lot of
-symbols. If the robot code crashes, use `bt` to get a backtrace.
+symbols. If the robot code crashes, enter `bt` to get a backtrace.
 
-## valgrind
+### Valgrind
 
 `./gradlew-valgrind.sh`
 
 Valgrind is useful for finding memory leaks, memory corruption, and reads from
-uninitialized memory.
+uninitialized memory so they can be fixed.
 
 ## Logging
 
