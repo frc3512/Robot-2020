@@ -25,12 +25,16 @@ We use the latest version of clang-format with wpiformat for C++ formatting.
 
 ## Build
 
+* `./gradlew build`
+
+This runs a roboRIO and desktop build and runs the desktop tests. This may take
+a while, so more specific builds (see below) are recommended instead.
+
+## Athena build
+
 * `./gradlew-build-athena.sh`
 
-This runs a roboRIO build. Message parsers for the publish-subscribe framework
-will be automatically generated in `build/generated`. `build/generated/include`
-is specified as an include path in the Makefile, so `#include` directives can
-start from that directory.
+This runs a roboRIO build.
 
 ## Test
 
@@ -51,6 +55,22 @@ This runs a roboRIO build if needed, copies the resulting binary to a roboRIO at
 
 Doxygen 1.8.20 needs to be installed. The HTML documentation will be generated
 in `docs/html` with an index.html page as the root.
+
+## gdb
+
+* `./gradlew-gdb.sh`
+
+This runs a debug build of the robot code in the GNU debugger (gdb). Once the
+build completes and gdb's prompt appears, enter `run` to start the robot
+program. It may take a while due to the debugger having to load a lot of
+symbols. If the robot code crashes, use `bt` to get a backtrace.
+
+## valgrind
+
+`./gradlew-valgrind.sh`
+
+Valgrind is useful for finding memory leaks, memory corruption, and reads from
+uninitialized memory.
 
 ## Logging
 
