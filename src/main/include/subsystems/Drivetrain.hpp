@@ -23,7 +23,6 @@
 #include <units/angular_velocity.h>
 #include <units/length.h>
 #include <units/velocity.h>
-#include <wpi/mutex.h>
 
 #include "Constants.hpp"
 #include "subsystems/ControllerSubsystemBase.hpp"
@@ -50,10 +49,21 @@ public:
     Drivetrain& operator=(Drivetrain&&) = default;
 
     /**
-     * Drives robot with given speed and turn values [-1..1].
-     * This is a convenience function for use in Operator Control.
+     * Curvature drive method for differential drive platform.
+     *
+     * The rotation argument controls the curvature of the robot's path rather
+     * than its rate of heading change. This makes the robot more controllable
+     * at high speeds. Constant-curvature turning can be overridden for
+     * turn-in-place maneuvers.
+     *
+     * @param xSpeed           The robot's speed along the X axis [-1.0..1.0].
+     *                         Forward is positive.
+     * @param zRotation        The robot's rotation rate around the Z axis
+     *                         [-1.0..1.0]. Clockwise is positive.
+     * @param allowTurnInPlace If set, overrides constant-curvature turning for
+     *                         turn-in-place maneuvers.
      */
-    void Drive(double throttle, double turn, bool isQuickTurn = false);
+    void Drive(double xSpeed, double zRotation, bool allowTurnInPlace = false);
 
     /**
      * Returns gyro angle.
@@ -218,9 +228,6 @@ private:
 
     // Controller
     std::unique_ptr<DrivetrainController> m_controller;
-
-    bool m_manualControl = true;
-    wpi::mutex m_motorControllerMutex;
 
     nt::NetworkTableInstance m_inst = nt::NetworkTableInstance::GetDefault();
     nt::NetworkTableEntry m_leftEncoderEntry =

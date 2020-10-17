@@ -49,9 +49,8 @@ Drivetrain::Drivetrain()
 
 Drivetrain::~Drivetrain() {}
 
-void Drivetrain::Drive(double throttle, double turn, bool isQuickTurn) {
-    std::scoped_lock lock(m_motorControllerMutex);
-    m_drive.CurvatureDrive(throttle, turn, isQuickTurn);
+void Drivetrain::Drive(double xSpeed, double zRotation, bool allowTurnInPlace) {
+    m_drive.CurvatureDrive(xSpeed, zRotation, allowTurnInPlace);
 }
 
 units::radian_t Drivetrain::GetAngle() const {
