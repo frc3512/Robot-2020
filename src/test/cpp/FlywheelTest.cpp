@@ -4,7 +4,6 @@
 #include <frc/simulation/SimHooks.h>
 #include <frc2/Timer.h>
 #include <gtest/gtest.h>
-#include <units/math.h>
 
 #include "CSVTestUtil.hpp"
 #include "subsystems/Drivetrain.hpp"
@@ -38,12 +37,7 @@ TEST_F(FlywheelTest, ReachesGoal) {
     frc2::Timer timer;
     timer.Start();
     while (timer.Get() < 2_s) {
-        // This noise simulates scheduling jitter. It's clamped to 0 so the next
-        // Notifier still triggers.
-        auto noise = units::math::min(
-            0_s,
-            units::second_t{frc::MakeWhiteNoiseVector(0.001)(0)} + 0.001_s);
-        frc::sim::StepTiming(frc3512::Constants::kDt + noise);
+        frc::sim::StepTiming(frc3512::Constants::kDt);
     }
 
     frc3512::SubsystemBase::RunAllDisabledInit();
