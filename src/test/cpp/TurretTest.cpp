@@ -42,62 +42,62 @@ TEST_F(TurretTest, ConfigSpaceLimits) {
 
     // Verify turret can move CW when it isn't at the soft limits
     appendageStick1.SetPOV(kPovCW);
-    frc::sim::StepTiming(5_ms);
-    frc::sim::StepTiming(5_ms);
-    frc::sim::StepTiming(5_ms);
-    frc::sim::StepTiming(5_ms);
+    frc::sim::StepTiming(frc3512::Constants::kDt);
+    frc::sim::StepTiming(frc3512::Constants::kDt);
+    frc::sim::StepTiming(frc3512::Constants::kDt);
+    frc::sim::StepTiming(frc3512::Constants::kDt);
     EXPECT_LT(turret.GetMotorOutput(), 0_V);
 
     // Verify turret can move CCW when it isn't at the soft limits
     appendageStick1.SetPOV(kPovCCW);
-    frc::sim::StepTiming(5_ms);
-    frc::sim::StepTiming(5_ms);
-    frc::sim::StepTiming(5_ms);
-    frc::sim::StepTiming(5_ms);
+    frc::sim::StepTiming(frc3512::Constants::kDt);
+    frc::sim::StepTiming(frc3512::Constants::kDt);
+    frc::sim::StepTiming(frc3512::Constants::kDt);
+    frc::sim::StepTiming(frc3512::Constants::kDt);
     EXPECT_GT(turret.GetMotorOutput(), 0_V);
 
     // Move turret into CW limit
     while (!turret.HasPassedCWLimit()) {
         appendageStick1.SetPOV(kPovCW);
-        frc::sim::StepTiming(5_ms);
+        frc::sim::StepTiming(frc3512::Constants::kDt);
     }
 
     // Don't let turret move past CW limit
     appendageStick1.SetPOV(kPovCW);
-    frc::sim::StepTiming(5_ms);
-    frc::sim::StepTiming(5_ms);
-    frc::sim::StepTiming(5_ms);
-    frc::sim::StepTiming(5_ms);
+    frc::sim::StepTiming(frc3512::Constants::kDt);
+    frc::sim::StepTiming(frc3512::Constants::kDt);
+    frc::sim::StepTiming(frc3512::Constants::kDt);
+    frc::sim::StepTiming(frc3512::Constants::kDt);
     EXPECT_EQ(turret.GetMotorOutput(), 0_V);
 
     // Let turret move away from CW limit
     appendageStick1.SetPOV(kPovCCW);
-    frc::sim::StepTiming(5_ms);
-    frc::sim::StepTiming(5_ms);
-    frc::sim::StepTiming(5_ms);
-    frc::sim::StepTiming(5_ms);
+    frc::sim::StepTiming(frc3512::Constants::kDt);
+    frc::sim::StepTiming(frc3512::Constants::kDt);
+    frc::sim::StepTiming(frc3512::Constants::kDt);
+    frc::sim::StepTiming(frc3512::Constants::kDt);
     EXPECT_GT(turret.GetMotorOutput(), 0_V);
 
     // Move turret into CCW limit
     while (!turret.HasPassedCCWLimit()) {
         appendageStick1.SetPOV(kPovCCW);
-        frc::sim::StepTiming(5_ms);
+        frc::sim::StepTiming(frc3512::Constants::kDt);
     }
 
     // Don't let turret move past CCW limit
     appendageStick1.SetPOV(kPovCCW);
-    frc::sim::StepTiming(5_ms);
-    frc::sim::StepTiming(5_ms);
-    frc::sim::StepTiming(5_ms);
-    frc::sim::StepTiming(5_ms);
+    frc::sim::StepTiming(frc3512::Constants::kDt);
+    frc::sim::StepTiming(frc3512::Constants::kDt);
+    frc::sim::StepTiming(frc3512::Constants::kDt);
+    frc::sim::StepTiming(frc3512::Constants::kDt);
     EXPECT_EQ(turret.GetMotorOutput(), 0_V);
 
     // Let turret move away from CCW limit
     appendageStick1.SetPOV(kPovCW);
-    frc::sim::StepTiming(5_ms);
-    frc::sim::StepTiming(5_ms);
-    frc::sim::StepTiming(5_ms);
-    frc::sim::StepTiming(5_ms);
+    frc::sim::StepTiming(frc3512::Constants::kDt);
+    frc::sim::StepTiming(frc3512::Constants::kDt);
+    frc::sim::StepTiming(frc3512::Constants::kDt);
+    frc::sim::StepTiming(frc3512::Constants::kDt);
     EXPECT_LT(turret.GetMotorOutput(), 0_V);
 
     frc3512::SubsystemBase::RunAllDisabledInit();
