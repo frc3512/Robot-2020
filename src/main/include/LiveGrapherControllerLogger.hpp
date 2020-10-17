@@ -59,10 +59,13 @@ public:
              const Eigen::Matrix<double, States, 1>& x,
              const Eigen::Matrix<double, Inputs, 1>& u,
              const Eigen::Matrix<double, Outputs, 1>& y) {
-        LogVector<States>(*liveGrapher, m_referenceLabels, r);
-        LogVector<States>(*liveGrapher, m_stateLabels, x);
-        LogVector<Inputs>(*liveGrapher, m_inputLabels, u);
-        LogVector<Outputs>(*liveGrapher, m_outputLabels, y);
+        std::chrono::milliseconds chronoTime{
+            units::millisecond_t{time}.to<int>()};
+        LogVectorWithTime<States>(*liveGrapher, chronoTime, m_referenceLabels,
+                                  r);
+        LogVectorWithTime<States>(*liveGrapher, chronoTime, m_stateLabels, x);
+        LogVectorWithTime<Inputs>(*liveGrapher, chronoTime, m_inputLabels, u);
+        LogVectorWithTime<Outputs>(*liveGrapher, chronoTime, m_outputLabels, y);
     }
 
     /**
@@ -170,7 +173,7 @@ private:
 
     template <size_t... I, typename T>
     void LogVectorWithTimeImpl(
-        LiveGrapher& liveGrapher, units::second_t time,
+        LiveGrapher& liveGrapher, std::chrono::milliseconds time,
         const std::array<std::string, sizeof...(I)>& labels, const T& vec,
         std::index_sequence<I...>) {
         (liveGrapher.AddData(labels[I], time, vec(I)), ...);
@@ -184,7 +187,8 @@ private:
     }
 
     template <int Rows, typename Indices = std::make_index_sequence<Rows>>
-    void LogVectorWithTime(LiveGrapher& liveGrapher, units::second_t time,
+    void LogVectorWithTime(LiveGrapher& liveGrapher,
+                           std::chrono::milliseconds time,
                            const std::array<std::string, Rows>& labels,
                            const Eigen::Matrix<double, Rows, 1>& vec) {
         LogVectorWithTimeImpl(liveGrapher, time, labels, vec, Indices{});
