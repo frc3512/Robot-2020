@@ -44,7 +44,26 @@ public:
                    const std::array<ControllerLabel, Outputs>& outputLabels)
         : m_csvLogger{controllerName, stateLabels, inputLabels, outputLabels},
           m_liveGrapher{controllerName, stateLabels, inputLabels,
-                        outputLabels} {}
+                        outputLabels} {
+        // Write at least one data point to LiveGrapher for each dataset so they
+        // are available when the robot is disabled.
+        //
+        // Graphs are only created when data has been logged for them,
+        // ControllerPeriodic() is the only logger, and ControllerPeriodic()
+        // only runs when the robot is enabled. Without the Log() call below,
+        // the robot would need to be enabled at least once for any datasets to
+        // be selectable.
+        auto now = frc2::Timer::GetFPGATimestamp();
+        Eigen::Matrix<double, States, 1> r;
+        r.setZero();
+        Eigen::Matrix<double, States, 1> x;
+        x.setZero();
+        Eigen::Matrix<double, Inputs, 1> u;
+        u.setZero();
+        Eigen::Matrix<double, Outputs, 1> y;
+        y.setZero();
+        m_liveGrapher.Log(now, r, x, u, y);
+    }
 
     /**
      * Enables the control loop.
