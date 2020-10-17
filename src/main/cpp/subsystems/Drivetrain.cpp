@@ -2,12 +2,16 @@
 
 #include "subsystems/Drivetrain.hpp"
 
+#include <algorithm>
+#include <cmath>
+
 #include <frc/Joystick.h>
 #include <frc/MathUtil.h>
 #include <frc/RobotBase.h>
 #include <frc/RobotController.h>
 #include <frc/StateSpaceUtil.h>
 #include <frc/smartdashboard/SmartDashboard.h>
+#include <units/acceleration.h>
 #include <units/math.h>
 
 #include "CANSparkMaxUtil.hpp"
@@ -100,10 +104,16 @@ units::meters_per_second_squared_t Drivetrain::GetAcceleration() const {
 }
 
 void Drivetrain::Reset(const frc::Pose2d& initialPose) {
+    Reset(initialPose, 0_mps, 0_mps);
+}
+
+void Drivetrain::Reset(const frc::Pose2d& initialPose,
+                       units::meters_per_second_t leftVelocity,
+                       units::meters_per_second_t rightVelocity) {
     using State = frc::sim::DifferentialDrivetrainSim::State;
 
     m_observer.Reset();
-    m_controller.Reset(initialPose);
+    m_controller.Reset(initialPose, leftVelocity, rightVelocity);
     m_u = Eigen::Matrix<double, 2, 1>::Zero();
     m_leftEncoder.Reset();
     m_rightEncoder.Reset();
@@ -114,7 +124,9 @@ void Drivetrain::Reset(const frc::Pose2d& initialPose) {
     xHat(State::kX) = initialPose.X().to<double>();
     xHat(State::kY) = initialPose.Y().to<double>();
     xHat(State::kHeading) = initialPose.Rotation().Radians().to<double>();
-    xHat.block<4, 1>(3, 0).setZero();
+    xHat(State::kLeftVelocity) = leftVelocity.to<double>();
+    xHat(State::kRightVelocity) = rightVelocity.to<double>();
+    xHat.block<2, 1>(5, 0).setZero();
     m_observer.SetXhat(xHat);
 
     if constexpr (frc::RobotBase::IsSimulation()) {
@@ -285,6 +297,55 @@ void Drivetrain::TeleopPeriodic() {
         x *= 0.5;
     }
     auto [left, right] = CurvatureDrive(y, x, driveStick2.GetRawButton(2));
-    m_leftGrbx.SetVoltage(left * 12_V);
-    m_rightGrbx.SetVoltage(right * 12_V);
+    auto [leftLim, rightLim] = LimitAcceleration(
+        units::volt_t{left * 12.0}, units::volt_t{right * 12.0}, 4.5_mps_sq);
+    m_leftGrbx.SetVoltage(leftLim);
+    m_rightGrbx.SetVoltage(rightLim);
+}
+
+std::tuple<units::volt_t, units::volt_t> Drivetrain::LimitAcceleration(
+    units::volt_t leftVoltage, units::volt_t rightVoltage,
+    units::meters_per_second_squared_t maxAccel) {
+    using State = DrivetrainController::State;
+    using Input = DrivetrainController::Input;
+
+    Eigen::Matrix<double, 2, 1> x =
+        m_observer.Xhat().block<2, 1>(State::kLeftVelocity, 0);
+    Eigen::Matrix<double, 2, 1> u;
+    u << leftVoltage.to<double>(), rightVoltage.to<double>();
+
+    const auto plant = DrivetrainController::GetPlant();
+    Eigen::Matrix<double, 2, 1> xdot = plant.A() * x + plant.B() * u;
+    units::meters_per_second_squared_t a_l{xdot(0)};
+    units::meters_per_second_squared_t a_r{xdot(1)};
+
+    auto accel = (a_l + a_r) / 2.0;
+
+    // w = (v_r - v_l) / (2r)
+    // alpha = (a_r - a_l) / (2r)
+
+    // v_l = v - w r
+    // v_r = v + w r
+    // a_l,new = a_new - alpha r
+    // a_r,new = a_new + alpha r
+    // a_l,new = a_new - alpha_old r
+    // a_r,new = a_new + alpha_old r
+    // a_l,new = a_new - ((a_r,old - a_l,old) / (2r)) r
+    // a_r,new = a_new + ((a_r,old - a_l,old) / (2r)) r
+    // a_l,new = a_new - (a_r,old - a_l,old) / 2
+    // a_r,new = a_new + (a_r,old - a_l,old) / 2
+    if (accel > maxAccel) {
+        xdot(0) = (maxAccel - (a_r - a_l) / 2.0).to<double>();
+        xdot(1) = (maxAccel + (a_r - a_l) / 2.0).to<double>();
+        u = plant.B().householderQr().solve(xdot - plant.A() * x);
+    } else if (accel < -maxAccel) {
+        xdot(0) = (-maxAccel - (a_r - a_l) / 2.0).to<double>();
+        xdot(1) = (-maxAccel + (a_r - a_l) / 2.0).to<double>();
+        u = plant.B().householderQr().solve(xdot - plant.A() * x);
+    }
+
+    u = frc::NormalizeInputVector<2>(u, 12.0);
+
+    return {units::volt_t{u(Input::kLeftVoltage)},
+            units::volt_t{u(Input::kRightVoltage)}};
 }

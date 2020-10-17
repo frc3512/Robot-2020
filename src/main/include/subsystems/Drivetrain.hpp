@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include <tuple>
 #include <vector>
 
 #include <Eigen/Core>
@@ -28,6 +29,7 @@
 #include <units/length.h>
 #include <units/time.h>
 #include <units/velocity.h>
+#include <units/voltage.h>
 
 #include "Constants.hpp"
 #include "NetworkTableUtil.hpp"
@@ -87,8 +89,21 @@ public:
 
     /**
      * Resets all sensors and controller.
+     *
+     * @param initialPose Initial pose for state estimate.
      */
     void Reset(const frc::Pose2d& initialPose = frc::Pose2d());
+
+    /**
+     * Resets all sensors and controller.
+     *
+     * @param initialPose   Initial pose for state estimate.
+     * @param leftVelocity  Initial left wheel velocity for state estimate.
+     * @param rightVelocity Initial right wheel velocity for state estimate.
+     */
+    void Reset(const frc::Pose2d& initialPose,
+               units::meters_per_second_t leftVelocity,
+               units::meters_per_second_t rightVelocity);
 
     /**
      * Set global measurements.
@@ -197,6 +212,18 @@ public:
     void TeleopPeriodic() override;
 
     void ControllerPeriodic() override;
+
+    /**
+     * Returns left and right motor outputs constrained to desired maximum
+     * drivetrain acceleration.
+     *
+     * @param leftVoltage  Left motor voltage [-12..12].
+     * @param rightVoltage Right motor voltage [-12..12].
+     * @param maxAccel     Maximum acceleration.
+     */
+    std::tuple<units::volt_t, units::volt_t> LimitAcceleration(
+        units::volt_t leftVoltage, units::volt_t rightVoltage,
+        units::meters_per_second_squared_t maxAccel);
 
 private:
     // TODO: Find a good measurement covariance for global measurements

@@ -153,6 +153,17 @@ public:
      */
     void Reset(const frc::Pose2d& initialPose);
 
+    /**
+     * Resets any internal state.
+     *
+     * @param initialPose   Initial pose for state estimate.
+     * @param leftVelocity  Initial left wheel velocity for state estimate.
+     * @param rightVelocity Initial right wheel velocity for state estimate.
+     */
+    void Reset(const frc::Pose2d& initialPose,
+               units::meters_per_second_t leftVelocity,
+               units::meters_per_second_t rightVelocity);
+
     Eigen::Matrix<double, 2, 1> Calculate(
         const Eigen::Matrix<double, 7, 1>& x) override;
 

@@ -78,11 +78,19 @@ bool DrivetrainController::AtGoal() const {
 }
 
 void DrivetrainController::Reset(const frc::Pose2d& initialPose) {
+    Reset(initialPose, 0_mps, 0_mps);
+}
+
+void DrivetrainController::Reset(const frc::Pose2d& initialPose,
+                                 units::meters_per_second_t leftVelocity,
+                                 units::meters_per_second_t rightVelocity) {
     Eigen::Matrix<double, 7, 1> xHat;
     xHat(0) = initialPose.X().to<double>();
     xHat(1) = initialPose.Y().to<double>();
     xHat(2) = initialPose.Rotation().Radians().to<double>();
-    xHat.block<4, 1>(3, 0).setZero();
+    xHat(3) = leftVelocity.to<double>();
+    xHat(4) = rightVelocity.to<double>();
+    xHat.block<2, 1>(5, 0).setZero();
 
     m_ff.Reset(xHat);
     m_r = xHat;
