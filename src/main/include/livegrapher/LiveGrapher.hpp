@@ -109,6 +109,20 @@ private:
         return id & 0x3F;
     }
 
+    /**
+     * Send time (x value) and data (y value) for a given dataset to remote
+     * client.
+     *
+     * @param dataset The name of the dataset to which the value belongs.
+     * @param time    The x value.
+     * @param value   The y value.
+     */
+    void AddDataImpl(const std::string& dataset, std::chrono::milliseconds time,
+                     float value);
+
+    /**
+     * Function for thread that reads and writes graph data.
+     */
     void ThreadMain();
 
     /**

@@ -23,11 +23,6 @@ LiveGrapher::~LiveGrapher() {
 }
 
 void LiveGrapher::AddData(const std::string& dataset, float value) {
-    // Do nothing if there's no active connections to receive the data
-    if (m_connList.empty()) {
-        return;
-    }
-
     // HACK: The dataset argument uses const std::string& instead of
     // std::string_view because std::map doesn't have a find(std::string_view)
     // overload.
@@ -39,16 +34,16 @@ void LiveGrapher::AddData(const std::string& dataset, float value) {
     auto currentTime =
         duration_cast<milliseconds>(steady_clock::now().time_since_epoch());
 
-    AddData(dataset, currentTime, value);
+    AddDataImpl(dataset, currentTime, value);
 }
 
 void LiveGrapher::AddData(const std::string& dataset,
                           std::chrono::milliseconds time, float value) {
-    // Do nothing if there's no active connections to receive the data
-    if (m_connList.empty()) {
-        return;
-    }
+    AddDataImpl(dataset, time, value);
+}
 
+void LiveGrapher::AddDataImpl(const std::string& dataset,
+                              std::chrono::milliseconds time, float value) {
     // HACK: The dataset argument uses const std::string& instead of
     // std::string_view because std::map doesn't have a find(std::string_view)
     // overload.
@@ -58,11 +53,18 @@ void LiveGrapher::AddData(const std::string& dataset,
                   "float isn't 32 bits long");
 
     auto i = m_graphList.find(dataset);
-    uint8_t id = i->second;
 
+    // Give the dataset an ID if it doesn't already have one
     if (i == m_graphList.end()) {
         m_graphList.emplace(dataset, m_graphList.size());
     }
+
+    // Do nothing if there's no active connections to receive the data
+    if (m_connList.empty()) {
+        return;
+    }
+
+    uint8_t id = i->second;
 
     ClientDataPacket packet;
     packet.ID = kClientDataPacket | id;
