@@ -80,16 +80,6 @@ public:
     units::radians_per_second_t GetAngularRate() const;
 
     /**
-     * Resets gyro.
-     */
-    void ResetGyro();
-
-    /**
-     * Calibrates gyro.
-     */
-    void CalibrateGyro();
-
-    /**
      * Returns left encoder displacement.
      *
      * @return left displacement
@@ -116,11 +106,6 @@ public:
      * @return right rate
      */
     units::meters_per_second_t GetRightVelocity() const;
-
-    /**
-     * Resets encoders.
-     */
-    void ResetEncoders();
 
     /**
      * Resets all sensors and controller.

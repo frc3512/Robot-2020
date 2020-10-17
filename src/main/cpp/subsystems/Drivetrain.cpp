@@ -61,10 +61,6 @@ units::radians_per_second_t Drivetrain::GetAngularRate() const {
     return units::degrees_per_second_t{-m_gyro.GetRate()};
 }
 
-void Drivetrain::ResetGyro() { m_gyro.Reset(); }
-
-void Drivetrain::CalibrateGyro() { m_gyro.Calibrate(); }
-
 units::meter_t Drivetrain::GetLeftPosition() const {
     return units::meter_t{m_leftEncoder.GetDistance()};
 }
@@ -81,15 +77,11 @@ units::meters_per_second_t Drivetrain::GetRightVelocity() const {
     return units::meters_per_second_t{m_rightEncoder.GetRate()};
 }
 
-void Drivetrain::ResetEncoders() {
-    m_leftEncoder.Reset();
-    m_rightEncoder.Reset();
-}
-
 void Drivetrain::Reset(const frc::Pose2d& initialPose) {
     m_controller->Reset(initialPose, initialPose);
-    ResetEncoders();
-    ResetGyro();
+    m_leftEncoder.Reset();
+    m_rightEncoder.Reset();
+    m_gyro.Reset();
     m_headingOffset = initialPose.Rotation().Radians();
 
     if constexpr (frc::RobotBase::IsSimulation()) {
