@@ -84,9 +84,14 @@ void DrivetrainController::CorrectWithGlobalOutputs(units::meter_t x,
                                                     units::second_t timestamp) {
     Eigen::Matrix<double, 2, 1> globalY;
     globalY << x.to<double>(), y.to<double>();
-    m_observer.Correct<2>(Eigen::Matrix<double, 2, 1>::Zero(), globalY,
-                          &DrivetrainController::GlobalMeasurementModel,
-                          kGlobalR);
+    m_latencyComp.ApplyPastMeasurement<2>(
+        &m_observer, Constants::kDt, globalY,
+        [&](const Eigen::Matrix<double, 2, 1>& u,
+            const Eigen::Matrix<double, 2, 1>& y) {
+            m_observer.Correct<2>(
+                u, y, &DrivetrainController::GlobalMeasurementModel, kGlobalR);
+        },
+        timestamp);
 }
 
 const Eigen::Matrix<double, 10, 1>& DrivetrainController::GetReferences()
@@ -114,6 +119,8 @@ void DrivetrainController::Reset(const frc::Pose2d& initialPose) {
 
 Eigen::Matrix<double, 2, 1> DrivetrainController::Update(
     const Eigen::Matrix<double, 3, 1>& y, units::second_t dt) {
+    m_latencyComp.AddObserverState(m_observer, GetInputs(), y,
+                                   frc2::Timer::GetFPGATimestamp());
     m_observer.Correct(GetInputs(), y);
 
     Eigen::Matrix<double, 2, 1> u;

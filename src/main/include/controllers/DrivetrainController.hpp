@@ -9,6 +9,7 @@
 
 #include <frc/controller/ControlAffinePlantInversionFeedforward.h>
 #include <frc/estimator/ExtendedKalmanFilter.h>
+#include <frc/estimator/KalmanFilterLatencyCompensator.h>
 #include <frc/geometry/Pose2d.h>
 #include <frc/system/plant/LinearSystemId.h>
 #include <frc/trajectory/Trajectory.h>
@@ -212,6 +213,10 @@ private:
         {0.002, 0.002, 0.0001, 1.5, 1.5, 0.5, 0.5, 10.0, 10.0, 2.0},
         {0.0001, 0.005, 0.005},
         Constants::kDt};
+    frc::KalmanFilterLatencyCompensator<10, 2, 3,
+                                        frc::ExtendedKalmanFilter<10, 2, 3>>
+        m_latencyComp;
+
     frc::ControlAffinePlantInversionFeedforward<10, 2> m_ff{Dynamics,
                                                             Constants::kDt};
 
