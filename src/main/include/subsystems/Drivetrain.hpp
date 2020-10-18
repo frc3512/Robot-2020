@@ -66,6 +66,11 @@ public:
     void Drive(double xSpeed, double zRotation, bool allowTurnInPlace = false);
 
     /**
+     * Returns the drivetrain's pose estimate.
+     */
+    frc::Pose2d GetPose() const;
+
+    /**
      * Returns gyro angle.
      *
      * @return angle in degrees

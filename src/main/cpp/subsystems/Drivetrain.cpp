@@ -53,6 +53,14 @@ void Drivetrain::Drive(double xSpeed, double zRotation, bool allowTurnInPlace) {
     m_drive.CurvatureDrive(xSpeed, zRotation, allowTurnInPlace);
 }
 
+frc::Pose2d Drivetrain::GetPose() const {
+    const auto& x = m_controller->GetStates();
+    return frc::Pose2d{
+        units::meter_t{x(DrivetrainController::State::kX)},
+        units::meter_t{x(DrivetrainController::State::kY)},
+        units::radian_t{x(DrivetrainController::State::kHeading)}};
+}
+
 units::radian_t Drivetrain::GetAngle() const {
     return units::degree_t{-m_gyro.GetAngle()} + m_headingOffset;
 }
