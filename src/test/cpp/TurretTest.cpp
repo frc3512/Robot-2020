@@ -60,6 +60,9 @@ TEST_F(TurretTest, ConfigSpaceLimits) {
     while (!turret.HasPassedCWLimit()) {
         appendageStick1.SetPOV(kPovCW);
         frc::sim::StepTiming(frc3512::Constants::kDt);
+
+        ASSERT_LT(frc2::Timer::GetFPGATimestamp(), 30_s)
+            << "Turret took too long to reach CW limit";
     }
 
     // Don't let turret move past CW limit
@@ -82,6 +85,9 @@ TEST_F(TurretTest, ConfigSpaceLimits) {
     while (!turret.HasPassedCCWLimit()) {
         appendageStick1.SetPOV(kPovCCW);
         frc::sim::StepTiming(frc3512::Constants::kDt);
+
+        ASSERT_LT(frc2::Timer::GetFPGATimestamp(), 30_s)
+            << "Turret took too long to reach CCW limit";
     }
 
     // Don't let turret move past CCW limit
