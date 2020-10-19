@@ -174,7 +174,7 @@ void Drivetrain::SetWaypoints(const frc::Pose2d& start,
 
 bool Drivetrain::AtGoal() const { return m_controller->AtGoal(); }
 
-Eigen::Matrix<double, 10, 1> Drivetrain::GetNextXhat() const {
+Eigen::Matrix<double, 10, 1> Drivetrain::GetStates() const {
     return m_controller->GetStates();
 }
 

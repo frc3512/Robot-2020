@@ -177,7 +177,10 @@ public:
      */
     bool AtGoal() const;
 
-    Eigen::Matrix<double, 10, 1> GetNextXhat() const;
+    /**
+     * Returns the drivetrain state estimate.
+     */
+    Eigen::Matrix<double, 10, 1> GetStates() const;
 
     void DisabledInit() override;
 

@@ -41,12 +41,17 @@ bool TurretController::AtGoal() const {
     return m_goal == ref && m_atReferences;
 }
 
-void TurretController::SetDrivetrainStatus(
-    const Eigen::Matrix<double, 10, 1>& nextXhat) {
+void TurretController::SetDrivetrainStates(
+    const Eigen::Matrix<double, 10, 1>& x) {
+    using State = DrivetrainController::State;
+
     m_drivetrainNextPoseInGlobal =
-        frc::Pose2d(units::meter_t{nextXhat(0)}, units::meter_t{nextXhat(1)},
-                    units::radian_t{nextXhat(2)});
-    m_drivetrainNextXhat = nextXhat;
+        frc::Pose2d(units::meter_t{x(State::kX)}, units::meter_t{x(State::kY)},
+                    units::radian_t{x(State::kHeading)});
+    m_drivetrainLeftVelocity =
+        units::meters_per_second_t{x(State::kLeftVelocity)};
+    m_drivetrainRightVelocity =
+        units::meters_per_second_t{x(State::kRightVelocity)};
 }
 
 const Eigen::Matrix<double, 2, 1>& TurretController::GetReferences() const {
@@ -82,11 +87,8 @@ Eigen::Matrix<double, 1, 1> TurretController::Update(
         kDrivetrainToTurretFrame.Rotation().Radians();
 
     // Find angular velocity reference for this timestep
-    units::meters_per_second_t vl{
-        m_drivetrainNextXhat(DrivetrainController::State::kLeftVelocity)};
-    units::meters_per_second_t vr{
-        m_drivetrainNextXhat(DrivetrainController::State::kRightVelocity)};
-    units::meters_per_second_t v = (vl + vr) / 2.0;
+    units::meters_per_second_t v =
+        (m_drivetrainLeftVelocity + m_drivetrainRightVelocity) / 2.0;
     units::meters_per_second_t v_x =
         v * m_drivetrainNextPoseInGlobal.Rotation().Cos();
     units::meters_per_second_t v_y =

@@ -15,6 +15,7 @@
 #include <units/angular_acceleration.h>
 #include <units/angular_velocity.h>
 #include <units/length.h>
+#include <units/velocity.h>
 #include <units/voltage.h>
 #include <wpi/math>
 
@@ -92,7 +93,7 @@ public:
     /**
      * Sets the current estimated global pose of the drivetrain.
      */
-    void SetDrivetrainStatus(const Eigen::Matrix<double, 10, 1>& nextXhat);
+    void SetDrivetrainStates(const Eigen::Matrix<double, 10, 1>& x);
 
     const Eigen::Matrix<double, 2, 1>& GetReferences() const override;
 
@@ -171,7 +172,8 @@ private:
     bool m_atReferences = false;
 
     frc::Pose2d m_drivetrainNextPoseInGlobal;
-    Eigen::Matrix<double, 10, 1> m_drivetrainNextXhat;
+    units::meters_per_second_t m_drivetrainLeftVelocity = 0_mps;
+    units::meters_per_second_t m_drivetrainRightVelocity = 0_mps;
     frc::Pose2d m_turretNextPoseInGlobal;
 
     static Eigen::Vector2d ToVector2d(frc::Translation2d translation);

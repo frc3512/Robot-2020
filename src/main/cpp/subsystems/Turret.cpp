@@ -104,7 +104,7 @@ void Turret::TeleopPeriodic() {
 }
 
 void Turret::ControllerPeriodic() {
-    m_controller.SetDrivetrainStatus(m_drivetrain.GetNextXhat());
+    m_controller.SetDrivetrainStates(m_drivetrain.GetStates());
 
     Eigen::Matrix<double, 1, 1> y;
     y << GetAngle().to<double>();
