@@ -6,6 +6,7 @@
 
 #include <frc/Joystick.h>
 #include <wpi/MathExtras.h>
+#include <wpi/math>
 
 #include "CANSparkMaxUtil.hpp"
 
@@ -14,8 +15,14 @@ using namespace frc3512::Constants::Climber;
 using namespace frc3512::Constants::Robot;
 
 Climber::Climber() {
-    SetCANSparkMaxBusUsage(m_elevator, Usage::kMinimal);
+    SetCANSparkMaxBusUsage(m_elevator, Usage::kPositionOnly);
     SetCANSparkMaxBusUsage(m_traverser, Usage::kMinimal);
+
+    // Converts rotations to meters
+    constexpr units::meter_t kDrumDiameter = 1_in;
+    constexpr double kGearRatio = 1.0 / 20.0;
+    m_elevatorEncoder.SetPositionConversionFactor(
+        wpi::math::pi * kDrumDiameter.to<double>() * kGearRatio);
 }
 
 void Climber::SetTraverser(double speed) { m_traverser.Set(speed); }
@@ -29,6 +36,10 @@ void Climber::SetElevator(double speed) {
         m_pancake.Set(false);
         m_elevator.Set(0.0);
     }
+}
+
+units::meter_t Climber::GetElevatorPosition() {
+    return units::meter_t{m_elevatorEncoder.GetPosition()};
 }
 
 void Climber::TeleopPeriodic() {
@@ -61,4 +72,6 @@ void Climber::TeleopPeriodic() {
     } else {
         SetElevator(0.0);
     }
+
+    m_elevatorEncoderEntry.SetDouble(m_elevatorEncoder.GetPosition());
 }

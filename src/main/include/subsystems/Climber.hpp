@@ -3,7 +3,11 @@
 #pragma once
 
 #include <frc/Solenoid.h>
+#include <networktables/NetworkTableEntry.h>
+#include <networktables/NetworkTableInstance.h>
+#include <rev/CANEncoder.h>
 #include <rev/CANSparkMax.h>
+#include <units/length.h>
 
 #include "Constants.hpp"
 #include "subsystems/SubsystemBase.hpp"
@@ -38,16 +42,27 @@ public:
      */
     void SetElevator(double speed);
 
+    /**
+     * Returns the position of the elevator.
+     */
+    units::meter_t GetElevatorPosition();
+
     void TeleopPeriodic() override;
 
 private:
     rev::CANSparkMax m_elevator{Constants::Climber::kElevatorPortRight,
                                 rev::CANSparkMax::MotorType::kBrushless};
+    rev::CANEncoder m_elevatorEncoder{
+        m_elevator, rev::CANEncoder::EncoderType::kHallSensor};
 
     rev::CANSparkMax m_traverser{frc3512::Constants::Climber::kTraverserPort,
                                  rev::CANSparkMax::MotorType::kBrushless};
 
     frc::Solenoid m_pancake{frc3512::Constants::Climber::kClimberLock};
+
+    nt::NetworkTableInstance m_inst = nt::NetworkTableInstance::GetDefault();
+    nt::NetworkTableEntry m_elevatorEncoderEntry =
+        m_inst.GetEntry("Diagnostics/Climber/Elevator encoder");
 };
 
 }  // namespace frc3512
