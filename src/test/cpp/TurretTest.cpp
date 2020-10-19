@@ -37,7 +37,7 @@ TEST_F(TurretTest, ConfigSpaceLimits) {
     frc3512::SubsystemBase::RunAllTeleopInit();
     frc3512::ControllerSubsystemBase::Enable();
 
-    frc::Notifier teleopPeriodic{&frc3512::SubsystemBase::RunAllTeleopPeriodic};
+    frc::Notifier teleopPeriodic{[&] { turret.TeleopPeriodic(); }};
     teleopPeriodic.StartPeriodic(20_ms);
 
     // Verify turret can move CW when it isn't at the soft limits
