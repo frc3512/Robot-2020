@@ -7,6 +7,7 @@
 #include <frc/DriverStation.h>
 #include <frc/Joystick.h>
 #include <frc/RobotController.h>
+#include <frc/livewindow/LiveWindow.h>
 #include <wpi/MathExtras.h>
 
 namespace frc3512 {
@@ -34,6 +35,8 @@ Robot::Robot() {
         "Right Side Shoot Three Balls",
         std::bind(&Robot::AutoRightSideShootThreeInit, this),
         std::bind(&Robot::AutoRightSideShootThreePeriodic, this));
+
+    frc::LiveWindow::GetInstance()->DisableAllTelemetry();
 }
 
 void Robot::SimulationInit() { SubsystemBase::RunAllSimulationInit(); }
