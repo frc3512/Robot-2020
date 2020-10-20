@@ -47,6 +47,8 @@ public:
      */
     units::meter_t GetElevatorPosition();
 
+    void RobotPeriodic() override;
+
     void TeleopPeriodic() override;
 
 private:

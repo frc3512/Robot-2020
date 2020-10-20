@@ -42,6 +42,10 @@ units::meter_t Climber::GetElevatorPosition() {
     return units::meter_t{m_elevatorEncoder.GetPosition()};
 }
 
+void Climber::RobotPeriodic() {
+    m_elevatorEncoderEntry.SetDouble(m_elevatorEncoder.GetPosition());
+}
+
 void Climber::TeleopPeriodic() {
     static frc::Joystick appendageStick1{kAppendageStick1Port};
     static frc::Joystick appendageStick2{kAppendageStick2Port};
@@ -72,6 +76,4 @@ void Climber::TeleopPeriodic() {
     } else {
         SetElevator(0.0);
     }
-
-    m_elevatorEncoderEntry.SetDouble(m_elevatorEncoder.GetPosition());
 }
