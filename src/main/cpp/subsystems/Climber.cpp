@@ -22,9 +22,9 @@ Climber::Climber() {
 void Climber::SetTraverser(double speed) { m_traverser.Set(speed); }
 
 void Climber::SetElevator(double speed) {
-    // Checks if the elevator's position is within the limits.
-    if (speed > 0.02 && GetElevatorPosition() <= 1.2287_m ||
-        speed < -0.02 && GetElevatorPosition() >= 0_m) {
+    // Checks if the elevator's position is within the limits
+    if ((speed > 0.02 && GetElevatorPosition() <= 1.2287_m) ||
+        (speed < -0.02 && GetElevatorPosition() >= 0_m)) {
         // Unlock climber if it's being commanded to move
         m_pancake.Set(true);
         m_elevator.Set(speed);
@@ -75,5 +75,22 @@ void Climber::TeleopPeriodic() {
         SetElevator(appendageStick1.GetY());
     } else {
         SetElevator(0.0);
+    }
+}
+
+void Climber::TestPeriodic() {
+    static frc::Joystick appendageStick1{kAppendageStick1Port};
+
+    double speed = appendageStick1.GetY();
+
+    // Ignore soft limits so the user can manually reset the elevator before
+    // rebooting the robot
+    if (std::abs(speed) > 0.02) {
+        // Unlock climber if it's being commanded to move
+        m_pancake.Set(true);
+        m_elevator.Set(speed);
+    } else {
+        m_pancake.Set(false);
+        m_elevator.Set(0.0);
     }
 }

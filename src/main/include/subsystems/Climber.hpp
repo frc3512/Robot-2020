@@ -51,6 +51,8 @@ public:
 
     void TeleopPeriodic() override;
 
+    void TestPeriodic() override;
+
 private:
     rev::CANSparkMax m_elevator{Constants::Climber::kElevatorPortRight,
                                 rev::CANSparkMax::MotorType::kBrushless};

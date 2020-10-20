@@ -34,17 +34,18 @@ void SubsystemBase::RunAllAutonomousInit() {
 }
 
 void SubsystemBase::RunAllTeleopInit() {
-    // Consumes button edge events produced in disabled mode
-    auto& ds = frc::DriverStation::GetInstance();
-    for (int stick = 0; stick < frc::DriverStation::kJoystickPorts; ++stick) {
-        for (int button = 1; button < 32; ++button) {
-            ds.GetStickButtonPressed(stick, button);
-            ds.GetStickButtonReleased(stick, button);
-        }
-    }
+    ConsumeButtonEdgeEvents();
 
     for (auto& subsystem : m_subsystems) {
         subsystem->TeleopInit();
+    }
+}
+
+void SubsystemBase::RunAllTestInit() {
+    ConsumeButtonEdgeEvents();
+
+    for (auto& subsystem : m_subsystems) {
+        subsystem->TestInit();
     }
 }
 
@@ -75,5 +76,22 @@ void SubsystemBase::RunAllAutonomousPeriodic() {
 void SubsystemBase::RunAllTeleopPeriodic() {
     for (auto& subsystem : m_subsystems) {
         subsystem->TeleopPeriodic();
+    }
+}
+
+void SubsystemBase::RunAllTestPeriodic() {
+    for (auto& subsystem : m_subsystems) {
+        subsystem->TestPeriodic();
+    }
+}
+
+void SubsystemBase::ConsumeButtonEdgeEvents() {
+    // Consumes button edge events produced in disabled mode
+    auto& ds = frc::DriverStation::GetInstance();
+    for (int stick = 0; stick < frc::DriverStation::kJoystickPorts; ++stick) {
+        for (int button = 1; button < 32; ++button) {
+            ds.GetStickButtonPressed(stick, button);
+            ds.GetStickButtonReleased(stick, button);
+        }
     }
 }

@@ -103,6 +103,23 @@ void Turret::TeleopPeriodic() {
     }
 }
 
+void Turret::TestPeriodic() {
+    static frc::Joystick appendageStick1{kAppendageStick1Port};
+
+    // Ignore soft limits so the user can manually reset the turret before
+    // rebooting the robot
+    int pov = appendageStick1.GetPOV();
+    if (pov == 90) {
+        // CW
+        m_motor.SetVoltage(-7_V);
+    } else if (pov == 270) {
+        // CCW
+        m_motor.SetVoltage(7_V);
+    } else {
+        m_motor.SetVoltage(0_V);
+    }
+}
+
 void Turret::ControllerPeriodic() {
     m_controller.SetDrivetrainStates(m_drivetrain.GetStates());
 

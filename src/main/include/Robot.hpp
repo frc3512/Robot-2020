@@ -40,6 +40,8 @@ public:
 
     void TeleopInit() override;
 
+    void TestInit() override;
+
     void RobotPeriodic() override;
 
     void SimulationPeriodic() override;
@@ -49,6 +51,8 @@ public:
     void AutonomousPeriodic() override;
 
     void TeleopPeriodic() override;
+
+    void TestPeriodic() override;
 
     /**
      * Initialization code for driving towards the allied alliance station from

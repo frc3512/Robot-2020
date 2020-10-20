@@ -44,6 +44,11 @@ public:
     virtual void TeleopInit() {}
 
     /**
+     * Initialization coe for test mode should go here.
+     */
+    virtual void TestInit() {}
+
+    /**
      * Periodic code for all modes should go here.
      */
     virtual void RobotPeriodic() {}
@@ -71,6 +76,11 @@ public:
     virtual void TeleopPeriodic() {}
 
     /**
+     * Periodic code for test mode should go here.
+     */
+    virtual void TestPeriodic() {}
+
+    /**
      * Call all subsystems's SimulationInit().
      */
     static void RunAllSimulationInit();
@@ -89,6 +99,11 @@ public:
      * Call all subsystems's TeleopInit().
      */
     static void RunAllTeleopInit();
+
+    /**
+     * Call all subsystems's TestInit().
+     */
+    static void RunAllTestInit();
 
     /**
      * Call all subsystems's RobotPeriodic().
@@ -115,8 +130,18 @@ public:
      */
     static void RunAllTeleopPeriodic();
 
+    /**
+     * Call all subsystems's TestPeriodic().
+     */
+    static void RunAllTestPeriodic();
+
 private:
     static wpi::SmallVector<SubsystemBase*, 8> m_subsystems;
+
+    /**
+     * Consumes button edge events produced in disabled mode.
+     */
+    static void ConsumeButtonEdgeEvents();
 };
 
 }  // namespace frc3512

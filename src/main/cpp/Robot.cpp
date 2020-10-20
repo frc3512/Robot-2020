@@ -64,6 +64,12 @@ void Robot::TeleopInit() {
     ControllerSubsystemBase::Enable();
 }
 
+void Robot::TestInit() {
+    SubsystemBase::RunAllTestInit();
+
+    ControllerSubsystemBase::Enable();
+}
+
 void Robot::RobotPeriodic() {
     SubsystemBase::RunAllRobotPeriodic();
 
@@ -128,6 +134,8 @@ void Robot::TeleopPeriodic() {
         }
     }
 }
+
+void Robot::TestPeriodic() { SubsystemBase::RunAllTestPeriodic(); }
 
 }  // namespace frc3512
 

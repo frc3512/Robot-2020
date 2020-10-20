@@ -113,6 +113,8 @@ public:
 
     void TeleopPeriodic() override;
 
+    void TestPeriodic() override;
+
 protected:
     void ControllerPeriodic() override;
 
