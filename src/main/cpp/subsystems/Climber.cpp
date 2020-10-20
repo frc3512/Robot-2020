@@ -37,7 +37,7 @@ void Climber::SetElevator(double speed) {
 units::meter_t Climber::GetElevatorPosition() {
     constexpr double kG = 1.0 / 20.0;  // Gear ratio
 
-    double rotations = m_elevatorEncoder.GetPosition();
+    double rotations = -m_elevatorEncoder.GetPosition();
     return units::meter_t{0.04381 * wpi::math::pi * kG * rotations /
                           (1.0 + 0.014983 * wpi::math::pi * kG * rotations)};
 }
