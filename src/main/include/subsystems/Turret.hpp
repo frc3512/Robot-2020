@@ -8,6 +8,7 @@
 
 #include <frc/DutyCycleEncoder.h>
 #include <frc/geometry/Pose2d.h>
+#include <frc/simulation/DutyCycleEncoderSim.h>
 #include <frc/simulation/LinearSystemSim.h>
 #include <frc2/Timer.h>
 #include <networktables/NetworkTableEntry.h>
@@ -146,7 +147,7 @@ private:
     // Simulation variables
     frc::sim::LinearSystemSim<2, 1, 1> m_turretSim{m_controller.GetPlant(),
                                                    {0.001}};
-    hal::SimDouble m_positionSim;
+    frc::sim::DutyCycleEncoderSim m_encoderSim{m_encoder};
 
     /**
      * Set voltage output of turret motor.
@@ -156,11 +157,11 @@ private:
     void SetVoltage(units::volt_t voltage);
 
     /**
-     * Converts given turret heading to DutyCycleEncoder Get() result in turns.
+     * Converts given turret heading to DutyCycleEncoder GetDistance() result.
      *
      * @param heading The heading to convert.
      */
-    static double HeadingToEncoderTurns(units::radian_t heading);
+    static double HeadingToEncoderDistance(units::radian_t heading);
 };
 
 }  // namespace frc3512

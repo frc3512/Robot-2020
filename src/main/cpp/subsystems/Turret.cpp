@@ -16,9 +16,6 @@ using namespace frc3512::Constants::Robot;
 
 Turret::Turret(Vision& vision, Drivetrain& drivetrain)
     : m_vision(vision), m_drivetrain(drivetrain) {
-    frc::sim::SimDeviceSim encoderSim{"DutyCycleEncoder[0]"};
-    m_positionSim = encoderSim.GetDouble("Position");
-
     SetCANSparkMaxBusUsage(m_motor, Usage::kMinimal);
 
     // Ensures CANSparkMax::Get() returns an initialized value
@@ -49,7 +46,7 @@ void Turret::Reset(units::radian_t initialHeading) {
         Eigen::Matrix<double, 2, 1> x = Eigen::Matrix<double, 2, 1>::Zero();
         m_turretSim.SetState(x);
 
-        m_positionSim.Set(HeadingToEncoderTurns(initialHeading));
+        m_encoderSim.SetDistance(HeadingToEncoderDistance(initialHeading));
     }
 }
 
@@ -166,8 +163,8 @@ void Turret::ControllerPeriodic() {
 
         m_turretSim.Update(Constants::kDt);
 
-        m_positionSim.Set(
-            HeadingToEncoderTurns(units::radian_t{m_turretSim.GetOutput(0)}));
+        m_encoderSim.SetDistance(HeadingToEncoderDistance(
+            units::radian_t{m_turretSim.GetOutput(0)}));
     }
 }
 
@@ -181,11 +178,9 @@ void Turret::SetVoltage(units::volt_t voltage) {
     }
 }
 
-double Turret::HeadingToEncoderTurns(units::radian_t heading) {
+double Turret::HeadingToEncoderDistance(units::radian_t heading) {
     // heading = -GetDistance() + kOffset
-    // heading = -(Get() * kDpR) + kOffset
-    // heading - kOffset = -Get() * kDpR
-    // (heading - kOffset) / kDpR = -Get()
-    // Get() = (kOffset - heading) / kDpR
-    return (kOffset - heading).to<double>() / TurretController::kDpR;
+    // -GetDistance() = heading - kOffset
+    // GetDistance() = kOffset - heading
+    return (kOffset - heading).to<double>();
 }
