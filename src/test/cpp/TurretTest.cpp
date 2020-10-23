@@ -42,24 +42,18 @@ TEST_F(TurretTest, ConfigSpaceLimits) {
 
     // Verify turret can move CW when it isn't at the soft limits
     appendageStick1.SetPOV(kPovCW);
-    frc::sim::StepTiming(frc3512::Constants::kDt);
-    frc::sim::StepTiming(frc3512::Constants::kDt);
-    frc::sim::StepTiming(frc3512::Constants::kDt);
-    frc::sim::StepTiming(frc3512::Constants::kDt);
+    frc::sim::StepTiming(20_ms);
     EXPECT_LT(turret.GetMotorOutput(), 0_V);
 
     // Verify turret can move CCW when it isn't at the soft limits
     appendageStick1.SetPOV(kPovCCW);
-    frc::sim::StepTiming(frc3512::Constants::kDt);
-    frc::sim::StepTiming(frc3512::Constants::kDt);
-    frc::sim::StepTiming(frc3512::Constants::kDt);
-    frc::sim::StepTiming(frc3512::Constants::kDt);
+    frc::sim::StepTiming(20_ms);
     EXPECT_GT(turret.GetMotorOutput(), 0_V);
 
     // Move turret into CW limit
     while (!turret.HasPassedCWLimit()) {
         appendageStick1.SetPOV(kPovCW);
-        frc::sim::StepTiming(frc3512::Constants::kDt);
+        frc::sim::StepTiming(20_ms);
 
         ASSERT_LT(frc2::Timer::GetFPGATimestamp(), 30_s)
             << "Turret took too long to reach CW limit";
@@ -67,24 +61,18 @@ TEST_F(TurretTest, ConfigSpaceLimits) {
 
     // Don't let turret move past CW limit
     appendageStick1.SetPOV(kPovCW);
-    frc::sim::StepTiming(frc3512::Constants::kDt);
-    frc::sim::StepTiming(frc3512::Constants::kDt);
-    frc::sim::StepTiming(frc3512::Constants::kDt);
-    frc::sim::StepTiming(frc3512::Constants::kDt);
+    frc::sim::StepTiming(20_ms);
     EXPECT_EQ(turret.GetMotorOutput(), 0_V);
 
     // Let turret move away from CW limit
     appendageStick1.SetPOV(kPovCCW);
-    frc::sim::StepTiming(frc3512::Constants::kDt);
-    frc::sim::StepTiming(frc3512::Constants::kDt);
-    frc::sim::StepTiming(frc3512::Constants::kDt);
-    frc::sim::StepTiming(frc3512::Constants::kDt);
+    frc::sim::StepTiming(20_ms);
     EXPECT_GT(turret.GetMotorOutput(), 0_V);
 
     // Move turret into CCW limit
     while (!turret.HasPassedCCWLimit()) {
         appendageStick1.SetPOV(kPovCCW);
-        frc::sim::StepTiming(frc3512::Constants::kDt);
+        frc::sim::StepTiming(20_ms);
 
         ASSERT_LT(frc2::Timer::GetFPGATimestamp(), 30_s)
             << "Turret took too long to reach CCW limit";
@@ -92,18 +80,12 @@ TEST_F(TurretTest, ConfigSpaceLimits) {
 
     // Don't let turret move past CCW limit
     appendageStick1.SetPOV(kPovCCW);
-    frc::sim::StepTiming(frc3512::Constants::kDt);
-    frc::sim::StepTiming(frc3512::Constants::kDt);
-    frc::sim::StepTiming(frc3512::Constants::kDt);
-    frc::sim::StepTiming(frc3512::Constants::kDt);
+    frc::sim::StepTiming(20_ms);
     EXPECT_EQ(turret.GetMotorOutput(), 0_V);
 
     // Let turret move away from CCW limit
     appendageStick1.SetPOV(kPovCW);
-    frc::sim::StepTiming(frc3512::Constants::kDt);
-    frc::sim::StepTiming(frc3512::Constants::kDt);
-    frc::sim::StepTiming(frc3512::Constants::kDt);
-    frc::sim::StepTiming(frc3512::Constants::kDt);
+    frc::sim::StepTiming(20_ms);
     EXPECT_LT(turret.GetMotorOutput(), 0_V);
 
     frc3512::SubsystemBase::RunAllDisabledInit();
@@ -125,11 +107,7 @@ TEST(TurretTest, DISABLED_ReachesReferenceStaticDrivetrain) {
         &frc3512::SubsystemBase::RunAllAutonomousPeriodic};
     autonomousPeriodic.StartPeriodic(20_ms);
 
-    frc2::Timer currentTime;
-    currentTime.Start();
-    while (currentTime.Get() < 10_s) {
-        frc::sim::StepTiming(frc3512::Constants::kDt);
-    }
+    frc::sim::StepTiming(10_s);
 
     frc3512::SubsystemBase::RunAllDisabledInit();
     frc3512::ControllerSubsystemBase::Disable();
@@ -158,11 +136,7 @@ TEST_F(TurretTest, DISABLED_ReachesReferenceRotateInPlaceDrivetrain) {
         &frc3512::SubsystemBase::RunAllAutonomousPeriodic};
     autonomousPeriodic.StartPeriodic(20_ms);
 
-    frc2::Timer currentTime;
-    currentTime.Start();
-    while (currentTime.Get() < 10_s) {
-        frc::sim::StepTiming(frc3512::Constants::kDt);
-    }
+    frc::sim::StepTiming(10_s);
 
     frc3512::SubsystemBase::RunAllDisabledInit();
     frc3512::ControllerSubsystemBase::Disable();
@@ -188,11 +162,7 @@ TEST_F(TurretTest, DISABLED_ReachesReferenceSCurveDrivetrain) {
         &frc3512::SubsystemBase::RunAllAutonomousPeriodic};
     autonomousPeriodic.StartPeriodic(20_ms);
 
-    frc2::Timer currentTime;
-    currentTime.Start();
-    while (currentTime.Get() < 10_s) {
-        frc::sim::StepTiming(frc3512::Constants::kDt);
-    }
+    frc::sim::StepTiming(10_s);
 
     frc3512::SubsystemBase::RunAllDisabledInit();
     frc3512::ControllerSubsystemBase::Disable();
@@ -222,11 +192,7 @@ TEST_F(TurretTest, ReachesReferenceAutonDrivetrain) {
         &frc3512::SubsystemBase::RunAllAutonomousPeriodic};
     autonomousPeriodic.StartPeriodic(20_ms);
 
-    frc2::Timer currentTime;
-    currentTime.Start();
-    while (currentTime.Get() < 10_s) {
-        frc::sim::StepTiming(frc3512::Constants::kDt);
-    }
+    frc::sim::StepTiming(10_s);
 
     frc3512::SubsystemBase::RunAllDisabledInit();
     frc3512::ControllerSubsystemBase::Disable();

@@ -29,8 +29,7 @@ TEST_F(ControllerSubsystemBaseTest, ControllerPeriodic1) {
     frc3512::ControllerSubsystemBase::Enable();
 
     // ControllerPeriodic() will run at 5ms and 10ms timestamps
-    frc::sim::StepTiming(frc3512::Constants::kDt);
-    frc::sim::StepTiming(frc3512::Constants::kDt);
+    frc::sim::StepTiming(2 * frc3512::Constants::kDt);
 
     // Disable before reaching 15ms
     frc3512::ControllerSubsystemBase::Disable();
@@ -46,8 +45,7 @@ TEST_F(ControllerSubsystemBaseTest, ControllerPeriodic2) {
     frc3512::ControllerSubsystemBase::Enable();
 
     // ControllerPeriodic() will run at 5ms and 10ms timestamps
-    frc::sim::StepTiming(frc3512::Constants::kDt);
-    frc::sim::StepTiming(frc3512::Constants::kDt);
+    frc::sim::StepTiming(2 * frc3512::Constants::kDt);
 
     // Disable before reaching 15ms
     frc3512::ControllerSubsystemBase::Disable();

@@ -2,7 +2,6 @@
 
 #include <frc/Notifier.h>
 #include <frc/simulation/SimHooks.h>
-#include <frc2/Timer.h>
 #include <gtest/gtest.h>
 
 #include "CSVTestUtil.hpp"
@@ -38,11 +37,7 @@ TEST_F(DrivetrainTest, ReachesReferenceStraight) {
         &frc3512::SubsystemBase::RunAllAutonomousPeriodic};
     autonomousPeriodic.StartPeriodic(20_ms);
 
-    frc2::Timer timer;
-    timer.Start();
-    while (timer.Get() < 10_s) {
-        frc::sim::StepTiming(frc3512::Constants::kDt);
-    }
+    frc::sim::StepTiming(10_s);
 
     frc3512::SubsystemBase::RunAllDisabledInit();
     frc3512::ControllerSubsystemBase::Disable();
@@ -69,11 +64,7 @@ TEST_F(DrivetrainTest, ReachesReferenceCurve) {
         &frc3512::SubsystemBase::RunAllAutonomousPeriodic};
     autonomousPeriodic.StartPeriodic(20_ms);
 
-    frc2::Timer timer;
-    timer.Start();
-    while (timer.Get() < 10_s) {
-        frc::sim::StepTiming(frc3512::Constants::kDt);
-    }
+    frc::sim::StepTiming(10_s);
 
     frc3512::SubsystemBase::RunAllDisabledInit();
     frc3512::ControllerSubsystemBase::Disable();

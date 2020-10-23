@@ -2,7 +2,6 @@
 
 #include <frc/Notifier.h>
 #include <frc/simulation/SimHooks.h>
-#include <frc2/Timer.h>
 #include <gtest/gtest.h>
 
 #include "CSVTestUtil.hpp"
@@ -34,11 +33,7 @@ TEST_F(FlywheelTest, ReachesGoal) {
     frc::Notifier teleopPeriodic{&frc3512::SubsystemBase::RunAllTeleopPeriodic};
     teleopPeriodic.StartPeriodic(20_ms);
 
-    frc2::Timer timer;
-    timer.Start();
-    while (timer.Get() < 2_s) {
-        frc::sim::StepTiming(frc3512::Constants::kDt);
-    }
+    frc::sim::StepTiming(2_s);
 
     frc3512::SubsystemBase::RunAllDisabledInit();
     frc3512::ControllerSubsystemBase::Disable();
