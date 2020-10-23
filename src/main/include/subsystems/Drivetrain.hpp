@@ -12,9 +12,9 @@
 #include <frc/drive/DifferentialDrive.h>
 #include <frc/geometry/Pose2d.h>
 #include <frc/geometry/Translation2d.h>
+#include <frc/simulation/ADXRS450_GyroSim.h>
 #include <frc/simulation/DifferentialDrivetrainSim.h>
 #include <frc/simulation/EncoderSim.h>
-#include <frc/simulation/SimDeviceSim.h>
 #include <frc2/Timer.h>
 #include <networktables/NetworkTableEntry.h>
 #include <networktables/NetworkTableInstance.h>
@@ -234,7 +234,7 @@ private:
     frc::sim::DifferentialDrivetrainSim m_drivetrainSim;
     frc::sim::EncoderSim m_leftEncoderSim{m_leftEncoder};
     frc::sim::EncoderSim m_rightEncoderSim{m_rightEncoder};
-    hal::SimDouble m_angleSim;
+    frc::sim::ADXRS450_GyroSim m_gyroSim{m_gyro};
 };
 
 }  // namespace frc3512
