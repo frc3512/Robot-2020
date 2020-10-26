@@ -27,7 +27,7 @@ TEST_P(AutonomousTest, RunMode) {
 
     {
         frc3512::Robot robot;
-        robot.m_autonSelector.SetMode(GetParam());
+        robot.SelectAutonomous(GetParam());
 
         std::thread robotThread{[&] { robot.StartCompetition(); }};
 
@@ -51,9 +51,5 @@ TEST_P(AutonomousTest, RunMode) {
 
 INSTANTIATE_TEST_SUITE_P(AutonomousTests, AutonomousTest, [] {
     frc3512::Robot robot;
-    std::vector<std::string> names;
-    for (int i = 0; i < robot.m_autonSelector.Size(); ++i) {
-        names.emplace_back(robot.m_autonSelector.GetName(i));
-    }
-    return testing::ValuesIn(names);
+    return testing::ValuesIn(robot.GetAutonomousNames());
 }());

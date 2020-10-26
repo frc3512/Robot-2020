@@ -120,6 +120,16 @@ the robot network. See the
 [LiveGrapher README](https://github.com/frc3512/LiveGrapher#livegrapher) for
 more.
 
+## Autonomous mode selection
+
+Open shuffleboard and select the desired autonomous mode from the dropdown menu.
+When the indicator next to the menu turns from a red X to a green checkmark, the
+robot has confirmed the selection.
+
+See
+[this](https://docs.wpilib.org/en/latest/docs/software/wpilib-tools/smartdashboard/choosing-an-autonomous-program-from-smartdashboard.html)
+for details on how the robot side works.
+
 ## Game
 
 The game for 2020 is called Infinite Recharge, where teams are tasked with shooting power cells into a low, high outer, and high inner goal. This year, the autonomous period returns and is the standard 15 seconds. Teams earn points in this period from moving off the initiation line and earn double the usual points for scoring in the power cell goals. Tele-op adds access to the control panel, which can be spun 3 to 5 times once the stage 2 capacity has been reached for more points, and can spun to a specified color from the FMS to score more points and earn the alliance a ranking point. Endgame tasks robots to climb a "generator switch" square truss, which may swing to be balanced or unbalanced. A ranking point is given if three robots are able to climb, or if two robots climb and the shield generator is balanced.

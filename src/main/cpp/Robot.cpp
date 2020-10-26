@@ -15,25 +15,23 @@
 namespace frc3512 {
 
 Robot::Robot() {
-    m_autonSelector.AddMode(
-        "No-op", [] {}, [] {});
-    m_autonSelector.AddMode(
+    m_autonChooser.AddAutonomous(
         "Loading Zone Drive Forward",
         std::bind(&Robot::AutoLoadingZoneDriveForwardInit, this),
         std::bind(&Robot::AutoLoadingZoneDriveForwardPeriodic, this));
-    m_autonSelector.AddMode(
+    m_autonChooser.AddAutonomous(
         "Loading Zone Shoot Three Balls",
         std::bind(&Robot::AutoLoadingZoneShootThreeInit, this),
         std::bind(&Robot::AutoLoadingZoneShootThreePeriodic, this));
-    m_autonSelector.AddMode(
+    m_autonChooser.AddAutonomous(
         "Target Zone Shoot Three Balls",
         std::bind(&Robot::AutoTargetZoneShootThreeInit, this),
         std::bind(&Robot::AutoTargetZoneShootThreePeriodic, this));
-    m_autonSelector.AddMode(
+    m_autonChooser.AddAutonomous(
         "Right Side Drive Forward",
         std::bind(&Robot::AutoRightSideDriveForwardInit, this),
         std::bind(&Robot::AutoRightSideDriveForwardPeriodic, this));
-    m_autonSelector.AddMode(
+    m_autonChooser.AddAutonomous(
         "Right Side Shoot Three Balls",
         std::bind(&Robot::AutoRightSideShootThreeInit, this),
         std::bind(&Robot::AutoRightSideShootThreePeriodic, this));
@@ -67,7 +65,7 @@ void Robot::DisabledInit() {
 
 void Robot::AutonomousInit() {
     SubsystemBase::RunAllAutonomousInit();
-    m_autonSelector.ExecAutonomousInit();
+    m_autonChooser.RunAutonomousInit();
 }
 
 void Robot::TeleopInit() { SubsystemBase::RunAllTeleopInit(); }
@@ -95,7 +93,7 @@ void Robot::DisabledPeriodic() { SubsystemBase::RunAllDisabledPeriodic(); }
 
 void Robot::AutonomousPeriodic() {
     SubsystemBase::RunAllAutonomousPeriodic();
-    m_autonSelector.ExecAutonomousPeriodic();
+    m_autonChooser.RunAutonomousPeriodic();
 
     RunShooterSM();
 }
@@ -159,6 +157,14 @@ void Robot::RunShooterSM() {
             break;
         }
     }
+}
+
+void Robot::SelectAutonomous(wpi::StringRef name) {
+    m_autonChooser.SelectAutonomous(name);
+}
+
+const std::vector<std::string>& Robot::GetAutonomousNames() const {
+    return m_autonChooser.GetAutonomousNames();
 }
 
 }  // namespace frc3512

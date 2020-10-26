@@ -2,6 +2,9 @@
 
 #pragma once
 
+#include <string>
+#include <vector>
+
 #include <frc/TimedRobot.h>
 #include <frc/logging/CSVLogFile.h>
 #include <frc/simulation/JoystickSim.h>
@@ -17,8 +20,8 @@
 #define EXPECT_TRUE(a)
 #endif
 
+#include "AutonomousChooser.hpp"
 #include "Constants.hpp"
-#include "autonselector/AutonSelector.hpp"
 #include "subsystems/Climber.hpp"
 #include "subsystems/Drivetrain.hpp"
 #include "subsystems/Flywheel.hpp"
@@ -39,8 +42,6 @@ public:
      * States used for the multi-subsystem shooting procedure
      */
     enum class ShootingState { kIdle, kStartFlywheel, kStartConveyor };
-
-    AutonSelector m_autonSelector{kDsPort};
 
     Robot();
 
@@ -166,6 +167,19 @@ public:
 
     void AutoTargetZoneShootSixPeriodic();
 
+    /**
+     * Sets the selected autonomous mode for testing purposes.
+     *
+     * @param name The autonomous mode's name passed to
+     *             AutonomousChooser::AddAutonomous().
+     */
+    void SelectAutonomous(wpi::StringRef name);
+
+    /**
+     * Returns the names of autonomous modes to test.
+     */
+    const std::vector<std::string>& GetAutonomousNames() const;
+
 private:
     static constexpr units::meter_t kPathWeaverFudge{-0.343};
 
@@ -180,6 +194,8 @@ private:
 
     ShootingState m_state = ShootingState::kIdle;
     frc2::Timer m_timer;
+
+    AutonomousChooser m_autonChooser{"No-op", [] {}, [] {}};
 
     frc::CSVLogFile m_batteryLogger{"Battery", "Battery voltage (V)"};
 
