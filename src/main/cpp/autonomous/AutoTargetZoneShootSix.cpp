@@ -43,6 +43,9 @@ void Robot::AutoTargetZoneShootSixPeriodic() {
             }
             break;
         }
+        case State::kTrenchShoot: {
+            break;
+        }
         case State::kIdle: {
             if (m_timer.HasElapsed(10_s)) {
                 m_timer.Stop();
