@@ -13,16 +13,28 @@
 
 using namespace frc3512;
 
-UdpSocket::~UdpSocket() { close(); }
+UdpSocket::~UdpSocket() { Close(); }
 
-UdpSocket::Status UdpSocket::bind(uint16_t port) {
+UdpSocket::UdpSocket(UdpSocket&& rhs) {
+    m_socket = rhs.m_socket;
+    rhs.m_socket = -1;
+}
+
+UdpSocket& UdpSocket::operator=(UdpSocket&& rhs) {
+    Close();
+    m_socket = rhs.m_socket;
+    rhs.m_socket = -1;
+    return *this;
+}
+
+UdpSocket::Status UdpSocket::Bind(uint16_t port) {
     // Create the internal socket if it doesn't exist
-    create();
+    Create();
 
     // Bind the socket
-    sockaddr_in address = UdpSocket::createAddress(INADDR_ANY, port);
-    if (::bind(m_socket, reinterpret_cast<sockaddr*>(&address),
-               sizeof(address)) == -1) {
+    sockaddr_in address = UdpSocket::CreateAddress(INADDR_ANY, port);
+    if (bind(m_socket, reinterpret_cast<sockaddr*>(&address),
+             sizeof(address)) == -1) {
         wpi::errs() << "Failed to bind socket to port " << port << "\n";
         return Error;
     }
@@ -30,15 +42,15 @@ UdpSocket::Status UdpSocket::bind(uint16_t port) {
     return Done;
 }
 
-void UdpSocket::unbind() {
+void UdpSocket::Unbind() {
     // Simply close the socket
-    close();
+    Close();
 }
 
-UdpSocket::Status UdpSocket::send(const void* data, size_t size,
+UdpSocket::Status UdpSocket::Send(const void* data, size_t size,
                                   uint32_t remoteAddress, uint16_t remotePort) {
     // Create the internal socket if it doesn't exist
-    create();
+    Create();
 
     // Make sure that all the data will fit in one datagram
     if (size > kMaxDatagramSize) {
@@ -48,7 +60,7 @@ UdpSocket::Status UdpSocket::send(const void* data, size_t size,
     }
 
     // Build the target address
-    sockaddr_in address = UdpSocket::createAddress(remoteAddress, remotePort);
+    sockaddr_in address = UdpSocket::CreateAddress(remoteAddress, remotePort);
 
     // Send the data (unlike TCP, all the data is always sent in one call)
     int sent = sendto(m_socket, static_cast<char*>(const_cast<void*>(data)),
@@ -57,13 +69,13 @@ UdpSocket::Status UdpSocket::send(const void* data, size_t size,
 
     // Check for errors
     if (sent < 0) {
-        return UdpSocket::getErrorStatus();
+        return UdpSocket::GetErrorStatus();
     }
 
     return Done;
 }
 
-UdpSocket::Status UdpSocket::receive(void* data, size_t size, size_t& received,
+UdpSocket::Status UdpSocket::Receive(void* data, size_t size, size_t& received,
                                      uint32_t& remoteAddress,
                                      uint16_t& remotePort) {
     // First clear the variables to fill
@@ -79,7 +91,7 @@ UdpSocket::Status UdpSocket::receive(void* data, size_t size, size_t& received,
     }
 
     // Data that will be filled with the other computer's address
-    sockaddr_in address = UdpSocket::createAddress(INADDR_ANY, 0);
+    sockaddr_in address = UdpSocket::CreateAddress(INADDR_ANY, 0);
 
     // Receive a chunk of bytes
     socklen_t addressSize = sizeof(address);
@@ -91,7 +103,7 @@ UdpSocket::Status UdpSocket::receive(void* data, size_t size, size_t& received,
 
     // Check for errors
     if (sizeReceived < 0) {
-        return UdpSocket::getErrorStatus();
+        return UdpSocket::GetErrorStatus();
     }
 
     // Fill the sender informations
@@ -102,7 +114,7 @@ UdpSocket::Status UdpSocket::receive(void* data, size_t size, size_t& received,
     return Done;
 }
 
-UdpSocket::Status UdpSocket::send(Packet& packet, uint32_t remoteAddress,
+UdpSocket::Status UdpSocket::Send(Packet& packet, uint32_t remoteAddress,
                                   uint16_t remotePort) {
     /* UDP is a datagram-oriented protocol (as opposed to TCP which is a stream
      * protocol). Sending one datagram is almost safe: it may be lost but if
@@ -115,14 +127,14 @@ UdpSocket::Status UdpSocket::send(Packet& packet, uint32_t remoteAddress,
      */
 
     // Get the data to send from the packet
-    size_t size = packet.getDataSize();
-    const void* data = packet.getData();
+    size_t size = packet.GetDataSize();
+    const void* data = packet.GetData();
 
     // Send it
-    return send(data, size, remoteAddress, remotePort);
+    return Send(data, size, remoteAddress, remotePort);
 }
 
-void UdpSocket::setBlocking(bool blocking) {
+void UdpSocket::SetBlocking(bool blocking) {
     int status = fcntl(m_socket, F_GETFL);
     if (blocking) {
         fcntl(m_socket, F_SETFL, status & ~O_NONBLOCK);
@@ -133,24 +145,24 @@ void UdpSocket::setBlocking(bool blocking) {
     m_isBlocking = blocking;
 }
 
-bool UdpSocket::isBlocking() const { return m_isBlocking; }
+bool UdpSocket::IsBlocking() const { return m_isBlocking; }
 
-void UdpSocket::create() {
+void UdpSocket::Create() {
     // Don't create the socket if it already exists
     if (m_socket == -1) {
         int handle = socket(PF_INET, SOCK_DGRAM, 0);
-        create(handle);
+        Create(handle);
     }
 }
 
-void UdpSocket::create(int handle) {
+void UdpSocket::Create(int handle) {
     // Don't create the socket if it already exists
     if (m_socket == -1) {
         // Assign the new handle
         m_socket = handle;
 
         // Set the current blocking state
-        setBlocking(m_isBlocking);
+        SetBlocking(m_isBlocking);
 
         // Enable broadcast by default for UDP sockets
         int yes = 1;
@@ -161,15 +173,15 @@ void UdpSocket::create(int handle) {
     }
 }
 
-void UdpSocket::close() {
+void UdpSocket::Close() {
     // Close the socket
     if (m_socket != -1) {
-        ::close(m_socket);
+        close(m_socket);
         m_socket = -1;
     }
 }
 
-sockaddr_in UdpSocket::createAddress(uint32_t address, uint16_t port) {
+sockaddr_in UdpSocket::CreateAddress(uint32_t address, uint16_t port) {
     sockaddr_in addr;
     std::memset(addr.sin_zero, 0, sizeof(addr.sin_zero));
     addr.sin_addr.s_addr = htonl(address);
@@ -179,7 +191,7 @@ sockaddr_in UdpSocket::createAddress(uint32_t address, uint16_t port) {
     return addr;
 }
 
-UdpSocket::Status UdpSocket::getErrorStatus() {
+UdpSocket::Status UdpSocket::GetErrorStatus() {
     // The followings are sometimes equal to EWOULDBLOCK,
     // so we have to make a special case for them in order
     // to avoid having double values in the switch case

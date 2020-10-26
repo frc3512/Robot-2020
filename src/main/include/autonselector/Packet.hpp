@@ -17,10 +17,10 @@ public:
     Packet() = default;
 
     // Append data to the end of the packet
-    void append(const void* data, size_t sizeInBytes);
+    void Append(const void* data, size_t sizeInBytes);
 
     // Empty the packet
-    void clear();
+    void Clear();
 
     /* Get a pointer to the data contained in the packet
      *
@@ -29,14 +29,14 @@ public:
      *
      * The return pointer is nullptr if the packet is empty.
      */
-    const void* getData() const;
+    const void* GetData() const;
 
     /* Get the size of the data contained in the packet in bytes
      *
      * This function returns the number of bytes pointed to by what getData
      * returns.
      */
-    size_t getDataSize() const;
+    size_t GetDataSize() const;
 
 public:
     // Overloads of operator<< to write data into the packet

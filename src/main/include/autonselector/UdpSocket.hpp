@@ -32,8 +32,8 @@ public:
     UdpSocket() = default;
     ~UdpSocket();
 
-    UdpSocket(const UdpSocket&) = delete;
-    UdpSocket& operator=(const UdpSocket) = delete;
+    UdpSocket(UdpSocket&& rhs);
+    UdpSocket& operator=(UdpSocket&& rhs);
 
     /**
      * Bind the socket to a specific port
@@ -47,7 +47,7 @@ public:
      *
      * @see unbind
      */
-    Status bind(uint16_t port);
+    Status Bind(uint16_t port);
 
     /**
      * Unbind the socket from the local port to which it is bound
@@ -58,7 +58,7 @@ public:
      *
      * @see bind
      */
-    void unbind();
+    void Unbind();
 
     /**
      * Send raw data to a remote peer
@@ -75,7 +75,7 @@ public:
      *
      * @see receive
      */
-    Status send(const void* data, size_t size, uint32_t remoteAddress,
+    Status Send(const void* data, size_t size, uint32_t remoteAddress,
                 uint16_t remotePort);
 
     /**
@@ -97,7 +97,7 @@ public:
      *
      * @see send
      */
-    Status receive(void* data, size_t size, size_t& received,
+    Status Receive(void* data, size_t size, size_t& received,
                    uint32_t& remoteAddress, uint16_t& remotePort);
 
     /**
@@ -114,7 +114,7 @@ public:
      *
      * @see receive
      */
-    Status send(Packet& packet, uint32_t remoteAddress, uint16_t remotePort);
+    Status Send(Packet& packet, uint32_t remoteAddress, uint16_t remotePort);
 
     /**
      * Set the blocking state of the socket
@@ -127,27 +127,27 @@ public:
      *
      * @param blocking 'true for blocking or 'false' for non-blocking
      */
-    void setBlocking(bool blocking);
+    void SetBlocking(bool blocking);
 
     /**
      * Tell whether the socket is in blocking or non-blocking mode
      *
      * @return 'true' if the socket is blocking, 'false' otherwise
      */
-    bool isBlocking() const;
+    bool IsBlocking() const;
 
 private:
     int m_socket = -1;        // Socket descriptor
     bool m_isBlocking{true};  // Current blocking mode of the socket
 
     // Create the internal representation of the socket
-    void create();
+    void Create();
 
     // Create the internal representation of the socket from a socket handle
-    void create(int handle);
+    void Create(int handle);
 
     // Close the socket gracefully
-    void close();
+    void Close();
 
     /* Create an internal sockaddr_in address
      * Params:
@@ -155,10 +155,10 @@ private:
      *     port    Target port
      * Returns sockaddr_in ready to be used by socket functions
      */
-    static sockaddr_in createAddress(uint32_t address, uint16_t port);
+    static sockaddr_in CreateAddress(uint32_t address, uint16_t port);
 
     // Returns status corresponding to the last socket error
-    static Status getErrorStatus();
+    static Status GetErrorStatus();
 };
 
 }  // namespace frc3512

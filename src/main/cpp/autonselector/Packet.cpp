@@ -9,7 +9,7 @@
 
 using namespace frc3512;
 
-void Packet::append(const void* data, size_t sizeInBytes) {
+void Packet::Append(const void* data, size_t sizeInBytes) {
     if (data && (sizeInBytes > 0)) {
         size_t start = m_packetData.size();
         m_packetData.resize(start + sizeInBytes);
@@ -17,9 +17,9 @@ void Packet::append(const void* data, size_t sizeInBytes) {
     }
 }
 
-void Packet::clear() { m_packetData.clear(); }
+void Packet::Clear() { m_packetData.clear(); }
 
-const void* Packet::getData() const {
+const void* Packet::GetData() const {
     if (!m_packetData.empty()) {
         return &m_packetData[0];
     } else {
@@ -27,7 +27,7 @@ const void* Packet::getData() const {
     }
 }
 
-size_t Packet::getDataSize() const { return m_packetData.size(); }
+size_t Packet::GetDataSize() const { return m_packetData.size(); }
 
 Packet& Packet::operator>>(bool& data) {
     uint8_t value;
@@ -155,58 +155,58 @@ Packet& Packet::operator<<(bool data) {
 }
 
 Packet& Packet::operator<<(int8_t data) {
-    append(&data, sizeof(data));
+    Append(&data, sizeof(data));
     return *this;
 }
 
 Packet& Packet::operator<<(uint8_t data) {
-    append(&data, sizeof(data));
+    Append(&data, sizeof(data));
     return *this;
 }
 
 Packet& Packet::operator<<(int16_t data) {
     int16_t toWrite = htons(data);
-    append(&toWrite, sizeof(toWrite));
+    Append(&toWrite, sizeof(toWrite));
     return *this;
 }
 
 Packet& Packet::operator<<(uint16_t data) {
     uint16_t toWrite = htons(data);
-    append(&toWrite, sizeof(toWrite));
+    Append(&toWrite, sizeof(toWrite));
     return *this;
 }
 
 Packet& Packet::operator<<(int32_t data) {
     int32_t toWrite = htonl(data);
-    append(&toWrite, sizeof(toWrite));
+    Append(&toWrite, sizeof(toWrite));
     return *this;
 }
 
 Packet& Packet::operator<<(uint32_t data) {
     uint32_t toWrite = htonl(data);
-    append(&toWrite, sizeof(toWrite));
+    Append(&toWrite, sizeof(toWrite));
     return *this;
 }
 
 Packet& Packet::operator<<(int64_t data) {
     int64_t toWrite = htonl(data);
-    append(&toWrite, sizeof(toWrite));
+    Append(&toWrite, sizeof(toWrite));
     return *this;
 }
 
 Packet& Packet::operator<<(uint64_t data) {
     uint64_t toWrite = htonl(data);
-    append(&toWrite, sizeof(toWrite));
+    Append(&toWrite, sizeof(toWrite));
     return *this;
 }
 
 Packet& Packet::operator<<(float data) {
-    append(&data, sizeof(data));
+    Append(&data, sizeof(data));
     return *this;
 }
 
 Packet& Packet::operator<<(double data) {
-    append(&data, sizeof(data));
+    Append(&data, sizeof(data));
     return *this;
 }
 
@@ -217,7 +217,7 @@ Packet& Packet::operator<<(const std::string& data) {
 
     // Then insert characters
     if (length > 0) {
-        append(data.c_str(), length * sizeof(std::string::value_type));
+        Append(data.c_str(), length * sizeof(std::string::value_type));
     }
 
     return *this;
