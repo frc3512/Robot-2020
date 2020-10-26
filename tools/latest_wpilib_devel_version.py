@@ -34,32 +34,25 @@ def main():
     os.chdir(tempfile.gettempdir())
     clone_repo("git://github.com/wpilibsuite/allwpilib", "master")
 
-    # Get list of one-line commit messages sorted from earliest to latest
-    tag = "v2020.3.2"
-    commits = (subprocess.check_output(
-        ["git", "log", "-q", "--reverse", "--pretty=oneline",
-         f"{tag}..HEAD"]).decode().strip().split("\n"))
-
     content = requests.get(
         "https://frcmaven.wpi.edu:443/artifactory/development/edu/wpi/first/wpimath/wpimath-cpp/maven-metadata.xml"
     ).text
 
-    # Get the first <version> tag in the XML, which will be the latest
-    # version
+    # Get the first <version> tag in the XML, which will be the latest version
     version_rgx = re.compile(
-        r"""<version>
-        (?P<version>[0-9\.]+-(?P<commit>[0-9]+)-g[a-f0-9]+)
-        </version>""",
+        r"""(?<=<version>)[0-9\.]+-[0-9]+-g([a-f0-9]+)(?=</version>)""",
         re.VERBOSE,
     )
     match = version_rgx.search(content)
-    version = match.group("version")
-    commit = int(match.group("commit"))
+    print(f"{match.group()}")
 
-    print(f"{version}")
-    match = re.search(r"^([a-f0-9]+)\s+(.*)$", commits[commit - 1])
-    print(f"\tcommit {match.group(1)}")
-    print(f"\t{match.group(2)}")
+    # Get longer commit hash and short description from Git
+    log_msg = (subprocess.check_output(
+        ["git", "log", "--pretty=oneline", "-1",
+         match.group(1)]).decode().strip())
+    msgs = log_msg.split(maxsplit=1)
+    print(f"\tcommit {msgs[0]}")
+    print(f"\t{msgs[1]}")
 
 
 if __name__ == "__main__":
