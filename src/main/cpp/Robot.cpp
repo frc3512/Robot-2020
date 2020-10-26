@@ -13,25 +13,25 @@
 namespace frc3512 {
 
 Robot::Robot() {
-    m_autonSelector.AddAutoMethod(
+    m_autonSelector.AddMode(
         "No-op", [] {}, [] {});
-    m_autonSelector.AddAutoMethod(
+    m_autonSelector.AddMode(
         "Loading Zone Drive Forward",
         std::bind(&Robot::AutoLoadingZoneDriveForwardInit, this),
         std::bind(&Robot::AutoLoadingZoneDriveForwardPeriodic, this));
-    m_autonSelector.AddAutoMethod(
+    m_autonSelector.AddMode(
         "Loading Zone Shoot Three Balls",
         std::bind(&Robot::AutoLoadingZoneShootThreeInit, this),
         std::bind(&Robot::AutoLoadingZoneShootThreePeriodic, this));
-    m_autonSelector.AddAutoMethod(
+    m_autonSelector.AddMode(
         "Target Zone Shoot Three Balls",
         std::bind(&Robot::AutoTargetZoneShootThreeInit, this),
         std::bind(&Robot::AutoTargetZoneShootThreePeriodic, this));
-    m_autonSelector.AddAutoMethod(
+    m_autonSelector.AddMode(
         "Right Side Drive Forward",
         std::bind(&Robot::AutoRightSideDriveForwardInit, this),
         std::bind(&Robot::AutoRightSideDriveForwardPeriodic, this));
-    m_autonSelector.AddAutoMethod(
+    m_autonSelector.AddMode(
         "Right Side Shoot Three Balls",
         std::bind(&Robot::AutoRightSideShootThreeInit, this),
         std::bind(&Robot::AutoRightSideShootThreePeriodic, this));
