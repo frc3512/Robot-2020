@@ -66,7 +66,7 @@ private:
 
     nt::NetworkTableInstance m_inst = nt::NetworkTableInstance::GetDefault();
     nt::NetworkTableEntry m_elevatorEncoderEntry =
-        m_inst.GetEntry("Diagnostics/Climber/Elevator encoder");
+        m_inst.GetEntry("/Diagnostics/Climber/Elevator encoder");
 };
 
 }  // namespace frc3512

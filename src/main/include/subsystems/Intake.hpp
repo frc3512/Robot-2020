@@ -120,9 +120,9 @@ private:
 
     nt::NetworkTableInstance m_inst = nt::NetworkTableInstance::GetDefault();
     nt::NetworkTableEntry m_upperSensorEntry =
-        m_inst.GetEntry("Diagnostics/Intake/Upper sensor blocked");
+        m_inst.GetEntry("/Diagnostics/Intake/Upper sensor blocked");
     nt::NetworkTableEntry m_lowerSensorEntry =
-        m_inst.GetEntry("Diagnostics/Intake/Lower sensor blocked");
+        m_inst.GetEntry("/Diagnostics/Intake/Lower sensor blocked");
 };
 
 }  // namespace frc3512

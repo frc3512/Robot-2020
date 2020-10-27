@@ -224,11 +224,11 @@ private:
 
     nt::NetworkTableInstance m_inst = nt::NetworkTableInstance::GetDefault();
     nt::NetworkTableEntry m_leftEncoderEntry =
-        m_inst.GetEntry("Diagnostics/Drivetrain/Left encoder");
+        m_inst.GetEntry("/Diagnostics/Drivetrain/Left encoder");
     nt::NetworkTableEntry m_rightEncoderEntry =
-        m_inst.GetEntry("Diagnostics/Drivetrain/Right encoder");
+        m_inst.GetEntry("/Diagnostics/Drivetrain/Right encoder");
     nt::NetworkTableEntry m_headingEntry =
-        m_inst.GetEntry("Diagnostics/Drivetrain/Heading");
+        m_inst.GetEntry("/Diagnostics/Drivetrain/Heading");
 
     // Simulation variables
     frc::sim::DifferentialDrivetrainSim m_drivetrainSim;
