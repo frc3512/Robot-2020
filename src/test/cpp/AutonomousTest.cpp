@@ -4,7 +4,6 @@
 #include <string>
 #include <vector>
 
-#include <frc/RobotBase.h>
 #include <frc/simulation/DriverStationSim.h>
 #include <frc/simulation/SimHooks.h>
 #include <gtest/gtest.h>
@@ -16,7 +15,6 @@ class AutonomousTest : public testing::TestWithParam<std::string> {
 protected:
     void SetUp() override {
         frc::sim::PauseTiming();
-        frc::RunHALInitialization();
         robot = std::make_unique<frc3512::Robot>();
     }
 
