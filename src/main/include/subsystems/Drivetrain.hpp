@@ -22,6 +22,7 @@
 #include <rev/CANSparkMax.h>
 #include <units/angle.h>
 #include <units/angular_velocity.h>
+#include <units/current.h>
 #include <units/length.h>
 #include <units/velocity.h>
 
@@ -182,6 +183,11 @@ public:
      * Returns the drivetrain state estimate.
      */
     Eigen::Matrix<double, 10, 1> GetStates() const;
+
+    /**
+     * Returns current drawn in simulation.
+     */
+    units::ampere_t GetCurrentDraw() const;
 
     void DisabledInit() override;
 

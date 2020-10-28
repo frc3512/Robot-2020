@@ -5,9 +5,6 @@
 #include <frc/Joystick.h>
 #include <frc/RobotBase.h>
 #include <frc/RobotController.h>
-#include <frc/simulation/BatterySim.h>
-#include <frc/simulation/RoboRioSim.h>
-#include <frc/simulation/SimDeviceSim.h>
 
 #include "CANSparkMaxUtil.hpp"
 #include "controllers/DrivetrainController.hpp"
@@ -149,10 +146,6 @@ void Drivetrain::ControllerPeriodic() {
         m_gyroSim.SetAngle(-units::degree_t{
             units::radian_t{m_drivetrainSim.GetState(State::kHeading)} -
             m_headingOffset});
-
-        frc::sim::RoboRioSim::SetVInVoltage(
-            frc::sim::BatterySim::Calculate({m_drivetrainSim.GetCurrentDraw()})
-                .to<double>());
     }
 }
 
@@ -173,6 +166,10 @@ bool Drivetrain::AtGoal() const { return m_controller->AtGoal(); }
 
 Eigen::Matrix<double, 10, 1> Drivetrain::GetStates() const {
     return m_controller->GetStates();
+}
+
+units::ampere_t Drivetrain::GetCurrentDraw() const {
+    return m_drivetrainSim.GetCurrentDraw();
 }
 
 void Drivetrain::DisabledInit() { DisableController(); }

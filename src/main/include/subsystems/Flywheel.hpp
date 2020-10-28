@@ -15,6 +15,7 @@
 #include <rev/CANSparkMax.h>
 #include <units/angle.h>
 #include <units/angular_velocity.h>
+#include <units/current.h>
 #include <units/length.h>
 #include <units/voltage.h>
 #include <wpi/math>
@@ -107,6 +108,11 @@ public:
      * Resets sensors and the controller.
      */
     void Reset();
+
+    /**
+     * Returns current drawn in simulation.
+     */
+    units::ampere_t GetCurrentDraw() const;
 
     void DisabledInit() override { DisableController(); }
 

@@ -4,8 +4,6 @@
 
 #include <frc/RobotBase.h>
 #include <frc/RobotController.h>
-#include <frc/simulation/BatterySim.h>
-#include <frc/simulation/RoboRioSim.h>
 
 #include "CANSparkMaxUtil.hpp"
 #include "subsystems/Turret.hpp"
@@ -95,6 +93,10 @@ void Flywheel::Reset() {
     m_lastAngle = m_angle;
 }
 
+units::ampere_t Flywheel::GetCurrentDraw() const {
+    return m_flywheelSim.GetCurrentDraw();
+}
+
 void Flywheel::RobotPeriodic() {
     m_encoderEntry.SetDouble(GetAngle().to<double>());
     m_angularVelocityEntry.SetDouble(GetAngularVelocity().to<double>());
@@ -130,10 +132,6 @@ void Flywheel::ControllerPeriodic() {
         m_flywheelPositionSim.Update(Constants::kDt);
 
         m_encoderSim.SetDistance(m_flywheelPositionSim.GetOutput(0));
-
-        frc::sim::RoboRioSim::SetVInVoltage(
-            frc::sim::BatterySim::Calculate({m_flywheelSim.GetCurrentDraw()})
-                .to<double>());
     }
 
     m_lastAngle = m_angle;

@@ -5,7 +5,6 @@
 #include <frc/Joystick.h>
 #include <frc/RobotBase.h>
 #include <frc/RobotController.h>
-#include <frc/simulation/SimDeviceSim.h>
 
 #include "CANSparkMaxUtil.hpp"
 #include "subsystems/Drivetrain.hpp"

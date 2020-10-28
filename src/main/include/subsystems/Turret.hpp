@@ -15,6 +15,7 @@
 #include <networktables/NetworkTableInstance.h>
 #include <rev/CANSparkMax.h>
 #include <units/angle.h>
+#include <units/current.h>
 #include <units/voltage.h>
 
 #include "Constants.hpp"

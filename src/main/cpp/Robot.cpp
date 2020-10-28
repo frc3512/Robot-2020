@@ -8,6 +8,8 @@
 #include <frc/Joystick.h>
 #include <frc/RobotController.h>
 #include <frc/livewindow/LiveWindow.h>
+#include <frc/simulation/BatterySim.h>
+#include <frc/simulation/RoboRioSim.h>
 #include <wpi/MathExtras.h>
 
 namespace frc3512 {
@@ -78,7 +80,14 @@ void Robot::RobotPeriodic() {
         frc::RobotController::GetInputVoltage());
 }
 
-void Robot::SimulationPeriodic() { SubsystemBase::RunAllSimulationPeriodic(); }
+void Robot::SimulationPeriodic() {
+    SubsystemBase::RunAllSimulationPeriodic();
+
+    frc::sim::RoboRioSim::SetVInVoltage(
+        frc::sim::BatterySim::Calculate(
+            {m_drivetrain.GetCurrentDraw(), m_flywheel.GetCurrentDraw()})
+            .to<double>());
+}
 
 void Robot::DisabledPeriodic() { SubsystemBase::RunAllDisabledPeriodic(); }
 
