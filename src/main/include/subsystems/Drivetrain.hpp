@@ -27,7 +27,7 @@
 #include <units/velocity.h>
 
 #include "Constants.hpp"
-#include "subsystems/ControllerSubsystemBase.hpp"
+#include "subsystems/ControlledSubsystemBase.hpp"
 
 namespace frc {
 class TrajectoryConfig;
@@ -40,7 +40,7 @@ class DrivetrainController;
 /**
  * Provides an interface for this year's drive train.
  */
-class Drivetrain : public ControllerSubsystemBase {
+class Drivetrain : public ControlledSubsystemBase {
 public:
     static constexpr units::meter_t kLength = 0.9398_m;
 

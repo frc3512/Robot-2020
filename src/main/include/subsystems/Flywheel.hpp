@@ -25,13 +25,13 @@
 #include "LerpTable.hpp"
 #include "TargetModel.hpp"
 #include "controllers/FlywheelController.hpp"
-#include "subsystems/ControllerSubsystemBase.hpp"
+#include "subsystems/ControlledSubsystemBase.hpp"
 
 namespace frc3512 {
 
 class Turret;
 
-class Flywheel : public ControllerSubsystemBase {
+class Flywheel : public ControlledSubsystemBase {
 public:
     explicit Flywheel(Turret& turret);
 

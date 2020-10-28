@@ -10,19 +10,19 @@
 namespace frc3512 {
 
 /**
- * A base class for subsystems which contain controllers.
+ * A base class for subsystems which use a feedback controller.
  *
  * The internal notifier will call ControllerPeriodic() on every controller
  * subsystem in the order they were constructed.
  */
-class ControllerSubsystemBase : public SubsystemBase {
+class ControlledSubsystemBase : public SubsystemBase {
 public:
     /**
-     * Construct a controller subsystem.
+     * Construct a controlled subsystem.
      */
-    ControllerSubsystemBase();
+    ControlledSubsystemBase();
 
-    virtual ~ControllerSubsystemBase();
+    virtual ~ControlledSubsystemBase();
 
     /**
      * Enable the controllers (start Notifier periodic).
@@ -44,7 +44,7 @@ protected:
     virtual void ControllerPeriodic() = 0;
 
 private:
-    static wpi::SmallVector<ControllerSubsystemBase*, 8> m_controllers;
+    static wpi::SmallVector<ControlledSubsystemBase*, 8> m_controllers;
     static frc::Notifier m_notifier;
 };
 

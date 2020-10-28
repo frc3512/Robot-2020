@@ -26,7 +26,7 @@ TEST_F(FlywheelTest, ReachesGoal) {
     frc3512::Flywheel flywheel{turret};
 
     frc3512::SubsystemBase::RunAllTeleopInit();
-    frc3512::ControllerSubsystemBase::Enable();
+    frc3512::ControlledSubsystemBase::Enable();
 
     flywheel.SetGoal(500.0_rad_per_s);
 
@@ -36,7 +36,7 @@ TEST_F(FlywheelTest, ReachesGoal) {
     frc::sim::StepTiming(2_s);
 
     frc3512::SubsystemBase::RunAllDisabledInit();
-    frc3512::ControllerSubsystemBase::Disable();
+    frc3512::ControlledSubsystemBase::Disable();
 
     frc3512::AddPrefixToCSVs("FlywheelTest");
 

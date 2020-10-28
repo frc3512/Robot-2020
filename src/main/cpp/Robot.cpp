@@ -45,7 +45,7 @@ void Robot::SimulationInit() { SubsystemBase::RunAllSimulationInit(); }
 
 void Robot::DisabledInit() {
     SubsystemBase::RunAllDisabledInit();
-    ControllerSubsystemBase::Disable();
+    ControlledSubsystemBase::Disable();
 
     // Reset teleop shooting state machine when disabling robot
     m_flywheel.SetGoal(0_rad_per_s);
@@ -56,20 +56,20 @@ void Robot::DisabledInit() {
 
 void Robot::AutonomousInit() {
     SubsystemBase::RunAllAutonomousInit();
-    ControllerSubsystemBase::Enable();
+    ControlledSubsystemBase::Enable();
     m_autonSelector.ExecAutonomousInit();
 }
 
 void Robot::TeleopInit() {
     SubsystemBase::RunAllTeleopInit();
 
-    ControllerSubsystemBase::Enable();
+    ControlledSubsystemBase::Enable();
 }
 
 void Robot::TestInit() {
     SubsystemBase::RunAllTestInit();
 
-    ControllerSubsystemBase::Enable();
+    ControlledSubsystemBase::Enable();
 }
 
 void Robot::RobotPeriodic() {

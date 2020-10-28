@@ -21,7 +21,7 @@ TEST_F(DrivetrainTest, ReachesReferenceStraight) {
     frc3512::Drivetrain drivetrain;
 
     frc3512::SubsystemBase::RunAllAutonomousInit();
-    frc3512::ControllerSubsystemBase::Enable();
+    frc3512::ControlledSubsystemBase::Enable();
 
     frc::Pose2d initialPose{12.65_m, 5.800_m - 0.343_m,
                             units::radian_t{wpi::math::pi}};
@@ -40,7 +40,7 @@ TEST_F(DrivetrainTest, ReachesReferenceStraight) {
     frc::sim::StepTiming(10_s);
 
     frc3512::SubsystemBase::RunAllDisabledInit();
-    frc3512::ControllerSubsystemBase::Disable();
+    frc3512::ControlledSubsystemBase::Disable();
 
     frc3512::AddPrefixToCSVs("DrivetrainTest Straight");
 
@@ -51,7 +51,7 @@ TEST_F(DrivetrainTest, ReachesReferenceCurve) {
     frc3512::Drivetrain drivetrain;
 
     frc3512::SubsystemBase::RunAllAutonomousInit();
-    frc3512::ControllerSubsystemBase::Enable();
+    frc3512::ControlledSubsystemBase::Enable();
 
     frc::Pose2d initialPose{0_m, 0_m, 0_rad};
 
@@ -67,7 +67,7 @@ TEST_F(DrivetrainTest, ReachesReferenceCurve) {
     frc::sim::StepTiming(10_s);
 
     frc3512::SubsystemBase::RunAllDisabledInit();
-    frc3512::ControllerSubsystemBase::Disable();
+    frc3512::ControlledSubsystemBase::Disable();
 
     frc3512::AddPrefixToCSVs("DrivetrainTest Curve");
 

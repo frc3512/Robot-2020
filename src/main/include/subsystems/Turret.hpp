@@ -20,7 +20,7 @@
 
 #include "Constants.hpp"
 #include "controllers/TurretController.hpp"
-#include "subsystems/ControllerSubsystemBase.hpp"
+#include "subsystems/ControlledSubsystemBase.hpp"
 
 namespace frc3512 {
 
@@ -31,7 +31,7 @@ class Drivetrain;
  * Subsystem specifically designed for the Turret (bottom, movable part of the
  * Shooter)
  */
-class Turret : public ControllerSubsystemBase {
+class Turret : public ControlledSubsystemBase {
 public:
     enum class Direction { kNone, kCCW, kCW };
 
