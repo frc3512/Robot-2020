@@ -8,6 +8,7 @@
 #include <frc/RobotBase.h>
 #include <frc/geometry/Pose2d.h>
 #include <frc/geometry/Transform2d.h>
+#include <frc2/Timer.h>
 #include <units/angle.h>
 
 #include "TargetModel.hpp"
@@ -36,9 +37,8 @@ std::optional<Vision::GlobalMeasurement> Vision::GetGlobalMeasurement() {
 }
 
 void Vision::ProcessNewMeasurement() {
-    namespace chrono = std::chrono;
-
-    auto latency = static_cast<int64_t>(m_latency.GetDouble(-1) * 1000);
+    units::microsecond_t latency{
+        static_cast<int64_t>(m_latency.GetDouble(-1) * 1000)};
 
     // PnP data is transformation from camera's coordinate frame to target's
     // coordinate frame
@@ -64,10 +64,8 @@ void Vision::ProcessNewMeasurement() {
     auto turretInGlobal =
         cameraInGlobal.TransformBy(kCameraInGlobalToTurretInGlobal);
 
-    auto timestamp = chrono::steady_clock::now().time_since_epoch();
-    timestamp -= chrono::microseconds{latency};
-    auto timestampInt =
-        chrono::duration_cast<chrono::microseconds>(timestamp).count();
+    auto timestamp = frc2::Timer::GetFPGATimestamp();
+    timestamp -= latency;
 
-    m_measurements.push({timestampInt, turretInGlobal});
+    m_measurements.push({timestamp, turretInGlobal});
 }

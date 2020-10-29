@@ -24,6 +24,7 @@
 #include <units/angular_velocity.h>
 #include <units/current.h>
 #include <units/length.h>
+#include <units/time.h>
 #include <units/velocity.h>
 
 #include "Constants.hpp"
@@ -145,7 +146,7 @@ public:
      * @param timestamp Absolute time the translation data comes from.
      */
     void CorrectWithGlobalOutputs(units::meter_t x, units::meter_t y,
-                                  int64_t timestamp);
+                                  units::second_t timestamp);
 
     /**
      * Sets the waypoints for a generated trajectory.

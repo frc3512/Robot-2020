@@ -18,6 +18,7 @@
 #include <units/angular_velocity.h>
 #include <units/curvature.h>
 #include <units/length.h>
+#include <units/time.h>
 #include <units/voltage.h>
 #include <wpi/math>
 #include <wpi/mutex.h>
@@ -130,7 +131,7 @@ public:
      * @param timestamp Absolute time the translation data comes from.
      */
     void CorrectWithGlobalOutputs(units::meter_t x, units::meter_t y,
-                                  int64_t timestamp);
+                                  units::second_t timestamp);
 
     const Eigen::Matrix<double, 10, 1>& GetReferences() const override;
 

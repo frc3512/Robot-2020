@@ -2,13 +2,12 @@
 
 #pragma once
 
-#include <stdint.h>
-
 #include <frc/geometry/Pose2d.h>
 #include <frc/geometry/Transform2d.h>
 #include <frc/geometry/Translation2d.h>
 #include <networktables/NetworkTableEntry.h>
 #include <networktables/NetworkTableInstance.h>
+#include <units/time.h>
 
 #include "static_concurrent_queue.hpp"
 #include "subsystems/SubsystemBase.hpp"
@@ -21,7 +20,7 @@ public:
     static const frc::Transform2d kCameraInGlobalToTurretInGlobal;
 
     struct GlobalMeasurement {
-        int64_t timestamp;
+        units::second_t timestamp;
         frc::Pose2d pose;
     };
 

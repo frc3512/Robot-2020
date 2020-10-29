@@ -113,7 +113,7 @@ bool Drivetrain::IsControllerEnabled() const {
 }
 
 void Drivetrain::CorrectWithGlobalOutputs(units::meter_t x, units::meter_t y,
-                                          int64_t timestamp) {
+                                          units::second_t timestamp) {
     m_controller->CorrectWithGlobalOutputs(x, y, timestamp);
 }
 

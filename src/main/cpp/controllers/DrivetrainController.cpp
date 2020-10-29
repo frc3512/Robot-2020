@@ -87,7 +87,7 @@ void DrivetrainController::Predict(const Eigen::Matrix<double, 2, 1>& u,
 
 void DrivetrainController::CorrectWithGlobalOutputs(units::meter_t x,
                                                     units::meter_t y,
-                                                    int64_t timestamp) {
+                                                    units::second_t timestamp) {
     Eigen::Matrix<double, 2, 1> globalY;
     globalY << x.to<double>(), y.to<double>();
     m_observer.Correct<2>(Eigen::Matrix<double, 2, 1>::Zero(), globalY,

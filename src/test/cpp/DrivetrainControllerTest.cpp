@@ -1,5 +1,6 @@
 // Copyright (c) 2019-2020 FRC Team 3512. All Rights Reserved.
 
+#include <frc2/Timer.h>
 #include <gtest/gtest.h>
 #include <units/length.h>
 
@@ -26,24 +27,32 @@ TEST(DrivetrainControllerTest, CorrectsTowardGlobalY) {
     Eigen::Matrix<double, 10, 1> x;
     x << 5.0, 5.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0;
 
-    Eigen::Matrix<double, 2, 1> y =
+    Eigen::Matrix<double, 3, 1> localY =
+        frc3512::DrivetrainController::LocalMeasurementModel(
+            x, Eigen::Matrix<double, 2, 1>::Zero());
+    Eigen::Matrix<double, 2, 1> globalY =
         frc3512::DrivetrainController::GlobalMeasurementModel(
             x, Eigen::Matrix<double, 2, 1>::Zero());
 
     // Add measurement noise
     if constexpr (!kIdealModel) {
-        y += frc::MakeWhiteNoiseVector(0.05, 0.05);
+        localY += frc::MakeWhiteNoiseVector(0.0001, 0.005, 0.005);
+        globalY += frc::MakeWhiteNoiseVector(0.05, 0.05);
     }
 
-    using GlobalOutput = frc3512::DrivetrainController::GlobalOutput;
     using State = frc3512::DrivetrainController::State;
+    using LocalOutput = frc3512::DrivetrainController::LocalOutput;
+    using GlobalOutput = frc3512::DrivetrainController::GlobalOutput;
 
     auto xHat = controller.GetStates();
     double xDiff1 = std::abs(xHat(State::kX) - x(State::kX));
     double yDiff1 = std::abs(xHat(State::kY) - x(State::kY));
 
-    controller.CorrectWithGlobalOutputs(units::meter_t{y(GlobalOutput::kX)},
-                                        units::meter_t{y(GlobalOutput::kY)}, 0);
+    controller.Update(localY, frc3512::Constants::kDt);
+    controller.CorrectWithGlobalOutputs(
+        units::meter_t{globalY(GlobalOutput::kX)},
+        units::meter_t{globalY(GlobalOutput::kY)},
+        frc2::Timer::GetFPGATimestamp());
 
     xHat = controller.GetStates();
     double xDiff2 = std::abs(xHat(State::kX) - x(State::kX));
