@@ -86,6 +86,11 @@ public:
     bool IsEnabled() const { return m_isEnabled; }
 
     /**
+     * Resets any internal state.
+     */
+    virtual void Reset() = 0;
+
+    /**
      * Returns the current references.
      *
      * See the State class in the derived class for what each element correspond
@@ -141,6 +146,10 @@ protected:
 private:
     CSVControllerLogger<States, Inputs, Outputs> m_csvLogger;
     LiveGrapherControllerLogger<States, Inputs, Outputs> m_liveGrapher;
+
+    // Controller reference
+    Eigen::Matrix<double, 2, 1> m_r;
+    Eigen::Matrix<double, 2, 1> m_nextR;
 
     Eigen::Matrix<double, Inputs, 1> m_u =
         Eigen::Matrix<double, Inputs, 1>::Zero();

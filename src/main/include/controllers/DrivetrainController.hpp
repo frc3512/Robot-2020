@@ -136,18 +136,7 @@ public:
 
     const Eigen::Matrix<double, 10, 1>& GetStates() const override;
 
-    Eigen::Matrix<double, 2, 1> Update(const Eigen::Matrix<double, 3, 1>& y,
-                                       units::second_t dt) override;
-
-    /**
-     * Returns the drivetrains plant.
-     */
-    frc::LinearSystem<2, 2, 2> GetPlant() const;
-
-    /**
-     * Resets any internal state.
-     */
-    void Reset();
+    void Reset() override;
 
     /**
      * Resets any internal state.
@@ -156,6 +145,14 @@ public:
      * @param initialRef Initial pose for controller reference.
      */
     void Reset(const frc::Pose2d& initialPose, const frc::Pose2d& initialRef);
+
+    Eigen::Matrix<double, 2, 1> Update(const Eigen::Matrix<double, 3, 1>& y,
+                                       units::second_t dt) override;
+
+    /**
+     * Returns the drivetrains plant.
+     */
+    frc::LinearSystem<2, 2, 2> GetPlant() const;
 
     /**
      * Returns a trajectory config with a differential drive dynamics constraint

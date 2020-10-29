@@ -33,6 +33,12 @@ const Eigen::Matrix<double, 1, 1>& FlywheelController::GetStates() const {
     return m_observer.Xhat();
 }
 
+void FlywheelController::Reset() {
+    m_observer.Reset();
+    m_r.setZero();
+    m_nextR.setZero();
+}
+
 Eigen::Matrix<double, 1, 1> FlywheelController::Update(
     const Eigen::Matrix<double, 1, 1>& y, units::second_t dt) {
     m_observer.Correct(GetInputs(), y);
@@ -63,10 +69,4 @@ Eigen::Matrix<double, 1, 1> FlywheelController::Update(
 
 const frc::LinearSystem<1, 1, 1>& FlywheelController::GetPlant() const {
     return m_plant;
-}
-
-void FlywheelController::Reset() {
-    m_observer.Reset();
-    m_r.setZero();
-    m_nextR.setZero();
 }

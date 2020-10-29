@@ -67,6 +67,8 @@ public:
 
     const Eigen::Matrix<double, 1, 1>& GetStates() const override;
 
+    void Reset() override;
+
     Eigen::Matrix<double, 1, 1> Update(const Eigen::Matrix<double, 1, 1>& y,
                                        units::second_t dt) override;
 
@@ -74,11 +76,6 @@ public:
      * Returns the flywheel plant.
      */
     const frc::LinearSystem<1, 1, 1>& GetPlant() const;
-
-    /**
-     * Resets any internal state.
-     */
-    void Reset();
 
 private:
     static constexpr auto kAngularVelocityTolerance = 20.0_rad_per_s;

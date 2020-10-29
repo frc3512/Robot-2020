@@ -62,6 +62,13 @@ const Eigen::Matrix<double, 2, 1>& TurretController::GetStates() const {
     return m_observer.Xhat();
 }
 
+void TurretController::Reset() {
+    m_observer.Reset();
+    m_ff.Reset(Eigen::Matrix<double, 2, 1>::Zero());
+    m_r.setZero();
+    m_nextR.setZero();
+}
+
 Eigen::Matrix<double, 1, 1> TurretController::Update(
     const Eigen::Matrix<double, 1, 1>& y, units::second_t dt) {
     m_observer.Correct(GetInputs(), y);
@@ -180,13 +187,6 @@ units::radians_per_second_t TurretController::CalculateAngularVelocity(
     // |w| = |(v - v . r / (r . r) * r| / |r|
     return units::radians_per_second_t{(v - v.dot(r) / r.dot(r) * r).norm() /
                                        r.norm()};
-}
-
-void TurretController::Reset() {
-    m_observer.Reset();
-    m_ff.Reset(Eigen::Matrix<double, 2, 1>::Zero());
-    m_r.setZero();
-    m_nextR.setZero();
 }
 
 Eigen::Vector2d TurretController::ToVector2d(frc::Translation2d translation) {

@@ -104,6 +104,30 @@ const Eigen::Matrix<double, 10, 1>& DrivetrainController::GetStates() const {
     return m_observer.Xhat();
 }
 
+void DrivetrainController::Reset() {
+    m_observer.Reset();
+    m_r.setZero();
+    m_nextR.setZero();
+}
+
+void DrivetrainController::Reset(const frc::Pose2d& initialPose,
+                                 const frc::Pose2d& initialRef) {
+    m_observer.Reset();
+
+    Eigen::Matrix<double, 10, 1> xHat;
+    xHat(0) = initialPose.X().to<double>();
+    xHat(1) = initialPose.Y().to<double>();
+    xHat(2) = initialPose.Rotation().Radians().to<double>();
+    xHat.block<7, 1>(3, 0).setZero();
+    m_observer.SetXhat(xHat);
+
+    m_nextR.setZero();
+    m_nextR(0) = initialRef.X().to<double>();
+    m_nextR(1) = initialRef.Y().to<double>();
+    m_nextR(2) = initialRef.Rotation().Radians().to<double>();
+    m_r = m_nextR;
+}
+
 Eigen::Matrix<double, 2, 1> DrivetrainController::Update(
     const Eigen::Matrix<double, 3, 1>& y, units::second_t dt) {
     m_observer.Correct(GetInputs(), y);
@@ -167,30 +191,6 @@ frc::LinearSystem<2, 2, 2> DrivetrainController::GetPlant() const {
     return frc::LinearSystemId::IdentifyDrivetrainSystem(
         kLinearV.to<double>(), kLinearA.to<double>(), kAngularV.to<double>(),
         kAngularA.to<double>());
-}
-
-void DrivetrainController::Reset() {
-    m_observer.Reset();
-    m_r.setZero();
-    m_nextR.setZero();
-}
-
-void DrivetrainController::Reset(const frc::Pose2d& initialPose,
-                                 const frc::Pose2d& initialRef) {
-    m_observer.Reset();
-
-    Eigen::Matrix<double, 10, 1> xHat;
-    xHat(0) = initialPose.X().to<double>();
-    xHat(1) = initialPose.Y().to<double>();
-    xHat(2) = initialPose.Rotation().Radians().to<double>();
-    xHat.block<7, 1>(3, 0).setZero();
-    m_observer.SetXhat(xHat);
-
-    m_nextR.setZero();
-    m_nextR(0) = initialRef.X().to<double>();
-    m_nextR(1) = initialRef.Y().to<double>();
-    m_nextR(2) = initialRef.Rotation().Radians().to<double>();
-    m_r = m_nextR;
 }
 
 frc::TrajectoryConfig DrivetrainController::MakeTrajectoryConfig() const {

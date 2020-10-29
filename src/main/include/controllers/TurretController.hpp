@@ -99,6 +99,8 @@ public:
 
     const Eigen::Matrix<double, 2, 1>& GetStates() const override;
 
+    void Reset() override;
+
     Eigen::Matrix<double, 1, 1> Update(const Eigen::Matrix<double, 1, 1>& y,
                                        units::second_t dt) override;
 
@@ -132,11 +134,6 @@ public:
      */
     units::radians_per_second_t CalculateAngularVelocity(Eigen::Vector2d v,
                                                          Eigen::Vector2d r);
-
-    /**
-     * Resets any internal state.
-     */
-    void Reset();
 
 private:
     static constexpr auto kV = 4.42_V / 1_rad_per_s;
