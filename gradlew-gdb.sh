@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 # Remove old log files
 rm -f build/test-results/frcUserProgramTest/linuxx86-64/debug/{*.csv,Robot.log}
