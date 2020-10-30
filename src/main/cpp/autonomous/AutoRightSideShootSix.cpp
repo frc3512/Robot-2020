@@ -74,6 +74,7 @@ void Robot::AutoRightSideShootSixPeriodic() {
             EXPECT_EQ(State::kIdle, state);
             EXPECT_TRUE(m_drivetrain.AtGoal());
             EXPECT_EQ(m_flywheel.GetGoal(), 0_rad_per_s);
+            EXPECT_TRUE(m_turret.AtGoal());
         }
     }
 }
