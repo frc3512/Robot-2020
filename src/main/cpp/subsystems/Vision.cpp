@@ -37,8 +37,8 @@ std::optional<Vision::GlobalMeasurement> Vision::GetGlobalMeasurement() {
 }
 
 void Vision::ProcessNewMeasurement() {
-    units::microsecond_t latency{
-        static_cast<int64_t>(m_latency.GetDouble(-1) * 1000)};
+    units::microsecond_t latency(
+        static_cast<int64_t>(m_latency.GetDouble(-1) * 1000));
 
     // PnP data is transformation from camera's coordinate frame to target's
     // coordinate frame
