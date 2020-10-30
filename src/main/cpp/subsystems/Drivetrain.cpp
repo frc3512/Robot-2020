@@ -146,6 +146,7 @@ void Drivetrain::ControllerPeriodic() {
         m_gyroSim.SetAngle(-units::degree_t{
             units::radian_t{m_drivetrainSim.GetState(State::kHeading)} -
             m_headingOffset});
+        m_field.SetRobotPose(m_drivetrainSim.GetPose());
     }
 }
 
