@@ -17,6 +17,10 @@ FlywheelController::FlywheelController()
 
 void FlywheelController::SetGoal(units::radians_per_second_t angularVelocity) {
     m_nextR << angularVelocity.to<double>();
+    m_atGoal = units::math::abs(units::radians_per_second_t{
+                   m_nextR(State::kAngularVelocity) -
+                   m_observer.Xhat(State::kAngularVelocity)}) <
+               kAngularVelocityTolerance;
 }
 
 units::radians_per_second_t FlywheelController::GetGoal() const {
