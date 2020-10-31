@@ -83,6 +83,6 @@ constexpr int kTraverserPort = 13;
 constexpr int kClimberLock = 3;
 }  // namespace Climber
 
-constexpr auto kDt = 0.00505_s;
+constexpr auto kDt = 5_ms;
 constexpr int kControllerPrio = 50;
 }  // namespace frc3512::Constants

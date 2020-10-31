@@ -5,11 +5,11 @@
 #include <frc/Solenoid.h>
 #include <networktables/NetworkTableEntry.h>
 #include <networktables/NetworkTableInstance.h>
-#include <rev/CANEncoder.h>
-#include <rev/CANSparkMax.h>
 #include <units/length.h>
 
 #include "Constants.hpp"
+#include "rev/CANEncoder.hpp"
+#include "rev/CANSparkMax.hpp"
 #include "subsystems/SubsystemBase.hpp"
 
 namespace frc3512 {

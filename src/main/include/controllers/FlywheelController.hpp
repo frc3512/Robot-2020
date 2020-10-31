@@ -67,7 +67,10 @@ public:
 
     const Eigen::Matrix<double, 1, 1>& GetStates() const override;
 
-    void Reset() override;
+    /**
+     * Resets any internal state.
+     */
+    void Reset();
 
     Eigen::Matrix<double, 1, 1> Update(const Eigen::Matrix<double, 1, 1>& y,
                                        units::second_t dt) override;

@@ -12,7 +12,6 @@
 #include <frc2/Timer.h>
 #include <networktables/NetworkTableEntry.h>
 #include <networktables/NetworkTableInstance.h>
-#include <rev/CANSparkMax.h>
 #include <units/angle.h>
 #include <units/angular_velocity.h>
 #include <units/current.h>
@@ -25,13 +24,14 @@
 #include "LerpTable.hpp"
 #include "TargetModel.hpp"
 #include "controllers/FlywheelController.hpp"
-#include "subsystems/ControlledSubsystemBase.hpp"
+#include "rev/CANSparkMax.hpp"
+#include "subsystems/SubsystemBase.hpp"
 
 namespace frc3512 {
 
 class Turret;
 
-class Flywheel : public ControlledSubsystemBase {
+class Flywheel : public SubsystemBase {
 public:
     explicit Flywheel(Turret& turret);
 
@@ -59,16 +59,6 @@ public:
      * @return angular velocity in radians per second
      */
     units::radians_per_second_t GetAngularVelocity() const;
-
-    /**
-     * Enables the controller.
-     */
-    void EnableController();
-
-    /**
-     * Disables the controller.
-     */
-    void DisableController();
 
     /**
      * Sets the goal of the controller.
@@ -114,16 +104,24 @@ public:
      */
     units::ampere_t GetCurrentDraw() const;
 
-    void DisabledInit() override { DisableController(); }
+    void DisabledInit() override {
+        m_controller.Disable();
+        m_controller.SetClosedLoop(false);
+    }
 
-    void AutonomousInit() override { EnableController(); }
+    void AutonomousInit() override {
+        m_controller.Enable();
+        m_controller.SetClosedLoop(true);
+    }
 
-    void TeleopInit() override { EnableController(); }
+    void TeleopInit() override {
+        m_controller.Enable();
+        m_controller.SetClosedLoop(true);
+    }
 
     void RobotPeriodic() override;
 
-protected:
-    void ControllerPeriodic() override;
+    void ControllerPeriodic();
 
 private:
     const frc::Pose2d kTargetPoseInGlobal{TargetModel::kCenter.X(),
@@ -143,7 +141,7 @@ private:
     units::radian_t m_angle;
     units::radian_t m_lastAngle;
     units::second_t m_time = frc2::Timer::GetFPGATimestamp();
-    units::second_t m_lastTime = m_time - 5_ms;
+    units::second_t m_lastTime = m_time - Constants::kDt;
 
     // Filters out encoder quantization noise
     units::radians_per_second_t m_angularVelocity = 0_rad_per_s;
@@ -151,17 +149,14 @@ private:
         frc::LinearFilter<units::radians_per_second_t>::MovingAverage(4);
 
     frc2::Timer m_timer;
-    mutable wpi::mutex m_controllerMutex;
 
     Turret& m_turret;
 
     nt::NetworkTableInstance m_inst = nt::NetworkTableInstance::GetDefault();
-    nt::NetworkTableEntry m_encoderEntry =
-        m_inst.GetEntry("/Diagnostics/Flywheel/Encoder");
-    nt::NetworkTableEntry m_angularVelocityEntry =
-        m_inst.GetEntry("/Diagnostics/Flywheel/Angular velocity");
-    nt::NetworkTableEntry m_goalEntry =
-        m_inst.GetEntry("/Diagnostics/Flywheel/Goal");
+    nt::NetworkTableEntry m_angularVelocityRefEntry =
+        m_inst.GetEntry("/Diagnostics/Flywheel/References/Angular velocity");
+    nt::NetworkTableEntry m_angularVelocityStateEntry =
+        m_inst.GetEntry("/Diagnostics/Flywheel/States/Angular velocity");
     nt::NetworkTableEntry m_isOnEntry =
         m_inst.GetEntry("/Diagnostics/Flywheel/IsOn");
     nt::NetworkTableEntry m_isReadyEntry =

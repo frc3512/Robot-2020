@@ -46,10 +46,6 @@ units::radians_per_second_t Flywheel::GetAngularVelocity() const {
     return m_angularVelocity;
 }
 
-void Flywheel::EnableController() { m_controller.Enable(); }
-
-void Flywheel::DisableController() { m_controller.Disable(); }
-
 void Flywheel::SetGoal(units::radians_per_second_t velocity) {
     m_timer.Reset();
     m_timer.Start();
@@ -69,22 +65,15 @@ bool Flywheel::AtGoal() {
 }
 
 void Flywheel::Shoot() {
-    std::scoped_lock lock(m_controllerMutex);
     auto turretPose = m_turret.GetNextPose();
     auto angularVelocity = m_table[turretPose.Translation().Distance(
         kTargetPoseInGlobal.Translation())];
     SetGoal(angularVelocity);
 }
 
-bool Flywheel::IsOn() const {
-    std::scoped_lock lock(m_controllerMutex);
-    return GetGoal() > 0_rad_per_s;
-}
+bool Flywheel::IsOn() const { return GetGoal() > 0_rad_per_s; }
 
-bool Flywheel::IsReady() {
-    std::scoped_lock lock(m_controllerMutex);
-    return GetGoal() > 0_rad_per_s && AtGoal();
-}
+bool Flywheel::IsReady() { return GetGoal() > 0_rad_per_s && AtGoal(); }
 
 void Flywheel::Reset() {
     m_controller.Reset();
@@ -98,9 +87,12 @@ units::ampere_t Flywheel::GetCurrentDraw() const {
 }
 
 void Flywheel::RobotPeriodic() {
-    m_encoderEntry.SetDouble(GetAngle().to<double>());
-    m_angularVelocityEntry.SetDouble(GetAngularVelocity().to<double>());
-    m_goalEntry.SetDouble(GetGoal().to<double>());
+    using State = FlywheelController::State;
+
+    m_angularVelocityRefEntry.SetDouble(
+        m_controller.GetReferences()(State::kAngularVelocity));
+    m_angularVelocityStateEntry.SetDouble(
+        m_controller.GetStates()(State::kAngularVelocity));
     m_isOnEntry.SetBoolean(IsOn());
     m_isReadyEntry.SetBoolean(IsReady());
     m_controllerEnabledEntry.SetBoolean(m_controller.IsEnabled());

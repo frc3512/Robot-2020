@@ -14,6 +14,9 @@ static State state;
 static frc2::Timer autonTimer;
 
 void Robot::AutoLeftSideIntakeInit() {
+    m_drivetrain.Reset(
+        frc::Pose2d(12.65_m, 7.500_m, units::radian_t{wpi::math::pi}));
+
     state = State::kInit;
     autonTimer.Reset();
     autonTimer.Start();
@@ -22,9 +25,6 @@ void Robot::AutoLeftSideIntakeInit() {
 void Robot::AutoLeftSideIntakePeriodic() {
     switch (state) {
         case State::kInit: {
-            // Initial Pose - X: 12.65 m  Y: 7.500 m  Heading: 1*pi rad
-            m_drivetrain.Reset(
-                frc::Pose2d(12.65_m, 7.500_m, units::radian_t{wpi::math::pi}));
             m_drivetrain.SetWaypoints(
                 frc::Pose2d{12.65_m, 7.500_m, units::radian_t{wpi::math::pi}},
                 {frc::Translation2d(10.50_m, 7.500_m)},

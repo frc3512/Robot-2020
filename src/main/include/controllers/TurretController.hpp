@@ -101,7 +101,12 @@ public:
 
     const Eigen::Matrix<double, 2, 1>& GetStates() const override;
 
-    void Reset() override;
+    /**
+     * Resets any internal state.
+     *
+     * @param initialHeading The initial turret heading in the drivetrain frame.
+     */
+    void Reset(units::radian_t initialHeading);
 
     Eigen::Matrix<double, 1, 1> Update(const Eigen::Matrix<double, 1, 1>& y,
                                        units::second_t dt) override;

@@ -4,6 +4,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <iostream>
 
 #include <frc/RobotController.h>
 #include <frc/StateSpaceUtil.h>
@@ -15,8 +16,8 @@
 #include <frc/trajectory/TrajectoryConfig.h>
 #include <frc/trajectory/TrajectoryGenerator.h>
 #include <frc/trajectory/constraint/DifferentialDriveVelocitySystemConstraint.h>
-
-#include "controllers/NormalizeAngle.hpp"
+#include <units/math.h>
+#include <wpi/raw_ostream.h>
 
 using namespace frc3512;
 using namespace frc3512::Constants;
@@ -40,7 +41,7 @@ DrivetrainController::DrivetrainController()
                      {ControllerLabel{"Heading", "rad"},
                       ControllerLabel{"Left position", "m"},
                       ControllerLabel{"Right position", "m"}}) {
-    Reset();
+    Reset(frc::Pose2d{0_m, 0_m, 0_rad});
 
     m_B = frc::NumericalJacobianU<10, 10, 2>(
               Dynamics, Eigen::Matrix<double, 10, 1>::Zero(),
@@ -49,12 +50,6 @@ DrivetrainController::DrivetrainController()
 
     m_timeSinceSetWaypoints.Start();
 }
-
-void DrivetrainController::SetOpenLoop(bool manualControl) {
-    m_isOpenLoop = manualControl;
-}
-
-bool DrivetrainController::IsOpenLoop() const { return m_isOpenLoop; }
 
 void DrivetrainController::SetWaypoints(
     const frc::Pose2d& start, const std::vector<frc::Translation2d>& interior,
@@ -66,11 +61,11 @@ void DrivetrainController::SetWaypoints(
 void DrivetrainController::SetWaypoints(
     const frc::Pose2d& start, const std::vector<frc::Translation2d>& interior,
     const frc::Pose2d& end, frc::TrajectoryConfig& config) {
-    std::scoped_lock lock(m_trajectoryMutex);
     m_goal = end;
     m_trajectory = frc::TrajectoryGenerator::GenerateTrajectory(start, interior,
                                                                 end, config);
     m_timeSinceSetWaypoints.Reset();
+    SetClosedLoop(true);
 }
 
 bool DrivetrainController::AtGoal() const {
@@ -104,28 +99,18 @@ const Eigen::Matrix<double, 10, 1>& DrivetrainController::GetStates() const {
     return m_observer.Xhat();
 }
 
-void DrivetrainController::Reset() {
-    m_observer.Reset();
-    m_r.setZero();
-    m_nextR.setZero();
-}
-
-void DrivetrainController::Reset(const frc::Pose2d& initialPose,
-                                 const frc::Pose2d& initialRef) {
-    m_observer.Reset();
-
+void DrivetrainController::Reset(const frc::Pose2d& initialPose) {
     Eigen::Matrix<double, 10, 1> xHat;
     xHat(0) = initialPose.X().to<double>();
     xHat(1) = initialPose.Y().to<double>();
     xHat(2) = initialPose.Rotation().Radians().to<double>();
     xHat.block<7, 1>(3, 0).setZero();
-    m_observer.SetXhat(xHat);
 
-    m_nextR.setZero();
-    m_nextR(0) = initialRef.X().to<double>();
-    m_nextR(1) = initialRef.Y().to<double>();
-    m_nextR(2) = initialRef.Rotation().Radians().to<double>();
-    m_r = m_nextR;
+    m_observer.Reset();
+    m_observer.SetXhat(xHat);
+    m_ff.Reset(xHat);
+    m_r = xHat;
+    m_nextR = xHat;
 }
 
 Eigen::Matrix<double, 2, 1> DrivetrainController::Update(
@@ -134,12 +119,11 @@ Eigen::Matrix<double, 2, 1> DrivetrainController::Update(
 
     Eigen::Matrix<double, 2, 1> u;
 
-    if (!m_isOpenLoop) {
+    if (IsClosedLoop()) {
         frc::Trajectory::State ref;
 
         // Only sample the trajectory if one was created.
         {
-            std::scoped_lock lock(m_trajectoryMutex);
             if (m_trajectory.States().size() != 0) {
                 ref = m_trajectory.Sample(m_timeSinceSetWaypoints.Get());
             } else {
@@ -156,11 +140,7 @@ Eigen::Matrix<double, 2, 1> DrivetrainController::Update(
             ref.pose.Rotation().Radians().to<double>(), vlRef.to<double>(),
             vrRef.to<double>(), 0, 0, 0, 0, 0;
 
-        if (IsEnabled()) {
-            u = Controller(m_observer.Xhat(), m_r) + m_ff.Calculate(m_nextR);
-        } else {
-            u = Eigen::Matrix<double, 2, 1>::Zero();
-        }
+        u = Controller(m_observer.Xhat(), m_r) + m_ff.Calculate(m_nextR);
         ScaleCapU(&u);
 
         Eigen::Matrix<double, 5, 1> error =
@@ -170,19 +150,12 @@ Eigen::Matrix<double, 2, 1> DrivetrainController::Update(
                          std::abs(error(2)) < kAngleTolerance &&
                          std::abs(error(3)) < kVelocityTolerance &&
                          std::abs(error(4)) < kVelocityTolerance;
-
-        m_r = m_nextR;
-        m_observer.Predict(u, dt);
-
-        std::scoped_lock lock(m_trajectoryMutex);
-        if (ref.pose == m_goal) {
-            Disable();
-        } else {
-            Enable();
-        }
     } else {
-        m_observer.Predict(u, dt);
+        u << 0.0, 0.0;
     }
+
+    m_r = m_nextR;
+    m_observer.Predict(u, dt);
 
     return u;
 }
@@ -218,9 +191,8 @@ Eigen::Matrix<double, 2, 5> DrivetrainController::ControllerGainForState(
     // let the system stop.
     double velocity =
         (x0(State::kLeftVelocity) + x0(State::kRightVelocity)) / 2.0;
-    if (std::abs(velocity) < 1e-5) {
-        x0(State::kLeftVelocity) += 1e-5;
-        x0(State::kRightVelocity) += 1e-5;
+    if (std::abs(velocity) < 1e-4) {
+        return Eigen::Matrix<double, 2, 5>::Zero();
     }
 
     Eigen::Matrix<double, 5, 5> A =
@@ -239,7 +211,34 @@ Eigen::Matrix<double, 2, 1> DrivetrainController::Controller(
     // This implements the linear time-varying differential drive controller in
     // theorem 8.6.4 of https://tavsys.net/controls-in-frc.
 
-    Eigen::Matrix<double, 2, 5> K = ControllerGainForState(x);
+    try {
+        m_K = ControllerGainForState(x);
+    } catch (const std::runtime_error& e) {
+        wpi::outs() << e.what() << '\n';
+
+        Eigen::Matrix<double, 10, 1> x0 = x;
+        x0(State::kHeading) = 0.0;
+
+        // The DARE is ill-conditioned if the velocity is close to zero, so
+        // don't let the system stop.
+        double velocity =
+            (x0(State::kLeftVelocity) + x0(State::kRightVelocity)) / 2.0;
+        if (std::abs(velocity) < 1e-3) {
+            x0(State::kLeftVelocity) += 1e-3;
+            x0(State::kRightVelocity) += 1e-3;
+        }
+
+        Eigen::Matrix<double, 5, 5> A =
+            frc::NumericalJacobianX<10, 10, 2>(
+                Dynamics, x0, Eigen::Matrix<double, 2, 1>::Zero())
+                .block<5, 5>(0, 0);
+
+        Eigen::Matrix<double, 5, 5> discA;
+        Eigen::Matrix<double, 5, 2> discB;
+        frc::DiscretizeAB<5, 2>(A, m_B, kDt, &discA, &discB);
+        std::cout << "A=\n" << discA << '\n';
+        std::cout << "B=\n" << discB << '\n';
+    }
 
     Eigen::Matrix<double, 5, 5> inRobotFrame =
         Eigen::Matrix<double, 5, 5>::Identity();
@@ -250,8 +249,10 @@ Eigen::Matrix<double, 2, 1> DrivetrainController::Controller(
 
     Eigen::Matrix<double, 5, 1> error =
         r.block<5, 1>(0, 0) - x.block<5, 1>(0, 0);
-    error(State::kHeading) = NormalizeAngle(error(State::kHeading));
-    return K * inRobotFrame * error;
+    error(State::kHeading) =
+        units::math::NormalizeAngle(units::radian_t{error(State::kHeading)})
+            .to<double>();
+    return m_K * inRobotFrame * error;
 }
 
 Eigen::Matrix<double, 10, 1> DrivetrainController::Dynamics(

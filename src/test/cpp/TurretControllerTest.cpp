@@ -32,7 +32,7 @@ TEST(TurretControllerTest, CalculateHeading) {
 
 TEST(TurretControllerTest, CalculateAngularVelocity) {
     frc3512::TurretController controller;
-    controller.Reset();
+    controller.Reset(0_rad);
     controller.Enable();
 
     frc::Translation2d targetTranslationInGlobal{4_m, 2_m};

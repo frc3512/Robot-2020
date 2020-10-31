@@ -21,7 +21,7 @@ Turret::Turret(Vision& vision, Drivetrain& drivetrain)
     m_motor.Set(0.0);
 
     m_encoder.SetDistancePerRotation(TurretController::kDpR);
-    Reset();
+    Reset(0_rad);
 }
 
 void Turret::SetDirection(Direction direction) {
@@ -39,11 +39,12 @@ void Turret::SetDirection(Direction direction) {
 void Turret::SetManualOverride(bool enable) { m_manualOverride = enable; }
 
 void Turret::Reset(units::radian_t initialHeading) {
-    m_controller.Reset();
+    m_controller.Reset(initialHeading);
 
     if constexpr (frc::RobotBase::IsSimulation()) {
-        Eigen::Matrix<double, 2, 1> x = Eigen::Matrix<double, 2, 1>::Zero();
-        m_turretSim.SetState(x);
+        Eigen::Matrix<double, 2, 1> xHat;
+        xHat << initialHeading.to<double>(), 0.0;
+        m_turretSim.SetState(xHat);
 
         m_encoderSim.SetDistance(HeadingToEncoderDistance(initialHeading));
     }
@@ -64,10 +65,6 @@ bool Turret::HasPassedCWLimit() const {
 }
 
 frc::Pose2d Turret::GetNextPose() const { return m_controller.GetNextPose(); }
-
-void Turret::EnableController() { m_controller.Enable(); }
-
-void Turret::DisableController() { m_controller.Disable(); }
 
 bool Turret::AtGoal() const { return m_controller.AtGoal(); }
 

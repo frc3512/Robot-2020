@@ -19,7 +19,6 @@
 #include <frc2/Timer.h>
 #include <networktables/NetworkTableEntry.h>
 #include <networktables/NetworkTableInstance.h>
-#include <rev/CANSparkMax.h>
 #include <units/angle.h>
 #include <units/angular_velocity.h>
 #include <units/current.h>
@@ -28,7 +27,8 @@
 #include <units/velocity.h>
 
 #include "Constants.hpp"
-#include "subsystems/ControlledSubsystemBase.hpp"
+#include "rev/CANSparkMax.hpp"
+#include "subsystems/SubsystemBase.hpp"
 
 namespace frc {
 class TrajectoryConfig;
@@ -41,7 +41,7 @@ class DrivetrainController;
 /**
  * Provides an interface for this year's drive train.
  */
-class Drivetrain : public ControlledSubsystemBase {
+class Drivetrain : public SubsystemBase {
 public:
     static constexpr units::meter_t kLength = 0.9398_m;
 
@@ -74,44 +74,32 @@ public:
     frc::Pose2d GetPose() const;
 
     /**
-     * Returns gyro angle.
-     *
-     * @return angle in degrees
+     * Returns gyro's heading measurement in the global coordinate frame.
      */
     units::radian_t GetAngle() const;
 
     /**
      * Returns gyro angular rate.
-     *
-     * @return angular rate in degrees per second
      */
     units::radians_per_second_t GetAngularRate() const;
 
     /**
      * Returns left encoder displacement.
-     *
-     * @return left displacement
      */
     units::meter_t GetLeftPosition() const;
 
     /**
      * Returns right encoder displacement.
-     *
-     * @return right displacement
      */
     units::meter_t GetRightPosition() const;
 
     /**
-     * Returns right encoder displacement.
-     *
-     * @return left rate
+     * Returns left encoder velocity.
      */
     units::meters_per_second_t GetLeftVelocity() const;
 
     /**
-     * Returns right encoder displacement.
-     *
-     * @return right rate
+     * Returns right encoder velocity.
      */
     units::meters_per_second_t GetRightVelocity() const;
 
@@ -119,16 +107,6 @@ public:
      * Resets all sensors and controller.
      */
     void Reset(const frc::Pose2d& initialPose = frc::Pose2d());
-
-    /**
-     * Enables the controller.
-     */
-    void EnableController();
-
-    /**
-     * Disables the controller.
-     */
-    void DisableController();
 
     /**
      * Returns true if controller is enabled and false if controller is
@@ -200,8 +178,7 @@ public:
 
     void TeleopPeriodic() override;
 
-protected:
-    void ControllerPeriodic() override;
+    void ControllerPeriodic();
 
 private:
     rev::CANSparkMax m_leftMaster{Constants::Drivetrain::kLeftMasterPort,
@@ -231,12 +208,18 @@ private:
     std::unique_ptr<DrivetrainController> m_controller;
 
     nt::NetworkTableInstance m_inst = nt::NetworkTableInstance::GetDefault();
-    nt::NetworkTableEntry m_leftEncoderEntry =
-        m_inst.GetEntry("/Diagnostics/Drivetrain/Left encoder");
-    nt::NetworkTableEntry m_rightEncoderEntry =
-        m_inst.GetEntry("/Diagnostics/Drivetrain/Right encoder");
-    nt::NetworkTableEntry m_headingEntry =
-        m_inst.GetEntry("/Diagnostics/Drivetrain/Heading");
+    nt::NetworkTableEntry m_xStateEntry =
+        m_inst.GetEntry("/Diagnostics/Drivetrain/States/X");
+    nt::NetworkTableEntry m_yStateEntry =
+        m_inst.GetEntry("/Diagnostics/Drivetrain/States/Y");
+    nt::NetworkTableEntry m_headingStateEntry =
+        m_inst.GetEntry("/Diagnostics/Drivetrain/States/Heading");
+    nt::NetworkTableEntry m_headingOutputEntry =
+        m_inst.GetEntry("/Diagnostics/Drivetrain/Outputs/Heading");
+    nt::NetworkTableEntry m_leftPositionOutputEntry =
+        m_inst.GetEntry("/Diagnostics/Drivetrain/Outputs/Left position");
+    nt::NetworkTableEntry m_rightPositionOutputEntry =
+        m_inst.GetEntry("/Diagnostics/Drivetrain/Outputs/Right position");
 
     // Simulation variables
     frc::sim::DifferentialDrivetrainSim m_drivetrainSim;

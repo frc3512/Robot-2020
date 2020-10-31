@@ -7,10 +7,10 @@
 #include <frc2/Timer.h>
 #include <networktables/NetworkTableEntry.h>
 #include <networktables/NetworkTableInstance.h>
-#include <rev/CANSparkMax.h>
 #include <wpi/mutex.h>
 
 #include "Constants.hpp"
+#include "rev/CANSparkMax.hpp"
 #include "subsystems/SubsystemBase.hpp"
 
 namespace frc3512 {

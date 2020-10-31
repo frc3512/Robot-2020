@@ -5,6 +5,7 @@
 .wpilib/
 build/
 docs/
+autonMode.txt
 *.swp
 *.csv
 *.log

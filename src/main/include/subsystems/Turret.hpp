@@ -13,14 +13,14 @@
 #include <frc2/Timer.h>
 #include <networktables/NetworkTableEntry.h>
 #include <networktables/NetworkTableInstance.h>
-#include <rev/CANSparkMax.h>
 #include <units/angle.h>
 #include <units/current.h>
 #include <units/voltage.h>
 
 #include "Constants.hpp"
 #include "controllers/TurretController.hpp"
-#include "subsystems/ControlledSubsystemBase.hpp"
+#include "rev/CANSparkMax.hpp"
+#include "subsystems/SubsystemBase.hpp"
 
 namespace frc3512 {
 
@@ -31,7 +31,7 @@ class Drivetrain;
  * Subsystem specifically designed for the Turret (bottom, movable part of the
  * Shooter)
  */
-class Turret : public ControlledSubsystemBase {
+class Turret : public SubsystemBase {
 public:
     enum class Direction { kNone, kCCW, kCW };
 
@@ -57,7 +57,7 @@ public:
      *
      * @param initialHeading The initial turret heading in the drivetrain frame.
      */
-    void Reset(units::radian_t initialHeading = 0_rad);
+    void Reset(units::radian_t initialHeading);
 
     /**
      * Returns the angle of the turret.
@@ -86,16 +86,6 @@ public:
     frc::Pose2d GetNextPose() const;
 
     /**
-     * Enables the controller.
-     */
-    void EnableController();
-
-    /**
-     * Disables the controller.
-     */
-    void DisableController();
-
-    /**
      * Returns true if the turret has reached the goal heading.
      */
     bool AtGoal() const;
@@ -105,11 +95,20 @@ public:
      */
     units::volt_t GetMotorOutput() const;
 
-    void DisabledInit() override { DisableController(); }
+    void DisabledInit() override {
+        m_controller.Disable();
+        m_controller.SetClosedLoop(false);
+    }
 
-    void AutonomousInit() override { EnableController(); }
+    void AutonomousInit() override {
+        m_controller.Enable();
+        m_controller.SetClosedLoop(true);
+    }
 
-    void TeleopInit() override { EnableController(); }
+    void TeleopInit() override {
+        m_controller.Enable();
+        m_controller.SetClosedLoop(false);
+    }
 
     void RobotPeriodic() override;
 
@@ -117,8 +116,7 @@ public:
 
     void TestPeriodic() override;
 
-protected:
-    void ControllerPeriodic() override;
+    void ControllerPeriodic();
 
 private:
     // A CCW (positive) offset makes the encoder hit the soft limit sooner when

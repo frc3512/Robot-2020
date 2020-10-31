@@ -25,7 +25,7 @@ includeOtherLibs {
   hal/
   mockdata/
   networktables/
-  rev/
+  rev/.*?\.h$
   simulation/
   units/
   unsupported/

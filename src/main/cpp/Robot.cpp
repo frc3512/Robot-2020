@@ -39,13 +39,24 @@ Robot::Robot() {
         std::bind(&Robot::AutoRightSideShootThreePeriodic, this));
 
     frc::LiveWindow::GetInstance()->DisableAllTelemetry();
+
+    AddPeriodic([=] { ControllerPeriodic(); }, Constants::kDt, 10_ms);
 }
+
+void Robot::Shoot() {
+    if (m_state == ShootingState::kIdle) {
+        m_vision.TurnLEDOn();
+        m_flywheel.Shoot();
+        m_state = ShootingState::kStartFlywheel;
+    }
+}
+
+bool Robot::IsShooting() const { return m_state != ShootingState::kIdle; }
 
 void Robot::SimulationInit() { SubsystemBase::RunAllSimulationInit(); }
 
 void Robot::DisabledInit() {
     SubsystemBase::RunAllDisabledInit();
-    ControlledSubsystemBase::Disable();
 
     // Reset teleop shooting state machine when disabling robot
     m_flywheel.SetGoal(0_rad_per_s);
@@ -56,21 +67,12 @@ void Robot::DisabledInit() {
 
 void Robot::AutonomousInit() {
     SubsystemBase::RunAllAutonomousInit();
-    ControlledSubsystemBase::Enable();
     m_autonSelector.ExecAutonomousInit();
 }
 
-void Robot::TeleopInit() {
-    SubsystemBase::RunAllTeleopInit();
+void Robot::TeleopInit() { SubsystemBase::RunAllTeleopInit(); }
 
-    ControlledSubsystemBase::Enable();
-}
-
-void Robot::TestInit() {
-    SubsystemBase::RunAllTestInit();
-
-    ControlledSubsystemBase::Enable();
-}
+void Robot::TestInit() { SubsystemBase::RunAllTestInit(); }
 
 void Robot::RobotPeriodic() {
     SubsystemBase::RunAllRobotPeriodic();
@@ -94,6 +96,8 @@ void Robot::DisabledPeriodic() { SubsystemBase::RunAllDisabledPeriodic(); }
 void Robot::AutonomousPeriodic() {
     SubsystemBase::RunAllAutonomousPeriodic();
     m_autonSelector.ExecAutonomousPeriodic();
+
+    RunShooterSM();
 }
 
 void Robot::TeleopPeriodic() {
@@ -101,16 +105,29 @@ void Robot::TeleopPeriodic() {
 
     static frc::Joystick appendageStick2{kAppendageStick2Port};
 
+    if (appendageStick2.GetRawButtonPressed(1)) {
+        Shoot();
+    }
+
+    RunShooterSM();
+}
+
+void Robot::TestPeriodic() { SubsystemBase::RunAllTestPeriodic(); }
+
+void Robot::ControllerPeriodic() {
+    if (frc::DriverStation::GetInstance().IsEnabled()) {
+        m_drivetrain.ControllerPeriodic();
+        m_turret.ControllerPeriodic();
+        m_flywheel.ControllerPeriodic();
+    }
+}
+
+void Robot::RunShooterSM() {
     // Shooting state machine
     switch (m_state) {
         // Wait until ball(s) are fully loaded in conveyor and trigger has been
         // pushed.
         case ShootingState::kIdle: {
-            if (appendageStick2.GetRawButtonPressed(1)) {
-                m_vision.TurnLEDOn();
-                m_flywheel.Shoot();
-                m_state = ShootingState::kStartFlywheel;
-            }
             break;
         }
         // Allow the flywheel to spin up to the correct angular velocity.
@@ -143,8 +160,6 @@ void Robot::TeleopPeriodic() {
         }
     }
 }
-
-void Robot::TestPeriodic() { SubsystemBase::RunAllTestPeriodic(); }
 
 }  // namespace frc3512
 

@@ -26,17 +26,17 @@ TEST_F(FlywheelTest, ReachesGoal) {
     frc3512::Flywheel flywheel{turret};
 
     frc3512::SubsystemBase::RunAllTeleopInit();
-    frc3512::ControlledSubsystemBase::Enable();
+    frc::Notifier controllerPeriodic{[&] {
+        flywheel.TeleopPeriodic();
+        flywheel.ControllerPeriodic();
+    }};
+    controllerPeriodic.StartPeriodic(frc3512::Constants::kDt);
 
-    flywheel.SetGoal(500.0_rad_per_s);
-
-    frc::Notifier teleopPeriodic{&frc3512::SubsystemBase::RunAllTeleopPeriodic};
-    teleopPeriodic.StartPeriodic(20_ms);
+    flywheel.SetGoal(500_rad_per_s);
 
     frc::sim::StepTiming(2_s);
 
     frc3512::SubsystemBase::RunAllDisabledInit();
-    frc3512::ControlledSubsystemBase::Disable();
 
     frc3512::AddPrefixToCSVs("FlywheelTest");
 

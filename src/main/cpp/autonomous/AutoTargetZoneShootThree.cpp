@@ -15,6 +15,9 @@ static State state;
 static frc2::Timer autonTimer;
 
 void Robot::AutoTargetZoneShootThreeInit() {
+    m_drivetrain.Reset(frc::Pose2d(12.65_m, 2.6_m + kPathWeaverFudge,
+                                   units::radian_t{wpi::math::pi}));
+
     state = State::kInit;
     autonTimer.Reset();
     autonTimer.Start();
@@ -23,8 +26,6 @@ void Robot::AutoTargetZoneShootThreeInit() {
 void Robot::AutoTargetZoneShootThreePeriodic() {
     switch (state) {
         case State::kInit: {
-            m_drivetrain.Reset(frc::Pose2d(12.65_m, 2.6_m + kPathWeaverFudge,
-                                           units::radian_t{wpi::math::pi}));
             m_drivetrain.SetWaypoints(
                 frc::Pose2d(12.65_m, 2.6_m + kPathWeaverFudge,
                             units::radian_t{wpi::math::pi}),

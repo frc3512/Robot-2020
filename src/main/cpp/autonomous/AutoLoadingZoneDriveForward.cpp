@@ -15,6 +15,10 @@ static State state;
 static frc2::Timer autonTimer;
 
 void Robot::AutoLoadingZoneDriveForwardInit() {
+    frc::Pose2d initialPose{12.65_m, 5.800_m + kPathWeaverFudge,
+                            units::radian_t{wpi::math::pi}};
+    m_drivetrain.Reset(initialPose);
+
     state = State::kInit;
     autonTimer.Reset();
     autonTimer.Start();
@@ -30,7 +34,6 @@ void Robot::AutoLoadingZoneDriveForwardPeriodic() {
                 frc::Pose2d(12.65_m - Drivetrain::kLength - 0.5_m,
                             5.800_m + kPathWeaverFudge,
                             units::radian_t{wpi::math::pi}));
-            m_drivetrain.Reset(initialPose);
             state = State::kIdle;
             break;
         }

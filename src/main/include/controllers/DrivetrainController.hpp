@@ -21,7 +21,6 @@
 #include <units/time.h>
 #include <units/voltage.h>
 #include <wpi/math>
-#include <wpi/mutex.h>
 
 #include "Constants.hpp"
 #include "controllers/ControllerBase.hpp"
@@ -86,9 +85,6 @@ public:
     DrivetrainController(const DrivetrainController&) = delete;
     DrivetrainController& operator=(const DrivetrainController&) = delete;
 
-    void SetOpenLoop(bool manualControl);
-    bool IsOpenLoop() const;
-
     /**
      * Sets the waypoints for a generated trajectory.
      *
@@ -137,15 +133,12 @@ public:
 
     const Eigen::Matrix<double, 10, 1>& GetStates() const override;
 
-    void Reset() override;
-
     /**
      * Resets any internal state.
      *
      * @param initialPose Initial pose for state estimate.
-     * @param initialRef Initial pose for controller reference.
      */
-    void Reset(const frc::Pose2d& initialPose, const frc::Pose2d& initialRef);
+    void Reset(const frc::Pose2d& initialPose);
 
     Eigen::Matrix<double, 2, 1> Update(const Eigen::Matrix<double, 3, 1>& y,
                                        units::second_t dt) override;
@@ -215,6 +208,8 @@ private:
 
     Eigen::Matrix<double, 5, 2> m_B;
 
+    Eigen::Matrix<double, 2, 5> m_K = Eigen::Matrix<double, 2, 5>::Zero();
+
     // Controller reference
     Eigen::Matrix<double, 10, 1> m_r;
     Eigen::Matrix<double, 10, 1> m_nextR;
@@ -223,10 +218,7 @@ private:
     frc::Pose2d m_goal;
     frc2::Timer m_timeSinceSetWaypoints;
 
-    wpi::mutex m_trajectoryMutex;
-
     bool m_atReferences = false;
-    bool m_isOpenLoop = false;
 
     /**
      * Converts velocity and curvature of drivetrain into left and right wheel

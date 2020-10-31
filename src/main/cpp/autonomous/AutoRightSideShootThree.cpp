@@ -14,6 +14,9 @@ static State state;
 static frc2::Timer autonTimer;
 
 void Robot::AutoRightSideShootThreeInit() {
+    m_drivetrain.Reset(
+        frc::Pose2d(12.65_m, 0.7500_m, units::radian_t{wpi::math::pi}));
+
     state = State::kInit;
     autonTimer.Reset();
     autonTimer.Start();
@@ -22,9 +25,6 @@ void Robot::AutoRightSideShootThreeInit() {
 void Robot::AutoRightSideShootThreePeriodic() {
     switch (state) {
         case State::kInit: {
-            // Initial Pose - X: 12.65 m  Y: 0.7500 m  Heading: 0 rad
-            m_drivetrain.Reset(
-                frc::Pose2d(12.65_m, 0.7500_m, units::radian_t{wpi::math::pi}));
             m_drivetrain.SetWaypoints(
                 frc::Pose2d(12.65_m, 0.7500_m, units::radian_t{wpi::math::pi}),
                 {},

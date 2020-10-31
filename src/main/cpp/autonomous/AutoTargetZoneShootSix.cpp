@@ -14,6 +14,9 @@ static State state;
 static frc2::Timer autonTimer;
 
 void Robot::AutoTargetZoneShootSixInit() {
+    m_drivetrain.Reset(
+        frc::Pose2d(12.65_m, 2.600_m, units::radian_t{wpi::math::pi}));
+
     state = State::kInit;
     autonTimer.Reset();
     autonTimer.Start();
@@ -22,9 +25,6 @@ void Robot::AutoTargetZoneShootSixInit() {
 void Robot::AutoTargetZoneShootSixPeriodic() {
     switch (state) {
         case State::kInit: {
-            // Initial Pose - X: 12.65 m  Y: 2.600 m  Heading: pi rad
-            m_drivetrain.Reset(
-                frc::Pose2d(12.65_m, 2.600_m, units::radian_t{wpi::math::pi}));
             m_drivetrain.SetWaypoints(
                 frc::Pose2d(12.65_m, 2.600_m, units::radian_t{wpi::math::pi}),
                 {},

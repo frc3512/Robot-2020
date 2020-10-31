@@ -13,8 +13,6 @@ TEST(DrivetrainControllerTest, CorrectsTowardGlobalY) {
     using frc3512::Constants::kDt;
 
     frc3512::DrivetrainController controller;
-    controller.SetOpenLoop(false);
-    controller.Enable();
 
     controller.SetWaypoints(frc::Pose2d(0_m, 0_m, 0_rad), {},
                             frc::Pose2d(4.8768_m, 2.7432_m, 0_rad));

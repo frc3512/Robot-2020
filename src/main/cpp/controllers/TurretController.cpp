@@ -3,9 +3,9 @@
 #include "controllers/TurretController.hpp"
 
 #include <frc/RobotController.h>
+#include <units/math.h>
 
 #include "controllers/DrivetrainController.hpp"
-#include "controllers/NormalizeAngle.hpp"
 
 using namespace frc3512;
 using namespace frc3512::Constants::Turret;
@@ -33,13 +33,13 @@ TurretController::TurretController()
                       ControllerLabel{"Angular velocity", "rad/s"}},
                      {ControllerLabel{"Voltage", "V"}},
                      {ControllerLabel{"Angle", "rad"}}) {
-    Reset();
+    Reset(0_rad);
 }
 
 void TurretController::SetGoal(
     units::radian_t angleGoal,
     units::radians_per_second_t angularVelocityGoal) {
-    m_goal = {NormalizeAngle(angleGoal), angularVelocityGoal};
+    m_goal = {units::math::NormalizeAngle(angleGoal), angularVelocityGoal};
 }
 
 void TurretController::SetReferences(units::radian_t angle,
@@ -76,11 +76,15 @@ const Eigen::Matrix<double, 2, 1>& TurretController::GetStates() const {
     return m_observer.Xhat();
 }
 
-void TurretController::Reset() {
+void TurretController::Reset(units::radian_t initialHeading) {
+    Eigen::Matrix<double, 2, 1> xHat;
+    xHat << initialHeading.to<double>(), 0.0;
+
     m_observer.Reset();
-    m_ff.Reset(Eigen::Matrix<double, 2, 1>::Zero());
-    m_r.setZero();
-    m_nextR.setZero();
+    m_observer.SetXhat(xHat);
+    m_ff.Reset(xHat);
+    m_r = xHat;
+    m_nextR = xHat;
 }
 
 Eigen::Matrix<double, 1, 1> TurretController::Update(
@@ -128,11 +132,8 @@ Eigen::Matrix<double, 1, 1> TurretController::Update(
     auto profiledReference = profile.Calculate(Constants::kDt);
     SetReferences(profiledReference.position, profiledReference.velocity);
 
-    Eigen::Matrix<double, 2, 1> error = m_r - m_observer.Xhat();
-    error(0) = NormalizeAngle(error(0));
-
-    if (IsEnabled()) {
-        u << m_lqr.K() * error + m_ff.Calculate(m_nextR);
+    if (IsClosedLoop()) {
+        u << m_lqr.K() * (m_r - m_observer.Xhat()) + m_ff.Calculate(m_nextR);
 
         units::radian_t heading{m_observer.Xhat(State::kAngle)};
         if (heading > kCCWLimit && u(0) > 0.0) {

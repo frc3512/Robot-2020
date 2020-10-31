@@ -11,6 +11,9 @@
 #include <gtest/gtest.h>
 #else
 #define EXPECT_EQ(a, b)
+#define EXPECT_FALSE(a)
+#define EXPECT_GT(a, b)
+#define EXPECT_LT(a, b)
 #define EXPECT_TRUE(a)
 #endif
 
@@ -41,6 +44,16 @@ public:
 
     Robot();
 
+    /**
+     * Start shooting.
+     */
+    void Shoot();
+
+    /**
+     * Returns true if currently shooting.
+     */
+    bool IsShooting() const;
+
     void SimulationInit() override;
 
     void DisabledInit() override;
@@ -62,6 +75,16 @@ public:
     void TeleopPeriodic() override;
 
     void TestPeriodic() override;
+
+    /**
+     * Runs all the controller update functions.
+     */
+    void ControllerPeriodic();
+
+    /**
+     * Runs the shooter state machine.
+     */
+    void RunShooterSM();
 
     /**
      * Initialization code for driving towards the allied alliance station from

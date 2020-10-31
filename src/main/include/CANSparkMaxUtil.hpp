@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include <rev/CANSparkMax.h>
+#include "rev/CANSparkMax.hpp"
 
 namespace frc3512 {
 

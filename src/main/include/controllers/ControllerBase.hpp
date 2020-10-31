@@ -71,7 +71,7 @@ public:
     void Enable() {
         // m_lastTime is reset so that a large time delta isn't generated from
         // Update() not being called in a while.
-        m_lastTime = frc2::Timer::GetFPGATimestamp();
+        m_lastTime = frc2::Timer::GetFPGATimestamp() - Constants::kDt;
         m_isEnabled = true;
     }
 
@@ -86,9 +86,14 @@ public:
     bool IsEnabled() const { return m_isEnabled; }
 
     /**
-     * Resets any internal state.
+     * Set whether controller should run in closed-loop.
      */
-    virtual void Reset() = 0;
+    void SetClosedLoop(bool isClosedLoop) { m_isClosedLoop = isClosedLoop; }
+
+    /**
+     * Returns true if controller is running in closed-loop.
+     */
+    bool IsClosedLoop() const { return m_isClosedLoop; }
 
     /**
      * Returns the current references.
@@ -128,8 +133,12 @@ public:
         m_liveGrapher.Log(now - m_startTime, GetReferences(), GetStates(), m_u,
                           y);
 
-        m_u = Update(y, now - m_lastTime);
-        m_lastTime = now;
+        if (now - m_lastTime > 0_s) {
+            m_u = Update(y, now - m_lastTime);
+            m_lastTime = now;
+        } else {
+            std::cout << "ERROR: dt = 0 @ t=" << now << std::endl;
+        }
         return m_u;
     }
 
@@ -156,6 +165,7 @@ private:
     units::second_t m_lastTime = frc2::Timer::GetFPGATimestamp();
     units::second_t m_startTime = frc2::Timer::GetFPGATimestamp();
     bool m_isEnabled = false;
+    bool m_isClosedLoop = true;
 };
 
 }  // namespace frc3512

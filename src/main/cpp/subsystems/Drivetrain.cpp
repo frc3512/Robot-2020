@@ -5,6 +5,7 @@
 #include <frc/Joystick.h>
 #include <frc/RobotBase.h>
 #include <frc/RobotController.h>
+#include <units/math.h>
 
 #include "CANSparkMaxUtil.hpp"
 #include "controllers/DrivetrainController.hpp"
@@ -80,7 +81,7 @@ units::meters_per_second_t Drivetrain::GetRightVelocity() const {
 }
 
 void Drivetrain::Reset(const frc::Pose2d& initialPose) {
-    m_controller->Reset(initialPose, initialPose);
+    m_controller->Reset(initialPose);
     m_leftEncoder.Reset();
     m_rightEncoder.Reset();
     m_gyro.Reset();
@@ -98,16 +99,6 @@ void Drivetrain::Reset(const frc::Pose2d& initialPose) {
     }
 }
 
-void Drivetrain::EnableController() {
-    m_controller->Enable();
-    m_drive.SetSafetyEnabled(false);
-}
-
-void Drivetrain::DisableController() {
-    m_controller->Disable();
-    m_drive.SetSafetyEnabled(true);
-}
-
 bool Drivetrain::IsControllerEnabled() const {
     return m_controller->IsEnabled();
 }
@@ -118,15 +109,34 @@ void Drivetrain::CorrectWithGlobalOutputs(units::meter_t x, units::meter_t y,
 }
 
 void Drivetrain::ControllerPeriodic() {
+    using State = DrivetrainController::State;
+    using LocalOutput = DrivetrainController::LocalOutput;
+
     Eigen::Matrix<double, 3, 1> y;
     y << GetAngle().to<double>(), GetLeftPosition().to<double>(),
         GetRightPosition().to<double>();
+
+    // Fix heading residual
+    if (GetAngle().to<double>() - m_controller->GetStates()(State::kHeading) >
+        wpi::math::pi / 2.0) {
+        y(LocalOutput::kHeading) -= 2.0 * wpi::math::pi;
+    } else if (GetAngle().to<double>() -
+                   m_controller->GetStates()(State::kHeading) <
+               -wpi::math::pi / 2.0) {
+        y(0) += 2.0 * wpi::math::pi;
+    }
+
     Eigen::Matrix<double, 2, 1> u = m_controller->UpdateAndLog(y);
 
-    if (!m_controller->IsOpenLoop()) {
-        // Set motor inputs
+    if (m_controller->IsClosedLoop()) {
         m_leftGrbx.SetVoltage(units::volt_t{u(0)});
         m_rightGrbx.SetVoltage(units::volt_t{u(1)});
+    }
+
+    if (m_controller->IsClosedLoop() && AtGoal()) {
+        m_leftGrbx.SetVoltage(0_V);
+        m_rightGrbx.SetVoltage(0_V);
+        m_controller->SetClosedLoop(false);
     }
 
     if constexpr (frc::RobotBase::IsSimulation()) {
@@ -173,19 +183,31 @@ units::ampere_t Drivetrain::GetCurrentDraw() const {
     return m_drivetrainSim.GetCurrentDraw();
 }
 
-void Drivetrain::DisabledInit() { DisableController(); }
-
-void Drivetrain::AutonomousInit() {
-    EnableController();
-    m_controller->SetOpenLoop(false);
+void Drivetrain::DisabledInit() {
+    m_controller->Disable();
+    m_drive.SetSafetyEnabled(true);
 }
 
-void Drivetrain::TeleopInit() { m_controller->SetOpenLoop(true); }
+void Drivetrain::AutonomousInit() {
+    m_controller->Enable();
+    m_drive.SetSafetyEnabled(false);
+}
+
+void Drivetrain::TeleopInit() {
+    m_controller->Enable();
+    m_drive.SetSafetyEnabled(true);
+}
 
 void Drivetrain::RobotPeriodic() {
-    m_leftEncoderEntry.SetDouble(GetLeftPosition().to<double>());
-    m_rightEncoderEntry.SetDouble(GetRightPosition().to<double>());
-    m_headingEntry.SetDouble(GetAngle().to<double>());
+    using State = DrivetrainController::State;
+
+    const auto& xHat = m_controller->GetStates();
+    m_xStateEntry.SetDouble(xHat(State::kX));
+    m_yStateEntry.SetDouble(xHat(State::kY));
+    m_headingStateEntry.SetDouble(xHat(State::kHeading));
+    m_headingOutputEntry.SetDouble(GetAngle().to<double>());
+    m_leftPositionOutputEntry.SetDouble(GetLeftPosition().to<double>());
+    m_rightPositionOutputEntry.SetDouble(GetRightPosition().to<double>());
 }
 
 void Drivetrain::TeleopPeriodic() {
