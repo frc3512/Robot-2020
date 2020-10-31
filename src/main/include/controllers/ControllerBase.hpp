@@ -42,6 +42,7 @@ public:
                    const std::array<ControllerLabel, States>& stateLabels,
                    const std::array<ControllerLabel, Inputs>& inputLabels,
                    const std::array<ControllerLabel, Outputs>& outputLabels)
+#ifndef RUNNING_FRC_TESTS
         : m_csvLogger{controllerName, stateLabels, inputLabels, outputLabels},
           m_liveGrapher{controllerName, stateLabels, inputLabels,
                         outputLabels} {
@@ -64,6 +65,10 @@ public:
         y.setZero();
         m_liveGrapher.Log(now, r, x, u, y);
     }
+#else
+        : m_csvLogger{controllerName, stateLabels, inputLabels, outputLabels} {
+    }
+#endif
 
     /**
      * Enables the control loop.
@@ -130,8 +135,10 @@ public:
         auto now = frc2::Timer::GetFPGATimestamp();
         m_csvLogger.Log(now - m_startTime, GetReferences(), GetStates(), m_u,
                         y);
+#ifndef RUNNING_FRC_TESTS
         m_liveGrapher.Log(now - m_startTime, GetReferences(), GetStates(), m_u,
                           y);
+#endif
 
         if (now - m_lastTime > 0_s) {
             m_u = Update(y, now - m_lastTime);
@@ -154,7 +161,9 @@ protected:
 
 private:
     CSVControllerLogger<States, Inputs, Outputs> m_csvLogger;
+#ifndef RUNNING_FRC_TESTS
     LiveGrapherControllerLogger<States, Inputs, Outputs> m_liveGrapher;
+#endif
 
     // Controller reference
     Eigen::Matrix<double, 2, 1> m_r;
