@@ -41,6 +41,16 @@ public:
 
     Robot();
 
+    /**
+     * Start shooting.
+     */
+    void Shoot();
+
+    /**
+     * Retruns true if currently shooting.
+     */
+    bool IsShooting();
+
     void SimulationInit() override;
 
     void DisabledInit() override;

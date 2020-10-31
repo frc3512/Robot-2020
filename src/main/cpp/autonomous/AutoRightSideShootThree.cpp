@@ -36,7 +36,7 @@ void Robot::AutoRightSideShootThreePeriodic() {
         case State::kDriveAwayFromGoal: {
             // Shoot x3
             if (m_drivetrain.AtGoal()) {
-                m_flywheel.Shoot();
+                Shoot();
                 state = State::kIdle;
             }
             break;

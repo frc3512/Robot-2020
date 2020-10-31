@@ -41,6 +41,16 @@ Robot::Robot() {
     frc::LiveWindow::GetInstance()->DisableAllTelemetry();
 }
 
+void Robot::Shoot() {
+    if (m_state == ShootingState::kIdle) {
+        m_vision.TurnLEDOn();
+        m_flywheel.Shoot();
+        m_state = ShootingState::kStartFlywheel;
+    }
+}
+
+bool Robot::IsShooting() { return m_state != ShootingState::kIdle; }
+
 void Robot::SimulationInit() { SubsystemBase::RunAllSimulationInit(); }
 
 void Robot::DisabledInit() {
@@ -107,9 +117,7 @@ void Robot::TeleopPeriodic() {
         // pushed.
         case ShootingState::kIdle: {
             if (appendageStick2.GetRawButtonPressed(1)) {
-                m_vision.TurnLEDOn();
-                m_flywheel.Shoot();
-                m_state = ShootingState::kStartFlywheel;
+                Shoot();
             }
             break;
         }

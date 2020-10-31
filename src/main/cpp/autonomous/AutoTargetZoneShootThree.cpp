@@ -37,18 +37,12 @@ void Robot::AutoTargetZoneShootThreePeriodic() {
         }
         case State::kDriveAwayFromGoal: {
             if (m_drivetrain.AtGoal()) {
-                m_vision.TurnLEDOn();
-                m_flywheel.Shoot();
-                m_timer.Start();
+                Shoot();
                 state = State::kIdle;
             }
             break;
         }
         case State::kIdle: {
-            if (m_timer.HasElapsed(3.0_s)) {
-                m_flywheel.SetGoal(0.0_rad_per_s);
-                m_vision.TurnLEDOff();
-            }
             break;
         }
     }
