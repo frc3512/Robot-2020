@@ -46,7 +46,7 @@ void Robot::AutoLoadingZoneDriveForwardPeriodic() {
         if (autonTimer.HasElapsed(14.5_s)) {
             EXPECT_EQ(State::kIdle, state);
             EXPECT_TRUE(m_drivetrain.AtGoal());
-            EXPECT_TRUE(m_flywheel.AtGoal());
+            EXPECT_EQ(m_flywheel.GetGoal(), 0_rad_per_s);
         }
     }
 }

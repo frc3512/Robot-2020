@@ -148,8 +148,6 @@ private:
     frc::LinearFilter<units::radians_per_second_t> m_velocityFilter =
         frc::LinearFilter<units::radians_per_second_t>::MovingAverage(4);
 
-    frc2::Timer m_timer;
-
     Turret& m_turret;
 
     nt::NetworkTableInstance m_inst = nt::NetworkTableInstance::GetDefault();

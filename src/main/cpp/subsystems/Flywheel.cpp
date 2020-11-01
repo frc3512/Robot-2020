@@ -47,8 +47,6 @@ units::radians_per_second_t Flywheel::GetAngularVelocity() const {
 }
 
 void Flywheel::SetGoal(units::radians_per_second_t velocity) {
-    m_timer.Reset();
-    m_timer.Start();
     m_controller.SetGoal(velocity);
 }
 
@@ -56,13 +54,7 @@ units::radians_per_second_t Flywheel::GetGoal() const {
     return m_controller.GetGoal();
 }
 
-bool Flywheel::AtGoal() {
-    bool atGoal = m_controller.AtGoal() || m_timer.HasElapsed(3_s);
-    if (atGoal) {
-        m_timer.Stop();
-    }
-    return atGoal;
-}
+bool Flywheel::AtGoal() { return m_controller.AtGoal(); }
 
 void Flywheel::Shoot() {
     auto turretPose = m_turret.GetNextPose();
