@@ -204,7 +204,6 @@ private:
     frc::ADXRS450_Gyro m_gyro;
     units::radian_t m_headingOffset = 0_rad;
 
-    // Controller
     std::unique_ptr<DrivetrainController> m_controller;
 
     nt::NetworkTableInstance m_inst = nt::NetworkTableInstance::GetDefault();
