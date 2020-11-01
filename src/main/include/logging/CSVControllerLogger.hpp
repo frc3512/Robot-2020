@@ -12,7 +12,7 @@
 #include <wpi/StringRef.h>
 #include <wpi/Twine.h>
 
-#include "ControllerLabel.hpp"
+#include "logging/ControllerLabel.hpp"
 
 namespace frc3512 {
 

@@ -1,6 +1,6 @@
 // Copyright (c) 2020 FRC Team 3512. All Rights Reserved.
 
-#include "LiveGrapherControllerLogger.hpp"
+#include "logging/LiveGrapherControllerLogger.hpp"
 
 namespace frc3512 {
 LiveGrapher& GetGrapher() {

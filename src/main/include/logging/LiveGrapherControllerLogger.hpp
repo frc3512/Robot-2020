@@ -12,8 +12,8 @@
 #include <wpi/StringRef.h>
 #include <wpi/Twine.h>
 
-#include "ControllerLabel.hpp"
 #include "livegrapher/LiveGrapher.hpp"
+#include "logging/ControllerLabel.hpp"
 
 namespace frc3512 {
 

@@ -9,8 +9,8 @@
 #include <units/time.h>
 #include <wpi/StringRef.h>
 
-#include "CSVControllerLogger.hpp"
-#include "LiveGrapherControllerLogger.hpp"
+#include "logging/CSVControllerLogger.hpp"
+#include "logging/LiveGrapherControllerLogger.hpp"
 
 namespace frc3512 {
 
