@@ -2,9 +2,12 @@
 
 #include "Robot.hpp"
 
+#include <stdexcept>
+
 #include <frc/DriverStation.h>
 #include <frc/Joystick.h>
 #include <frc/RobotController.h>
+#include <frc/Threads.h>
 #include <frc/livewindow/LiveWindow.h>
 #include <frc/simulation/BatterySim.h>
 #include <frc/simulation/RoboRioSim.h>
@@ -38,6 +41,14 @@ Robot::Robot() {
     frc::LiveWindow::GetInstance()->DisableAllTelemetry();
 
     AddPeriodic([=] { ControllerPeriodic(); }, Constants::kDt, 7.5_ms);
+
+    if constexpr (!IsSimulation()) {
+        if (!frc::SetCurrentThreadPriority(true, Constants::kControllerPrio)) {
+            throw std::runtime_error(
+                fmt::format("Setting RT priority to {} failed\n",
+                            Constants::kControllerPrio));
+        }
+    }
 }
 
 void Robot::Shoot() {

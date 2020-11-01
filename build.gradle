@@ -184,6 +184,12 @@ task simulateCpp {
     dependsOn 'simulateFrcUserProgram' + wpi.platforms.desktop.capitalize() + 'DebugExecutable'
 }
 
+tasks.deploy.doLast {
+    exec {
+        executable './buildscripts/post-deploy-hooks.sh'
+    }
+}
+
 if (!OperatingSystem.current().isWindows()) {
     simulateCpp.doLast {
         exec {
