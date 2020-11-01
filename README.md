@@ -62,11 +62,11 @@ This builds the robot code for desktop and runs the simulation GUI.
 
 ### Documentation
 
-* `./gradlew-docs.sh`
-
-Doxygen 1.8.20 needs to be installed. This generates HTML documentation for the
-robot code from in-source Doxygen comments and places it in `docs/html` with an
-index.html page as the root.
+The source code and algorithms documentation is located in the [docs](docs)
+folder. Run `doxygen doxygen.conf` to generate HTML documentation for the robot
+code from in-source Doxygen comments (Doxygen 1.8.20 or higher required). The
+results are placed in a `docs/html` folder with an `index.html` page as the
+root.
 
 ### GNU debugger (GDB)
 
