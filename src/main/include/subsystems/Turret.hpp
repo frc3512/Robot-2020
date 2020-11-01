@@ -103,6 +103,7 @@ public:
     void AutonomousInit() override {
         m_controller.Enable();
         m_controller.SetClosedLoop(true);
+        SetManualOverride(false);
     }
 
     void TeleopInit() override {
@@ -134,7 +135,7 @@ private:
 
     // TODO: Let the turret move on its own once the turret encoder is trusted
     // more
-    std::atomic<bool> m_manualOverride{true};
+    std::atomic<bool> m_manualOverride{false};
 
     uint32_t m_poseMeasurementFaultCounter = 0;
     nt::NetworkTableInstance m_inst = nt::NetworkTableInstance::GetDefault();
