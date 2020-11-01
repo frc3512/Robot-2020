@@ -103,9 +103,7 @@ they can be fixed.
   location to 10.35.12.2. The default port will work.
 
 ControllerBase supports two logging backends for high-throughput controller
-performance data: CSV and LiveGrapher. The active backend can be selected via
-the `NETWORK_LOGGING` #define in
-[ControllerBase.hpp](src/main/include/controllers/ControllerBase.hpp).
+performance data: CSV and LiveGrapher.
 
 ### CSV
 
