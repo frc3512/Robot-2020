@@ -67,14 +67,28 @@ Doxygen 1.8.20 needs to be installed. This generates HTML documentation for the
 robot code from in-source Doxygen comments and places it in `docs/html` with an
 index.html page as the root.
 
-### GDB
+### GNU debugger (GDB)
 
 * `./gradlew-gdb.sh`
 
-This runs a debug build of the robot code in the GNU debugger (GDB). Once the
-build completes and GDB's prompt appears, enter `run` to start the robot
-program. It may take a while due to the debugger having to load a lot of
-symbols. If the robot code crashes, enter `bt` to get a backtrace.
+This runs a debug build of the robot code in GDB. Once the build completes and
+GDB's prompt appears, enter `run` to start the robot program. It may take a
+while due to the debugger having to load a lot of symbols. If the robot code
+crashes, enter `bt` to get a backtrace.
+
+* `./gradlew-gdb-test.sh`
+
+This runs a debug build of the tests in GDB.
+
+* `./gradlew-gdb-simgui.sh`
+
+This runs a debug desktop build of the robot code and simulation GUI in GDB.
+
+* `./gradlew-gdb-test-noninteractive.sh`
+
+This runs a debug build of the tests in GDB in noninteractive mode. It will
+automatically run the program in the debugger and print a backtrace if it
+crashes. This is useful for debugging crashes in GitHub Actions.
 
 ### Valgrind
 
