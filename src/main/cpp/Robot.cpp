@@ -18,6 +18,9 @@ Robot::Robot() {
     m_autonSelector.AddMode(
         "No-op", [] {}, [] {});
     m_autonSelector.AddMode(
+        "Left Side Intake", std::bind(&Robot::AutoLeftSideIntakeInit, this),
+        std::bind(&Robot::AutoLeftSideIntakePeriodic, this));
+    m_autonSelector.AddMode(
         "Loading Zone Drive Forward",
         std::bind(&Robot::AutoLoadingZoneDriveForwardInit, this),
         std::bind(&Robot::AutoLoadingZoneDriveForwardPeriodic, this));
@@ -30,13 +33,24 @@ Robot::Robot() {
         std::bind(&Robot::AutoTargetZoneShootThreeInit, this),
         std::bind(&Robot::AutoTargetZoneShootThreePeriodic, this));
     m_autonSelector.AddMode(
+        "Target Zone Shoot Six Balls",
+        std::bind(&Robot::AutoTargetZoneShootSixInit, this),
+        std::bind(&Robot::AutoTargetZoneShootSixPeriodic, this));
+    m_autonSelector.AddMode(
         "Right Side Drive Forward",
         std::bind(&Robot::AutoRightSideDriveForwardInit, this),
         std::bind(&Robot::AutoRightSideDriveForwardPeriodic, this));
     m_autonSelector.AddMode(
+        "Right Side Intake", std::bind(&Robot::AutoRightSideIntakeInit, this),
+        std::bind(&Robot::AutoRightSideIntakePeriodic, this));
+    m_autonSelector.AddMode(
         "Right Side Shoot Three Balls",
         std::bind(&Robot::AutoRightSideShootThreeInit, this),
         std::bind(&Robot::AutoRightSideShootThreePeriodic, this));
+    m_autonSelector.AddMode(
+        "Right Side Shoot Six Balls",
+        std::bind(&Robot::AutoRightSideShootSixInit, this),
+        std::bind(&Robot::AutoRightSideShootSixPeriodic, this));
 
     frc::LiveWindow::GetInstance()->DisableAllTelemetry();
 
