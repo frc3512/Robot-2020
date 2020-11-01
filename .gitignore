@@ -4,7 +4,7 @@
 .vscode/
 .wpilib/
 build/
-docs/
+docs/html/
 autonMode.txt
 *.swp
 *.csv
