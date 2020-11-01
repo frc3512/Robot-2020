@@ -6,9 +6,10 @@ Source code also for the 2020 practice robot: Ellinika
 
 ## Setup
 
-Install the relevant FRC toolchain for your platform
-(see https://github.com/wpilibsuite/allwpilib/releases). Make sure
-`~/frc2020/roborio/bin` is in PATH.
+Install the relevant FRC toolchain for your platform (see
+https://github.com/wpilibsuite/allwpilib/releases). Make sure the toolchain is
+placed in `~/wpilib/2020/roborio` (Linux) or
+`C:\Users\Public\wpilib\2020\roborio` (Windows).
 
 Install the following OS packages.
 
