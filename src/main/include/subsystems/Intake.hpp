@@ -7,7 +7,6 @@
 #include <frc2/Timer.h>
 #include <networktables/NetworkTableEntry.h>
 #include <networktables/NetworkTableInstance.h>
-#include <wpi/mutex.h>
 
 #include "Constants.hpp"
 #include "rev/CANSparkMax.hpp"
@@ -110,7 +109,6 @@ private:
 
     rev::CANSparkMax m_armMotor{Constants::Intake::kArmMotorPort,
                                 rev::CANSparkMax::MotorType::kBrushless};
-    wpi::mutex m_armMotorMutex;
 
     frc::DigitalInput m_upperSensor{Constants::Intake::kUpperSensorPort};
     frc::DigitalInput m_lowerSensor{Constants::Intake::kLowerSensorPort};

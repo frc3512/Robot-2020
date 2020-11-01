@@ -18,7 +18,6 @@
 #include <units/length.h>
 #include <units/voltage.h>
 #include <wpi/math>
-#include <wpi/mutex.h>
 
 #include "Constants.hpp"
 #include "LerpTable.hpp"

@@ -26,7 +26,6 @@ bool Intake::IsDeployed() const {
 }
 
 void Intake::SetArmMotor(ArmMotorDirection armMotorState) {
-    std::scoped_lock lock(m_armMotorMutex);
     if (armMotorState == ArmMotorDirection::kIntake) {
         m_armMotor.Set(-0.5);
     } else if (armMotorState == ArmMotorDirection::kOuttake) {
