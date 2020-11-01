@@ -28,6 +28,9 @@ TEST_F(TurretTest, ConfigSpaceLimits) {
     static constexpr int kPovCW = 90;
     static constexpr int kPovCCW = 270;
 
+    frc2::Timer timer;
+    timer.Start();
+
     frc::sim::JoystickSim appendageStick1{kAppendageStick1Port};
 
     frc3512::Vision vision;
@@ -57,7 +60,7 @@ TEST_F(TurretTest, ConfigSpaceLimits) {
         appendageStick1.SetPOV(kPovCW);
         frc::sim::StepTiming(20_ms);
 
-        ASSERT_LT(frc2::Timer::GetFPGATimestamp(), 30_s)
+        ASSERT_LT(timer.Get(), 30_s)
             << "Turret took too long to reach CW limit";
     }
 
@@ -76,7 +79,7 @@ TEST_F(TurretTest, ConfigSpaceLimits) {
         appendageStick1.SetPOV(kPovCCW);
         frc::sim::StepTiming(20_ms);
 
-        ASSERT_LT(frc2::Timer::GetFPGATimestamp(), 30_s)
+        ASSERT_LT(timer.Get(), 30_s)
             << "Turret took too long to reach CCW limit";
     }
 
