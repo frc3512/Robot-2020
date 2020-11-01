@@ -91,32 +91,34 @@ TEST(TurretControllerTest, ProperDistanceFromTarget) {
     constexpr units::meter_t kDrivetrainX = 12.65_m - 0.9398_m;
     constexpr units::meter_t kDrivetrainY = 2.600_m - 0.343_m;
 
-    frc3512::TurretController controller;
-    controller.Enable();
-    frc::sim::StepTiming(frc3512::Constants::kDt);
+    {
+        frc3512::TurretController controller;
+        controller.Enable();
+        frc::sim::StepTiming(frc3512::Constants::kDt);
 
-    Eigen::Matrix<double, 10, 1> drivetrainXhat;
-    drivetrainXhat << kDrivetrainX.to<double>(), kDrivetrainY.to<double>(),
-        wpi::math::pi, 0, 0, 0, 0, 0, 0, 0;
+        Eigen::Matrix<double, 10, 1> drivetrainXhat;
+        drivetrainXhat << kDrivetrainX.to<double>(), kDrivetrainY.to<double>(),
+            wpi::math::pi, 0, 0, 0, 0, 0, 0, 0;
 
-    controller.SetDrivetrainStates(drivetrainXhat);
-    Eigen::Matrix<double, 1, 1> y;
-    y << 0.0;
-    controller.UpdateAndLog(y);
-    auto turretPose = controller.GetNextPose();
+        controller.SetDrivetrainStates(drivetrainXhat);
+        Eigen::Matrix<double, 1, 1> y;
+        y << 0.0;
+        controller.UpdateAndLog(y);
+        auto turretPose = controller.GetNextPose();
 
-    const frc::Pose2d kTargetPoseInGlobal{TargetModel::kCenter.X(),
-                                          TargetModel::kCenter.Y(),
-                                          units::radian_t{wpi::math::pi}};
+        const frc::Pose2d kTargetPoseInGlobal{TargetModel::kCenter.X(),
+                                              TargetModel::kCenter.Y(),
+                                              units::radian_t{wpi::math::pi}};
 
-    auto distance =
-        turretPose.Translation().Distance(kTargetPoseInGlobal.Translation());
+        auto distance = turretPose.Translation().Distance(
+            kTargetPoseInGlobal.Translation());
+
+        EXPECT_NEAR_UNITS(
+            distance,
+            629.25_in - kDrivetrainX +
+                frc3512::TurretController::kDrivetrainToTurretFrame.X(),
+            1e-6_m);
+    }
 
     frc3512::AddPrefixToCSVs("TurretControllerTest ProperDistanceFromTarget");
-
-    EXPECT_NEAR_UNITS(
-        distance,
-        629.25_in - kDrivetrainX +
-            frc3512::TurretController::kDrivetrainToTurretFrame.X(),
-        1e-6_m);
 }

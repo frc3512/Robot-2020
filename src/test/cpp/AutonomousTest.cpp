@@ -1,6 +1,5 @@
 // Copyright (c) 2020 FRC Team 3512. All Rights Reserved.
 
-#include <memory>
 #include <string>
 #include <vector>
 
@@ -13,15 +12,9 @@
 
 class AutonomousTest : public testing::TestWithParam<std::string> {
 protected:
-    void SetUp() override {
-        frc::sim::PauseTiming();
-        robot = std::make_unique<frc3512::Robot>();
-    }
+    void SetUp() override { frc::sim::PauseTiming(); }
 
     void TearDown() override { frc::sim::ResumeTiming(); }
-
-    std::unique_ptr<frc3512::Robot> robot;
-    frc::sim::DriverStationSim ds;
 };
 
 TEST_P(AutonomousTest, RunMode) {
@@ -29,23 +22,26 @@ TEST_P(AutonomousTest, RunMode) {
 
     frc::sim::DriverStationSim ds;
 
-    robot->m_autonSelector.SetMode(GetParam());
+    {
+        frc3512::Robot robot;
+        robot.m_autonSelector.SetMode(GetParam());
 
-    std::thread robotThread{[&] { robot->StartCompetition(); }};
+        std::thread robotThread{[&] { robot.StartCompetition(); }};
 
-    ds.SetAutonomous(true);
-    ds.SetEnabled(true);
-    ds.NotifyNewData();
+        ds.SetAutonomous(true);
+        ds.SetEnabled(true);
+        ds.NotifyNewData();
 
-    frc::sim::StepTiming(15_s);
+        frc::sim::StepTiming(15_s);
 
-    ds.SetEnabled(false);
-    ds.NotifyNewData();
+        ds.SetEnabled(false);
+        ds.NotifyNewData();
 
-    frc::sim::StepTiming(20_ms);
+        frc::sim::StepTiming(20_ms);
 
-    robot->EndCompetition();
-    robotThread.join();
+        robot.EndCompetition();
+        robotThread.join();
+    }
 
     frc3512::AddPrefixToCSVs("AutonomousTest "s + GetParam());
 }

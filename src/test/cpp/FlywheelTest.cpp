@@ -20,25 +20,27 @@ protected:
 }  // namespace
 
 TEST_F(FlywheelTest, ReachesGoal) {
-    frc3512::Vision vision;
-    frc3512::Drivetrain drivetrain;
-    frc3512::Turret turret{vision, drivetrain};
-    frc3512::Flywheel flywheel{turret};
+    {
+        frc3512::Vision vision;
+        frc3512::Drivetrain drivetrain;
+        frc3512::Turret turret{vision, drivetrain};
+        frc3512::Flywheel flywheel{turret};
 
-    frc3512::SubsystemBase::RunAllTeleopInit();
-    frc::Notifier controllerPeriodic{[&] {
-        flywheel.TeleopPeriodic();
-        flywheel.ControllerPeriodic();
-    }};
-    controllerPeriodic.StartPeriodic(frc3512::Constants::kDt);
+        frc3512::SubsystemBase::RunAllTeleopInit();
+        frc::Notifier controllerPeriodic{[&] {
+            flywheel.TeleopPeriodic();
+            flywheel.ControllerPeriodic();
+        }};
+        controllerPeriodic.StartPeriodic(frc3512::Constants::kDt);
 
-    flywheel.SetGoal(500_rad_per_s);
+        flywheel.SetGoal(500_rad_per_s);
 
-    frc::sim::StepTiming(2_s);
+        frc::sim::StepTiming(2_s);
 
-    frc3512::SubsystemBase::RunAllDisabledInit();
+        frc3512::SubsystemBase::RunAllDisabledInit();
+
+        EXPECT_TRUE(flywheel.AtGoal());
+    }
 
     frc3512::AddPrefixToCSVs("FlywheelTest");
-
-    EXPECT_TRUE(flywheel.AtGoal());
 }
