@@ -140,7 +140,7 @@ task test {
     dependsOn 'runFrcUserProgramTestLinuxx86-64ReleaseGoogleTestExe'
 }
 
-task simulation {
+task simulate {
     dependsOn 'removeLogs'
     dependsOn 'simulateFrcUserProgramLinuxx86-64DebugExecutable'
 }
