@@ -94,9 +94,9 @@ public:
 private:
     using steady_clock = std::chrono::steady_clock;
 
-    UdpSocket m_socket;  // socket for sending data to Driver Station
-    uint32_t m_dsIP;     // IP address of Driver Station
-    int m_dsPort;        // port to which to send data
+    UdpSocket m_socket;   // Socket for sending data to Driver Station
+    uint32_t m_dsIP = 0;  // IP address of Driver Station
+    int m_dsPort;         // Port to which to send data
 
     // Rate-limits keepalive
     steady_clock::time_point m_prevTime = steady_clock::now();
