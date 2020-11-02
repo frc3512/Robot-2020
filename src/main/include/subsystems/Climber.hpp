@@ -7,13 +7,13 @@
 #include <frc/system/plant/LinearSystemId.h>
 #include <networktables/NetworkTableEntry.h>
 #include <networktables/NetworkTableInstance.h>
+#include <rev/CANEncoder.h>
+#include <rev/CANSparkMax.h>
 #include <units/length.h>
 #include <units/voltage.h>
 
 #include "Constants.hpp"
 #include "NetworkTableUtil.hpp"
-#include "rev/CANEncoder.hpp"
-#include "rev/CANSparkMax.hpp"
 #include "subsystems/SubsystemBase.hpp"
 
 namespace frc3512 {

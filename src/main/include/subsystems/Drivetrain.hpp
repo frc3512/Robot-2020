@@ -23,6 +23,7 @@
 #include <frc/system/plant/LinearSystemId.h>
 #include <frc/trajectory/TrajectoryConfig.h>
 #include <networktables/NetworkTableEntry.h>
+#include <rev/CANSparkMax.h>
 #include <units/acceleration.h>
 #include <units/angle.h>
 #include <units/angular_velocity.h>
@@ -34,7 +35,6 @@
 #include "Constants.hpp"
 #include "NetworkTableUtil.hpp"
 #include "controllers/DrivetrainController.hpp"
-#include "rev/CANSparkMax.hpp"
 #include "subsystems/ControlledSubsystemBase.hpp"
 
 namespace frc3512 {

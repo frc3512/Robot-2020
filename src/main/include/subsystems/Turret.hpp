@@ -10,6 +10,7 @@
 #include <frc/simulation/AnalogInputSim.h>
 #include <frc/simulation/DutyCycleEncoderSim.h>
 #include <frc/simulation/LinearSystemSim.h>
+#include <rev/CANSparkMax.h>
 #include <units/angle.h>
 #include <units/current.h>
 #include <units/voltage.h>
@@ -17,7 +18,6 @@
 #include "ADCInput.hpp"
 #include "Constants.hpp"
 #include "controllers/TurretController.hpp"
-#include "rev/CANSparkMax.hpp"
 #include "subsystems/ControlledSubsystemBase.hpp"
 
 namespace frc3512 {

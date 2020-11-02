@@ -12,6 +12,7 @@
 #include <frc/system/LinearSystem.h>
 #include <frc/system/plant/LinearSystemId.h>
 #include <frc2/Timer.h>
+#include <rev/CANSparkMax.h>
 #include <units/angle.h>
 #include <units/angular_velocity.h>
 #include <units/current.h>
@@ -22,7 +23,6 @@
 #include "FlywheelSim.hpp"
 #include "LerpTable.hpp"
 #include "controllers/FlywheelController.hpp"
-#include "rev/CANSparkMax.hpp"
 #include "subsystems/ControlledSubsystemBase.hpp"
 
 namespace frc3512 {

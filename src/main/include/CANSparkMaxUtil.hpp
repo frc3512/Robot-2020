@@ -1,8 +1,8 @@
-// Copyright (c) 2020 FRC Team 3512. All Rights Reserved.
+// Copyright (c) 2020-2021 FRC Team 3512. All Rights Reserved.
 
 #pragma once
 
-#include "rev/CANSparkMax.hpp"
+#include <rev/CANSparkMax.h>
 
 namespace frc3512 {
 
