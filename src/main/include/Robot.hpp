@@ -182,8 +182,6 @@ public:
     const std::vector<std::string>& GetAutonomousNames() const;
 
 private:
-    static constexpr units::meter_t kPathWeaverFudge{-0.343};
-
     // The order the subsystems are initialized determines the order the
     // controllers run in.
     Vision m_vision;

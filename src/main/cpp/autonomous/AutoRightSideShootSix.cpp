@@ -1,22 +1,37 @@
 // Copyright (c) 2020 FRC Team 3512. All Rights Reserved.
 
+#include <frc/trajectory/constraint/MaxVelocityConstraint.h>
 #include <wpi/math>
 
 #include "Robot.hpp"
+#include "trajectory/constraint/RectangularRegionConstraint.h"
 
 namespace frc3512 {
 
 namespace {
-enum class State { kInit, kShoot, kTrenchRun, kTrenchShoot, kIdle };
+enum class State {
+    kInit,
+    kShoot,
+    kTrenchRun,
+    kTrenchShoot,
+    kTrenchIntake,
+    kIdle
+};
 }  // namespace
 
 static State state;
 static frc2::Timer autonTimer;
 
-void Robot::AutoRightSideShootSixInit() {
-    wpi::outs() << "RightSideShootSix autonomous\n";
+static const frc::Pose2d initialPose{12.89_m, 0.71_m,
+                                     units::radian_t{wpi::math::pi}};
+static const frc::Pose2d midPose{12.89_m - 1.5 * Drivetrain::kLength, 0.71_m,
+                                 units::radian_t{wpi::math::pi}};
+static const frc::Pose2d endPose{8_m, 0.71_m, units::radian_t{wpi::math::pi}};
 
-    m_drivetrain.Reset(frc::Pose2d(12.65_m, 0.7500_m, 0_rad));
+void Robot::AutoRightSideShootSixInit() {
+    wpi::outs() << "RightSideShootThree autonomous\n";
+
+    m_drivetrain.Reset(initialPose);
 
     state = State::kInit;
     autonTimer.Reset();
@@ -26,19 +41,14 @@ void Robot::AutoRightSideShootSixInit() {
 void Robot::AutoRightSideShootSixPeriodic() {
     switch (state) {
         case State::kInit: {
-            m_drivetrain.SetWaypoints(
-                frc::Pose2d(12.65_m - Drivetrain::kLength, 0.7500_m, 0_rad),
-                {frc::Translation2d(-1_m, 0_m),
-                 frc::Translation2d(-3.875_m, 0_m)},
-                frc::Pose2d(7.775_m + Drivetrain::kLength, 0.7500_m,
-                            units::radian_t{wpi::math::pi}));
-            // Set constraints
+            // Move back to shoot three comfortably
+            // Inital Pose - X: 12.91 m Y: 0.75 m Heading: pi rad
+            m_drivetrain.SetWaypoints(initialPose, {}, midPose);
             state = State::kShoot;
             break;
         }
         case State::kShoot: {
             // Shoot x3
-            // Change if-statement condition to suit constraint
             if (m_drivetrain.AtGoal()) {
                 Shoot();
                 state = State::kTrenchRun;
@@ -46,21 +56,41 @@ void Robot::AutoRightSideShootSixPeriodic() {
             break;
         }
         case State::kTrenchRun: {
-            // Intake Balls x3
-            // Final Pose -
-            // X: 7.775 m + RobotLength  Y: 0.7500 m  Heading: 1*pi rad
-            // Shoot x3
+            // Middle Pose - X: 12.91 - klength - khalflength m Y: 0.75 m
+            // Heading: pi rad
             if (!IsShooting()) {
-                m_intake.SetArmMotor(Intake::ArmMotorDirection::kIntake);
-                m_intake.SetConveyor(0.85);
-                state = State::kTrenchShoot;
+                // Add a constraint to slow down the drivetrain while it's
+                // approaching the balls
+                frc::Translation2d bottomLeftConstraint{11_m, initialPose.Y()};
+                frc::Translation2d topRightConstraint{endPose.X(), endPose.Y()};
+                frc::MaxVelocityConstraint velocityConstraint{1.5_mps};
+
+                // Make a trajectory config to add the rectangle constraint
+                auto config = m_drivetrain.MakeTrajectoryConfig();
+                config.AddConstraint(frc::RectangularRegionConstraint{
+                    bottomLeftConstraint, topRightConstraint,
+                    velocityConstraint});
+
+                m_drivetrain.SetWaypoints(midPose, {}, endPose, config);
+
+                state = State::kTrenchIntake;
             }
             break;
         }
+        case State::kTrenchIntake: {
+            // Intake Balls x3
+            // TODO: Add if pose in region if statement
+            m_intake.SetArmMotor(Intake::ArmMotorDirection::kIntake);
+            m_intake.SetConveyor(0.85);
+            state = State::kTrenchShoot;
+            break;
+        }
         case State::kTrenchShoot: {
+            // Final Pose - X: 8 m Y: 0.75 m Heading: pi rad
             if (m_drivetrain.AtGoal()) {
                 m_intake.SetArmMotor(Intake::ArmMotorDirection::kIdle);
-                m_intake.SetConveyor(0.85);
+                m_intake.SetConveyor(0.0);
+                // Shoot x3
                 Shoot();
                 state = State::kIdle;
             }

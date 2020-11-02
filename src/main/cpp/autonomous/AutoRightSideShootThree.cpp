@@ -7,17 +7,21 @@
 namespace frc3512 {
 
 namespace {
-enum class State { kInit, kDriveAwayFromGoal, kIdle };
+enum class State { kInit, kShoot, kIdle };
 }  // namespace
 
 static State state;
 static frc2::Timer autonTimer;
 
+static const frc::Pose2d initialPose{12.89_m, 0.71_m,
+                                     units::radian_t{wpi::math::pi}};
+static const frc::Pose2d endPose{12.89_m - 1.5 * Drivetrain::kLength, 0.71_m,
+                                 units::radian_t{wpi::math::pi}};
+
 void Robot::AutoRightSideShootThreeInit() {
     wpi::outs() << "RightSideShootThree autonomous\n";
 
-    m_drivetrain.Reset(
-        frc::Pose2d(12.65_m, 0.7500_m, units::radian_t{wpi::math::pi}));
+    m_drivetrain.Reset(initialPose);
 
     state = State::kInit;
     autonTimer.Reset();
@@ -27,25 +31,22 @@ void Robot::AutoRightSideShootThreeInit() {
 void Robot::AutoRightSideShootThreePeriodic() {
     switch (state) {
         case State::kInit: {
-            m_drivetrain.SetWaypoints(
-                frc::Pose2d(12.65_m, 0.7500_m, units::radian_t{wpi::math::pi}),
-                {},
-                frc::Pose2d(12.65_m - Drivetrain::kLength, 0.7500_m,
-                            units::radian_t{wpi::math::pi}));
-            state = State::kDriveAwayFromGoal;
+            // Inital Pose - X: 12.91 m Y: 0.75 m Heading: pi rad
+            m_drivetrain.SetWaypoints(initialPose, {}, endPose);
+            state = State::kShoot;
             break;
         }
-        case State::kDriveAwayFromGoal: {
-            // Shoot x3
+        case State::kShoot: {
+            // Final Pose - X: 12.91 m - klength - khalflength Y: 0.75 m
+            // Heading: pi rad
             if (m_drivetrain.AtGoal()) {
+                // Shoot x3
                 Shoot();
                 state = State::kIdle;
             }
             break;
         }
         case State::kIdle: {
-            // Final Pose -
-            // X: 12.65 m - RobotLength  Y: 0.7500 m  Heading: 0 rad
             break;
         }
     }

@@ -1,5 +1,6 @@
 // Copyright (c) 2020 FRC Team 3512. All Rights Reserved.
 
+#include <frc/trajectory/constraint/MaxVelocityConstraint.h>
 #include <wpi/math>
 
 #include "Robot.hpp"
@@ -7,17 +8,31 @@
 namespace frc3512 {
 
 namespace {
-enum class State { kInit, kShoot, kTrenchRun, kTrenchShoot, kIdle };
+enum class State {
+    kInit,
+    kShoot,
+    kTrenchRun,
+    kTrenchIntake,
+    kTrenchShoot,
+    kIdle
+};
 }  // namespace
+
+// TODO: This autonomous mode doesn't pass unit tests
 
 static State state;
 static frc2::Timer autonTimer;
 
+static const frc::Pose2d initialPose{12.89_m, 2.41_m,
+                                     units::radian_t{wpi::math::pi}};
+static const frc::Pose2d midPose{12.89_m - 1.5 * Drivetrain::kLength, 2.41_m,
+                                 units::radian_t{wpi::math::pi}};
+static const frc::Pose2d endPose{8_m, 0.75_m, units::radian_t{wpi::math::pi}};
+
 void Robot::AutoTargetZoneShootSixInit() {
     wpi::outs() << "TargetZoneShootSix autonomous\n";
 
-    m_drivetrain.Reset(
-        frc::Pose2d(12.65_m, 2.600_m, units::radian_t{wpi::math::pi}));
+    m_drivetrain.Reset(initialPose);
 
     state = State::kInit;
     autonTimer.Reset();
@@ -27,41 +42,49 @@ void Robot::AutoTargetZoneShootSixInit() {
 void Robot::AutoTargetZoneShootSixPeriodic() {
     switch (state) {
         case State::kInit: {
-            m_drivetrain.SetWaypoints(
-                frc::Pose2d(12.65_m, 2.600_m, units::radian_t{wpi::math::pi}),
-                {},
-                frc::Pose2d(10.50_m, 0.7500_m, units::radian_t{wpi::math::pi}));
+            // Inital Pose: X: 12.91 m Y: 2.6 m Heading: pi rad
+            // Back up to shoot three
+            m_drivetrain.SetWaypoints(initialPose, {}, midPose);
             state = State::kShoot;
             break;
         }
         case State::kShoot: {
-            // Shoot x3
-            // Change if-statement condition to suit constraint
             if (m_drivetrain.AtGoal()) {
-                m_flywheel.Shoot();
+                // Shoot x3
+                Shoot();
                 state = State::kTrenchRun;
             }
             break;
         }
         case State::kTrenchRun: {
             // Intake Balls x3
-            // Final Pose - X: 7.775 m + RobotLength  Y: 0.7500 m  Heading: 1*pi
-            // Shoot x3
-            if (m_timer.HasElapsed(3_s)) {
-                m_intake.SetArmMotor(Intake::ArmMotorDirection::kIntake);
+            // Middle Pose - X: 10.5 m Y: 0.75 m Heading: pi rad
+            // TODO: Add translation to make sure all balls are picked up.
+            if (!IsShooting()) {
+                m_drivetrain.SetWaypoints(midPose, {}, endPose);
                 state = State::kTrenchShoot;
             }
             break;
         }
+        case State::kTrenchIntake: {
+            // Intake Balls x3
+            // TODO: Add velocity constraint
+            m_intake.SetArmMotor(Intake::ArmMotorDirection::kIntake);
+            m_intake.SetConveyor(0.85);
+            state = State::kTrenchShoot;
+            break;
+        }
         case State::kTrenchShoot: {
+            // Final Pose - X: 8 m Y: 0.75 m Heading: pi rad
+            if (m_drivetrain.AtGoal()) {
+                m_intake.SetArmMotor(Intake::ArmMotorDirection::kIdle);
+                m_intake.SetConveyor(0.0);
+                // Shoot x3
+                Shoot();
+            }
             break;
         }
         case State::kIdle: {
-            if (m_timer.HasElapsed(10_s)) {
-                m_timer.Stop();
-                m_intake.SetArmMotor(Intake::ArmMotorDirection::kIdle);
-                m_intake.SetConveyor(0.0);
-            }
             break;
         }
     }

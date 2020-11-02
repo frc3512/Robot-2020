@@ -8,47 +8,40 @@
 namespace frc3512 {
 
 namespace {
-enum class State { kShoot, kDriveAwayFromGoal, kIdle };
+enum class State { kDriveAwayFromGoal, kShoot, kIdle };
 }  // namespace
 
 static State state;
 static frc2::Timer autonTimer;
 
+static const frc::Pose2d initialPose{12.89_m, 5.662_m,
+                                     units::radian_t{wpi::math::pi}};
+static const frc::Pose2d endPose{12.89_m - 1.5 * Drivetrain::kLength, 5.662_m,
+                                 units::radian_t{wpi::math::pi}};
+
 void Robot::AutoLoadingZoneShootThreeInit() {
     wpi::outs() << "LoadingZoneShootThree autonomous\n";
 
-    m_drivetrain.Reset(frc::Pose2d(12.65_m, 5.800_m + kPathWeaverFudge,
-                                   units::radian_t{wpi::math::pi}));
+    m_drivetrain.Reset(initialPose);
 
-    state = State::kShoot;
+    state = State::kDriveAwayFromGoal;
     autonTimer.Reset();
     autonTimer.Start();
 }
 
 void Robot::AutoLoadingZoneShootThreePeriodic() {
     switch (state) {
-        case State::kShoot: {
-            // Shoot x3
-            Shoot();
-            state = State::kDriveAwayFromGoal;
+        case State::kDriveAwayFromGoal: {
+            // Initial Pose - X: 12.91 m Y: 5.8 m Heading: pi rad
+            m_drivetrain.SetWaypoints(initialPose, {}, endPose);
+            state = State::kShoot;
             break;
         }
-        case State::kDriveAwayFromGoal: {
-            if constexpr (IsSimulation()) {
-                if (IsShooting()) {
-                    EXPECT_GT(m_flywheel.GetGoal(), 0_rad_per_s);
-                }
-            }
-
-            if (!IsShooting()) {
-                // Initial Pose - X: 12.65 m  Y: 0.7500 m  Heading: 0 rad
-                m_drivetrain.SetWaypoints(
-                    frc::Pose2d(12.65_m, 5.800_m + kPathWeaverFudge,
-                                units::radian_t{wpi::math::pi}),
-                    {},
-                    frc::Pose2d(12.65_m - Drivetrain::kLength - 0.5_m,
-                                5.800_m + kPathWeaverFudge,
-                                units::radian_t{wpi::math::pi}));
+        case State::kShoot: {
+            // Final Pose: - X: 12.91 - kLength - kHalfLength Y: 5.8 m Heading:
+            // pi rad Shoot 3x
+            if (m_drivetrain.AtGoal()) {
+                Shoot();
                 state = State::kIdle;
             }
             break;

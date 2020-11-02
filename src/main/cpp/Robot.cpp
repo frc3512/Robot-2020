@@ -14,6 +14,9 @@ namespace frc3512 {
 
 Robot::Robot() {
     m_autonChooser.AddAutonomous(
+        "Left Side Intake", [=] { AutoLeftSideIntakeInit(); },
+        [=] { AutoLeftSideIntakePeriodic(); });
+    m_autonChooser.AddAutonomous(
         "Loading Zone Drive Forward",
         [=] { AutoLoadingZoneDriveForwardInit(); },
         [=] { AutoLoadingZoneDriveForwardPeriodic(); });
@@ -25,16 +28,27 @@ Robot::Robot() {
         "Target Zone Shoot Three Balls",
         [=] { AutoTargetZoneShootThreeInit(); },
         [=] { AutoTargetZoneShootThreePeriodic(); });
+    // m_autonChooser.AddAutonomous(
+    //     "Target Zone Shoot Six Balls", [=] { AutoTargetZoneShootSixInit(); },
+    //     [=] { AutoTargetZoneShootSixPeriodic(); });
     m_autonChooser.AddAutonomous(
         "Right Side Drive Forward", [=] { AutoRightSideDriveForwardInit(); },
         [=] { AutoRightSideDriveForwardPeriodic(); });
     m_autonChooser.AddAutonomous(
         "Right Side Shoot Three Balls", [=] { AutoRightSideShootThreeInit(); },
         [=] { AutoRightSideShootThreePeriodic(); });
+    m_autonChooser.AddAutonomous(
+        "Right Side Shoot Six Balls", [=] { AutoRightSideShootSixInit(); },
+        [=] { AutoRightSideShootSixPeriodic(); });
+    m_autonChooser.AddAutonomous(
+        "Right Side Intake", [=] { AutoRightSideIntakeInit(); },
+        [=] { AutoRightSideIntakePeriodic(); });
 
     frc::LiveWindow::GetInstance()->DisableAllTelemetry();
 
     AddPeriodic([=] { ControllerPeriodic(); }, Constants::kDt, 7.5_ms);
+
+    m_autonChooser.SelectAutonomous("Right Side Shoot Three Balls");
 }
 
 void Robot::Shoot() {

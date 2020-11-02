@@ -13,7 +13,6 @@
 #include <frc/system/NumericalJacobian.h>
 #include <frc/system/plant/DCMotor.h>
 #include <frc/system/plant/LinearSystemId.h>
-#include <frc/trajectory/TrajectoryConfig.h>
 #include <frc/trajectory/TrajectoryGenerator.h>
 #include <frc/trajectory/constraint/DifferentialDriveVelocitySystemConstraint.h>
 #include <units/math.h>

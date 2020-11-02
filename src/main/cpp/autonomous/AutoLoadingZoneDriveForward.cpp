@@ -14,11 +14,14 @@ enum class State { kInit, kIdle };
 static State state;
 static frc2::Timer autonTimer;
 
+static const frc::Pose2d initialPose{12.89_m, 5.662_m,
+                                     units::radian_t{wpi::math::pi}};
+static const frc::Pose2d endPose{12.89_m - 1.5 * Drivetrain::kLength, 5.662_m,
+                                 units::radian_t{wpi::math::pi}};
+
 void Robot::AutoLoadingZoneDriveForwardInit() {
     wpi::outs() << "LoadingZoneDriveForward autonomous\n";
 
-    frc::Pose2d initialPose{12.65_m, 5.800_m + kPathWeaverFudge,
-                            units::radian_t{wpi::math::pi}};
     m_drivetrain.Reset(initialPose);
 
     state = State::kInit;
@@ -29,17 +32,14 @@ void Robot::AutoLoadingZoneDriveForwardInit() {
 void Robot::AutoLoadingZoneDriveForwardPeriodic() {
     switch (state) {
         case State::kInit: {
-            frc::Pose2d initialPose{12.65_m, 5.800_m + kPathWeaverFudge,
-                                    units::radian_t{wpi::math::pi}};
-            m_drivetrain.SetWaypoints(
-                initialPose, {},
-                frc::Pose2d(12.65_m - Drivetrain::kLength - 0.5_m,
-                            5.800_m + kPathWeaverFudge,
-                            units::radian_t{wpi::math::pi}));
+            // Inital Pose - X: 12.91 m Y: 5.8 m Heading: pi rad
+            m_drivetrain.SetWaypoints(initialPose, {}, endPose);
             state = State::kIdle;
             break;
         }
         case State::kIdle: {
+            // Final Pose - X: 12.91 - klength - khalflength - 0.5 m Y: 5.8 m
+            // Heading: pi rad
             break;
         }
     }

@@ -12,6 +12,7 @@
 #include <frc/geometry/Pose2d.h>
 #include <frc/system/plant/LinearSystemId.h>
 #include <frc/trajectory/Trajectory.h>
+#include <frc/trajectory/TrajectoryConfig.h>
 #include <frc2/Timer.h>
 #include <units/angle.h>
 #include <units/angular_acceleration.h>
@@ -24,10 +25,6 @@
 
 #include "Constants.hpp"
 #include "controllers/ControllerBase.hpp"
-
-namespace frc {
-class TrajectoryConfig;
-}  // namespace frc
 
 namespace frc3512 {
 
@@ -161,8 +158,8 @@ public:
     frc::LinearSystem<2, 2, 2> GetPlant() const;
 
     /**
-     * Returns a trajectory config with a differential drive dynamics constraint
-     * included.
+     * Returns a TrajectoryConfig containing a differential drive dynamics
+     * constraint.
      */
     frc::TrajectoryConfig MakeTrajectoryConfig() const;
 

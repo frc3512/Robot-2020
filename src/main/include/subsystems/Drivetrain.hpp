@@ -16,6 +16,7 @@
 #include <frc/simulation/DifferentialDrivetrainSim.h>
 #include <frc/simulation/EncoderSim.h>
 #include <frc/simulation/Field2d.h>
+#include <frc/trajectory/TrajectoryConfig.h>
 #include <frc2/Timer.h>
 #include <networktables/NetworkTableEntry.h>
 #include <networktables/NetworkTableInstance.h>
@@ -30,10 +31,6 @@
 #include "rev/CANSparkMax.hpp"
 #include "subsystems/SubsystemBase.hpp"
 
-namespace frc {
-class TrajectoryConfig;
-}  // namespace frc
-
 namespace frc3512 {
 
 class DrivetrainController;
@@ -44,6 +41,8 @@ class DrivetrainController;
 class Drivetrain : public SubsystemBase {
 public:
     static constexpr units::meter_t kLength = 0.9398_m;
+    static constexpr units::meter_t kHalfLength = kLength / 2.0;
+    static constexpr units::meter_t kMiddleOfRobotToIntake = 0.656_m;
 
     Drivetrain();
     virtual ~Drivetrain();
@@ -152,6 +151,12 @@ public:
     void SetWaypoints(const frc::Pose2d& start,
                       const std::vector<frc::Translation2d>& interior,
                       const frc::Pose2d& end, frc::TrajectoryConfig& config);
+
+    /**
+     * Returns a TrajectoryConfig containing a differential drive dynamics
+     * constraint.
+     */
+    frc::TrajectoryConfig MakeTrajectoryConfig() const;
 
     /**
      * Returns whether the drivetrain controller is at the goal waypoint.

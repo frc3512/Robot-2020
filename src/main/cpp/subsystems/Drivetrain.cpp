@@ -173,6 +173,10 @@ void Drivetrain::SetWaypoints(const frc::Pose2d& start,
     m_controller->SetWaypoints(start, interior, end, config);
 }
 
+frc::TrajectoryConfig Drivetrain::MakeTrajectoryConfig() const {
+    return m_controller->MakeTrajectoryConfig();
+}
+
 bool Drivetrain::AtGoal() const { return m_controller->AtGoal(); }
 
 Eigen::Matrix<double, 10, 1> Drivetrain::GetStates() const {

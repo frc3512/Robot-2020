@@ -14,11 +14,15 @@ enum class State { kInit, kDriveAwayFromGoal, kIdle };
 static State state;
 static frc2::Timer autonTimer;
 
+static const frc::Pose2d initialPose{12.89_m, 2.41_m,
+                                     units::radian_t{wpi::math::pi}};
+static const frc::Pose2d endPose{12.89_m - 1.5 * Drivetrain::kLength, 2.41_m,
+                                 units::radian_t{wpi::math::pi}};
+
 void Robot::AutoTargetZoneShootThreeInit() {
     wpi::outs() << "TargetZoneShootThree autonomous\n";
 
-    m_drivetrain.Reset(frc::Pose2d(12.65_m, 2.6_m + kPathWeaverFudge,
-                                   units::radian_t{wpi::math::pi}));
+    m_drivetrain.Reset(initialPose);
 
     state = State::kInit;
     autonTimer.Reset();
@@ -28,30 +32,22 @@ void Robot::AutoTargetZoneShootThreeInit() {
 void Robot::AutoTargetZoneShootThreePeriodic() {
     switch (state) {
         case State::kInit: {
-            m_drivetrain.SetWaypoints(
-                frc::Pose2d(12.65_m, 2.6_m + kPathWeaverFudge,
-                            units::radian_t{wpi::math::pi}),
-                {},
-                frc::Pose2d(12.65_m - Drivetrain::kLength,
-                            2.6_m + kPathWeaverFudge,
-                            units::radian_t{wpi::math::pi}));
+            // Inital Pose - X: 12.91 m Y: 2.6 m Heading: pi rad
+            m_drivetrain.SetWaypoints(initialPose, {}, endPose);
             state = State::kDriveAwayFromGoal;
             break;
         }
         case State::kDriveAwayFromGoal: {
+            // Final Pose - X: 12.91 - klength - khalflength m Y: 2.6 m Heading:
+            // pi rad
             if (m_drivetrain.AtGoal()) {
-                m_vision.TurnLEDOn();
-                m_flywheel.Shoot();
-                m_timer.Start();
+                // Shoot x3
+                Shoot();
                 state = State::kIdle;
             }
             break;
         }
         case State::kIdle: {
-            if (m_timer.HasElapsed(3.0_s)) {
-                m_flywheel.SetGoal(0.0_rad_per_s);
-                m_vision.TurnLEDOff();
-            }
             break;
         }
     }
