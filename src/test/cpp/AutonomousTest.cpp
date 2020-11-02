@@ -6,6 +6,7 @@
 #include <frc/simulation/DriverStationSim.h>
 #include <frc/simulation/SimHooks.h>
 #include <gtest/gtest.h>
+#include <wpi/raw_ostream.h>
 
 #include "CSVTestUtil.hpp"
 #include "Robot.hpp"
@@ -19,6 +20,8 @@ protected:
 
 TEST_P(AutonomousTest, RunMode) {
     using namespace std::literals;
+
+    wpi::outs() << "[          ] where GetParam() = \"" << GetParam() << "\"\n";
 
     frc::sim::DriverStationSim ds;
 
