@@ -125,3 +125,32 @@ model {
         }
     }
 }
+
+task buildAthena {
+    dependsOn 'frcUserProgramLinuxathenaReleaseExecutable'
+}
+
+task removeLogs(type: Exec) {
+    workingDir '.'
+    commandLine './buildscripts/remove-logs.sh'
+}
+
+task test {
+    dependsOn 'removeLogs'
+    dependsOn 'runFrcUserProgramTestLinuxx86-64ReleaseGoogleTestExe'
+}
+
+task simulation {
+    dependsOn 'removeLogs'
+    dependsOn 'simulateFrcUserProgramLinuxx86-64DebugExecutable'
+}
+
+task docs(type: Exec) {
+    workingDir '.'
+    commandLine 'doxygen', 'doxygen.conf'
+}
+
+task valgrind(type: Exec) {
+    workingDir '.'
+    commandLine './buildscripts/valgrind.sh'
+}

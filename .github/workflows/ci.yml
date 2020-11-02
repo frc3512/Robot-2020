@@ -45,7 +45,7 @@ jobs:
       run: chmod +x gradlew
 
     - name: Compile robot code for Athena
-      run: ./gradlew frcUserProgramLinuxathenaReleaseExecutable
+      run: ./gradlew buildAthena
   test:
     runs-on: ubuntu-latest
 
@@ -58,4 +58,4 @@ jobs:
       run: chmod +x gradlew
 
     - name: Compile and run x86-64 unit tests
-      run: ./gradlew runFrcUserProgramTestLinuxx86-64ReleaseGoogleTestExe
+      run: ./gradlew test

@@ -1,8 +1,7 @@
 #!/bin/bash
 set -e
 
-# Remove old log files
-rm -f build/test-results/frcUserProgramTest/linuxx86-64/debug/{*.csv,Robot.log}
+./buildscripts/remove-logs.sh
 
 ./gradlew installFrcUserProgramTestLinuxx86-64DebugGoogleTestExe $@
 sed -i 's/exec /gdb /' build/install/frcUserProgramTest/linuxx86-64/debug/frcUserProgramTest

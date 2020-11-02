@@ -35,7 +35,7 @@ a while, so more specific builds (see below) are recommended instead.
 
 ### Build (athena)
 
-* `./gradlew-build-athena.sh`
+* `./gradlew buildAthena`
 
 This runs a roboRIO build.
 
@@ -48,48 +48,49 @@ This runs a roboRIO build if needed, copies the resulting binary to a roboRIO at
 
 ### Test
 
-* `./gradlew-test.sh`
+* `./gradlew test`
 
-This builds the robot code's unit tests in `src/test` and runs them. They are
-useful for ensuring parts of the robot code continue to work correctly after
+This runs a release build of the robot code's unit tests from `src/test`. They
+are useful for ensuring parts of the robot code continue to work correctly after
 implementing new features or refactoring existing functionality.
 
 ### Simulation GUI
 
-* `./gradlew-simgui.sh`
+* `./gradlew simulation`
 
-This builds the robot code for desktop and runs the simulation GUI.
+This runs a debug build of the robot code in the simulation GUI.
 
 ### Documentation
 
+* `./gradlew docs`
+
 The source code and algorithms documentation is located in the [docs](docs)
-folder. Run `doxygen doxygen.conf` to generate HTML documentation for the robot
-code from in-source Doxygen comments (Doxygen 1.8.20 or higher required). The
-results are placed in a `docs/html` folder with an `index.html` page as the
-root.
+folder. This command generates HTML documentation for the robot code from
+in-source Doxygen comments (Doxygen 1.8.20 or higher required). The results are
+placed in a `docs/html` folder with an `index.html` page as the root.
 
 ### GNU debugger (GDB)
 
-* `./gradlew-gdb-test.sh`
+* `./buildscripts/gdb-test.sh`
 
 This runs a debug build of the tests in GDB. Once the build completes and GDB's
 prompt appears, enter `run` to start the robot program. It may take a while due
 to the debugger having to load a lot of symbols. If the robot code crashes,
 enter `bt` to get a backtrace.
 
-* `./gradlew-gdb-test-noninteractive.sh`
+* `./buildscripts/gdb-simulation.sh`
+
+This runs a debug desktop build of the robot code and simulation GUI in GDB.
+
+* `./buildscripts/gdb-test-ci.sh`
 
 This runs a debug build of the tests in GDB in noninteractive mode. It will
 automatically run the program in the debugger and print a backtrace if it
 crashes. This is useful for debugging crashes in GitHub Actions.
 
-* `./gradlew-gdb-simgui.sh`
-
-This runs a debug desktop build of the robot code and simulation GUI in GDB.
-
 ### Valgrind
 
-`./gradlew-valgrind.sh`
+`./gradlew valgrind`
 
 This runs a release build of the tests in Valgrind. Valgrind is useful for
 finding memory leaks, memory corruption, and reads from uninitialized memory so
