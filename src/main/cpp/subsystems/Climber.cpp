@@ -23,7 +23,8 @@ void Climber::SetTraverser(double speed) { m_traverser.Set(speed); }
 
 void Climber::SetElevator(double speed) {
     // Checks if the elevator's position is within the limits
-    if ((speed > 0.02 && GetElevatorPosition() <= 1.2287_m) ||
+    // Top of travel is 52.75 inches IRL
+    if ((speed > 0.02 && GetElevatorPosition() <= 1.1129_m) ||
         (speed < -0.02 && GetElevatorPosition() >= 0_m)) {
         // Unlock climber if it's being commanded to move
         m_pancake.Set(true);
@@ -37,7 +38,7 @@ void Climber::SetElevator(double speed) {
 units::meter_t Climber::GetElevatorPosition() {
     constexpr double kG = 1.0 / 20.0;  // Gear ratio
 
-    double rotations = -m_elevatorEncoder.GetPosition();
+    double rotations = m_elevatorEncoder.GetPosition();
     return units::meter_t{0.04381 * wpi::math::pi * kG * rotations /
                           (1.0 + 0.014983 * wpi::math::pi * kG * rotations)};
 }
@@ -72,7 +73,7 @@ void Climber::TeleopPeriodic() {
 
     // Climber elevator
     if (appendageStick1.GetRawButton(1)) {
-        SetElevator(appendageStick1.GetY());
+        SetElevator(-appendageStick1.GetY());
     } else {
         SetElevator(0.0);
     }
@@ -81,7 +82,8 @@ void Climber::TeleopPeriodic() {
 void Climber::TestPeriodic() {
     static frc::Joystick appendageStick1{kAppendageStick1Port};
 
-    double speed = appendageStick1.GetY();
+    // Positive voltage should move climber in the positive X direction
+    double speed = -appendageStick1.GetY();
 
     // Ignore soft limits so the user can manually reset the elevator before
     // rebooting the robot
