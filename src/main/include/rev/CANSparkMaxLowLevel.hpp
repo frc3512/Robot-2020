@@ -11,20 +11,25 @@
 
 namespace rev {
 
+/**
+ * REV CANSparkMaxLowLevel shim.
+ */
 class CANSparkMaxLowLevel : public frc::SpeedController {
 public:
     enum class MotorType { kBrushed = 0, kBrushless = 1 };
 
     enum class PeriodicFrame { kStatus0 = 0, kStatus1 = 1, kStatus2 = 2 };
 
-    CANSparkMaxLowLevel(int deviceID, MotorType motorType);
+    CANSparkMaxLowLevel(int deviceID, MotorType motorType) {}
 
-    ~CANSparkMaxLowLevel();
+    virtual ~CANSparkMaxLowLevel() {}
 
     /**
      * Set periodic status frame period.
      */
-    CANError SetPeriodicFramePeriod(PeriodicFrame frame, int periodMs);
+    CANError SetPeriodicFramePeriod(PeriodicFrame frame, int periodMs) {
+        return CANError::kOk;
+    }
 };
 
 }  // namespace rev

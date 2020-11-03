@@ -11,6 +11,9 @@ namespace rev {
 
 class CANSparkMax;
 
+/**
+ * REV CANEncoder shim.
+ */
 class CANEncoder {
 public:
     enum class EncoderType {
@@ -23,9 +26,9 @@ public:
     explicit CANEncoder(
         CANSparkMax& device,
         EncoderType sensorType = CANEncoder::EncoderType::kHallSensor,
-        int counts_per_rev = 42);
+        int counts_per_rev = 42) {}
 
-    double GetPosition();
+    double GetPosition() { return 0.0; }
 };
 
 }  // namespace rev
