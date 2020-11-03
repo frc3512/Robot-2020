@@ -44,7 +44,7 @@ public:
      *
      * This blocks until the buffer is full.
      *
-     * @param buffer The destination for the bytes read.
+     * @param buf    The destination for the bytes read.
      * @param length The number of bytes to read.
      * @return True if the read succeeded.
      */

@@ -16,21 +16,21 @@
 namespace frc {
 /**
  * A class that enforces constraints on differential drive velocity based on
- * a differential drive {@link LinearSystem} and the drive kinematics. Ensures
- * that the acceleration of any wheel of the robot while following the
- * trajectory is never higher than what can be achieved with the given maximum
- * voltage.
+ * a differential drive LinearSystem and the drive kinematics. Ensures that the
+ * acceleration of any wheel of the robot while following the trajectory is
+ * never higher than what can be achieved with the given maximum voltage.
  */
 class DifferentialDriveVelocitySystemConstraint : public TrajectoryConstraint {
  public:
   /**
    * Creates a new DifferentialDriveVelocitySystemConstraint.
    *
-   * @param system      A {@link LinearSystem} representing the drivetrain..
+   * @param system      A LinearSystem representing the drivetrain.
    * @param kinematics  A kinematics component describing the drive geometry.
    * @param maxVoltage  The maximum voltage available to the motors while
-   * following the path. Should be somewhat less than the nominal battery
-   * voltage (12V) to account for "voltage sag" due to current draw.
+   *                    following the path. Should be somewhat less than the
+   *                    nominal battery voltage (12V) to account for "voltage
+   *                    sag" due to current draw.
    */
   DifferentialDriveVelocitySystemConstraint(
       LinearSystem<2, 2, 2> system, DifferentialDriveKinematics kinematics,

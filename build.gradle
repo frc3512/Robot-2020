@@ -152,19 +152,21 @@ task valgrind(type: Exec) {
 }
 
 doxygen {
-    description = 'Generate documentation'
-
-    project_name 'Robot-2020'
-
-    generate_html true
-    generate_latex false
-
-    source 'src/main/include'
-
-    outputDir 'docs/'
-
     executables {
         doxygen version : '1.8.18',
             baseURI : 'https://frcmaven.wpi.edu/artifactory/generic-release-mirror/doxygen'
     }
+
+    generate_html true
+    extension_mapping 'inc=C++'
+    project_name 'Robot-2020'
+    quiet true
+    warn_if_undocumented false
+    generate_latex false
+    use_mathjax true
+    html_timestamp true
+    generate_treeview true
+
+    source 'src/main/include'
+    outputDir 'docs/'
 }

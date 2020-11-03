@@ -14,6 +14,10 @@
 
 namespace frc3512 {
 
+/**
+ * A convenience wrapper around a SendableChooser for managing, selecting, and
+ * running autonomous modes.
+ */
 class AutonomousChooser {
 public:
     /**

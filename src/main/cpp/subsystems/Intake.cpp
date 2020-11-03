@@ -25,10 +25,10 @@ bool Intake::IsDeployed() const {
     return m_arm.Get() == frc::DoubleSolenoid::kForward;
 }
 
-void Intake::SetArmMotor(ArmMotorDirection armMotorState) {
-    if (armMotorState == ArmMotorDirection::kIntake) {
+void Intake::SetArmMotor(ArmMotorDirection direction) {
+    if (direction == ArmMotorDirection::kIntake) {
         m_armMotor.Set(-0.5);
-    } else if (armMotorState == ArmMotorDirection::kOuttake) {
+    } else if (direction == ArmMotorDirection::kOuttake) {
         m_armMotor.Set(0.5);
     } else {
         m_armMotor.Set(0.0);

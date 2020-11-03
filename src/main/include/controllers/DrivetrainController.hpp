@@ -44,6 +44,9 @@ public:
                                                         0.95, 0.95};
     static constexpr std::array<double, 2> kControllerR{12.0, 12.0};
 
+    /**
+     * States of the drivetrain system.
+     */
     class State {
     public:
         static constexpr int kX = 0;
@@ -58,12 +61,18 @@ public:
         static constexpr int kHeadingError = 9;
     };
 
+    /**
+     * Inputs of the drivetrain system.
+     */
     class Input {
     public:
         static constexpr int kLeftVoltage = 0;
         static constexpr int kRightVoltage = 1;
     };
 
+    /**
+     * Local outputs of the drivetrain system.
+     */
     class LocalOutput {
     public:
         static constexpr int kHeading = 0;
@@ -71,6 +80,9 @@ public:
         static constexpr int kRightPosition = 2;
     };
 
+    /**
+     * Global outputs of the drivetrain system.
+     */
     class GlobalOutput {
     public:
         static constexpr int kX = 0;

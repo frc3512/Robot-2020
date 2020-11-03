@@ -42,17 +42,26 @@ public:
     static constexpr units::radian_t kCCWLimit{wpi::math::pi / 2.0};
     static constexpr units::radian_t kCWLimit{-wpi::math::pi / 2.0};
 
+    /**
+     * States of the turret system.
+     */
     class State {
     public:
         static constexpr int kAngle = 0;
         static constexpr int kAngularVelocity = 1;
     };
 
+    /**
+     * Inputs of the turret system.
+     */
     class Input {
     public:
         static constexpr int kVoltage = 0;
     };
 
+    /**
+     * Outputs of the turret system.
+     */
     class Output {
     public:
         static constexpr int kAngle = 0;
@@ -66,10 +75,11 @@ public:
     /**
      * Sets the end goal of the controller profile.
      *
-     * @param goal Position in radians to set the goal to.
+     * @param angle           Goal angle.
+     * @param angularVelocity Goal angular velocity.
      */
-    void SetGoal(units::radian_t angleGoal,
-                 units::radians_per_second_t angularVelocityGoal);
+    void SetGoal(units::radian_t angle,
+                 units::radians_per_second_t angularVelocity);
 
     /**
      * Sets the references.

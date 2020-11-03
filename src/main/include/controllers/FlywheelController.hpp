@@ -34,16 +34,25 @@ public:
     FlywheelController(const FlywheelController&) = delete;
     FlywheelController& operator=(const FlywheelController&) = delete;
 
+    /**
+     * States of the flywheel system.
+     */
     class State {
     public:
         static constexpr int kAngularVelocity = 0;
     };
 
+    /**
+     * Inputs of the flywheel system.
+     */
     class Input {
     public:
         static constexpr int kVoltage = 0;
     };
 
+    /**
+     * Outputs of the flywheel system.
+     */
     class Output {
     public:
         static constexpr int kAngularVelocity = 0;

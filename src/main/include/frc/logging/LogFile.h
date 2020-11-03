@@ -58,8 +58,7 @@ class LogFile {
   /**
    * Set the time interval after which the file will be renamed in seconds.
    *
-   * @param seconds The time interval after which the file will be renamed in
-   *                seconds.
+   * @param duration The time interval after which the file will be renamed.
    */
   void SetTimeIntervalBeforeRenaming(units::second_t duration);
 

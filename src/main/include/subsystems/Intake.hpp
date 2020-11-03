@@ -53,11 +53,11 @@ public:
     bool IsDeployed() const;
 
     /**
-     * Sets the Intake motor to either Intake, Idle, or Outtake Balls based on
-     * the argument passed through
-     * @param state of the motor
+     * Sets the intake motor to either Intake, Idle, or Outtake balls.
+     *
+     * @param direction The intake direction.
      */
-    void SetArmMotor(ArmMotorDirection armMotorState);
+    void SetArmMotor(ArmMotorDirection direction);
 
     /**
      * Sets the funnel motors to either intake or outtake

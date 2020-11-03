@@ -36,10 +36,9 @@ TurretController::TurretController()
     Reset(0_rad);
 }
 
-void TurretController::SetGoal(
-    units::radian_t angleGoal,
-    units::radians_per_second_t angularVelocityGoal) {
-    m_goal = {units::math::NormalizeAngle(angleGoal), angularVelocityGoal};
+void TurretController::SetGoal(units::radian_t angle,
+                               units::radians_per_second_t angularVelocity) {
+    m_goal = {units::math::NormalizeAngle(angle), angularVelocity};
 }
 
 void TurretController::SetReferences(units::radian_t angle,
