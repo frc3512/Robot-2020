@@ -2,6 +2,7 @@ plugins {
     id "cpp"
     id "google-test-test-suite"
     id "edu.wpi.first.GradleRIO" version "2020.3.2"
+    id "org.ysb33r.doxygen" version "0.5"
 }
 
 // For testing development versions of WPILib
@@ -145,12 +146,25 @@ task simulate {
     dependsOn 'simulateFrcUserProgramLinuxx86-64DebugExecutable'
 }
 
-task docs(type: Exec) {
-    workingDir '.'
-    commandLine 'doxygen', 'doxygen.conf'
-}
-
 task valgrind(type: Exec) {
     workingDir '.'
     commandLine './buildscripts/valgrind.sh'
+}
+
+doxygen {
+    description = 'Generate documentation'
+
+    project_name 'Robot-2020'
+
+    generate_html true
+    generate_latex false
+
+    source 'src/main/include'
+
+    outputDir 'docs/'
+
+    executables {
+        doxygen version : '1.8.18',
+            baseURI : 'https://frcmaven.wpi.edu/artifactory/generic-release-mirror/doxygen'
+    }
 }

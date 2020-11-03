@@ -39,7 +39,7 @@ namespace frc3512 {
 class DrivetrainController;
 
 /**
- * Provides an interface for this year's drive train.
+ * Drivetrain subsystem.
  */
 class Drivetrain : public SubsystemBase {
 public:

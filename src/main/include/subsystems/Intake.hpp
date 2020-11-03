@@ -17,8 +17,10 @@ namespace frc3512 {
 class Flywheel;
 
 /**
- * Provides an interface for the robot's intake. It's in front of a funnel and
- * below a conveyor that has proximity sensors on the top and bottom.
+ * Intake subsystem.
+ *
+ * The intake consists of intake rollers, a funnel behind that, and a conveyor
+ * above that. The conveyor has proximity sensors on the top and bottom.
  */
 class Intake : public SubsystemBase {
 public:

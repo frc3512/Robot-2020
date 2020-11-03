@@ -14,6 +14,9 @@
 
 namespace frc3512 {
 
+/**
+ * Vision subsystem.
+ */
 class Vision : public SubsystemBase {
 public:
     // Transformation from camera to drivetrain

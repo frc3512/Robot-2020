@@ -28,8 +28,9 @@ class Vision;
 class Drivetrain;
 
 /**
- * Subsystem specifically designed for the Turret (bottom, movable part of the
- * Shooter)
+ * Turret subsystem.
+ *
+ * This is a circular plate below the shooter that can rotate to aim it.
  */
 class Turret : public SubsystemBase {
 public:

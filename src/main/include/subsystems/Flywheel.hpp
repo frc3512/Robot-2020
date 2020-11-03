@@ -30,6 +30,9 @@ namespace frc3512 {
 
 class Turret;
 
+/**
+ * Flywheel subsystem.
+ */
 class Flywheel : public SubsystemBase {
 public:
     explicit Flywheel(Turret& turret);
