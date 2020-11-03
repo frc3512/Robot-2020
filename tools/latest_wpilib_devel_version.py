@@ -35,14 +35,12 @@ def main():
     clone_repo("git://github.com/wpilibsuite/allwpilib", "master")
 
     content = requests.get(
-        "https://frcmaven.wpi.edu:443/artifactory/development/edu/wpi/first/wpimath/wpimath-cpp/maven-metadata.xml"
+        "https://frcmaven.wpi.edu:443/artifactory/development/edu/wpi/first/wpilibc/wpilibc-cpp/maven-metadata.xml"
     ).text
 
     # Get the first <version> tag in the XML, which will be the latest version
     version_rgx = re.compile(
-        r"""(?<=<version>)[0-9\.]+-[0-9]+-g([a-f0-9]+)(?=</version>)""",
-        re.VERBOSE,
-    )
+        r"""(?<=<latest>)[\w\-.]+-g([a-f0-9]+)(?=</latest>)""")
     match = version_rgx.search(content)
     print(f"{match.group()}")
 
