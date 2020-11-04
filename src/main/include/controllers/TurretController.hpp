@@ -104,7 +104,7 @@ public:
     /**
      * Sets the current estimated global pose of the drivetrain.
      */
-    void SetDrivetrainStates(const Eigen::Matrix<double, 10, 1>& x);
+    void SetDrivetrainStates(const Eigen::Matrix<double, 7, 1>& x);
 
     const Eigen::Matrix<double, 2, 1>& GetReferences() const override;
 

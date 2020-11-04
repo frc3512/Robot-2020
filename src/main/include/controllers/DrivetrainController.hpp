@@ -29,7 +29,7 @@
 
 namespace frc3512 {
 
-class DrivetrainController : public ControllerBase<10, 2, 3> {
+class DrivetrainController : public ControllerBase<7, 2, 3> {
 public:
     static constexpr units::meter_t kWheelRadius = 3_in;
     static constexpr double kDriveGearRatio = 1.0 / 1.0;
@@ -54,9 +54,6 @@ public:
         static constexpr int kRightVelocity = 4;
         static constexpr int kLeftPosition = 5;
         static constexpr int kRightPosition = 6;
-        static constexpr int kLeftVoltageError = 7;
-        static constexpr int kRightVoltageError = 8;
-        static constexpr int kHeadingError = 9;
     };
 
     /**
@@ -139,9 +136,9 @@ public:
     void CorrectWithGlobalOutputs(units::meter_t x, units::meter_t y,
                                   units::second_t timestamp);
 
-    const Eigen::Matrix<double, 10, 1>& GetReferences() const override;
+    const Eigen::Matrix<double, 7, 1>& GetReferences() const override;
 
-    const Eigen::Matrix<double, 10, 1>& GetStates() const override;
+    const Eigen::Matrix<double, 7, 1>& GetStates() const override;
 
     /**
      * Resets any internal state.
@@ -170,22 +167,22 @@ public:
      * @param x The state vector.
      */
     Eigen::Matrix<double, 2, 5> ControllerGainForState(
-        const Eigen::Matrix<double, 10, 1>& x);
+        const Eigen::Matrix<double, 7, 1>& x);
 
     Eigen::Matrix<double, 2, 1> Controller(
-        const Eigen::Matrix<double, 10, 1>& x,
-        const Eigen::Matrix<double, 10, 1>& r);
+        const Eigen::Matrix<double, 7, 1>& x,
+        const Eigen::Matrix<double, 7, 1>& r);
 
-    static Eigen::Matrix<double, 10, 1> Dynamics(
-        const Eigen::Matrix<double, 10, 1>& x,
+    static Eigen::Matrix<double, 7, 1> Dynamics(
+        const Eigen::Matrix<double, 7, 1>& x,
         const Eigen::Matrix<double, 2, 1>& u);
 
     static Eigen::Matrix<double, 3, 1> LocalMeasurementModel(
-        const Eigen::Matrix<double, 10, 1>& x,
+        const Eigen::Matrix<double, 7, 1>& x,
         const Eigen::Matrix<double, 2, 1>& u);
 
     static Eigen::Matrix<double, 2, 1> GlobalMeasurementModel(
-        const Eigen::Matrix<double, 10, 1>& x,
+        const Eigen::Matrix<double, 7, 1>& x,
         const Eigen::Matrix<double, 2, 1>& u);
 
 private:
@@ -207,26 +204,26 @@ private:
 
     // Design observer. See the enums above for lists of the states, inputs, and
     // outputs.
-    frc::ExtendedKalmanFilter<10, 2, 3> m_observer{
+    frc::ExtendedKalmanFilter<7, 2, 3> m_observer{
         Dynamics,
         LocalMeasurementModel,
-        {0.002, 0.002, 0.0001, 1.5, 1.5, 0.5, 0.5, 10.0, 10.0, 2.0},
+        {0.002, 0.002, 0.0001, 1.5, 1.5, 0.5, 0.5},
         {0.0001, 0.005, 0.005},
         Constants::kDt};
-    frc::KalmanFilterLatencyCompensator<10, 2, 3,
-                                        frc::ExtendedKalmanFilter<10, 2, 3>>
+    frc::KalmanFilterLatencyCompensator<7, 2, 3,
+                                        frc::ExtendedKalmanFilter<7, 2, 3>>
         m_latencyComp;
 
-    frc::ControlAffinePlantInversionFeedforward<10, 2> m_ff{Dynamics,
-                                                            Constants::kDt};
+    frc::ControlAffinePlantInversionFeedforward<7, 2> m_ff{Dynamics,
+                                                           Constants::kDt};
 
     Eigen::Matrix<double, 5, 2> m_B;
 
     Eigen::Matrix<double, 2, 5> m_K = Eigen::Matrix<double, 2, 5>::Zero();
 
     // Controller reference
-    Eigen::Matrix<double, 10, 1> m_r;
-    Eigen::Matrix<double, 10, 1> m_nextR;
+    Eigen::Matrix<double, 7, 1> m_r;
+    Eigen::Matrix<double, 7, 1> m_nextR;
 
     frc::Trajectory m_trajectory;
     frc::Pose2d m_goal;

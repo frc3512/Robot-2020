@@ -171,7 +171,7 @@ frc::TrajectoryConfig Drivetrain::MakeTrajectoryConfig() const {
 
 bool Drivetrain::AtGoal() const { return m_controller->AtGoal(); }
 
-Eigen::Matrix<double, 10, 1> Drivetrain::GetStates() const {
+Eigen::Matrix<double, 7, 1> Drivetrain::GetStates() const {
     return m_controller->GetStates();
 }
 
@@ -196,11 +196,20 @@ void Drivetrain::TeleopInit() {
 
 void Drivetrain::RobotPeriodic() {
     using State = DrivetrainController::State;
+    using Input = DrivetrainController::Input;
 
     const auto& xHat = m_controller->GetStates();
     m_xStateEntry.SetDouble(xHat(State::kX));
     m_yStateEntry.SetDouble(xHat(State::kY));
     m_headingStateEntry.SetDouble(xHat(State::kHeading));
+    m_leftVelocityStateEntry.SetDouble(xHat(State::kLeftVelocity));
+    m_rightVelocityStateEntry.SetDouble(xHat(State::kRightVelocity));
+    m_leftPositionStateEntry.SetDouble(xHat(State::kLeftPosition));
+    m_rightPositionStateEntry.SetDouble(xHat(State::kRightPosition));
+    m_leftVoltageInputEntry.SetDouble(
+        m_controller->GetInputs()(Input::kLeftVoltage));
+    m_rightVoltageInputEntry.SetDouble(
+        m_controller->GetInputs()(Input::kRightVoltage));
     m_headingOutputEntry.SetDouble(GetAngle().to<double>());
     m_leftPositionOutputEntry.SetDouble(GetLeftPosition().to<double>());
     m_rightPositionOutputEntry.SetDouble(GetRightPosition().to<double>());

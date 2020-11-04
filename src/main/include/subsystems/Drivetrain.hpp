@@ -141,7 +141,7 @@ public:
     /**
      * Returns the drivetrain state estimate.
      */
-    Eigen::Matrix<double, 10, 1> GetStates() const;
+    Eigen::Matrix<double, 7, 1> GetStates() const;
 
     /**
      * Returns current drawn in simulation.
@@ -193,6 +193,18 @@ private:
         m_inst.GetEntry("/Diagnostics/Drivetrain/States/Y");
     nt::NetworkTableEntry m_headingStateEntry =
         m_inst.GetEntry("/Diagnostics/Drivetrain/States/Heading");
+    nt::NetworkTableEntry m_leftVelocityStateEntry =
+        m_inst.GetEntry("/Diagnostics/Drivetrain/States/Left velocity");
+    nt::NetworkTableEntry m_rightVelocityStateEntry =
+        m_inst.GetEntry("/Diagnostics/Drivetrain/States/Right velocity");
+    nt::NetworkTableEntry m_leftPositionStateEntry =
+        m_inst.GetEntry("/Diagnostics/Drivetrain/States/Left position");
+    nt::NetworkTableEntry m_rightPositionStateEntry =
+        m_inst.GetEntry("/Diagnostics/Drivetrain/States/Right position");
+    nt::NetworkTableEntry m_leftVoltageInputEntry =
+        m_inst.GetEntry("/Diagnostics/Drivetrain/Inputs/Left voltage");
+    nt::NetworkTableEntry m_rightVoltageInputEntry =
+        m_inst.GetEntry("/Diagnostics/Drivetrain/Inputs/Right voltage");
     nt::NetworkTableEntry m_headingOutputEntry =
         m_inst.GetEntry("/Diagnostics/Drivetrain/Outputs/Heading");
     nt::NetworkTableEntry m_leftPositionOutputEntry =

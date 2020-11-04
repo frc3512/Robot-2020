@@ -55,7 +55,7 @@ bool TurretController::AtGoal() const {
 }
 
 void TurretController::SetDrivetrainStates(
-    const Eigen::Matrix<double, 10, 1>& x) {
+    const Eigen::Matrix<double, 7, 1>& x) {
     using State = DrivetrainController::State;
 
     m_drivetrainNextPoseInGlobal =

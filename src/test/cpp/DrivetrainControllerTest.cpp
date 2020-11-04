@@ -22,8 +22,8 @@ TEST(DrivetrainControllerTest, CorrectsTowardGlobalY) {
         controller.Predict(Eigen::Matrix<double, 2, 1>::Zero(), kDt);
     }
 
-    Eigen::Matrix<double, 10, 1> x;
-    x << 5.0, 5.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0;
+    Eigen::Matrix<double, 7, 1> x;
+    x << 5.0, 5.0, 1.0, 1.0, 1.0, 1.0, 1.0;
 
     Eigen::Matrix<double, 3, 1> localY =
         frc3512::DrivetrainController::LocalMeasurementModel(

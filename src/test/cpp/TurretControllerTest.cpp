@@ -96,9 +96,9 @@ TEST(TurretControllerTest, ProperDistanceFromTarget) {
         controller.Enable();
         frc::sim::StepTiming(frc3512::Constants::kDt);
 
-        Eigen::Matrix<double, 10, 1> drivetrainXhat;
+        Eigen::Matrix<double, 7, 1> drivetrainXhat;
         drivetrainXhat << kDrivetrainX.to<double>(), kDrivetrainY.to<double>(),
-            wpi::math::pi, 0, 0, 0, 0, 0, 0, 0;
+            wpi::math::pi, 0, 0, 0, 0;
 
         controller.SetDrivetrainStates(drivetrainXhat);
         Eigen::Matrix<double, 1, 1> y;
