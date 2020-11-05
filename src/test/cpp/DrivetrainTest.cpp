@@ -71,3 +71,28 @@ TEST_F(DrivetrainTest, ReachesReferenceCurve) {
 
     frc3512::AddPrefixToCSVs("DrivetrainTest Curve");
 }
+
+TEST_F(DrivetrainTest, ReachesReferenceOffsetCurve) {
+    {
+        frc3512::Drivetrain drivetrain;
+
+        frc3512::SubsystemBase::RunAllAutonomousInit();
+        frc::Notifier controllerPeriodic{
+            [&] { drivetrain.ControllerPeriodic(); }};
+        controllerPeriodic.StartPeriodic(frc3512::Constants::kDt);
+
+        frc::Pose2d initialPose{5_m, 2_m, 0_rad};
+
+        drivetrain.Reset(initialPose);
+        drivetrain.SetWaypoints(initialPose, {},
+                                frc::Pose2d(9.8768_m, 4.7432_m, 0_rad));
+
+        frc::sim::StepTiming(10_s);
+
+        frc3512::SubsystemBase::RunAllDisabledInit();
+
+        EXPECT_TRUE(drivetrain.AtGoal());
+    }
+
+    frc3512::AddPrefixToCSVs("DrivetrainTest OffsetCurve");
+}
