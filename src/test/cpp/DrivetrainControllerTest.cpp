@@ -39,7 +39,6 @@ TEST(DrivetrainControllerTest, CorrectsTowardGlobalY) {
     }
 
     using State = frc3512::DrivetrainController::State;
-    using LocalOutput = frc3512::DrivetrainController::LocalOutput;
     using GlobalOutput = frc3512::DrivetrainController::GlobalOutput;
 
     auto xHat = controller.GetStates();
