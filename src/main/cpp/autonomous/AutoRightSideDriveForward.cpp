@@ -15,6 +15,8 @@ static State state;
 static frc2::Timer autonTimer;
 
 void Robot::AutoRightSideDriveForwardInit() {
+    wpi::outs() << "RightSideDriveForward autonomous\n";
+
     m_drivetrain.Reset(frc::Pose2d(12.65_m, 0.7500_m + kPathWeaverFudge,
                                    units::radian_t{wpi::math::pi}));
 

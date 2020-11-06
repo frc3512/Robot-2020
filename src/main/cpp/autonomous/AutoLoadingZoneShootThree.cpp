@@ -15,6 +15,8 @@ static State state;
 static frc2::Timer autonTimer;
 
 void Robot::AutoLoadingZoneShootThreeInit() {
+    wpi::outs() << "LoadingZoneShootThree autonomous\n";
+
     m_drivetrain.Reset(frc::Pose2d(12.65_m, 5.800_m + kPathWeaverFudge,
                                    units::radian_t{wpi::math::pi}));
 

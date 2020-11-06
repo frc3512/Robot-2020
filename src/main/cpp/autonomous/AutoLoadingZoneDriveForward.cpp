@@ -15,6 +15,8 @@ static State state;
 static frc2::Timer autonTimer;
 
 void Robot::AutoLoadingZoneDriveForwardInit() {
+    wpi::outs() << "LoadingZoneDriveForward autonomous\n";
+
     frc::Pose2d initialPose{12.65_m, 5.800_m + kPathWeaverFudge,
                             units::radian_t{wpi::math::pi}};
     m_drivetrain.Reset(initialPose);

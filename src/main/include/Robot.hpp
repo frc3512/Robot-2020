@@ -9,6 +9,7 @@
 #include <frc/logging/CSVLogFile.h>
 #include <frc/simulation/JoystickSim.h>
 #include <frc2/Timer.h>
+#include <wpi/raw_ostream.h>
 
 #if RUNNING_FRC_TESTS
 #include <gtest/gtest.h>
@@ -195,7 +196,8 @@ private:
     ShootingState m_state = ShootingState::kIdle;
     frc2::Timer m_timer;
 
-    AutonomousChooser m_autonChooser{"No-op", [] {}, [] {}};
+    AutonomousChooser m_autonChooser{
+        "No-op", [] { wpi::outs() << "No-op autonomous\n"; }, [] {}};
 
     frc::CSVLogFile m_batteryLogger{"Battery", "Battery voltage (V)"};
 

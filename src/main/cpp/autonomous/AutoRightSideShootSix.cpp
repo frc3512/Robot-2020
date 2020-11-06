@@ -14,6 +14,8 @@ static State state;
 static frc2::Timer autonTimer;
 
 void Robot::AutoRightSideShootSixInit() {
+    wpi::outs() << "RightSideShootSix autonomous\n";
+
     m_drivetrain.Reset(frc::Pose2d(12.65_m, 0.7500_m, 0_rad));
 
     state = State::kInit;
