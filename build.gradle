@@ -1,18 +1,18 @@
 plugins {
     id "cpp"
     id "google-test-test-suite"
-    id "edu.wpi.first.GradleRIO" version "2020.3.2"
+    id "edu.wpi.first.GradleRIO" version "2021.1.1-beta-1"
     id "org.ysb33r.doxygen" version "0.5"
 }
 
 // For testing development versions of WPILib
-wpi.wpilibVersion = '2021.1.1-beta-1'
+// wpi.wpilibVersion = '2021.1.1-beta-1'
 
 // For automatically using the newest development version of WPILib
 // wpi.wpilibVersion = '2020.+'
 
 // For using remote development artifacts
-wpi.maven.useDevelopment = true
+// wpi.maven.useDevelopment = true
 
 // For using local development artifacts
 // wpi.maven.useFrcMavenLocalDevelopment = true
@@ -26,7 +26,7 @@ deploy {
             // or from command line. If not found an exception will be thrown.
             // You can use getTeamOrDefault(team) instead of getTeamNumber if you
             // want to store a team number in this file.
-            team = frc.getTeamOrDefault(3512)
+            team = frc.getTeamNumber()
         }
     }
     artifacts {
@@ -54,6 +54,11 @@ def includeDesktopSupport = true
 // upon debugging
 dependencies {
     simulation wpi.deps.sim.gui(wpi.platforms.desktop, true)
+    simulation wpi.deps.sim.driverstation(wpi.platforms.desktop, true)
+
+    // Websocket extensions require additional configuration.
+    // simulation wpi.deps.sim.ws_server(wpi.platforms.desktop, true)
+    // simulation wpi.deps.sim.ws_client(wpi.platforms.desktop, true)
 }
 
 nativeUtils.platformConfigs.named("linuxathena").configure {
@@ -83,11 +88,11 @@ model {
 
             sources.cpp {
                 source {
-                    srcDirs = ['src/main/cpp']
+                    srcDir 'src/main/cpp'
                     include '**/*.cpp', '**/*.cc'
                 }
                 exportedHeaders {
-                    srcDirs = ['src/main/include']
+                    srcDir 'src/main/include'
                 }
             }
 
@@ -110,13 +115,12 @@ model {
 
             sources.cpp {
                 source {
-                    srcDirs = ['src/test/cpp']
+                    srcDir 'src/test/cpp'
                     include '**/*.cpp'
-                    include '**/*.cc'
                 }
 
                 exportedHeaders {
-                    srcDirs = ['src/test/include']
+                    srcDir 'src/test/include'
                 }
             }
 
