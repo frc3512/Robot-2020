@@ -2,8 +2,6 @@
 
 #include "Robot.hpp"
 
-#include <functional>
-
 #include <frc/DriverStation.h>
 #include <frc/Joystick.h>
 #include <frc/RobotController.h>
@@ -17,24 +15,22 @@ namespace frc3512 {
 Robot::Robot() {
     m_autonChooser.AddAutonomous(
         "Loading Zone Drive Forward",
-        std::bind(&Robot::AutoLoadingZoneDriveForwardInit, this),
-        std::bind(&Robot::AutoLoadingZoneDriveForwardPeriodic, this));
+        [=] { AutoLoadingZoneDriveForwardInit(); },
+        [=] { AutoLoadingZoneDriveForwardPeriodic(); });
     m_autonChooser.AddAutonomous(
         "Loading Zone Shoot Three Balls",
-        std::bind(&Robot::AutoLoadingZoneShootThreeInit, this),
-        std::bind(&Robot::AutoLoadingZoneShootThreePeriodic, this));
+        [=] { AutoLoadingZoneShootThreeInit(); },
+        [=] { AutoLoadingZoneShootThreePeriodic(); });
     m_autonChooser.AddAutonomous(
         "Target Zone Shoot Three Balls",
-        std::bind(&Robot::AutoTargetZoneShootThreeInit, this),
-        std::bind(&Robot::AutoTargetZoneShootThreePeriodic, this));
+        [=] { AutoTargetZoneShootThreeInit(); },
+        [=] { AutoTargetZoneShootThreePeriodic(); });
     m_autonChooser.AddAutonomous(
-        "Right Side Drive Forward",
-        std::bind(&Robot::AutoRightSideDriveForwardInit, this),
-        std::bind(&Robot::AutoRightSideDriveForwardPeriodic, this));
+        "Right Side Drive Forward", [=] { AutoRightSideDriveForwardInit(); },
+        [=] { AutoRightSideDriveForwardPeriodic(); });
     m_autonChooser.AddAutonomous(
-        "Right Side Shoot Three Balls",
-        std::bind(&Robot::AutoRightSideShootThreeInit, this),
-        std::bind(&Robot::AutoRightSideShootThreePeriodic, this));
+        "Right Side Shoot Three Balls", [=] { AutoRightSideShootThreeInit(); },
+        [=] { AutoRightSideShootThreePeriodic(); });
 
     frc::LiveWindow::GetInstance()->DisableAllTelemetry();
 

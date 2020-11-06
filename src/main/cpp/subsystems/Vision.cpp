@@ -20,7 +20,7 @@ const frc::Transform2d Vision::kCameraInGlobalToTurretInGlobal{
 
 Vision::Vision() {
     m_listenerHandle =
-        m_pose.AddListener(std::bind(&Vision::ProcessNewMeasurement, this),
+        m_pose.AddListener([=](const auto&) { ProcessNewMeasurement(); },
                            NT_NOTIFY_NEW | NT_NOTIFY_UPDATE | NT_NOTIFY_LOCAL);
 }
 
