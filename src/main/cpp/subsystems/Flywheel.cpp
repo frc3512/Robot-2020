@@ -112,8 +112,8 @@ void Flywheel::ControllerPeriodic() {
         m_flywheelPositionSim.SetInput(frc::MakeMatrix<1, 1>(
             m_leftGrbx.Get() * frc::RobotController::GetInputVoltage()));
 
-        m_flywheelSim.Update(Constants::kDt);
-        m_flywheelPositionSim.Update(Constants::kDt);
+        m_flywheelSim.Update(m_controller.GetDt());
+        m_flywheelPositionSim.Update(m_controller.GetDt());
 
         m_encoderSim.SetDistance(m_flywheelPositionSim.GetOutput(0));
     }

@@ -145,7 +145,7 @@ void Drivetrain::ControllerPeriodic() {
             units::volt_t{m_leftGrbx.Get() * batteryVoltage},
             units::volt_t{m_rightGrbx.Get() * batteryVoltage});
 
-        m_drivetrainSim.Update(Constants::kDt);
+        m_drivetrainSim.Update(m_controller->GetDt());
 
         using State = frc::sim::DifferentialDrivetrainSim::State;
         m_leftEncoderSim.SetDistance(

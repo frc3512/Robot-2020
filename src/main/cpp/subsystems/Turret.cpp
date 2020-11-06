@@ -157,7 +157,7 @@ void Turret::ControllerPeriodic() {
         m_turretSim.SetInput(frc::MakeMatrix<1, 1>(
             m_motor.Get() * frc::RobotController::GetInputVoltage()));
 
-        m_turretSim.Update(Constants::kDt);
+        m_turretSim.Update(m_controller.GetDt());
 
         m_encoderSim.SetDistance(HeadingToEncoderDistance(
             units::radian_t{m_turretSim.GetOutput(0)}));

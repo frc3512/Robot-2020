@@ -101,6 +101,11 @@ public:
     bool IsClosedLoop() const { return m_isClosedLoop; }
 
     /**
+     * Returns the most recent timestep.
+     */
+    units::second_t GetDt() const { return m_dt; }
+
+    /**
      * Returns the current references.
      *
      * See the State class in the derived class for what each element correspond
@@ -133,15 +138,15 @@ public:
     Eigen::Matrix<double, Inputs, 1> UpdateAndLog(
         const Eigen::Matrix<double, Outputs, 1>& y) {
         auto now = frc2::Timer::GetFPGATimestamp();
-        m_csvLogger.Log(now - m_startTime, GetReferences(), GetStates(), m_u,
-                        y);
+        m_dt = now - m_lastTime;
+
+        m_csvLogger.Log(m_dt, GetReferences(), GetStates(), m_u, y);
 #ifndef RUNNING_FRC_TESTS
-        m_liveGrapher.Log(now - m_startTime, GetReferences(), GetStates(), m_u,
-                          y);
+        m_liveGrapher.Log(m_dt, GetReferences(), GetStates(), m_u, y);
 #endif
 
-        if (now - m_lastTime > 0_s) {
-            m_u = Update(y, now - m_lastTime);
+        if (m_dt > 0_s) {
+            m_u = Update(y, m_dt);
             m_lastTime = now;
         } else {
             std::cout << "ERROR: dt = 0 @ t=" << now << std::endl;
@@ -173,6 +178,7 @@ private:
         Eigen::Matrix<double, Inputs, 1>::Zero();
     units::second_t m_lastTime = frc2::Timer::GetFPGATimestamp();
     units::second_t m_startTime = frc2::Timer::GetFPGATimestamp();
+    units::second_t m_dt = Constants::kDt;
     bool m_isEnabled = false;
     bool m_isClosedLoop = true;
 };

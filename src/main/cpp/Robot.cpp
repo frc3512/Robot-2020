@@ -38,7 +38,7 @@ Robot::Robot() {
 
     frc::LiveWindow::GetInstance()->DisableAllTelemetry();
 
-    AddPeriodic([=] { ControllerPeriodic(); }, Constants::kDt, 10_ms);
+    AddPeriodic([=] { ControllerPeriodic(); }, Constants::kDt, 7.5_ms);
 }
 
 void Robot::Shoot() {
