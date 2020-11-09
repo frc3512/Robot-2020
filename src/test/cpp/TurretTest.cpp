@@ -100,7 +100,7 @@ TEST_F(TurretTest, ConfigSpaceLimits) {
     frc3512::AddPrefixToCSVs("TurretTest ConfigSpaceLimits");
 }
 
-TEST(TurretTest, DISABLED_ReachesReferenceStaticDrivetrain) {
+TEST_F(TurretTest, ReachesReferenceStaticDrivetrain) {
     {
         frc3512::Vision vision;
         frc3512::Drivetrain drivetrain;
@@ -109,10 +109,16 @@ TEST(TurretTest, DISABLED_ReachesReferenceStaticDrivetrain) {
 
         frc3512::SubsystemBase::RunAllAutonomousInit();
         frc::Notifier controllerPeriodic{[&] {
-            turret.TeleopPeriodic();
+            drivetrain.AutonomousPeriodic();
+            turret.AutonomousPeriodic();
+            drivetrain.ControllerPeriodic();
             turret.ControllerPeriodic();
         }};
         controllerPeriodic.StartPeriodic(frc3512::Constants::kDt);
+
+        frc::Pose2d initialPose{12.65_m, 5.800_m - 0.343_m,
+                                units::radian_t{wpi::math::pi}};
+        drivetrain.Reset(initialPose);
 
         frc::sim::StepTiming(10_s);
 
@@ -124,10 +130,7 @@ TEST(TurretTest, DISABLED_ReachesReferenceStaticDrivetrain) {
     frc3512::AddPrefixToCSVs("TurretTest Static");
 }
 
-TEST_F(TurretTest, DISABLED_ReachesReferenceRotateInPlaceDrivetrain) {
-    // TODO: Make the drivetrain actually rotate in place instead of follow an
-    // s-curve.
-
+TEST_F(TurretTest, ReachesReferenceSCurveDrivetrain) {
     {
         frc3512::Vision vision;
         frc3512::Drivetrain drivetrain;
@@ -136,40 +139,20 @@ TEST_F(TurretTest, DISABLED_ReachesReferenceRotateInPlaceDrivetrain) {
 
         frc3512::SubsystemBase::RunAllAutonomousInit();
         frc::Notifier controllerPeriodic{[&] {
-            turret.TeleopPeriodic();
+            drivetrain.AutonomousPeriodic();
+            turret.AutonomousPeriodic();
+            drivetrain.ControllerPeriodic();
             turret.ControllerPeriodic();
         }};
         controllerPeriodic.StartPeriodic(frc3512::Constants::kDt);
 
-        drivetrain.SetWaypoints(frc::Pose2d(0_m, 0_m, 0_rad), {},
-                                frc::Pose2d(4.8768_m, 2.7432_m, 0_rad));
+        frc::Pose2d initialPose{4.8768_m, 2.7432_m,
+                                units::radian_t{wpi::math::pi}};
 
-        frc::sim::StepTiming(10_s);
-
-        frc3512::SubsystemBase::RunAllDisabledInit();
-
-        EXPECT_TRUE(turret.AtGoal());
-    }
-
-    frc3512::AddPrefixToCSVs("TurretTest RotateInPlace");
-}
-
-TEST_F(TurretTest, DISABLED_ReachesReferenceSCurveDrivetrain) {
-    {
-        frc3512::Vision vision;
-        frc3512::Drivetrain drivetrain;
-        frc3512::Turret turret{vision, drivetrain};
-        turret.SetManualOverride(false);
-
-        frc3512::SubsystemBase::RunAllAutonomousInit();
-        frc::Notifier controllerPeriodic{[&] {
-            turret.TeleopPeriodic();
-            turret.ControllerPeriodic();
-        }};
-        controllerPeriodic.StartPeriodic(frc3512::Constants::kDt);
-
-        drivetrain.SetWaypoints(frc::Pose2d(0_m, 0_m, 0_rad), {},
-                                frc::Pose2d(4.8768_m, 2.7432_m, 0_rad));
+        drivetrain.Reset(initialPose);
+        drivetrain.SetWaypoints(
+            initialPose, {},
+            frc::Pose2d(0_m, 0_m, units::radian_t{wpi::math::pi}));
 
         frc::sim::StepTiming(10_s);
 
@@ -190,7 +173,9 @@ TEST_F(TurretTest, ReachesReferenceAutonDrivetrain) {
 
         frc3512::SubsystemBase::RunAllAutonomousInit();
         frc::Notifier controllerPeriodic{[&] {
-            turret.TeleopPeriodic();
+            drivetrain.AutonomousPeriodic();
+            turret.AutonomousPeriodic();
+            drivetrain.ControllerPeriodic();
             turret.ControllerPeriodic();
         }};
         controllerPeriodic.StartPeriodic(frc3512::Constants::kDt);
