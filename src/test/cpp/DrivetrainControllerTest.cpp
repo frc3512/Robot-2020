@@ -18,7 +18,7 @@ TEST(DrivetrainControllerTest, CorrectsTowardGlobalY) {
                             frc::Pose2d(4.8768_m, 2.7432_m, 0_rad));
 
     // Ensure error covariance is nonzero
-    for (int i = 0; i < 1000; ++i) {
+    for (units::second_t t = 0_s; t < 10_s; t += kDt) {
         controller.Predict(Eigen::Matrix<double, 2, 1>::Zero(), kDt);
     }
 
