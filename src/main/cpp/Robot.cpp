@@ -47,8 +47,6 @@ Robot::Robot() {
     frc::LiveWindow::GetInstance()->DisableAllTelemetry();
 
     AddPeriodic([=] { ControllerPeriodic(); }, Constants::kDt, 7.5_ms);
-
-    m_autonChooser.SelectAutonomous("Right Side Shoot Three Balls");
 }
 
 void Robot::Shoot() {
