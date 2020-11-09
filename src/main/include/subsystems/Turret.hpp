@@ -68,16 +68,12 @@ public:
     units::radian_t GetAngle() const;
 
     /**
-     * Returns if encoder has passed the counter-clockwise limit.
-     *
-     * @return 'true' means triggered
+     * Returns true if the encoder has passed the counterclockwise limit.
      */
     bool HasPassedCCWLimit() const;
 
     /**
-     * Returns if encoder has passed the clockwise limit.
-     *
-     * @return 'true' means triggered
+     * Returns true if the encoder has passed the clockwise limit.
      */
     bool HasPassedCWLimit() const;
 
