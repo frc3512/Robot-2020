@@ -140,9 +140,11 @@ public:
         auto now = frc2::Timer::GetFPGATimestamp();
         m_dt = now - m_lastTime;
 
-        m_csvLogger.Log(m_dt, GetReferences(), GetStates(), m_u, y);
+        m_csvLogger.Log(now - m_startTime, GetReferences(), GetStates(), m_u,
+                        y);
 #ifndef RUNNING_FRC_TESTS
-        m_liveGrapher.Log(m_dt, GetReferences(), GetStates(), m_u, y);
+        m_liveGrapher.Log(now - m_startTime, GetReferences(), GetStates(), m_u,
+                          y);
 #endif
 
         if (m_dt > 0_s) {
