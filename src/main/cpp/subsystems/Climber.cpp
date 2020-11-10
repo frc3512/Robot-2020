@@ -28,7 +28,7 @@ void Climber::SetElevator(double speed) {
         (speed < -0.02 && GetElevatorPosition() >= 0_m)) {
         // Unlock climber if it's being commanded to move
         m_pancake.Set(true);
-        m_elevator.Set(speed);
+        m_elevator.Set(-speed);
     } else {
         m_pancake.Set(false);
         m_elevator.Set(0.0);
@@ -38,7 +38,7 @@ void Climber::SetElevator(double speed) {
 units::meter_t Climber::GetElevatorPosition() {
     constexpr double kG = 1.0 / 20.0;  // Gear ratio
 
-    double rotations = m_elevatorEncoder.GetPosition();
+    double rotations = -m_elevatorEncoder.GetPosition();
     return units::meter_t{0.04381 * wpi::math::pi * kG * rotations /
                           (1.0 + 0.014983 * wpi::math::pi * kG * rotations)};
 }
@@ -90,7 +90,7 @@ void Climber::TestPeriodic() {
     if (std::abs(speed) > 0.02) {
         // Unlock climber if it's being commanded to move
         m_pancake.Set(true);
-        m_elevator.Set(speed);
+        m_elevator.Set(-speed);
     } else {
         m_pancake.Set(false);
         m_elevator.Set(0.0);
