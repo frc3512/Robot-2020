@@ -7,45 +7,37 @@
 
 #include "frc/logging/LogFile.h"
 
-#include <cstdio>
-#include <ctime>
-
+#include <fmt/chrono.h>
+#include <fmt/format.h>
 #include <wpi/FileSystem.h>
 #include <wpi/SmallString.h>
-#include <wpi/raw_ostream.h>
 
 #include "frc/Filesystem.h"
 
 using namespace frc;
 
 LogFile::LogFile(wpi::StringRef filePrefix, wpi::StringRef fileExtension)
-    : m_filePrefix(filePrefix), m_fileExtension(fileExtension) {
-  m_time = std::time(0);
-  std::string filename = CreateFilename(m_time);
-
-  m_file.open(filename);
-
+    : m_filePrefix{filePrefix},
+      m_fileExtension{fileExtension},
+      m_time{std::time(nullptr)},
+      m_filename{CreateFilename(m_time)},
+      m_file{m_filename} {
   if (m_file.fail()) {
-    wpi::errs() << "Could not open file `" << filename << "` for writing.\n";
+    fmt::print(stderr, "Could not open file `{}` for writing.\n", m_filename);
     return;
   }
 }
 
-void LogFile::Log(const wpi::StringRef& text) { *this << text; }
-
-void LogFile::Logln(const wpi::StringRef& text) { *this << text << '\n'; }
-
-std::string LogFile::GetFileName() const { return CreateFilename(m_time); }
-
-void LogFile::SetTimeIntervalBeforeRenaming(units::second_t duration) {
-  m_timeIntervalBeforeRenaming = duration;
+void LogFile::Log(const wpi::StringRef& text) {
+  m_file << text;
+  UpdateFilename();
 }
 
 void LogFile::UpdateFilename() {
-  std::time_t newTime = std::time(0);
+  std::time_t newTime = std::time(nullptr);
+
   // If the difference between the two timestamps is too long
-  if (units::second_t{std::difftime(newTime, m_time)} >
-      m_timeIntervalBeforeRenaming) {
+  if (units::second_t{std::difftime(newTime, m_time)} > 1_d) {
     std::string newName = CreateFilename(newTime);
     m_file.close();
     std::rename(CreateFilename(m_time).c_str(), newName.c_str());
@@ -59,13 +51,9 @@ std::string LogFile::CreateFilename(std::time_t time) const {
   wpi::SmallString<64> path;
   frc::filesystem::GetOperatingDirectory(path);
 
-  // Get current date/time, format is YYYY-MM-DD.HH_mm_ss
-  struct tm localTime = *std::localtime(&time);
-  char datetime[80];
-  std::strftime(datetime, sizeof(datetime), "%Y-%m-%d-%H_%M_%S", &localTime);
-
-  return (path + "/" + m_filePrefix + "-" + datetime + "." + m_fileExtension)
-      .str();
+  return fmt::format("{}/{}-{:%Y-%m-%d-%H_%M_%S}.{}",
+                     std::string_view{path.str().data(), path.str().size()},
+                     m_filePrefix, fmt::localtime(time), m_fileExtension);
 }
 
 void LogFile::Flush() { m_file.flush(); }

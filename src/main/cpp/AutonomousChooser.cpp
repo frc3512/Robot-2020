@@ -4,8 +4,8 @@
 
 #include <algorithm>
 
+#include <fmt/core.h>
 #include <frc/smartdashboard/SmartDashboard.h>
-#include <wpi/raw_ostream.h>
 
 namespace frc3512 {
 
@@ -57,7 +57,7 @@ void AutonomousChooser::AddAutonomous(wpi::StringRef name,
 void AutonomousChooser::RunAutonomousInit() {
     {
         std::scoped_lock lock{m_mutex};
-        wpi::outs() << m_selectedChoice << " autonomous\n";
+        fmt::print("{} autonomous\n", m_selectedChoice);
         m_selectedAuton = m_choices[m_selectedChoice];
     }
     std::get<0>(m_selectedAuton)();

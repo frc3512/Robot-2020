@@ -107,13 +107,6 @@ class CSVLogFile {
     Log(units::second_t{timestamp.count() / 1000.0}, value, values...);
   }
 
-  /**
-   * Get the name the file.
-   *
-   * @return The name of the file.
-   */
-  std::string GetFileName() const { return m_logFile.GetFileName(); }
-
  private:
   /**
    * Print a new line of values in the CSVLogFile without timestamp.

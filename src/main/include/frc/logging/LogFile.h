@@ -42,27 +42,6 @@ class LogFile {
   void Log(const wpi::StringRef& text);
 
   /**
-   * Write text in the LogFile and add a new line.
-   *
-   * @param text The text to be logged in the file.
-   */
-  void Logln(const wpi::StringRef& text);
-
-  /**
-   * Get the name the file.
-   *
-   * @return The name of the file.
-   */
-  std::string GetFileName() const;
-
-  /**
-   * Set the time interval after which the file will be renamed in seconds.
-   *
-   * @param duration The time interval after which the file will be renamed.
-   */
-  void SetTimeIntervalBeforeRenaming(units::second_t duration);
-
-  /**
    * Flushes lines written to the log file to disk.
    */
   void Flush();
@@ -85,15 +64,15 @@ class LogFile {
    * Create a filename with a time.
    *
    * @param time The time that is saved in the filename.
-   * @return The filename at the format "{filePrefix}-{date/time}.txt".
+   * @return The filename with the format "{filePrefix}-{date/time}.txt".
    */
   std::string CreateFilename(std::time_t time) const;
 
   std::string m_filePrefix;
   std::string m_fileExtension;
-  std::ofstream m_file;
   std::time_t m_time;
-  units::second_t m_timeIntervalBeforeRenaming = 1_d;
+  std::string m_filename;
+  std::ofstream m_file;
 };
 
 }  // namespace frc

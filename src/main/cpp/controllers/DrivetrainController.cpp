@@ -4,8 +4,8 @@
 
 #include <algorithm>
 #include <cmath>
-#include <iostream>
 
+#include <fmt/core.h>
 #include <frc/RobotController.h>
 #include <frc/StateSpaceUtil.h>
 #include <frc/controller/LinearQuadraticRegulator.h>
@@ -16,7 +16,8 @@
 #include <frc/trajectory/TrajectoryGenerator.h>
 #include <frc/trajectory/constraint/DifferentialDriveVelocitySystemConstraint.h>
 #include <units/math.h>
-#include <wpi/raw_ostream.h>
+
+#include "EigenFormat.hpp"
 
 using namespace frc3512;
 using namespace frc3512::Constants;
@@ -216,7 +217,7 @@ Eigen::Matrix<double, 2, 1> DrivetrainController::Controller(
     try {
         m_K = ControllerGainForState(x);
     } catch (const std::runtime_error& e) {
-        wpi::errs() << e.what() << '\n';
+        fmt::print(stderr, "{}\n", e.what());
 
         Eigen::Matrix<double, 7, 1> x0 = x;
         x0(State::kHeading) = 0.0;
@@ -238,8 +239,8 @@ Eigen::Matrix<double, 2, 1> DrivetrainController::Controller(
         Eigen::Matrix<double, 5, 5> discA;
         Eigen::Matrix<double, 5, 2> discB;
         frc::DiscretizeAB<5, 2>(A, m_B, kDt, &discA, &discB);
-        std::cerr << "A =\n" << discA << '\n';
-        std::cerr << "B =\n" << discB << '\n';
+        fmt::print(stderr, "A = {}\n", discA);
+        fmt::print(stderr, "B = {}\n", discB);
     }
 
     Eigen::Matrix<double, 5, 5> inRobotFrame =

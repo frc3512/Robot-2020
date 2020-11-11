@@ -5,6 +5,7 @@
 #include <array>
 
 #include <Eigen/Core>
+#include <fmt/core.h>
 #include <frc2/Timer.h>
 #include <units/time.h>
 #include <wpi/StringRef.h>
@@ -151,7 +152,7 @@ public:
             m_u = Update(y, m_dt);
             m_lastTime = now;
         } else {
-            std::cerr << "ERROR: dt = 0 @ t=" << now << std::endl;
+            fmt::print(stderr, "ERROR: dt = 0 @ t = {} s\n", now.to<double>());
         }
         return m_u;
     }

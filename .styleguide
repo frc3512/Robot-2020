@@ -9,6 +9,11 @@ cppSrcFileInclude {
   \.cpp$
 }
 
+generatedFileExclude {
+  src/main/cpp/fmt/
+  src/main/include/fmt/
+}
+
 modifiableFileExclude {
   gradle/
 }
@@ -19,6 +24,7 @@ includeCppSys {
 
 includeOtherLibs {
   Eigen/
+  fmt/
   frc/
   frc2/
   gtest/
