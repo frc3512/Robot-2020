@@ -129,14 +129,14 @@ void Drivetrain::ControllerPeriodic() {
     Eigen::Matrix<double, 2, 1> u = m_controller->UpdateAndLog(y);
 
     if (m_controller->IsClosedLoop()) {
-        m_leftGrbx.SetVoltage(units::volt_t{u(0)});
-        m_rightGrbx.SetVoltage(units::volt_t{u(1)});
-    }
-
-    if (m_controller->IsClosedLoop() && AtGoal()) {
-        m_leftGrbx.SetVoltage(0_V);
-        m_rightGrbx.SetVoltage(0_V);
-        m_controller->SetClosedLoop(false);
+        if (!AtGoal()) {
+            m_leftGrbx.SetVoltage(units::volt_t{u(0)});
+            m_rightGrbx.SetVoltage(units::volt_t{u(1)});
+        } else {
+            m_leftGrbx.SetVoltage(0_V);
+            m_rightGrbx.SetVoltage(0_V);
+            m_controller->SetClosedLoop(false);
+        }
     }
 
     if constexpr (frc::RobotBase::IsSimulation()) {
