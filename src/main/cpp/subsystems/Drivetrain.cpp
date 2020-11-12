@@ -95,10 +95,6 @@ void Drivetrain::Reset(const frc::Pose2d& initialPose) {
     }
 }
 
-bool Drivetrain::IsControllerEnabled() const {
-    return m_controller->IsEnabled();
-}
-
 void Drivetrain::CorrectWithGlobalOutputs(units::meter_t x, units::meter_t y,
                                           units::second_t timestamp) {
     m_controller->CorrectWithGlobalOutputs(x, y, timestamp);

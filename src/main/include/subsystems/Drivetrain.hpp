@@ -91,14 +91,6 @@ public:
     void Reset(const frc::Pose2d& initialPose = frc::Pose2d());
 
     /**
-     * Returns true if controller is enabled and false if controller is
-     * disabled.
-     *
-     * @return whether or not the controller is enabled
-     */
-    bool IsControllerEnabled() const;
-
-    /**
      * Set global measurements.
      *
      * @param x         X position of the robot in meters.
