@@ -44,10 +44,6 @@ Drivetrain::Drivetrain()
 
 Drivetrain::~Drivetrain() {}
 
-void Drivetrain::Drive(double xSpeed, double zRotation, bool allowTurnInPlace) {
-    m_drive.CurvatureDrive(xSpeed, zRotation, allowTurnInPlace);
-}
-
 frc::Pose2d Drivetrain::GetPose() const {
     const auto& x = m_controller->GetStates();
     return frc::Pose2d{
@@ -225,5 +221,5 @@ void Drivetrain::TeleopPeriodic() {
         y *= 0.5;
         x *= 0.5;
     }
-    Drive(y, x, driveStick2.GetRawButton(2));
+    m_drive.CurvatureDrive(y, x, driveStick2.GetRawButton(2));
 }

@@ -51,23 +51,6 @@ public:
     Drivetrain& operator=(Drivetrain&&) = default;
 
     /**
-     * Curvature drive method for differential drive platform.
-     *
-     * The rotation argument controls the curvature of the robot's path rather
-     * than its rate of heading change. This makes the robot more controllable
-     * at high speeds. Constant-curvature turning can be overridden for
-     * turn-in-place maneuvers.
-     *
-     * @param xSpeed           The robot's speed along the X axis [-1.0..1.0].
-     *                         Forward is positive.
-     * @param zRotation        The robot's rotation rate around the Z axis
-     *                         [-1.0..1.0]. Clockwise is positive.
-     * @param allowTurnInPlace If set, overrides constant-curvature turning for
-     *                         turn-in-place maneuvers.
-     */
-    void Drive(double xSpeed, double zRotation, bool allowTurnInPlace = false);
-
-    /**
      * Returns the drivetrain's pose estimate.
      */
     frc::Pose2d GetPose() const;
