@@ -14,8 +14,10 @@ enum class State { kDriveAwayFromGoal, kShoot, kIdle };
 static State state;
 static frc2::Timer autonTimer;
 
+// Initial Pose - Right in line with the Loading Zone
 static const frc::Pose2d initialPose{12.89_m, 5.662_m,
                                      units::radian_t{wpi::math::pi}};
+// End Pose - Drive forward slightly
 static const frc::Pose2d endPose{12.89_m - 1.5 * Drivetrain::kLength, 5.662_m,
                                  units::radian_t{wpi::math::pi}};
 
@@ -32,14 +34,12 @@ void Robot::AutoLoadingZoneShootThreeInit() {
 void Robot::AutoLoadingZoneShootThreePeriodic() {
     switch (state) {
         case State::kDriveAwayFromGoal: {
-            // Initial Pose - X: 12.91 m Y: 5.8 m Heading: pi rad
             m_drivetrain.SetWaypoints(initialPose, {}, endPose);
             state = State::kShoot;
             break;
         }
         case State::kShoot: {
-            // Final Pose: - X: 12.91 - kLength - kHalfLength Y: 5.8 m Heading:
-            // pi rad Shoot 3x
+            // Shoot 3x
             if (m_drivetrain.AtGoal()) {
                 Shoot();
                 state = State::kIdle;

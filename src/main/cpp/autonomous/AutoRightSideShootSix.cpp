@@ -20,12 +20,16 @@ enum class State {
 }  // namespace
 
 static State state;
+static State lastState;
 static frc2::Timer autonTimer;
 
+// Initial Pose - Right in line with the three balls in the Trench Run
 static const frc::Pose2d initialPose{12.89_m, 0.71_m,
                                      units::radian_t{wpi::math::pi}};
+// Mid Pose - Drive forward slightly
 static const frc::Pose2d midPose{12.89_m - 1.5 * Drivetrain::kLength, 0.71_m,
                                  units::radian_t{wpi::math::pi}};
+// End Pose - Third/Farthest ball in the Trench Run
 static const frc::Pose2d endPose{8_m, 0.71_m, units::radian_t{wpi::math::pi}};
 
 void Robot::AutoRightSideShootSixInit() {
@@ -34,6 +38,7 @@ void Robot::AutoRightSideShootSixInit() {
     m_drivetrain.Reset(initialPose);
 
     state = State::kInit;
+    lastState = State::kInit;
     autonTimer.Reset();
     autonTimer.Start();
 }
@@ -42,7 +47,6 @@ void Robot::AutoRightSideShootSixPeriodic() {
     switch (state) {
         case State::kInit: {
             // Move back to shoot three comfortably
-            // Inital Pose - X: 12.91 m Y: 0.75 m Heading: pi rad
             m_drivetrain.SetWaypoints(initialPose, {}, midPose);
             state = State::kShoot;
             break;
@@ -56,44 +60,47 @@ void Robot::AutoRightSideShootSixPeriodic() {
             break;
         }
         case State::kTrenchRun: {
-            // Middle Pose - X: 12.91 - klength - khalflength m Y: 0.75 m
-            // Heading: pi rad
             if (!IsShooting()) {
-                // Add a constraint to slow down the drivetrain while it's
-                // approaching the balls
-                frc::Translation2d bottomLeftConstraint{11_m, initialPose.Y()};
-                frc::Translation2d topRightConstraint{endPose.X(), endPose.Y()};
-                frc::MaxVelocityConstraint velocityConstraint{1.5_mps};
-
-                // Make a trajectory config to add the rectangle constraint
-                auto config = m_drivetrain.MakeTrajectoryConfig();
-                config.AddConstraint(frc::RectangularRegionConstraint{
-                    bottomLeftConstraint, topRightConstraint,
-                    velocityConstraint});
-
-                m_drivetrain.SetWaypoints(midPose, {}, endPose, config);
-
                 state = State::kTrenchIntake;
             }
             break;
         }
         case State::kTrenchIntake: {
+            // Add a constraint to slow down the drivetrain while it's
+            // approaching the balls
+            static frc::RectangularRegionConstraint regionConstraint{
+                frc::Translation2d{endPose.X(),
+                                   endPose.Y() - 0.5 * Drivetrain::kLength},
+                // X: First/Closest ball in the trench run
+                frc::Translation2d{9.82_m + 0.5 * Drivetrain::kLength,
+                                   initialPose.Y() + 0.5 * Drivetrain::kLength},
+                frc::MaxVelocityConstraint{1_mps}};
+
+            if (lastState != state) {
+                auto config = m_drivetrain.MakeTrajectoryConfig();
+                config.AddConstraint(regionConstraint);
+                m_drivetrain.SetWaypoints(midPose, {}, endPose, config);
+                m_intake.Deploy();
+
+                lastState = state;
+            }
+
             // Intake Balls x3
-            // TODO: Add if pose in region if statement
-            m_intake.SetArmMotor(Intake::ArmMotorDirection::kIntake);
-            m_intake.SetConveyor(0.85);
-            state = State::kTrenchShoot;
+            if (regionConstraint.IsPoseInRegion(m_drivetrain.GetPose())) {
+                m_intake.SetArmMotor(Intake::ArmMotorDirection::kIntake);
+                m_intake.SetConveyor(0.85);
+            }
+            if (m_drivetrain.AtGoal()) {
+                state = State::kTrenchShoot;
+            }
             break;
         }
         case State::kTrenchShoot: {
-            // Final Pose - X: 8 m Y: 0.75 m Heading: pi rad
-            if (m_drivetrain.AtGoal()) {
-                m_intake.SetArmMotor(Intake::ArmMotorDirection::kIdle);
-                m_intake.SetConveyor(0.0);
-                // Shoot x3
-                Shoot();
-                state = State::kIdle;
-            }
+            m_intake.SetArmMotor(Intake::ArmMotorDirection::kIdle);
+            m_intake.SetConveyor(0.0);
+            // Shoot x3
+            Shoot();
+            state = State::kIdle;
             break;
         }
         case State::kIdle: {

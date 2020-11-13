@@ -32,14 +32,11 @@ void Robot::AutoTargetZoneShootThreeInit() {
 void Robot::AutoTargetZoneShootThreePeriodic() {
     switch (state) {
         case State::kInit: {
-            // Inital Pose - X: 12.91 m Y: 2.6 m Heading: pi rad
             m_drivetrain.SetWaypoints(initialPose, {}, endPose);
             state = State::kDriveAwayFromGoal;
             break;
         }
         case State::kDriveAwayFromGoal: {
-            // Final Pose - X: 12.91 - klength - khalflength m Y: 2.6 m Heading:
-            // pi rad
             if (m_drivetrain.AtGoal()) {
                 // Shoot x3
                 Shoot();
