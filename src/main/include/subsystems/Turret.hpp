@@ -119,7 +119,7 @@ public:
 private:
     // A CCW (positive) offset makes the encoder hit the soft limit sooner when
     // rotating CCW
-    static constexpr units::radian_t kOffset = 30_deg;
+    static constexpr auto kOffset = units::radian_t{0.380};
 
     frc::DutyCycleEncoder m_encoder{Constants::Turret::kEncoderPort};
     rev::CANSparkMax m_motor{Constants::Turret::kPort,
