@@ -37,9 +37,6 @@ std::optional<Vision::GlobalMeasurement> Vision::GetGlobalMeasurement() {
 }
 
 void Vision::ProcessNewMeasurement() {
-    // TODO: Reenable when vision measurements are reliable
-    return;
-
     units::microsecond_t latency(
         static_cast<int64_t>(m_latency.GetDouble(-1) * 1000));
 
