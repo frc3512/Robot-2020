@@ -67,5 +67,6 @@ void Vision::ProcessNewMeasurement() {
     auto timestamp = frc2::Timer::GetFPGATimestamp();
     timestamp -= latency;
 
-    m_measurements.push({timestamp, turretInGlobal});
+    // TODO: Add back in when vision measurements are reliable
+    // m_measurements.push({timestamp, turretInGlobal});
 }
