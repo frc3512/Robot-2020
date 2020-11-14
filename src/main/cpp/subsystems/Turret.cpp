@@ -121,10 +121,8 @@ void Turret::ControllerPeriodic() {
     Eigen::Matrix<double, 1, 1> u = m_controller.UpdateAndLog(y);
 
     auto globalMeasurement = m_vision.GetGlobalMeasurement();
-    if (globalMeasurement) {
-        // TODO: Reenable when vision measurements are reliable
-        return;
-
+    // TODO: Reenable when vision measurements are reliable
+    if (0) {
         auto turretInGlobal = globalMeasurement.value();
 
         frc::Transform2d turretInGlobalToDrivetrainInGlobal{
