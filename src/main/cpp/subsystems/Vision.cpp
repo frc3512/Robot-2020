@@ -37,6 +37,9 @@ std::optional<Vision::GlobalMeasurement> Vision::GetGlobalMeasurement() {
 }
 
 void Vision::ProcessNewMeasurement() {
+    // TODO: Reenable when vision measurements are reliable
+    return;
+
     units::microsecond_t latency(
         static_cast<int64_t>(m_latency.GetDouble(-1) * 1000));
 
@@ -67,6 +70,5 @@ void Vision::ProcessNewMeasurement() {
     auto timestamp = frc2::Timer::GetFPGATimestamp();
     timestamp -= latency;
 
-    // TODO: Add back in when vision measurements are reliable
-    // m_measurements.push({timestamp, turretInGlobal});
+    m_measurements.push({timestamp, turretInGlobal});
 }
