@@ -118,7 +118,9 @@ public:
 
 private:
     // A CCW (positive) offset makes the encoder hit the soft limit sooner when
-    // rotating CCW
+    // rotating CCW. For the current gear ratio, the duty cycle encoder rolls
+    // over to 0 rad at 0.707 rad. The offset is half that to provide a 20
+    // degree buffer on each side for the robot starting configuration.
     static constexpr auto kOffset = units::radian_t{0.380};
 
     frc::DutyCycleEncoder m_encoder{Constants::Turret::kEncoderPort};
