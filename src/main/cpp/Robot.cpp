@@ -91,10 +91,8 @@ void Robot::RobotPeriodic() {
 void Robot::SimulationPeriodic() {
     SubsystemBase::RunAllSimulationPeriodic();
 
-    frc::sim::RoboRioSim::SetVInVoltage(
-        frc::sim::BatterySim::Calculate(
-            {m_drivetrain.GetCurrentDraw(), m_flywheel.GetCurrentDraw()})
-            .to<double>());
+    frc::sim::RoboRioSim::SetVInVoltage(frc::sim::BatterySim::Calculate(
+        {m_drivetrain.GetCurrentDraw(), m_flywheel.GetCurrentDraw()}));
 }
 
 void Robot::DisabledPeriodic() { SubsystemBase::RunAllDisabledPeriodic(); }

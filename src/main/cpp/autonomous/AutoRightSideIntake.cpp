@@ -1,10 +1,10 @@
 // Copyright (c) 2020 FRC Team 3512. All Rights Reserved.
 
 #include <frc/trajectory/constraint/MaxVelocityConstraint.h>
+#include <frc/trajectory/constraint/RectangularRegionConstraint.h>
 #include <wpi/math>
 
 #include "Robot.hpp"
-#include "trajectory/constraint/RectangularRegionConstraint.h"
 
 namespace frc3512 {
 
