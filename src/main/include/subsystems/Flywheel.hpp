@@ -161,6 +161,10 @@ private:
 
     Drivetrain& m_drivetrain;
 
+    // Used in test mode for manually setting flywheel goal. This is helpful for
+    // measuring flywheel lookup table values.
+    double m_testThrottle = 0.0;
+
     nt::NetworkTableInstance m_inst = nt::NetworkTableInstance::GetDefault();
     nt::NetworkTableEntry m_angularVelocityRefEntry =
         m_inst.GetEntry("/Diagnostics/Flywheel/References/Angular velocity");
@@ -172,6 +176,9 @@ private:
         m_inst.GetEntry("/Diagnostics/Flywheel/IsReady");
     nt::NetworkTableEntry m_controllerEnabledEntry =
         m_inst.GetEntry("/Diagnostics/Flywheel/Controller enabled");
+    nt::NetworkTableEntry m_manualAngularVelocityReferenceEntry =
+        m_inst.GetEntry(
+            "/Diagnostics/Flywheel/Manual angular velocity reference");
 
     // Measurement noise isn't added because the simulated encoder stores the
     // count as an integer, which already introduces quantization noise.
@@ -183,6 +190,14 @@ private:
     frc::sim::LinearSystemSim<2, 1, 1> m_flywheelPositionSim{
         m_flywheelPosition};
     frc::sim::EncoderSim m_encoderSim{m_encoder};
+
+    /**
+     * Computes an angular velocity reference from the provided joystick
+     * throttle value.
+     *
+     * @param throttle Throttle value from -1 (forward) to 1 (back).
+     */
+    static units::radians_per_second_t ThrottleToReference(double throttle);
 };
 
 }  // namespace frc3512

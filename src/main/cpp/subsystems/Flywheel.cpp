@@ -2,14 +2,18 @@
 
 #include "subsystems/Flywheel.hpp"
 
+#include <frc/DriverStation.h>
+#include <frc/Joystick.h>
 #include <frc/RobotBase.h>
 #include <frc/RobotController.h>
+#include <units/math.h>
 
 #include "CANSparkMaxUtil.hpp"
 #include "controllers/TurretController.hpp"
 #include "subsystems/Drivetrain.hpp"
 
 using namespace frc3512;
+using namespace frc3512::Constants::Robot;
 
 Flywheel::Flywheel(Drivetrain& drivetrain) : m_drivetrain(drivetrain) {
     SetCANSparkMaxBusUsage(m_leftGrbx, Usage::kMinimal);
@@ -26,9 +30,10 @@ Flywheel::Flywheel(Drivetrain& drivetrain) : m_drivetrain(drivetrain) {
 
     // TODO: add more entries to the look up table
     m_table.Insert(125_in, 450_rad_per_s);
-    m_table.Insert(200_in, 510_rad_per_s);
-    m_table.Insert(268_in, 525_rad_per_s);
-    m_table.Insert(312_in, 550_rad_per_s);
+    m_table.Insert(175_in, 463_rad_per_s);
+    m_table.Insert(200_in, 472_rad_per_s);
+    m_table.Insert(268_in, 503_rad_per_s);
+    m_table.Insert(312_in, 570_rad_per_s);
     m_table.Insert(326_in, 650_rad_per_s);
 
     Reset();
@@ -58,7 +63,13 @@ units::radians_per_second_t Flywheel::GetGoal() const {
 
 bool Flywheel::AtGoal() { return m_controller.AtGoal(); }
 
-void Flywheel::Shoot() { SetGoal(GetReferenceForPose(m_drivetrain.GetPose())); }
+void Flywheel::Shoot() {
+    if (frc::DriverStation::GetInstance().IsTest()) {
+        SetGoal(ThrottleToReference(m_testThrottle));
+    } else {
+        SetGoal(GetReferenceForPose(m_drivetrain.GetPose()));
+    }
+}
 
 bool Flywheel::IsOn() const { return GetGoal() > 0_rad_per_s; }
 
@@ -93,6 +104,15 @@ void Flywheel::RobotPeriodic() {
     m_isOnEntry.SetBoolean(IsOn());
     m_isReadyEntry.SetBoolean(IsReady());
     m_controllerEnabledEntry.SetBoolean(m_controller.IsEnabled());
+
+    if (frc::DriverStation::GetInstance().IsTest()) {
+        static frc::Joystick appendageStick2{kAppendageStick2Port};
+
+        m_testThrottle = appendageStick2.GetThrottle();
+        double manualRef = ThrottleToReference(m_testThrottle).to<double>();
+        m_manualAngularVelocityReferenceEntry.SetDouble(manualRef);
+        wpi::outs() << "Manual angular velocity: " << manualRef << " rad/s\n";
+    }
 }
 
 void Flywheel::ControllerPeriodic() {
@@ -125,4 +145,12 @@ void Flywheel::ControllerPeriodic() {
 
     m_lastAngle = m_angle;
     m_lastTime = m_time;
+}
+
+units::radians_per_second_t Flywheel::ThrottleToReference(double throttle) {
+    // 1. Remap input from [1..-1] to [0..1]
+    // 2. Rescale that to [0..kMaxAngularVelocity]
+    // 3. Round to the nearest radian per second
+    return units::math::round((1.0 - throttle) / 2.0 *
+                              FlywheelController::kMaxAngularVelocity);
 }
