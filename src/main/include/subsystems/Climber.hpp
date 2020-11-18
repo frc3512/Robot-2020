@@ -1,11 +1,14 @@
-// Copyright (c) 2020 FRC Team 3512. All Rights Reserved.
+// Copyright (c) 2020-2021 FRC Team 3512. All Rights Reserved.
 
 #pragma once
 
 #include <frc/Solenoid.h>
+#include <frc/simulation/LinearSystemSim.h>
+#include <frc/system/plant/LinearSystemId.h>
 #include <networktables/NetworkTableEntry.h>
 #include <networktables/NetworkTableInstance.h>
 #include <units/length.h>
+#include <units/voltage.h>
 
 #include "Constants.hpp"
 #include "rev/CANEncoder.hpp"
@@ -35,6 +38,21 @@ public:
      */
     units::meter_t GetElevatorPosition();
 
+    /**
+     * Returns true if encoder has passed top limit.
+     */
+    bool HasPassedTopLimit();
+
+    /**
+     * Returns true if encoder has passed bottom limit.
+     */
+    bool HasPassedBottomLimit();
+
+    /**
+     * Returns the voltage applied to elevator motor.
+     */
+    units::volt_t GetElevatorMotorOutput() const;
+
     void RobotPeriodic() override;
 
     void TeleopPeriodic() override;
@@ -57,6 +75,11 @@ private:
     nt::NetworkTableInstance m_inst = nt::NetworkTableInstance::GetDefault();
     nt::NetworkTableEntry m_elevatorEncoderEntry =
         m_inst.GetEntry("/Diagnostics/Climber/Elevator encoder");
+
+    // Simulation variables
+    frc::sim::LinearSystemSim<2, 1, 1> m_elevatorSim{
+        frc::LinearSystemId::ElevatorSystem(frc::DCMotor::NEO(), 4.5_kg,
+                                            0.86_in, 20.0)};
 
     /**
      * Sets the traverser speed.

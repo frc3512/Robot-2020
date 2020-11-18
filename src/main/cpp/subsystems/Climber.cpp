@@ -1,14 +1,18 @@
-// Copyright (c) 2020 FRC Team 3512. All Rights Reserved.
+// Copyright (c) 2020-2021 FRC Team 3512. All Rights Reserved.
 
 #include "subsystems/Climber.hpp"
 
 #include <cmath>
 
 #include <frc/Joystick.h>
+#include <frc/RobotBase.h>
+#include <frc/RobotController.h>
+#include <frc/StateSpaceUtil.h>
 #include <wpi/MathExtras.h>
 #include <wpi/math>
 
 #include "CANSparkMaxUtil.hpp"
+#include "Constants.hpp"
 #include "subsystems/Turret.hpp"
 
 using namespace frc3512;
@@ -23,13 +27,36 @@ Climber::Climber(Turret& turret) : m_turret{turret} {
 units::meter_t Climber::GetElevatorPosition() {
     constexpr double kG = 1.0 / 20.0;  // Gear ratio
 
-    double rotations = -m_elevatorEncoder.GetPosition();
-    return units::meter_t{0.04381 * wpi::math::pi * kG * rotations /
-                          (1.0 + 0.014983 * wpi::math::pi * kG * rotations)};
+    if constexpr (frc::RobotBase::IsSimulation()) {
+        return units::meter_t{m_elevatorSim.GetOutput(0)};
+    } else {
+        double rotations = -m_elevatorEncoder.GetPosition();
+        return units::meter_t{
+            0.04381 * wpi::math::pi * kG * rotations /
+            (1.0 + 0.014983 * wpi::math::pi * kG * rotations)};
+    }
+}
+
+bool Climber::HasPassedTopLimit() {
+    // Top of travel is 52.75 inches IRL
+    return GetElevatorPosition() > 1.1129_m;
+}
+
+bool Climber::HasPassedBottomLimit() { return GetElevatorPosition() < 0_m; }
+
+units::volt_t Climber::GetElevatorMotorOutput() const {
+    return units::volt_t{-m_elevator.Get()};
 }
 
 void Climber::RobotPeriodic() {
     m_elevatorEncoderEntry.SetDouble(GetElevatorPosition().to<double>());
+
+    if constexpr (frc::RobotBase::IsSimulation()) {
+        m_elevatorSim.SetInput(frc::MakeMatrix<1, 1>(
+            -m_elevator.Get() * frc::RobotController::GetInputVoltage()));
+
+        m_elevatorSim.Update(20_ms);
+    }
 }
 
 void Climber::TeleopPeriodic() {
@@ -39,7 +66,8 @@ void Climber::TeleopPeriodic() {
     // Climber traverser
     SetTraverser(appendageStick2.GetX());
 
-    if (appendageStick1.GetRawButton(1) && appendageStick1.GetY()) {
+    if (appendageStick1.GetRawButton(1) &&
+        std::abs(appendageStick1.GetY()) > 0.02) {
         // Move the turret out of the way of the climber and set new soft limit.
         // Also, disable auto-aim.
         m_turret.SetControlMode(TurretController::ControlMode::kClosedLoop);
@@ -52,8 +80,7 @@ void Climber::TeleopPeriodic() {
 
     // Make sure the turret is out of the way of the climber elevator before
     // moving it
-    if (appendageStick1.GetRawButton(1) && !m_turret.HasPassedCWLimit() &&
-        !m_turret.HasPassedCCWLimit()) {
+    if (appendageStick1.GetRawButton(1) && !m_turret.HasPassedCWLimit()) {
         SetElevator(-appendageStick1.GetY());
     } else {
         SetElevator(0.0);
@@ -101,10 +128,11 @@ void Climber::SetTraverser(double speed) {
 }
 
 void Climber::SetElevator(double speed) {
-    // Checks if the elevator's position is within the limits
-    // Top of travel is 52.75 inches IRL
-    if ((speed > 0.02 && GetElevatorPosition() <= 1.1129_m) ||
-        (speed < -0.02 && GetElevatorPosition() >= 0_m)) {
+    if (speed > 0.02 && !HasPassedTopLimit()) {
+        // Unlock climber if it's being commanded to move
+        m_pancake.Set(true);
+        m_elevator.Set(-speed);
+    } else if (speed < -0.02 && !HasPassedBottomLimit()) {
         // Unlock climber if it's being commanded to move
         m_pancake.Set(true);
         m_elevator.Set(-speed);
