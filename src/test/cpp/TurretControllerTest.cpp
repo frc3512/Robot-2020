@@ -19,15 +19,10 @@ TEST(TurretControllerTest, CalculateHeading) {
     frc3512::TurretController controller;
     controller.Enable();
 
-    frc::Translation2d targetTranslationInGlobal{4_m, 2_m};
-    frc::Translation2d turretTranslationInGlobal{2_m, 0_m};
-
-    auto theta = controller.CalculateHeading(targetTranslationInGlobal,
-                                             turretTranslationInGlobal);
-
     // Target is pi/4 radians CCW if robot is facing at 0 radians with the
-    // turret and target locations above
-    EXPECT_EQ(theta, units::radian_t{wpi::math::pi / 4.0});
+    // following target and turret locations
+    EXPECT_EQ(controller.CalculateHeading({4_m, 2_m}, {2_m, 0_m}),
+              units::radian_t{wpi::math::pi / 4.0});
 }
 
 TEST(TurretControllerTest, CalculateAngularVelocity) {
@@ -56,23 +51,22 @@ TEST(TurretControllerTest, CalculateAngularVelocity) {
     EXPECT_EQ(omega, 0.5_rad_per_s);
 }
 
-TEST(TurretControllerTest, CalculateHeadingAdjustment) {
-    constexpr auto kDrivetrainSpeed = 3.5_mps;
+void VerifyHeadingAdjustment(units::meters_per_second_t drivetrainSpeed,
+                             units::radian_t drivetrainHeading,
+                             frc::Translation2d turretOffsetFromTarget) {
     constexpr auto kBallSpeed = 15_mps;
 
-    frc::Translation2d targetPosition{TargetModel::kCenter.X(),
-                                      TargetModel::kCenter.Y()};
-    auto turretPosition = targetPosition - frc::Translation2d{2_m, 0_m};
+    const frc::Translation2d kTargetPosition{TargetModel::kCenter.X(),
+                                             TargetModel::kCenter.Y()};
+    auto turretPosition = kTargetPosition - turretOffsetFromTarget;
 
-    constexpr units::radian_t kDrivetrainHeading{wpi::math::pi / 2.0};
-
-    frc::Velocity2d drivetrainVelocity{kDrivetrainSpeed,
-                                       frc::Rotation2d{kDrivetrainHeading}};
+    frc::Velocity2d drivetrainVelocity{drivetrainSpeed,
+                                       frc::Rotation2d{drivetrainHeading}};
 
     auto flywheelAngularSpeed = kBallSpeed / 4_in * 2.0 * 1_rad;
     auto ballHeading =
-        units::math::atan2(targetPosition.Y() - turretPosition.Y(),
-                           targetPosition.X() - turretPosition.X()) +
+        units::math::atan2(kTargetPosition.Y() - turretPosition.Y(),
+                           kTargetPosition.X() - turretPosition.X()) +
         frc3512::TurretController::CalculateHeadingAdjustment(
             turretPosition, drivetrainVelocity, flywheelAngularSpeed);
 
@@ -81,10 +75,17 @@ TEST(TurretControllerTest, CalculateHeadingAdjustment) {
     // Verify drivetrain velocity vector + ball velocity vector intersects
     // target
     auto sum = drivetrainVelocity + ballVelocity;
-    auto targetDisplacement = targetPosition - turretPosition;
+    auto targetDisplacement = kTargetPosition - turretPosition;
     EXPECT_EQ(
         units::math::atan2(sum.Y(), sum.X()),
         units::math::atan2(targetDisplacement.Y(), targetDisplacement.X()));
+}
+
+TEST(TurretControllerTest, CalculateHeadingAdjustment) {
+    VerifyHeadingAdjustment(3.5_mps, units::radian_t{wpi::math::pi / 2.0},
+                            {-2_m, 0_m});
+    VerifyHeadingAdjustment(3.5_mps, units::radian_t{wpi::math::pi},
+                            {-2_m, 1_m});
 }
 
 TEST(TurretControllerTest, ProperDistanceFromTarget) {

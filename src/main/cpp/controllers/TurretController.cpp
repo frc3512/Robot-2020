@@ -94,8 +94,8 @@ Eigen::Matrix<double, 1, 1> TurretController::Update(
 
     // Calculate next drivetrain and turret pose in global frame
     frc::Transform2d drivetrainToTurretFrame{
-        frc::Pose2d(), frc::Pose2d(kDrivetrainToTurretFrame.Translation(),
-                                   m_drivetrainNextPoseInGlobal.Rotation())};
+        frc::Pose2d{}, frc::Pose2d{kDrivetrainToTurretFrame.Translation(),
+                                   m_drivetrainNextPoseInGlobal.Rotation()}};
     m_turretNextPoseInGlobal =
         m_drivetrainNextPoseInGlobal.TransformBy(drivetrainToTurretFrame);
 
@@ -170,8 +170,8 @@ frc::Pose2d TurretController::GetNextPose() const {
     return m_turretNextPoseInGlobal;
 }
 
-units::radian_t TurretController::CalculateHeading(frc::Translation2d target,
-                                                   frc::Translation2d turret) {
+units::radian_t TurretController::CalculateHeading(
+    frc::Translation2d targetInGlobal, frc::Translation2d turretInGlobal) {
     units::meters_per_second_t drivetrainSpeed{
         (m_drivetrainLeftVelocity + m_drivetrainRightVelocity) / 2.0};
     units::radian_t drivetrainHeading =
@@ -180,9 +180,9 @@ units::radian_t TurretController::CalculateHeading(frc::Translation2d target,
     frc::Velocity2d drivetrainVelocity{drivetrainSpeed,
                                        frc::Rotation2d{drivetrainHeading}};
 
-    return units::math::atan2(target.Y() - turret.Y(),
-                              target.X() - turret.X()) +
-           CalculateHeadingAdjustment(turret, drivetrainVelocity,
+    return units::math::atan2(targetInGlobal.Y() - turretInGlobal.Y(),
+                              targetInGlobal.X() - turretInGlobal.X()) +
+           CalculateHeadingAdjustment(turretInGlobal, drivetrainVelocity,
                                       650_rad_per_s);
 }
 

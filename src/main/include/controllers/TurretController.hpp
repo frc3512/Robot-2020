@@ -134,11 +134,13 @@ public:
      * Returns the angle the target must rotate to in the global frame to point
      * at the target.
      *
-     * @param target Next timestep's X and Y of the target in the global frame
-     * @param turret Next timestep's X and Y of the turret in the global frame
+     * @param targetInGlobal Next timestep's X and Y of the target in the
+     *                       global frame.
+     * @param turretInGlobal Next timestep's X and Y of the turret in the global
+     *                       frame.
      */
-    units::radian_t CalculateHeading(frc::Translation2d target,
-                                     frc::Translation2d turret);
+    units::radian_t CalculateHeading(frc::Translation2d targetInGlobal,
+                                     frc::Translation2d turretInGlobal);
 
     /**
      * Returns the heading adjustment needed to hit a moving target.
