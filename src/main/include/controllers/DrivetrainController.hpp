@@ -11,7 +11,7 @@
 #include <frc/estimator/ExtendedKalmanFilter.h>
 #include <frc/estimator/KalmanFilterLatencyCompensator.h>
 #include <frc/geometry/Pose2d.h>
-#include <frc/system/plant/LinearSystemId.h>
+#include <frc/system/LinearSystem.h>
 #include <frc/trajectory/Trajectory.h>
 #include <frc/trajectory/TrajectoryConfig.h>
 #include <frc2/Timer.h>

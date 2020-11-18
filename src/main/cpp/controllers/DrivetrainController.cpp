@@ -165,17 +165,15 @@ Eigen::Matrix<double, 2, 1> DrivetrainController::Update(
 }
 
 frc::LinearSystem<2, 2, 2> DrivetrainController::GetPlant() const {
-    return frc::LinearSystemId::IdentifyDrivetrainSystem(
-        kLinearV.to<double>(), kLinearA.to<double>(), kAngularV.to<double>(),
-        kAngularA.to<double>());
+    return frc::LinearSystemId::IdentifyDrivetrainSystem(kLinearV, kLinearA,
+                                                         kAngularV, kAngularA);
 }
 
 frc::TrajectoryConfig DrivetrainController::MakeTrajectoryConfig() const {
     frc::TrajectoryConfig config{kMaxV, kMaxA - 16.5_mps_sq};
 
     auto plant = frc::LinearSystemId::IdentifyDrivetrainSystem(
-        kLinearV.to<double>(), kLinearA.to<double>(), kAngularV.to<double>(),
-        kAngularA.to<double>());
+        kLinearV, kLinearA, kAngularV, kAngularA);
     frc::DifferentialDriveKinematics kinematics{kWidth};
     frc::DifferentialDriveVelocitySystemConstraint systemConstraint{
         plant, kinematics, 8_V};
@@ -262,24 +260,8 @@ Eigen::Matrix<double, 2, 1> DrivetrainController::Controller(
 Eigen::Matrix<double, 7, 1> DrivetrainController::Dynamics(
     const Eigen::Matrix<double, 7, 1>& x,
     const Eigen::Matrix<double, 2, 1>& u) {
-    // constexpr auto motors = frc::DCMotor::MiniCIM(3);
-
-    // constexpr units::dimensionless_t Glow = 15.32;  // Low gear ratio
-    // constexpr units::dimensionless_t Ghigh = 7.08;  // High gear ratio
-    // constexpr auto r = 0.0746125_m;                 // Wheel radius
-    // constexpr auto m = 63.503_kg;                   // Robot mass
-    // constexpr auto J = 5.6_kg_sq_m;                 // Robot moment of
-    // inertia
-
-    // constexpr auto C1 =
-    //     -1.0 * Ghigh * Ghigh * motors.Kt / (motors.Kv * motors.R * r * r);
-    // constexpr auto C2 = Ghigh * motors.Kt / (motors.R * r);
-    // constexpr auto k1 = (1 / m + rb * rb / J);
-    // constexpr auto k2 = (1 / m - rb * rb / J);
-
     auto plant = frc::LinearSystemId::IdentifyDrivetrainSystem(
-        kLinearV.to<double>(), kLinearA.to<double>(), kAngularV.to<double>(),
-        kAngularA.to<double>());
+        kLinearV, kLinearA, kAngularV, kAngularA);
 
     Eigen::Matrix<double, 4, 2> B;
     B.block<2, 2>(0, 0) = plant.B();

@@ -93,8 +93,7 @@ private:
     static constexpr auto kAngularVelocityTolerance = 20.0_rad_per_s;
 
     frc::LinearSystem<1, 1, 1> m_plant =
-        frc::LinearSystemId::IdentifyVelocitySystem(kV.to<double>(),
-                                                    kA.to<double>());
+        frc::LinearSystemId::IdentifyVelocitySystem<units::radian>(kV, kA);
     frc::LinearQuadraticRegulator<1, 1> m_lqr{
         m_plant, {80.0}, {12.0}, Constants::kDt};
     frc::LinearPlantInversionFeedforward<1, 1> m_ff{m_plant, Constants::kDt};

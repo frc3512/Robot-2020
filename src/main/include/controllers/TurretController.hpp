@@ -180,8 +180,7 @@ private:
     frc::TrapezoidProfile<units::radians>::State m_profiledReference;
 
     frc::LinearSystem<2, 1, 1> m_plant =
-        frc::LinearSystemId::IdentifyPositionSystem(kV.to<double>(),
-                                                    kA.to<double>());
+        frc::LinearSystemId::IdentifyPositionSystem<units::radian>(kV, kA);
 
     frc::LinearQuadraticRegulator<2, 1> m_lqr{
         m_plant, {0.01245, 0.109726}, {12.0}, Constants::kDt};

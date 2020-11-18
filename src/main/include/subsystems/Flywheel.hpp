@@ -169,9 +169,8 @@ private:
     frc::sim::FlywheelSim m_flywheelSim{m_controller.GetPlant(),
                                         frc::DCMotor::NEO(2), 1.0 / 2.0};
     frc::LinearSystem<2, 1, 1> m_flywheelPosition =
-        frc::LinearSystemId::IdentifyPositionSystem(
-            FlywheelController::kV.to<double>(),
-            FlywheelController::kA.to<double>());
+        frc::LinearSystemId::IdentifyPositionSystem<units::radian>(
+            FlywheelController::kV, FlywheelController::kA);
     frc::sim::LinearSystemSim<2, 1, 1> m_flywheelPositionSim{
         m_flywheelPosition};
     frc::sim::EncoderSim m_encoderSim{m_encoder};
