@@ -49,7 +49,7 @@ void TurretController::SetReferences(units::radian_t angle,
 bool TurretController::AtReferences() const { return m_atReferences; }
 
 bool TurretController::AtGoal() const {
-    frc::TrapezoidProfile<units::radians>::State ref{
+    frc::TrapezoidProfile<units::radian>::State ref{
         units::radian_t{m_nextR(0)}, units::radians_per_second_t{m_nextR(1)}};
     return m_goal == ref && m_atReferences;
 }
@@ -123,11 +123,11 @@ Eigen::Matrix<double, 1, 1> TurretController::Update(
     SetGoal(turretDesiredHeadingInTurret, turretDesiredAngularVelocity);
 
     // Calculate profiled references to the goal
-    frc::TrapezoidProfile<units::radians>::State references = {
+    frc::TrapezoidProfile<units::radian>::State references = {
         units::radian_t{m_nextR(State::kAngle)},
         units::radians_per_second_t{m_nextR(State::kAngularVelocity)}};
-    frc::TrapezoidProfile<units::radians> profile{m_constraints, m_goal,
-                                                  references};
+    frc::TrapezoidProfile<units::radian> profile{m_constraints, m_goal,
+                                                 references};
     auto profiledReference = profile.Calculate(Constants::kDt);
     SetReferences(profiledReference.position, profiledReference.velocity);
 

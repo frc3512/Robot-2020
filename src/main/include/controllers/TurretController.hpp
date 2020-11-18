@@ -174,10 +174,10 @@ private:
                                          TargetModel::kCenter.Y(),
                                          units::radian_t{wpi::math::pi}};
 
-    frc::TrapezoidProfile<units::radians>::State m_goal;
-    frc::TrapezoidProfile<units::radians>::Constraints m_constraints{kMaxV,
-                                                                     kMaxA};
-    frc::TrapezoidProfile<units::radians>::State m_profiledReference;
+    frc::TrapezoidProfile<units::radian>::State m_goal;
+    frc::TrapezoidProfile<units::radian>::Constraints m_constraints{kMaxV,
+                                                                    kMaxA};
+    frc::TrapezoidProfile<units::radian>::State m_profiledReference;
 
     frc::LinearSystem<2, 1, 1> m_plant =
         frc::LinearSystemId::IdentifyPositionSystem<units::radian>(kV, kA);
