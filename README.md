@@ -56,9 +56,14 @@ implementing new features or refactoring existing functionality.
 
 ### Simulation GUI
 
-* `./gradlew simulation`
+* `./gradlew simulate`
 
 This runs a debug build of the robot code in the simulation GUI.
+
+* `./buildscripts/simulate.sh`
+
+This runs a debug build of the robot code in the simulation GUI, but the console
+output is printed to the shell instead of squelched.
 
 ### Documentation
 
@@ -78,7 +83,7 @@ prompt appears, enter `run` to start the robot program. It may take a while due
 to the debugger having to load a lot of symbols. If the robot code crashes,
 enter `bt` to get a backtrace.
 
-* `./buildscripts/gdb-simulation.sh`
+* `./buildscripts/gdb-simulate.sh`
 
 This runs a debug desktop build of the robot code and simulation GUI in GDB.
 
