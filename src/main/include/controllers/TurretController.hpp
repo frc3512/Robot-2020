@@ -106,6 +106,11 @@ public:
      */
     void SetDrivetrainStates(const Eigen::Matrix<double, 7, 1>& x);
 
+    /**
+     * Sets the current flywheel angular velocity reference.
+     */
+    void SetFlywheelReferences(units::radians_per_second_t r);
+
     const Eigen::Matrix<double, 2, 1>& GetReferences() const override;
 
     const Eigen::Matrix<double, 2, 1>& GetStates() const override;
@@ -124,11 +129,6 @@ public:
      * Returns the turret plant.
      */
     const frc::LinearSystem<2, 1, 1>& GetPlant() const;
-
-    /**
-     * Returns the projected pose of the turret.
-     */
-    frc::Pose2d GetNextPose() const;
 
     /**
      * Returns the angle the target must rotate to in the global frame to point
@@ -166,6 +166,15 @@ public:
     units::radians_per_second_t CalculateAngularVelocity(frc::Velocity2d v,
                                                          frc::Translation2d r);
 
+    /**
+     * Transforms drivetrain pose in global frame to turret pose in global
+     * frame.
+     *
+     * @param drivetrainInGlobal Drivetrain pose in global frame.
+     */
+    static frc::Pose2d DrivetrainToTurretInGlobal(
+        const frc::Pose2d& drivetrainInGlobal);
+
 private:
     static constexpr auto kV = 4.42_V / 1_rad_per_s;
     static constexpr auto kA = 0.14_V / 1_rad_per_s_sq;
@@ -201,7 +210,8 @@ private:
     frc::Pose2d m_drivetrainNextPoseInGlobal;
     units::meters_per_second_t m_drivetrainLeftVelocity = 0_mps;
     units::meters_per_second_t m_drivetrainRightVelocity = 0_mps;
-    frc::Pose2d m_turretNextPoseInGlobal;
+
+    units::radians_per_second_t m_flywheelAngularVelocityRef = 0_rad_per_s;
 };
 
 }  // namespace frc3512

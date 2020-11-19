@@ -186,8 +186,8 @@ private:
     // controllers run in.
     Vision m_vision;
     Drivetrain m_drivetrain;
-    Turret m_turret{m_vision, m_drivetrain};
-    Flywheel m_flywheel{m_turret};
+    Flywheel m_flywheel{m_drivetrain};
+    Turret m_turret{m_vision, m_drivetrain, m_flywheel};
     Intake m_intake{m_flywheel};
     Climber m_climber;
 

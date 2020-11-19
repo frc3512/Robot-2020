@@ -8,13 +8,14 @@
 
 #include "CANSparkMaxUtil.hpp"
 #include "subsystems/Drivetrain.hpp"
+#include "subsystems/Flywheel.hpp"
 #include "subsystems/Vision.hpp"
 
 using namespace frc3512;
 using namespace frc3512::Constants::Robot;
 
-Turret::Turret(Vision& vision, Drivetrain& drivetrain)
-    : m_vision(vision), m_drivetrain(drivetrain) {
+Turret::Turret(Vision& vision, Drivetrain& drivetrain, Flywheel& flywheel)
+    : m_vision(vision), m_drivetrain(drivetrain), m_flywheel(flywheel) {
     SetCANSparkMaxBusUsage(m_motor, Usage::kMinimal);
 
     // Ensures CANSparkMax::Get() returns an initialized value
@@ -63,8 +64,6 @@ bool Turret::HasPassedCCWLimit() const {
 bool Turret::HasPassedCWLimit() const {
     return GetAngle() < TurretController::kCWLimit;
 }
-
-frc::Pose2d Turret::GetNextPose() const { return m_controller.GetNextPose(); }
 
 bool Turret::AtGoal() const { return m_controller.AtGoal(); }
 
@@ -115,6 +114,8 @@ void Turret::TestPeriodic() {
 
 void Turret::ControllerPeriodic() {
     m_controller.SetDrivetrainStates(m_drivetrain.GetStates());
+    m_controller.SetFlywheelReferences(
+        m_flywheel.GetReferenceForPose(m_drivetrain.GetPose()));
 
     Eigen::Matrix<double, 1, 1> y;
     y << GetAngle().to<double>();

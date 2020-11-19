@@ -6,11 +6,12 @@
 #include <frc/RobotController.h>
 
 #include "CANSparkMaxUtil.hpp"
-#include "subsystems/Turret.hpp"
+#include "controllers/TurretController.hpp"
+#include "subsystems/Drivetrain.hpp"
 
 using namespace frc3512;
 
-Flywheel::Flywheel(Turret& turret) : m_turret(turret) {
+Flywheel::Flywheel(Drivetrain& drivetrain) : m_drivetrain(drivetrain) {
     SetCANSparkMaxBusUsage(m_leftGrbx, Usage::kMinimal);
     SetCANSparkMaxBusUsage(m_rightGrbx, Usage::kMinimal);
 
@@ -22,8 +23,6 @@ Flywheel::Flywheel(Turret& turret) : m_turret(turret) {
     m_encoder.SetSamplesToAverage(5);
     m_leftGrbx.SetInverted(false);
     m_rightGrbx.SetInverted(false);
-    SetGoal(0_rad_per_s);
-    Reset();
 
     // TODO: add more entries to the look up table
     m_table.Insert(125_in, 450_rad_per_s);
@@ -31,6 +30,9 @@ Flywheel::Flywheel(Turret& turret) : m_turret(turret) {
     m_table.Insert(268_in, 525_rad_per_s);
     m_table.Insert(312_in, 550_rad_per_s);
     m_table.Insert(326_in, 650_rad_per_s);
+
+    Reset();
+    SetGoal(0_rad_per_s);
 }
 
 void Flywheel::SetVoltage(units::volt_t voltage) {
@@ -56,12 +58,7 @@ units::radians_per_second_t Flywheel::GetGoal() const {
 
 bool Flywheel::AtGoal() { return m_controller.AtGoal(); }
 
-void Flywheel::Shoot() {
-    auto turretPose = m_turret.GetNextPose();
-    auto angularVelocity = m_table[turretPose.Translation().Distance(
-        kTargetPoseInGlobal.Translation())];
-    SetGoal(angularVelocity);
-}
+void Flywheel::Shoot() { SetGoal(GetReferenceForPose(m_drivetrain.GetPose())); }
 
 bool Flywheel::IsOn() const { return GetGoal() > 0_rad_per_s; }
 
@@ -76,6 +73,14 @@ void Flywheel::Reset() {
 
 units::ampere_t Flywheel::GetCurrentDraw() const {
     return m_flywheelSim.GetCurrentDraw();
+}
+
+units::radians_per_second_t Flywheel::GetReferenceForPose(
+    const frc::Pose2d& drivetrainPose) const {
+    auto turretPose =
+        TurretController::DrivetrainToTurretInGlobal(drivetrainPose);
+    return m_table[turretPose.Translation().Distance(
+        kTargetPoseInGlobal.Translation())];
 }
 
 void Flywheel::RobotPeriodic() {

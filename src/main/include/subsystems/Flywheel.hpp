@@ -28,14 +28,14 @@
 
 namespace frc3512 {
 
-class Turret;
+class Drivetrain;
 
 /**
  * Flywheel subsystem.
  */
 class Flywheel : public SubsystemBase {
 public:
-    explicit Flywheel(Turret& turret);
+    explicit Flywheel(Drivetrain& drivetrain);
 
     Flywheel(Flywheel&&) = default;
     Flywheel& operator=(Flywheel&&) = default;
@@ -106,6 +106,15 @@ public:
      */
     units::ampere_t GetCurrentDraw() const;
 
+    /**
+     * Returns angular velocity reference that will hit the target at a given
+     * drivetrain pose.
+     *
+     * @param drivetrainPose Drivetrain pose.
+     */
+    units::radians_per_second_t GetReferenceForPose(
+        const frc::Pose2d& drivetrainPose) const;
+
     void DisabledInit() override {
         m_controller.Disable();
         m_controller.SetClosedLoop(false);
@@ -150,7 +159,7 @@ private:
     frc::LinearFilter<units::radians_per_second_t> m_velocityFilter =
         frc::LinearFilter<units::radians_per_second_t>::MovingAverage(4);
 
-    Turret& m_turret;
+    Drivetrain& m_drivetrain;
 
     nt::NetworkTableInstance m_inst = nt::NetworkTableInstance::GetDefault();
     nt::NetworkTableEntry m_angularVelocityRefEntry =

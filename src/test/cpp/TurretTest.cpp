@@ -10,6 +10,7 @@
 #include "CSVTestUtil.hpp"
 #include "Constants.hpp"
 #include "subsystems/Drivetrain.hpp"
+#include "subsystems/Flywheel.hpp"
 #include "subsystems/Turret.hpp"
 #include "subsystems/Vision.hpp"
 
@@ -36,7 +37,8 @@ TEST_F(TurretTest, ConfigSpaceLimits) {
     {
         frc3512::Vision vision;
         frc3512::Drivetrain drivetrain;
-        frc3512::Turret turret{vision, drivetrain};
+        frc3512::Flywheel flywheel{drivetrain};
+        frc3512::Turret turret{vision, drivetrain, flywheel};
         turret.SetManualOverride(true);
 
         frc3512::SubsystemBase::RunAllTeleopInit();
@@ -104,7 +106,8 @@ TEST_F(TurretTest, ReachesReferenceStaticDrivetrain) {
     {
         frc3512::Vision vision;
         frc3512::Drivetrain drivetrain;
-        frc3512::Turret turret{vision, drivetrain};
+        frc3512::Flywheel flywheel{drivetrain};
+        frc3512::Turret turret{vision, drivetrain, flywheel};
         turret.SetManualOverride(false);
 
         frc3512::SubsystemBase::RunAllAutonomousInit();
@@ -134,7 +137,8 @@ TEST_F(TurretTest, ReachesReferenceSCurveDrivetrain) {
     {
         frc3512::Vision vision;
         frc3512::Drivetrain drivetrain;
-        frc3512::Turret turret{vision, drivetrain};
+        frc3512::Flywheel flywheel{drivetrain};
+        frc3512::Turret turret{vision, drivetrain, flywheel};
         turret.SetManualOverride(false);
 
         frc3512::SubsystemBase::RunAllAutonomousInit();
@@ -168,7 +172,8 @@ TEST_F(TurretTest, ReachesReferenceAutonDrivetrain) {
     {
         frc3512::Vision vision;
         frc3512::Drivetrain drivetrain;
-        frc3512::Turret turret{vision, drivetrain};
+        frc3512::Flywheel flywheel{drivetrain};
+        frc3512::Turret turret{vision, drivetrain, flywheel};
         turret.SetManualOverride(false);
 
         frc3512::SubsystemBase::RunAllAutonomousInit();

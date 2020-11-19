@@ -105,7 +105,8 @@ TEST(TurretControllerTest, ProperDistanceFromTarget) {
         Eigen::Matrix<double, 1, 1> y;
         y << 0.0;
         controller.UpdateAndLog(y);
-        auto turretPose = controller.GetNextPose();
+        auto turretPose = controller.DrivetrainToTurretInGlobal(frc::Pose2d{
+            kDrivetrainX, kDrivetrainY, units::radian_t{wpi::math::pi}});
 
         const frc::Pose2d kTargetPoseInGlobal{TargetModel::kCenter.X(),
                                               TargetModel::kCenter.Y(),

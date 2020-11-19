@@ -26,6 +26,7 @@ namespace frc3512 {
 
 class Vision;
 class Drivetrain;
+class Flywheel;
 
 /**
  * Turret subsystem.
@@ -36,7 +37,7 @@ class Turret : public SubsystemBase {
 public:
     enum class Direction { kNone, kCCW, kCW };
 
-    explicit Turret(Vision& vision, Drivetrain& drivetrain);
+    explicit Turret(Vision& vision, Drivetrain& drivetrain, Flywheel& flywheel);
 
     Turret(Turret&&) = default;
     Turret& operator=(Turret&&) = default;
@@ -76,11 +77,6 @@ public:
      * Returns true if the encoder has passed the clockwise limit.
      */
     bool HasPassedCWLimit() const;
-
-    /**
-     * Returns the projected pose of the turret.
-     */
-    frc::Pose2d GetNextPose() const;
 
     /**
      * Returns true if the turret has reached the goal heading.
@@ -131,6 +127,7 @@ private:
 
     Vision& m_vision;
     Drivetrain& m_drivetrain;
+    Flywheel& m_flywheel;
 
     // TODO: Let the turret move on its own once the turret encoder is trusted
     // more

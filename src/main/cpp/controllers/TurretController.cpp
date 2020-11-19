@@ -67,6 +67,10 @@ void TurretController::SetDrivetrainStates(
         units::meters_per_second_t{x(State::kRightVelocity)};
 }
 
+void TurretController::SetFlywheelReferences(units::radians_per_second_t r) {
+    m_flywheelAngularVelocityRef = r;
+}
+
 const Eigen::Matrix<double, 2, 1>& TurretController::GetReferences() const {
     return m_r;
 }
@@ -93,16 +97,12 @@ Eigen::Matrix<double, 1, 1> TurretController::Update(
     Eigen::Matrix<double, 1, 1> u;
 
     // Calculate next drivetrain and turret pose in global frame
-    frc::Transform2d drivetrainToTurretFrame{
-        frc::Pose2d{}, frc::Pose2d{kDrivetrainToTurretFrame.Translation(),
-                                   m_drivetrainNextPoseInGlobal.Rotation()}};
-    m_turretNextPoseInGlobal =
-        m_drivetrainNextPoseInGlobal.TransformBy(drivetrainToTurretFrame);
+    auto turretNextPoseInGlobal =
+        DrivetrainToTurretInGlobal(m_drivetrainNextPoseInGlobal);
 
     // Find angle reference for this timestep
-    auto turretHeadingForTargetInGlobal =
-        CalculateHeading(targetPoseInGlobal.Translation(),
-                         m_turretNextPoseInGlobal.Translation());
+    auto turretHeadingForTargetInGlobal = CalculateHeading(
+        targetPoseInGlobal.Translation(), turretNextPoseInGlobal.Translation());
     auto turretDesiredHeadingInDrivetrain =
         turretHeadingForTargetInGlobal -
         m_drivetrainNextPoseInGlobal.Rotation().Radians();
@@ -118,7 +118,7 @@ Eigen::Matrix<double, 1, 1> TurretController::Update(
 
     auto turretDesiredAngularVelocity = CalculateAngularVelocity(
         drivetrainVelocity, targetPoseInGlobal.Translation() -
-                                m_turretNextPoseInGlobal.Translation());
+                                turretNextPoseInGlobal.Translation());
 
     SetGoal(turretDesiredHeadingInTurret, turretDesiredAngularVelocity);
 
@@ -166,10 +166,6 @@ const frc::LinearSystem<2, 1, 1>& TurretController::GetPlant() const {
     return m_plant;
 }
 
-frc::Pose2d TurretController::GetNextPose() const {
-    return m_turretNextPoseInGlobal;
-}
-
 units::radian_t TurretController::CalculateHeading(
     frc::Translation2d targetInGlobal, frc::Translation2d turretInGlobal) {
     units::meters_per_second_t drivetrainSpeed{
@@ -180,10 +176,17 @@ units::radian_t TurretController::CalculateHeading(
     frc::Velocity2d drivetrainVelocity{drivetrainSpeed,
                                        frc::Rotation2d{drivetrainHeading}};
 
+    // Subtract 50 rad/s from the nominal flywheel angular velocity because
+    // that's roughly how much the flywheel slows down before the ball exits the
+    // shooter.
+    auto adjustment = CalculateHeadingAdjustment(
+        turretInGlobal, drivetrainVelocity,
+        units::math::max(0_rad_per_s,
+                         m_flywheelAngularVelocityRef - 50_rad_per_s));
+
     return units::math::atan2(targetInGlobal.Y() - turretInGlobal.Y(),
                               targetInGlobal.X() - turretInGlobal.X()) +
-           CalculateHeadingAdjustment(turretInGlobal, drivetrainVelocity,
-                                      650_rad_per_s);
+           adjustment;
 }
 
 units::radian_t TurretController::CalculateHeadingAdjustment(
@@ -191,6 +194,13 @@ units::radian_t TurretController::CalculateHeadingAdjustment(
     frc::Velocity2d drivetrainVelocity,
     units::radians_per_second_t flywheelAngularSpeed) {
     static constexpr auto kFlywheelRadius = 4_in;
+
+    // If flywheel isn't spinning, don't apply an adjustment because the
+    // algorithm below will divide by zero (the heading of a zero vector is
+    // undefined).
+    if (flywheelAngularSpeed == 0_rad_per_s) {
+        return 0_rad;
+    }
 
     // +y
     // ^
@@ -270,4 +280,13 @@ units::radians_per_second_t TurretController::CalculateAngularVelocity(
     // |w| = |(v - r * (v . r / (r . r))| / |r|
     return units::radians_per_second_t{
         ((v2 - r * (Dot(v2, r) / Dot(r, r))).Norm() / r.Norm()).to<double>()};
+}
+
+frc::Pose2d TurretController::DrivetrainToTurretInGlobal(
+    const frc::Pose2d& drivetrainInGlobal) {
+    // Calculate next drivetrain and turret pose in global frame
+    frc::Transform2d drivetrainToTurretFrame{
+        frc::Pose2d{}, frc::Pose2d{kDrivetrainToTurretFrame.Translation(),
+                                   drivetrainInGlobal.Rotation()}};
+    return drivetrainInGlobal.TransformBy(drivetrainToTurretFrame);
 }

@@ -7,7 +7,6 @@
 #include "CSVTestUtil.hpp"
 #include "subsystems/Drivetrain.hpp"
 #include "subsystems/Flywheel.hpp"
-#include "subsystems/Turret.hpp"
 #include "subsystems/Vision.hpp"
 
 namespace {
@@ -23,8 +22,7 @@ TEST_F(FlywheelTest, ReachesGoal) {
     {
         frc3512::Vision vision;
         frc3512::Drivetrain drivetrain;
-        frc3512::Turret turret{vision, drivetrain};
-        frc3512::Flywheel flywheel{turret};
+        frc3512::Flywheel flywheel{drivetrain};
 
         frc3512::SubsystemBase::RunAllTeleopInit();
         frc::Notifier controllerPeriodic{[&] {
