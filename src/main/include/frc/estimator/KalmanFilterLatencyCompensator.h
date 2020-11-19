@@ -95,12 +95,18 @@ class KalmanFilterLatencyCompensator {
     // equal to the vision pose timestamp. We will now find the entry which is
     // closest in time to the requested timestamp.
 
-    size_t indexOfClosestEntry =
-        units::math::abs(timestamp - m_pastObserverSnapshots[index - 1].first) <
-                units::math::abs(timestamp -
-                                 m_pastObserverSnapshots[index].first)
-            ? index - 1
-            : index;
+    size_t indexOfClosestEntry;
+    if (m_pastObserverSnapshots.size() == 1) {
+      indexOfClosestEntry = 0;
+    } else {
+      indexOfClosestEntry =
+          units::math::abs(timestamp -
+                           m_pastObserverSnapshots[index - 1].first) <
+                  units::math::abs(timestamp -
+                                   m_pastObserverSnapshots[index].first)
+              ? index - 1
+              : index;
+    }
 
     units::second_t lastTimestamp =
         m_pastObserverSnapshots[indexOfClosestEntry].first - nominalDt;
