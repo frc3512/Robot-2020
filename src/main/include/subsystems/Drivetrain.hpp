@@ -41,7 +41,6 @@ class DrivetrainController;
 class Drivetrain : public SubsystemBase {
 public:
     static constexpr units::meter_t kLength = 0.9398_m;
-    static constexpr units::meter_t kHalfLength = kLength / 2.0;
     static constexpr units::meter_t kMiddleOfRobotToIntake = 0.656_m;
 
     Drivetrain();

@@ -13,10 +13,13 @@ enum class State { kInit, kTrenchRun, kIdle };
 }  // namespace
 
 static State state;
+static State lastState;
 static frc2::Timer autonTimer;
 
+// Initial Pose - Right in line with the three balls in the Trench Run
 static const frc::Pose2d initialPose{12.89_m, 0.71_m,
                                      units::radian_t{wpi::math::pi}};
+// End Pose - Second ball in the Trench Run
 static const frc::Pose2d endPose{8.906_m, 0.71_m,
                                  units::radian_t{wpi::math::pi}};
 
@@ -26,6 +29,7 @@ void Robot::AutoRightSideIntakeInit() {
     m_drivetrain.Reset(initialPose);
 
     state = State::kInit;
+    lastState = State::kInit;
     autonTimer.Reset();
     autonTimer.Start();
 }
@@ -33,40 +37,44 @@ void Robot::AutoRightSideIntakeInit() {
 void Robot::AutoRightSideIntakePeriodic() {
     switch (state) {
         case State::kInit: {
-            // Add a constraint to slow down the drivetrain while it's
-            // approaching the balls
-            frc::Translation2d bottomLeftConstraint{9.5_m, initialPose.Y()};
-            frc::Translation2d topRightConstraint{endPose.X(), endPose.Y()};
-            frc::MaxVelocityConstraint velocityConstraint{1.5_mps};
-
-            // Make a trajectory config to add the rectangle constraint
-            auto config = m_drivetrain.MakeTrajectoryConfig();
-            config.AddConstraint(frc::RectangularRegionConstraint{
-                bottomLeftConstraint, topRightConstraint, velocityConstraint});
-
-            // Inital Pose - X: 12.91 m Y: 0.75 m Heading: pi rad
-            m_drivetrain.SetWaypoints(initialPose, {}, endPose, config);
-
             state = State::kTrenchRun;
             break;
         }
         case State::kTrenchRun: {
+            // Add a constraint to slow down the drivetrain while it's
+            // approaching the balls
+            static frc::RectangularRegionConstraint regionConstraint{
+                frc::Translation2d{endPose.X(),
+                                   endPose.Y() - 0.5 * Drivetrain::kLength},
+                // X: First/Closest ball in the trench run
+                frc::Translation2d{9.82_m + 0.5 * Drivetrain::kLength,
+                                   initialPose.Y() + 0.5 * Drivetrain::kLength},
+                frc::MaxVelocityConstraint{1_mps}};
+
+            if (lastState != state) {
+                auto config = m_drivetrain.MakeTrajectoryConfig();
+                config.AddConstraint(regionConstraint);
+                m_drivetrain.SetWaypoints(initialPose, {}, endPose, config);
+                m_intake.Deploy();
+
+                lastState = state;
+            }
+
             // Intake Balls x2
-            // TODO: Add if pose in region if statement
-            m_intake.SetArmMotor(Intake::ArmMotorDirection::kIntake);
-            m_intake.SetFunnel(0.4);
-            state = State::kIdle;
-            break;
-        }
-        case State::kIdle: {
-            // Stop Intake
-            // Final Pose -
-            // X: 8.906 m  Y: 0.7500 m  Heading: 1*pi rad
-            // Goes to second ball
+            if (regionConstraint.IsPoseInRegion(m_drivetrain.GetPose())) {
+                m_intake.SetArmMotor(Intake::ArmMotorDirection::kIntake);
+                m_intake.SetFunnel(0.4);
+            }
+
             if (m_drivetrain.AtGoal()) {
                 m_intake.SetArmMotor(Intake::ArmMotorDirection::kIdle);
                 m_intake.SetFunnel(0);
+
+                state = State::kIdle;
             }
+            break;
+        }
+        case State::kIdle: {
             break;
         }
     }
