@@ -65,6 +65,14 @@ nativeUtils.platformConfigs.named("linuxx86-64").configure {
     it.linker.args.add('-lstdc++fs')
 }
 
+if (project.hasProperty("asan")) {
+    nativeUtils.platformConfigs.named("linuxx86-64").configure {
+        it.cppCompiler.args.add('-g3')
+        it.cppCompiler.args.add('-fsanitize=address')
+        it.linker.args.add('-fsanitize=address')
+    }
+}
+
 model {
     components {
         frcUserProgram(NativeExecutableSpec) {

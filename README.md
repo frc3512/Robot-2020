@@ -93,6 +93,14 @@ This runs a debug build of the tests in GDB in noninteractive mode. It will
 automatically run the program in the debugger and print a backtrace if it
 crashes. This is useful for debugging crashes in GitHub Actions.
 
+### Address sanitizer
+
+`./gradlew test -Pasan`
+
+This runs a release build of the tests with the address sanitizer enabled. The
+address sanitizer is useful for finding memory corruption and reads from
+uninitialized memory so they can be fixed.
+
 ### Valgrind
 
 `./gradlew valgrind`
