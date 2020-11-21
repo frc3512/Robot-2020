@@ -4,9 +4,11 @@
 
 #include <frc/DigitalInput.h>
 #include <frc/DoubleSolenoid.h>
+#include <frc/logging/CSVLogFile.h>
 #include <frc2/Timer.h>
 #include <networktables/NetworkTableEntry.h>
 #include <networktables/NetworkTableInstance.h>
+#include <units/time.h>
 
 #include "Constants.hpp"
 #include "rev/CANSparkMax.hpp"
@@ -123,6 +125,9 @@ private:
         m_inst.GetEntry("/Diagnostics/Intake/Upper sensor blocked");
     nt::NetworkTableEntry m_lowerSensorEntry =
         m_inst.GetEntry("/Diagnostics/Intake/Lower sensor blocked");
+
+    frc::CSVLogFile m_intakeLog{"Intake", "Deployed (bool)", "Speed (-1 .. 1)"};
+    units::second_t m_startTime = frc2::Timer::GetFPGATimestamp();
 };
 
 }  // namespace frc3512

@@ -112,6 +112,9 @@ void Intake::RobotPeriodic() {
 
     m_upperSensorEntry.SetBoolean(IsUpperSensorBlocked());
     m_lowerSensorEntry.SetBoolean(IsLowerSensorBlocked());
+
+    m_intakeLog.Log(frc2::Timer::GetFPGATimestamp() - m_startTime, m_arm.Get(),
+                    m_armMotor.Get());
 }
 
 void Intake::TeleopPeriodic() {
