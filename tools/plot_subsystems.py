@@ -82,9 +82,9 @@ def make_groups(files):
         print("No data to plot.")
 
     # Sorting the file list puts files into the order ["inputs", "outputs",
-    # "states". This means data series will be loaded in the order of "inputs,
-    # outputs, references, states] (references are logged before states). This
-    # produces the desired dataset layering on plots.
+    # "states"]. This means data series will be loaded in the order of
+    # ["inputs", "outputs", "references", "states"] (references are logged
+    # before states). This produces the desired dataset layering on plots.
     for f in sorted(files):
         print(f"  {os.path.split(f)[1]}")
 
