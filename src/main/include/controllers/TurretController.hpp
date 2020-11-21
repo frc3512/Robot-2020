@@ -21,7 +21,6 @@
 #include <wpi/math>
 
 #include "Constants.hpp"
-#include "TargetModel.hpp"
 #include "controllers/ControllerBase.hpp"
 
 namespace frc3512 {
@@ -181,9 +180,7 @@ private:
     static constexpr auto kMaxV = 1.477996_rad_per_s;
     static constexpr auto kMaxA = 7.782482_rad_per_s_sq;
 
-    const frc::Pose2d targetPoseInGlobal{TargetModel::kCenter.X(),
-                                         TargetModel::kCenter.Y(),
-                                         units::radian_t{wpi::math::pi}};
+    static const frc::Pose2d kTargetPoseInGlobal;
 
     frc::TrapezoidProfile<units::radian>::State m_goal;
     frc::TrapezoidProfile<units::radian>::Constraints m_constraints{kMaxV,

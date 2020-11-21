@@ -5,6 +5,7 @@
 #include <frc/RobotController.h>
 #include <units/math.h>
 
+#include "TargetModel.hpp"
 #include "controllers/DrivetrainController.hpp"
 
 using namespace frc3512;
@@ -12,6 +13,9 @@ using namespace frc3512::Constants::Turret;
 
 const frc::Pose2d TurretController::kDrivetrainToTurretFrame{
     2_in, 0_m, wpi::math::pi * 1_rad};
+const frc::Pose2d TurretController::kTargetPoseInGlobal{
+    TargetModel::kCenter.X(), TargetModel::kCenter.Y(),
+    units::radian_t{wpi::math::pi}};
 
 template <typename Vector1, typename Vector2>
 auto Dot(const Vector1& a, const Vector2& b) -> decltype(auto) {
@@ -102,7 +106,8 @@ Eigen::Matrix<double, 1, 1> TurretController::Update(
 
     // Find angle reference for this timestep
     auto turretHeadingForTargetInGlobal = CalculateHeading(
-        targetPoseInGlobal.Translation(), turretNextPoseInGlobal.Translation());
+        kTargetPoseInGlobal.Translation() + TargetModel::kOffset,
+        turretNextPoseInGlobal.Translation());
     auto turretDesiredHeadingInDrivetrain =
         turretHeadingForTargetInGlobal -
         m_drivetrainNextPoseInGlobal.Rotation().Radians();
@@ -117,7 +122,8 @@ Eigen::Matrix<double, 1, 1> TurretController::Update(
                                        m_drivetrainNextPoseInGlobal.Rotation()};
 
     auto turretDesiredAngularVelocity = CalculateAngularVelocity(
-        drivetrainVelocity, targetPoseInGlobal.Translation() -
+        drivetrainVelocity, kTargetPoseInGlobal.Translation() +
+                                TargetModel::kOffset -
                                 turretNextPoseInGlobal.Translation());
 
     SetGoal(turretDesiredHeadingInTurret, turretDesiredAngularVelocity);
