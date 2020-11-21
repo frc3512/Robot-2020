@@ -37,6 +37,7 @@ void Robot::AutoRightSideIntakeInit() {
 void Robot::AutoRightSideIntakePeriodic() {
     switch (state) {
         case State::kInit: {
+            m_intake.Deploy();
             state = State::kTrenchRun;
             break;
         }
@@ -55,7 +56,6 @@ void Robot::AutoRightSideIntakePeriodic() {
                 auto config = m_drivetrain.MakeTrajectoryConfig();
                 config.AddConstraint(regionConstraint);
                 m_drivetrain.SetWaypoints(initialPose, {}, endPose, config);
-                m_intake.Deploy();
 
                 lastState = state;
             }

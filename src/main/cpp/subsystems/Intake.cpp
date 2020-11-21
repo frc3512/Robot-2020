@@ -2,6 +2,7 @@
 
 #include "subsystems/Intake.hpp"
 
+#include <frc/DriverStation.h>
 #include <frc/Joystick.h>
 
 #include "CANSparkMaxUtil.hpp"
@@ -66,12 +67,14 @@ void Intake::RobotPeriodic() {
         }
     } else {
         // Manual control
-        if (appendageStick2.GetRawButton(4)) {
-            SetArmMotor(ArmMotorDirection::kIntake);
-        } else if (appendageStick2.GetRawButton(6)) {
-            SetArmMotor(ArmMotorDirection::kOuttake);
-        } else {
-            SetArmMotor(ArmMotorDirection::kIdle);
+        if (frc::DriverStation::GetInstance().IsOperatorControlEnabled()) {
+            if (appendageStick2.GetRawButton(4)) {
+                SetArmMotor(ArmMotorDirection::kIntake);
+            } else if (appendageStick2.GetRawButton(6)) {
+                SetArmMotor(ArmMotorDirection::kOuttake);
+            } else {
+                SetArmMotor(ArmMotorDirection::kIdle);
+            }
         }
     }
 
@@ -86,12 +89,14 @@ void Intake::RobotPeriodic() {
         }
     } else {
         // Manual control
-        if (appendageStick2.GetRawButton(4)) {
-            SetFunnel(0.4);
-        } else if (appendageStick2.GetRawButton(6)) {
-            SetFunnel(-0.4);
-        } else {
-            SetFunnel(0.0);
+        if (frc::DriverStation::GetInstance().IsOperatorControlEnabled()) {
+            if (appendageStick2.GetRawButton(4)) {
+                SetFunnel(0.4);
+            } else if (appendageStick2.GetRawButton(6)) {
+                SetFunnel(-0.4);
+            } else {
+                SetFunnel(0.0);
+            }
         }
     }
 

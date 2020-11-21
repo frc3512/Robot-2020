@@ -46,6 +46,7 @@ void Robot::AutoRightSideShootSixInit() {
 void Robot::AutoRightSideShootSixPeriodic() {
     switch (state) {
         case State::kInit: {
+            m_intake.Deploy();
             // Move back to shoot three comfortably
             m_drivetrain.SetWaypoints(initialPose, {}, midPose);
             state = State::kShoot;
@@ -80,7 +81,6 @@ void Robot::AutoRightSideShootSixPeriodic() {
                 auto config = m_drivetrain.MakeTrajectoryConfig();
                 config.AddConstraint(regionConstraint);
                 m_drivetrain.SetWaypoints(midPose, {}, endPose, config);
-                m_intake.Deploy();
 
                 lastState = state;
             }
@@ -88,8 +88,9 @@ void Robot::AutoRightSideShootSixPeriodic() {
             // Intake Balls x3
             if (regionConstraint.IsPoseInRegion(m_drivetrain.GetPose())) {
                 m_intake.SetArmMotor(Intake::ArmMotorDirection::kIntake);
-                m_intake.SetConveyor(0.85);
+                m_intake.SetFunnel(0.4);
             }
+
             if (m_drivetrain.AtGoal()) {
                 state = State::kTrenchShoot;
             }
@@ -97,7 +98,7 @@ void Robot::AutoRightSideShootSixPeriodic() {
         }
         case State::kTrenchShoot: {
             m_intake.SetArmMotor(Intake::ArmMotorDirection::kIdle);
-            m_intake.SetConveyor(0.0);
+            m_intake.SetFunnel(0.0);
             // Shoot x3
             Shoot();
             state = State::kIdle;

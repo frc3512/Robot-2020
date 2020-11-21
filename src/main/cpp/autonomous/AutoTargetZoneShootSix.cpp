@@ -38,6 +38,7 @@ void Robot::AutoTargetZoneShootSixInit() {
 void Robot::AutoTargetZoneShootSixPeriodic() {
     switch (state) {
         case State::kInit: {
+            m_intake.Deploy();
             // Shoot x3
             Shoot();
             state = State::kDoneShooting;
@@ -69,7 +70,6 @@ void Robot::AutoTargetZoneShootSixPeriodic() {
                 m_drivetrain.SetWaypoints(initialPose,
                                           {frc::Translation2d{9.82_m, 0.705_m}},
                                           endPose, config);
-                m_intake.Deploy();
 
                 lastState = state;
             }
@@ -77,7 +77,7 @@ void Robot::AutoTargetZoneShootSixPeriodic() {
             // Intake Balls x3
             if (regionConstraint.IsPoseInRegion(m_drivetrain.GetPose())) {
                 m_intake.SetArmMotor(Intake::ArmMotorDirection::kIntake);
-                m_intake.SetConveyor(0.85);
+                m_intake.SetFunnel(0.4);
             }
             if (m_drivetrain.AtGoal()) {
                 state = State::kTrenchShoot;
@@ -86,7 +86,7 @@ void Robot::AutoTargetZoneShootSixPeriodic() {
         }
         case State::kTrenchShoot: {
             m_intake.SetArmMotor(Intake::ArmMotorDirection::kIdle);
-            m_intake.SetConveyor(0.0);
+            m_intake.SetFunnel(0.0);
             // Shoot x3
             Shoot();
             break;
