@@ -76,9 +76,13 @@ void VerifyHeadingAdjustment(units::meters_per_second_t drivetrainSpeed,
     // target
     auto sum = drivetrainVelocity + ballVelocity;
     auto targetDisplacement = kTargetPosition - turretPosition;
-    EXPECT_EQ(
-        units::math::atan2(sum.Y(), sum.X()),
-        units::math::atan2(targetDisplacement.Y(), targetDisplacement.X()));
+
+    // Compare cos and sin components separately to handle wraparound
+    frc::Rotation2d sumRotation{sum.X().to<double>(), sum.Y().to<double>()};
+    frc::Rotation2d displacementRotation{targetDisplacement.X().to<double>(),
+                                         targetDisplacement.Y().to<double>()};
+    EXPECT_NEAR(sumRotation.Cos(), displacementRotation.Cos(), 1e-6);
+    EXPECT_NEAR(sumRotation.Sin(), displacementRotation.Sin(), 1e-6);
 }
 
 TEST(TurretControllerTest, CalculateHeadingAdjustment) {
@@ -117,7 +121,7 @@ TEST(TurretControllerTest, ProperDistanceFromTarget) {
 
         EXPECT_NEAR_UNITS(
             distance,
-            629.25_in - kDrivetrainX +
+            TargetModel::kCenter.X() - kDrivetrainX +
                 frc3512::TurretController::kDrivetrainToTurretFrame.X(),
             1e-6_m);
     }

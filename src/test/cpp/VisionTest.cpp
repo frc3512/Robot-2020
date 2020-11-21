@@ -40,6 +40,8 @@ TEST(VisionTest, CalculateDrivetrainInGlobal) {
                         frc3512::Vision::kCameraInGlobalToTurretInGlobal.X(),
                     kTargetCenter.Y() - 0_m +
                         frc3512::Vision::kCameraInGlobalToTurretInGlobal.Y());
-    testMeasurement(5_m, 0_m, 45_deg, 12.3935_m, 5.73816_m);
-    testMeasurement(5.0_m, -2.0_m, -45.0_deg, 11.0871_m, 0.0813087_m);
+    testMeasurement(5_m, 0_m, 45_deg, 12.3935_m + TargetModel::kOffset.X(),
+                    5.73816_m);
+    testMeasurement(5_m, -2_m, -45_deg, 11.0871_m + TargetModel::kOffset.X(),
+                    0.0813087_m);
 }
