@@ -83,6 +83,14 @@ const Eigen::Matrix<double, 2, 1>& TurretController::GetStates() const {
     return m_observer.Xhat();
 }
 
+void TurretController::SetControlMode(ControlMode mode) {
+    m_controlMode = mode;
+}
+
+TurretController::ControlMode TurretController::GetControlMode() const {
+    return m_controlMode;
+}
+
 void TurretController::Reset(units::radian_t initialHeading) {
     Eigen::Matrix<double, 2, 1> xHat;
     xHat << initialHeading.to<double>(), 0.0;
@@ -100,44 +108,46 @@ Eigen::Matrix<double, 1, 1> TurretController::Update(
 
     Eigen::Matrix<double, 1, 1> u;
 
-    // Calculate next drivetrain and turret pose in global frame
-    auto turretNextPoseInGlobal =
-        DrivetrainToTurretInGlobal(m_drivetrainNextPoseInGlobal);
+    if (m_controlMode != ControlMode::kManual) {
+        if (m_controlMode == ControlMode::kAutoAim) {
+            // Calculate next drivetrain and turret pose in global frame
+            auto turretNextPoseInGlobal =
+                DrivetrainToTurretInGlobal(m_drivetrainNextPoseInGlobal);
 
-    // Find angle reference for this timestep
-    auto turretHeadingForTargetInGlobal = CalculateHeading(
-        kTargetPoseInGlobal.Translation() + TargetModel::kOffset,
-        turretNextPoseInGlobal.Translation());
-    auto turretDesiredHeadingInDrivetrain =
-        turretHeadingForTargetInGlobal -
-        m_drivetrainNextPoseInGlobal.Rotation().Radians();
-    auto turretDesiredHeadingInTurret =
-        turretDesiredHeadingInDrivetrain -
-        kDrivetrainToTurretFrame.Rotation().Radians();
+            // Find angle reference for this timestep
+            auto turretHeadingForTargetInGlobal = CalculateHeading(
+                kTargetPoseInGlobal.Translation() + TargetModel::kOffset,
+                turretNextPoseInGlobal.Translation());
+            auto turretDesiredHeadingInDrivetrain =
+                turretHeadingForTargetInGlobal -
+                m_drivetrainNextPoseInGlobal.Rotation().Radians();
+            auto turretDesiredHeadingInTurret =
+                turretDesiredHeadingInDrivetrain -
+                kDrivetrainToTurretFrame.Rotation().Radians();
 
-    // Find angular velocity reference for this timestep
-    units::meters_per_second_t v =
-        (m_drivetrainLeftVelocity + m_drivetrainRightVelocity) / 2.0;
-    frc::Velocity2d drivetrainVelocity{v,
-                                       m_drivetrainNextPoseInGlobal.Rotation()};
+            // Find angular velocity reference for this timestep
+            units::meters_per_second_t v =
+                (m_drivetrainLeftVelocity + m_drivetrainRightVelocity) / 2.0;
+            frc::Velocity2d drivetrainVelocity{
+                v, m_drivetrainNextPoseInGlobal.Rotation()};
 
-    auto turretDesiredAngularVelocity = CalculateAngularVelocity(
-        drivetrainVelocity, kTargetPoseInGlobal.Translation() +
-                                TargetModel::kOffset -
-                                turretNextPoseInGlobal.Translation());
+            auto turretDesiredAngularVelocity = CalculateAngularVelocity(
+                drivetrainVelocity, kTargetPoseInGlobal.Translation() +
+                                        TargetModel::kOffset -
+                                        turretNextPoseInGlobal.Translation());
 
-    SetGoal(turretDesiredHeadingInTurret, turretDesiredAngularVelocity);
+            SetGoal(turretDesiredHeadingInTurret, turretDesiredAngularVelocity);
+        }
 
-    // Calculate profiled references to the goal
-    frc::TrapezoidProfile<units::radian>::State references = {
-        units::radian_t{m_nextR(State::kAngle)},
-        units::radians_per_second_t{m_nextR(State::kAngularVelocity)}};
-    frc::TrapezoidProfile<units::radian> profile{m_constraints, m_goal,
-                                                 references};
-    auto profiledReference = profile.Calculate(Constants::kDt);
-    SetReferences(profiledReference.position, profiledReference.velocity);
+        // Calculate profiled references to the goal
+        frc::TrapezoidProfile<units::radian>::State references = {
+            units::radian_t{m_nextR(State::kAngle)},
+            units::radians_per_second_t{m_nextR(State::kAngularVelocity)}};
+        frc::TrapezoidProfile<units::radian> profile{m_constraints, m_goal,
+                                                     references};
+        auto profiledReference = profile.Calculate(Constants::kDt);
+        SetReferences(profiledReference.position, profiledReference.velocity);
 
-    if (IsClosedLoop()) {
         u << m_lqr.K() * (m_r - m_observer.Xhat()) + m_ff.Calculate(m_nextR);
 
         units::radian_t heading{m_observer.Xhat(State::kAngle)};
@@ -149,18 +159,18 @@ Eigen::Matrix<double, 1, 1> TurretController::Update(
 
         u *= 12.0 / frc::RobotController::GetInputVoltage();
         u = frc::NormalizeInputVector<1>(u, 12.0);
+
+        m_atReferences =
+            units::math::abs(units::radian_t{m_nextR(State::kAngle) -
+                                             m_observer.Xhat(State::kAngle)}) <
+                kAngleTolerance &&
+            units::math::abs(units::radians_per_second_t{
+                m_nextR(State::kAngularVelocity) -
+                m_observer.Xhat(State::kAngularVelocity)}) <
+                kAngularVelocityTolerance;
     } else {
         u << 0.0;
     }
-
-    m_atReferences =
-        units::math::abs(units::radian_t{m_nextR(State::kAngle) -
-                                         m_observer.Xhat(State::kAngle)}) <
-            kAngleTolerance &&
-        units::math::abs(units::radians_per_second_t{
-            m_nextR(State::kAngularVelocity) -
-            m_observer.Xhat(State::kAngularVelocity)}) <
-            kAngularVelocityTolerance;
 
     m_r = m_nextR;
     m_observer.Predict(u, dt);

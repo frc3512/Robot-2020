@@ -39,7 +39,7 @@ TEST_F(TurretTest, ConfigSpaceLimits) {
         frc3512::Drivetrain drivetrain;
         frc3512::Flywheel flywheel{drivetrain};
         frc3512::Turret turret{vision, drivetrain, flywheel};
-        turret.SetManualOverride(true);
+        turret.SetControlMode(frc3512::TurretController::ControlMode::kManual);
 
         frc3512::SubsystemBase::RunAllTeleopInit();
         frc::Notifier controllerPeriodic{[&] {
@@ -108,7 +108,7 @@ TEST_F(TurretTest, ReachesReferenceStaticDrivetrain) {
         frc3512::Drivetrain drivetrain;
         frc3512::Flywheel flywheel{drivetrain};
         frc3512::Turret turret{vision, drivetrain, flywheel};
-        turret.SetManualOverride(false);
+        turret.SetControlMode(frc3512::TurretController::ControlMode::kAutoAim);
 
         frc3512::SubsystemBase::RunAllAutonomousInit();
         frc::Notifier controllerPeriodic{[&] {
@@ -139,7 +139,7 @@ TEST_F(TurretTest, ReachesReferenceSCurveDrivetrain) {
         frc3512::Drivetrain drivetrain;
         frc3512::Flywheel flywheel{drivetrain};
         frc3512::Turret turret{vision, drivetrain, flywheel};
-        turret.SetManualOverride(false);
+        turret.SetControlMode(frc3512::TurretController::ControlMode::kAutoAim);
 
         frc3512::SubsystemBase::RunAllAutonomousInit();
         frc::Notifier controllerPeriodic{[&] {
@@ -174,7 +174,7 @@ TEST_F(TurretTest, ReachesReferenceAutonDrivetrain) {
         frc3512::Drivetrain drivetrain;
         frc3512::Flywheel flywheel{drivetrain};
         frc3512::Turret turret{vision, drivetrain, flywheel};
-        turret.SetManualOverride(false);
+        turret.SetControlMode(frc3512::TurretController::ControlMode::kAutoAim);
 
         frc3512::SubsystemBase::RunAllAutonomousInit();
         frc::Notifier controllerPeriodic{[&] {

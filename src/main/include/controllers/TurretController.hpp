@@ -27,6 +27,12 @@ namespace frc3512 {
 
 class TurretController : public ControllerBase<2, 1, 1> {
 public:
+    enum class ControlMode {
+        kManual,      // Open loop
+        kClosedLoop,  // Closed loop without auto-aiming
+        kAutoAim      // Closed loop with auto-aiming
+    };
+
     static constexpr double kGearRatio = 18.0 / 160.0;
     static constexpr double kDpR = kGearRatio * 2.0 * wpi::math::pi;
 
@@ -115,6 +121,18 @@ public:
     const Eigen::Matrix<double, 2, 1>& GetStates() const override;
 
     /**
+     * Sets turret control mode.
+     *
+     * @param mode Control mode.
+     */
+    void SetControlMode(ControlMode mode);
+
+    /**
+     * Returns currently set control mode.
+     */
+    ControlMode GetControlMode() const;
+
+    /**
      * Resets any internal state.
      *
      * @param initialHeading The initial turret heading in the drivetrain frame.
@@ -201,6 +219,9 @@ private:
     // Controller reference
     Eigen::Matrix<double, 2, 1> m_r;
     Eigen::Matrix<double, 2, 1> m_nextR;
+
+    // TODO: Let the turret aim on its own once we trust it in teleop
+    ControlMode m_controlMode = ControlMode::kManual;
 
     bool m_atReferences = false;
 

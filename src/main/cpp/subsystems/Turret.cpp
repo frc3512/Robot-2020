@@ -25,8 +25,13 @@ Turret::Turret(Vision& vision, Drivetrain& drivetrain, Flywheel& flywheel)
     Reset(0_rad);
 }
 
+void Turret::SetControlMode(TurretController::ControlMode mode) {
+    m_controller.SetControlMode(mode);
+}
+
 void Turret::SetDirection(Direction direction) {
-    if (m_manualOverride) {
+    if (m_controller.GetControlMode() ==
+        TurretController::ControlMode::kManual) {
         if (direction == Direction::kCW) {
             SetVoltage(-7_V);
         } else if (direction == Direction::kCCW) {
@@ -36,8 +41,6 @@ void Turret::SetDirection(Direction direction) {
         }
     }
 }
-
-void Turret::SetManualOverride(bool enable) { m_manualOverride = enable; }
 
 void Turret::Reset(units::radian_t initialHeading) {
     m_controller.Reset(initialHeading);
@@ -81,7 +84,7 @@ void Turret::TeleopPeriodic() {
 
     // Turret manual override
     if (appendageStick1.GetRawButtonPressed(11)) {
-        SetManualOverride(true);
+        SetControlMode(TurretController::ControlMode::kManual);
     }
 
     // Turrret manual spin
@@ -151,7 +154,8 @@ void Turret::ControllerPeriodic() {
     }
 
     // Set motor input
-    if (!m_manualOverride) {
+    if (m_controller.GetControlMode() !=
+        TurretController::ControlMode::kManual) {
         SetVoltage(units::volt_t{u(0)});
     }
 
