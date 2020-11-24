@@ -29,16 +29,16 @@ public:
     Climber& operator=(Climber&&) = default;
 
     /**
-     *  Sets the traverser speed.
+     * Sets the traverser speed.
      *
-     *  @param speed The speed of the traverser [-1..1].
+     * @param speed The speed of the traverser [-1..1].
      */
     void SetTraverser(double speed);
 
     /**
-     *  Sets the elevator speed.
+     * Sets the elevator speed.
      *
-     *  @param speed The speed of the elevator [-1..1].
+     * @param speed The speed of the elevator [-1..1].
      */
     void SetElevator(double speed);
 
