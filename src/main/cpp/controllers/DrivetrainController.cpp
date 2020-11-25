@@ -238,8 +238,8 @@ Eigen::Matrix<double, 2, 1> DrivetrainController::Controller(
         Eigen::Matrix<double, 5, 5> discA;
         Eigen::Matrix<double, 5, 2> discB;
         frc::DiscretizeAB<5, 2>(A, m_B, kDt, &discA, &discB);
-        std::cout << "A =\n" << discA << '\n';
-        std::cout << "B =\n" << discB << '\n';
+        std::cerr << "A =\n" << discA << '\n';
+        std::cerr << "B =\n" << discB << '\n';
     }
 
     Eigen::Matrix<double, 5, 5> inRobotFrame =

@@ -151,7 +151,7 @@ public:
             m_u = Update(y, m_dt);
             m_lastTime = now;
         } else {
-            std::cout << "ERROR: dt = 0 @ t=" << now << std::endl;
+            std::cerr << "ERROR: dt = 0 @ t=" << now << std::endl;
         }
         return m_u;
     }
