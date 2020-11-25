@@ -8,7 +8,8 @@
 #include <frc/livewindow/LiveWindow.h>
 #include <frc/simulation/BatterySim.h>
 #include <frc/simulation/RoboRioSim.h>
-#include <wpi/MathExtras.h>
+
+#include "Constants.hpp"
 
 namespace frc3512 {
 

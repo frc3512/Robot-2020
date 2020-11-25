@@ -7,7 +7,6 @@
 
 #include <frc/TimedRobot.h>
 #include <frc/logging/CSVLogFile.h>
-#include <frc/simulation/JoystickSim.h>
 #include <frc2/Timer.h>
 
 #if RUNNING_FRC_TESTS
@@ -21,7 +20,6 @@
 #endif
 
 #include "AutonomousChooser.hpp"
-#include "Constants.hpp"
 #include "subsystems/Climber.hpp"
 #include "subsystems/Drivetrain.hpp"
 #include "subsystems/Flywheel.hpp"
@@ -249,13 +247,6 @@ private:
                                      [=] { AutoNoOpPeriodic(); }};
 
     frc::CSVLogFile m_batteryLogger{"Battery", "Battery voltage (V)"};
-
-    frc::sim::JoystickSim m_driveStick1{Constants::Robot::kDriveStick1Port};
-    frc::sim::JoystickSim m_driveStick2{Constants::Robot::kDriveStick2Port};
-    frc::sim::JoystickSim m_appendageStick1{
-        Constants::Robot::kAppendageStick1Port};
-    frc::sim::JoystickSim m_appendageStick2{
-        Constants::Robot::kAppendageStick2Port};
 };
 
 }  // namespace frc3512
