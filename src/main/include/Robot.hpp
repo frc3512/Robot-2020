@@ -9,7 +9,6 @@
 #include <frc/logging/CSVLogFile.h>
 #include <frc/simulation/JoystickSim.h>
 #include <frc2/Timer.h>
-#include <wpi/raw_ostream.h>
 
 #if RUNNING_FRC_TESTS
 #include <gtest/gtest.h>
@@ -89,6 +88,11 @@ public:
     void RunShooterSM();
 
     /**
+     * Initialization code for no-op autonomous.
+     */
+    void AutoNoOpInit();
+
+    /**
      * Initialization code for driving towards the allied alliance station from
      * a position on the initializating line aligned with the loading zone
      * during autonomous.
@@ -127,6 +131,11 @@ public:
     void AutoRightSideShootSixInit();
 
     void AutoTargetZoneShootSixInit();
+
+    /**
+     * Periodic code for no-op autonomous.
+     */
+    void AutoNoOpPeriodic();
 
     /**
      * Periodic code for driving towards the allied alliance station from a
@@ -181,6 +190,12 @@ public:
      */
     const std::vector<std::string>& GetAutonomousNames() const;
 
+    /**
+     * Assertions to check at the end of each autonomous mode during unit
+     * testing.
+     */
+    void ExpectAutonomousEndConds();
+
 private:
     // The order the subsystems are initialized determines the order the
     // controllers run in.
@@ -194,8 +209,8 @@ private:
     ShootingState m_state = ShootingState::kIdle;
     frc2::Timer m_timer;
 
-    AutonomousChooser m_autonChooser{
-        "No-op", [] { wpi::outs() << "No-op autonomous\n"; }, [] {}};
+    AutonomousChooser m_autonChooser{"No-op", [=] { AutoNoOpInit(); },
+                                     [=] { AutoNoOpPeriodic(); }};
 
     frc::CSVLogFile m_batteryLogger{"Battery", "Battery voltage (V)"};
 

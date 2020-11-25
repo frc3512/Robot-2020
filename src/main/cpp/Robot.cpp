@@ -173,6 +173,14 @@ const std::vector<std::string>& Robot::GetAutonomousNames() const {
     return m_autonChooser.GetAutonomousNames();
 }
 
+void Robot::ExpectAutonomousEndConds() {
+    if constexpr (IsSimulation()) {
+        EXPECT_TRUE(m_drivetrain.AtGoal());
+        EXPECT_EQ(m_flywheel.GetGoal(), 0_rad_per_s);
+        EXPECT_TRUE(m_turret.AtGoal());
+    }
+}
+
 }  // namespace frc3512
 
 #ifndef RUNNING_FRC_TESTS

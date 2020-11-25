@@ -230,6 +230,12 @@ private:
     units::meters_per_second_t m_drivetrainRightVelocity = 0_mps;
 
     units::radians_per_second_t m_flywheelAngularVelocityRef = 0_rad_per_s;
+
+    /**
+     * Update internal m_atReferences variable using next reference and current
+     * state.
+     */
+    void UpdateAtReferences();
 };
 
 }  // namespace frc3512

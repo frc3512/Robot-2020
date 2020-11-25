@@ -100,6 +100,8 @@ void TurretController::Reset(units::radian_t initialHeading) {
     m_ff.Reset(xHat);
     m_r = xHat;
     m_nextR = xHat;
+
+    UpdateAtReferences();
 }
 
 Eigen::Matrix<double, 1, 1> TurretController::Update(
@@ -160,14 +162,7 @@ Eigen::Matrix<double, 1, 1> TurretController::Update(
         u *= 12.0 / frc::RobotController::GetInputVoltage();
         u = frc::NormalizeInputVector<1>(u, 12.0);
 
-        m_atReferences =
-            units::math::abs(units::radian_t{m_nextR(State::kAngle) -
-                                             m_observer.Xhat(State::kAngle)}) <
-                kAngleTolerance &&
-            units::math::abs(units::radians_per_second_t{
-                m_nextR(State::kAngularVelocity) -
-                m_observer.Xhat(State::kAngularVelocity)}) <
-                kAngularVelocityTolerance;
+        UpdateAtReferences();
     } else {
         u << 0.0;
     }
@@ -305,4 +300,15 @@ frc::Pose2d TurretController::DrivetrainToTurretInGlobal(
         frc::Pose2d{}, frc::Pose2d{kDrivetrainToTurretFrame.Translation(),
                                    drivetrainInGlobal.Rotation()}};
     return drivetrainInGlobal.TransformBy(drivetrainToTurretFrame);
+}
+
+void TurretController::UpdateAtReferences() {
+    m_atReferences =
+        units::math::abs(units::radian_t{m_nextR(State::kAngle) -
+                                         m_observer.Xhat(State::kAngle)}) <
+            kAngleTolerance &&
+        units::math::abs(units::radians_per_second_t{
+            m_nextR(State::kAngularVelocity) -
+            m_observer.Xhat(State::kAngularVelocity)}) <
+            kAngularVelocityTolerance;
 }

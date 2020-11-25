@@ -2,6 +2,7 @@
 
 #include <frc/geometry/Pose2d.h>
 #include <wpi/math>
+#include <wpi/raw_ostream.h>
 
 #include "Robot.hpp"
 

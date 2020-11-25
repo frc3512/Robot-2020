@@ -40,6 +40,8 @@ TEST_P(AutonomousTest, RunMode) {
 
         frc::sim::StepTiming(15_s);
 
+        robot.ExpectAutonomousEndConds();
+
         ds.SetEnabled(false);
         ds.NotifyNewData();
 
