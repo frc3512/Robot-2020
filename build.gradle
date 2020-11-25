@@ -6,13 +6,13 @@ plugins {
 }
 
 // For testing development versions of WPILib
-// wpi.wpilibVersion = '2021.1.1-beta-2'
+wpi.wpilibVersion = '2021.1.1-beta-2-12-g5cd2ad1'
 
 // For automatically using the newest development version of WPILib
 // wpi.wpilibVersion = '2020.+'
 
 // For using remote development artifacts
-// wpi.maven.useDevelopment = true
+wpi.maven.useDevelopment = true
 
 // For using local development artifacts
 // wpi.maven.useFrcMavenLocalDevelopment = true
