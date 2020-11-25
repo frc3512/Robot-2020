@@ -94,42 +94,60 @@ public:
 
     /**
      * Initialization code for driving towards the allied alliance station from
-     * a position on the initializating line aligned with the loading zone
-     * during autonomous.
+     * the initiation line and in front of the loading zone.
      */
     void AutoLoadingZoneDriveForwardInit();
 
     /**
-     * Initialization code for shooting three power cells from a position on the
-     * initializating line aligned with the loading zone during autonomous.
+     * Initialization code for shooting three power cells from the initiation
+     * line in front of the loading zone.
      */
     void AutoLoadingZoneShootThreeInit();
 
     /**
-     * Initialization code for shooting three power cells from a position on the
-     * initializating line aligned with the target zone during autonomous.
+     * Initialization code for shooting three power cells from the initiation
+     * line in front of the target zone.
      */
     void AutoTargetZoneShootThreeInit();
 
     /**
      * Initialization code for driving towards the allied alliance station from
-     * a position on the initializating line aligned with the allied trench run
-     * during autonomous.
+     * the initiation line in front of the allied trench run.
      */
     void AutoRightSideDriveForwardInit();
 
     /**
-     * Initialization code for shooting three power cells from a position on the
-     * initializating line aligned with the allied trench run during autonomous.
+     * Initialization code for shooting three power cells from the initiation
+     * line in front of the allied trench run.
      */
     void AutoRightSideShootThreeInit();
 
+    /**
+     * Initialization code for shooting three power cells from the initiation
+     * line in front of the opposing trench run and intaking two balls in the
+     * trench run.
+     */
     void AutoLeftSideIntakeInit();
 
+    /**
+     * Initialization code for shooting three power cells from the initiation
+     * line in front of the allied trench run and intaking three balls in the
+     * trench run.
+     */
     void AutoRightSideIntakeInit();
 
+    /**
+     * Initialization code for shooting three power cells from the initiation
+     * line in front of the allied trench run, intaking three balls in the
+     * trench run, then shooting them.
+     */
     void AutoRightSideShootSixInit();
 
+    /**
+     * Initialization code for shooting three power cells from the initiation
+     * line in front of the target zone, intaking two balls under the power
+     * generator, then shooting them.
+     */
     void AutoTargetZoneShootSixInit();
 
     /**
@@ -138,43 +156,61 @@ public:
     void AutoNoOpPeriodic();
 
     /**
-     * Periodic code for driving towards the allied alliance station from a
-     * position on the initializating line aligned with the loading zone during
-     * autonomous.
+     * Periodic code for driving towards the allied alliance station from the
+     * initiation line and in front of the loading zone.
      */
     void AutoLoadingZoneDriveForwardPeriodic();
 
     /**
-     * Periodic code for shooting three power cells from a position on the
-     * initializating line aligned with the loading zone during autonomous.
+     * Periodic code for shooting three power cells from the initiation line in
+     * front of the loading zone.
      */
     void AutoLoadingZoneShootThreePeriodic();
 
     /**
-     * Periodic code for shooting three power cells from a position on the
-     * initializating line aligned with the target zone during autonomous.
+     * Periodic code for shooting three power cells from the initiation line in
+     * front of the target zone.
      */
     void AutoTargetZoneShootThreePeriodic();
 
     /**
-     * Periodic code for driving towards the allied alliance station from a
-     * position on the initializating line aligned with the allied trench run
-     * during autonomous.
+     * Periodic code for driving towards the allied alliance station from the
+     * initiation line in front of the allied trench run.
      */
     void AutoRightSideDriveForwardPeriodic();
 
     /**
-     * Periodic code for shooting three power cells from a position on the
-     * initializating line aligned with the allied trench run during autonomous.
+     * Periodic code for shooting three power cells from the initiation line in
+     * front of the allied trench run.
      */
     void AutoRightSideShootThreePeriodic();
 
+    /**
+     * Periodic code for shooting three power cells from the initiation line in
+     * front of the opposing trench run and intaking two balls in the trench
+     * run.
+     */
     void AutoLeftSideIntakePeriodic();
 
+    /**
+     * Periodic code for shooting three power cells from the initiation line in
+     * front of the allied trench run and intaking three balls in the trench
+     * run.
+     */
     void AutoRightSideIntakePeriodic();
 
+    /**
+     * Periodic code for shooting three power cells from the initiation line in
+     * front of the allied trench run, intaking three balls in the trench run,
+     * then shooting them.
+     */
     void AutoRightSideShootSixPeriodic();
 
+    /**
+     * Periodic code for shooting three power cells from the initiation line in
+     * front of the target zone, intaking two balls under the power generator,
+     * then shooting them.
+     */
     void AutoTargetZoneShootSixPeriodic();
 
     /**
