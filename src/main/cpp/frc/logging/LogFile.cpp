@@ -26,8 +26,7 @@ LogFile::LogFile(wpi::StringRef filePrefix, wpi::StringRef fileExtension)
   m_file.open(filename);
 
   if (m_file.fail()) {
-    wpi::outs() << "Could not open file `" << filename << "` for writing."
-                << '\n';
+    wpi::errs() << "Could not open file `" << filename << "` for writing.\n";
     return;
   }
 }

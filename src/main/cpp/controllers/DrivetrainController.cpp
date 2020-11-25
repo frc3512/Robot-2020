@@ -216,7 +216,7 @@ Eigen::Matrix<double, 2, 1> DrivetrainController::Controller(
     try {
         m_K = ControllerGainForState(x);
     } catch (const std::runtime_error& e) {
-        wpi::outs() << e.what() << '\n';
+        wpi::errs() << e.what() << '\n';
 
         Eigen::Matrix<double, 7, 1> x0 = x;
         x0(State::kHeading) = 0.0;
