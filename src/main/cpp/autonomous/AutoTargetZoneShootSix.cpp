@@ -3,7 +3,6 @@
 #include <frc/trajectory/constraint/MaxVelocityConstraint.h>
 #include <frc/trajectory/constraint/RectangularRegionConstraint.h>
 #include <wpi/math>
-#include <wpi/raw_ostream.h>
 
 #include "Robot.hpp"
 
@@ -26,8 +25,6 @@ static const frc::Pose2d initialPose{12.89_m, 2.41_m,
 static const frc::Pose2d endPose{8_m, 0.71_m, units::radian_t{wpi::math::pi}};
 
 void Robot::AutoTargetZoneShootSixInit() {
-    wpi::outs() << "TargetZoneShootSix autonomous\n";
-
     m_drivetrain.Reset(initialPose);
 
     state = State::kInit;

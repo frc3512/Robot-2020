@@ -2,7 +2,6 @@
 
 #include <frc/geometry/Pose2d.h>
 #include <wpi/math>
-#include <wpi/raw_ostream.h>
 
 #include "Robot.hpp"
 
@@ -23,8 +22,6 @@ static const frc::Pose2d endPose{12.89_m - 1.5 * Drivetrain::kLength, 5.662_m,
                                  units::radian_t{wpi::math::pi}};
 
 void Robot::AutoLoadingZoneDriveForwardInit() {
-    wpi::outs() << "LoadingZoneDriveForward autonomous\n";
-
     m_drivetrain.Reset(initialPose);
 
     state = State::kInit;

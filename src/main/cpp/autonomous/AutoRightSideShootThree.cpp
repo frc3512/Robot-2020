@@ -1,7 +1,6 @@
 // Copyright (c) 2020 FRC Team 3512. All Rights Reserved.
 
 #include <wpi/math>
-#include <wpi/raw_ostream.h>
 
 #include "Robot.hpp"
 
@@ -22,8 +21,6 @@ static const frc::Pose2d endPose{12.89_m - 1.5 * Drivetrain::kLength, 0.71_m,
                                  units::radian_t{wpi::math::pi}};
 
 void Robot::AutoRightSideShootThreeInit() {
-    wpi::outs() << "RightSideShootThree autonomous\n";
-
     m_drivetrain.Reset(initialPose);
 
     state = State::kInit;

@@ -1,14 +1,10 @@
 // Copyright (c) 2020 FRC Team 3512. All Rights Reserved.
 
-#include <wpi/raw_ostream.h>
-
 #include "Robot.hpp"
 
 namespace frc3512 {
 
 void Robot::AutoNoOpInit() {
-    wpi::outs() << "No-op autonomous\n";
-
     m_turret.SetControlMode(TurretController::ControlMode::kManual);
 }
 

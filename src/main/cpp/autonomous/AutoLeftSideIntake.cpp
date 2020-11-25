@@ -3,7 +3,6 @@
 #include <frc/trajectory/constraint/MaxVelocityConstraint.h>
 #include <frc/trajectory/constraint/RectangularRegionConstraint.h>
 #include <wpi/math>
-#include <wpi/raw_ostream.h>
 
 #include "Robot.hpp"
 
@@ -26,8 +25,6 @@ static const frc::Pose2d endPose{9.63_m + Drivetrain::kMiddleOfRobotToIntake,
                                  7.513_m, units::radian_t{wpi::math::pi}};
 
 void Robot::AutoLeftSideIntakeInit() {
-    wpi::outs() << "LeftSideIntake autonomous\n";
-
     m_drivetrain.Reset(initialPose);
 
     state = State::kInit;
