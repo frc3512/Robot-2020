@@ -29,9 +29,9 @@ Robot::Robot() {
         "Target Zone Shoot Three Balls",
         [=] { AutoTargetZoneShootThreeInit(); },
         [=] { AutoTargetZoneShootThreePeriodic(); });
-    // m_autonChooser.AddAutonomous(
-    //     "Target Zone Shoot Six Balls", [=] { AutoTargetZoneShootSixInit(); },
-    //     [=] { AutoTargetZoneShootSixPeriodic(); });
+    m_autonChooser.AddAutonomous(
+        "Target Zone Shoot Six Balls", [=] { AutoTargetZoneShootSixInit(); },
+        [=] { AutoTargetZoneShootSixPeriodic(); });
     m_autonChooser.AddAutonomous(
         "Right Side Drive Forward", [=] { AutoRightSideDriveForwardInit(); },
         [=] { AutoRightSideDriveForwardPeriodic(); });
