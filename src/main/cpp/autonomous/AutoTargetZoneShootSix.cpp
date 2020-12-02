@@ -87,6 +87,7 @@ void Robot::AutoTargetZoneShootSixPeriodic() {
             m_intake.SetFunnel(0.0);
             // Shoot x3
             Shoot();
+            state = State::kIdle;
             break;
         }
         case State::kIdle: {
