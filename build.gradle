@@ -153,9 +153,11 @@ task testRelease {
     dependsOn 'runFrcUserProgramTest' + wpi.platforms.desktop.capitalize() + 'ReleaseGoogleTestExe'
 }
 
-task simulate {
+task simulate(type: Exec) {
     dependsOn 'removeLogs'
     dependsOn 'simulateFrcUserProgram' + wpi.platforms.desktop.capitalize() + 'DebugExecutable'
+    workingDir 'build/stdout'
+    commandLine 'tail', '-f', 'simulateFrcUserProgram' + wpi.platforms.desktop.capitalize() + 'DebugExecutable.log'
 }
 
 task valgrind(type: Exec) {

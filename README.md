@@ -65,11 +65,6 @@ This runs a release build of the robot code's unit tests from `src/test`.
 
 This runs a debug build of the robot code in the simulation GUI.
 
-* `./buildscripts/simulate.sh`
-
-This runs a debug build of the robot code in the simulation GUI, but the console
-output is printed to the shell instead of squelched.
-
 ### Documentation
 
 * `./gradlew doxygen`
