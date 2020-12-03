@@ -143,14 +143,19 @@ task removeLogs(type: Exec) {
     commandLine './buildscripts/remove-logs.sh'
 }
 
-task test {
+task testDebug {
     dependsOn 'removeLogs'
-    dependsOn 'runFrcUserProgramTestLinuxx86-64ReleaseGoogleTestExe'
+    dependsOn 'runFrcUserProgramTest' + wpi.platforms.desktop.capitalize() + 'DebugGoogleTestExe'
+}
+
+task testRelease {
+    dependsOn 'removeLogs'
+    dependsOn 'runFrcUserProgramTest' + wpi.platforms.desktop.capitalize() + 'ReleaseGoogleTestExe'
 }
 
 task simulate {
     dependsOn 'removeLogs'
-    dependsOn 'simulateFrcUserProgramLinuxx86-64DebugExecutable'
+    dependsOn 'simulateFrcUserProgram' + wpi.platforms.desktop.capitalize() + 'DebugExecutable'
 }
 
 task valgrind(type: Exec) {
