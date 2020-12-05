@@ -143,6 +143,10 @@ task removeLogs(type: Exec) {
     commandLine './buildscripts/remove-logs.sh'
 }
 
+task test {
+    dependsOn 'testRelease'
+}
+
 task testDebug {
     dependsOn 'removeLogs'
     dependsOn 'runFrcUserProgramTest' + wpi.platforms.desktop.capitalize() + 'DebugGoogleTestExe'

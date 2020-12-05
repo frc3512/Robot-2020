@@ -51,6 +51,11 @@ This runs a roboRIO build if needed, copies the resulting binary to a roboRIO at
 Unit tests are useful for ensuring parts of the robot code continue to work
 correctly after implementing new features or refactoring existing functionality.
 
+* `./gradlew test`
+
+This runs a release build of the robot code's unit tests from `src/test`. This
+is a shorthand for the `testRelease` task.
+
 * `./gradlew testDebug`
 
 This runs a debug build of the robot code's unit tests from `src/test`.
