@@ -15,8 +15,8 @@ import sys
 
 plt.rcParams.update({'figure.max_open_warning': 0})
 
-prefix = "./build/test-results/frcUserProgramTest/linuxx86-64/release"
-postfix = r"-(?P<date>\d{4}-\d{2}-\d{2}-\d{2}_\d{2}_\d{2})\.csv"
+prefix = r"^\./.*?/"
+postfix = r"-(?P<date>\d{4}-\d{2}-\d{2}-\d{2}_\d{2}_\d{2})\.csv$"
 unit_rgx = re.compile(r"^(?P<name>[\w\- ]+) \((?P<unit>.*?)\)$")
 
 
@@ -30,8 +30,12 @@ def num_lines(filename):
 
 def get_file_list():
     # Get list of files in current directory
-    files = [os.path.join(dp, f) for dp, dn, fn in os.walk(prefix) for f in fn]
-    files += [os.path.join(dp, f) for dp, dn, fn in os.walk(".") for f in fn]
+    files = [
+        os.path.join(dp, f)
+        for dp, dn, fn in os.walk(".")
+        for f in fn
+        if f.endswith(".csv")
+    ]
 
     # Ignore files not matching optional pattern
     if len(sys.argv) > 1:
@@ -39,8 +43,7 @@ def get_file_list():
 
     # Maps subsystem name to tuple of csv_group and date
     filtered = {}
-    file_rgx = re.compile(r"^" + re.escape(prefix) + r"/(?P<name>[A-Za-z ]+)" +
-                          postfix + r"$")
+    file_rgx = re.compile(r"(?P<name>" + prefix + r"[A-Za-z ]+)" + postfix)
     for f in files:
         match = file_rgx.search(f)
         if not match:
@@ -62,9 +65,7 @@ def get_file_list():
     # Make filtered list of files
     files = []
     for name_stub in filtered.keys():
-        files.append(
-            os.path.join(prefix, name_stub) + "-" + filtered[name_stub] +
-            ".csv")
+        files.append(name_stub + "-" + filtered[name_stub] + ".csv")
 
     return files
 
@@ -73,8 +74,7 @@ def make_groups(files):
     # Group files by category (sets of files with states, inputs, or outputs
     # suffixes and the same name stub like "Flywheel")
     category_rgx = re.compile(
-        r"^" + re.escape(prefix) +
-        r"/(?P<category>[A-Za-z ]+) (states|inputs|outputs)" + postfix + r"$")
+        prefix + r"(?P<category>[A-Za-z ]+) (states|inputs|outputs)" + postfix)
     file_groups = {}
     if files:
         print("Loading CSVs...")
