@@ -66,6 +66,7 @@ void DrivetrainController::SetWaypoints(
 }
 
 void DrivetrainController::AbortTrajectory() {
+    SetClosedLoop(false);
     m_trajectory = frc::Trajectory{};
 }
 
