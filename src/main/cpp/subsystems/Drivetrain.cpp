@@ -190,7 +190,11 @@ void Drivetrain::AutonomousInit() {
 }
 
 void Drivetrain::TeleopInit() {
+    // If the robot was disabled while still following a trajectory in
+    // autonomous, it will continue to do so in teleop. This aborts any
+    // trajectories so teleop driving can occur.
     m_controller->AbortTrajectory();
+
     m_controller->Enable();
     m_drive.SetSafetyEnabled(true);
 }
