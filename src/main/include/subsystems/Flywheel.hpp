@@ -41,13 +41,6 @@ public:
     Flywheel& operator=(Flywheel&&) = default;
 
     /**
-     * Sets the voltage of the flywheel motor.
-     *
-     * @param voltage The capped voltage to be set
-     */
-    void SetVoltage(units::volt_t voltage);
-
-    /**
      * Returns angular displacement of the flywheel
      *
      * @return angular displacement in radians
@@ -190,6 +183,13 @@ private:
     frc::sim::LinearSystemSim<2, 1, 1> m_flywheelPositionSim{
         m_flywheelPosition};
     frc::sim::EncoderSim m_encoderSim{m_encoder};
+
+    /**
+     * Sets the voltage of the flywheel motor.
+     *
+     * @param voltage The capped voltage to be set
+     */
+    void SetVoltage(units::volt_t voltage);
 
     /**
      * Computes an angular velocity reference from the provided joystick

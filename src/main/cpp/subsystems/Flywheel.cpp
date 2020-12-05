@@ -40,11 +40,6 @@ Flywheel::Flywheel(Drivetrain& drivetrain) : m_drivetrain(drivetrain) {
     SetGoal(0_rad_per_s);
 }
 
-void Flywheel::SetVoltage(units::volt_t voltage) {
-    m_leftGrbx.SetVoltage(voltage);
-    m_rightGrbx.SetVoltage(-voltage);
-}
-
 units::radian_t Flywheel::GetAngle() {
     return units::radian_t{m_encoder.GetDistance()};
 }
@@ -149,6 +144,11 @@ void Flywheel::ControllerPeriodic() {
 
     m_lastAngle = m_angle;
     m_lastTime = m_time;
+}
+
+void Flywheel::SetVoltage(units::volt_t voltage) {
+    m_leftGrbx.SetVoltage(voltage);
+    m_rightGrbx.SetVoltage(-voltage);
 }
 
 units::radians_per_second_t Flywheel::ThrottleToReference(double throttle) {
