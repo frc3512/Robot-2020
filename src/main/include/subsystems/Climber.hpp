@@ -29,20 +29,6 @@ public:
     Climber& operator=(Climber&&) = default;
 
     /**
-     * Sets the traverser speed.
-     *
-     * @param speed The speed of the traverser [-1..1].
-     */
-    void SetTraverser(double speed);
-
-    /**
-     * Sets the elevator speed.
-     *
-     * @param speed The speed of the elevator [-1..1].
-     */
-    void SetElevator(double speed);
-
-    /**
      * Returns the position of the elevator.
      */
     units::meter_t GetElevatorPosition();
@@ -67,6 +53,20 @@ private:
     nt::NetworkTableInstance m_inst = nt::NetworkTableInstance::GetDefault();
     nt::NetworkTableEntry m_elevatorEncoderEntry =
         m_inst.GetEntry("/Diagnostics/Climber/Elevator encoder");
+
+    /**
+     * Sets the traverser speed.
+     *
+     * @param speed The speed of the traverser [-1..1].
+     */
+    void SetTraverser(double speed);
+
+    /**
+     * Sets the elevator speed.
+     *
+     * @param speed The speed of the elevator [-1..1].
+     */
+    void SetElevator(double speed);
 };
 
 }  // namespace frc3512
