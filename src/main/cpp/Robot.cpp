@@ -53,7 +53,7 @@ Robot::Robot() {
 void Robot::Shoot() {
     if (m_state == ShootingState::kIdle) {
         m_vision.TurnLEDOn();
-        m_flywheel.Shoot();
+        m_flywheel.SetGoalFromPose();
         m_state = ShootingState::kStartFlywheel;
     }
 }

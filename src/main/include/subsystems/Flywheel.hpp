@@ -83,7 +83,7 @@ public:
      * Takes the projected distance of the flywheel to the target and sets an
      * angular velocity goal determined by the lookup table
      */
-    void Shoot();
+    void SetGoalFromPose();
 
     /**
      * Returns true if the flywheel has been set to a nonzero goal.

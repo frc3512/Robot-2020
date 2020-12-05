@@ -63,7 +63,7 @@ units::radians_per_second_t Flywheel::GetGoal() const {
 
 bool Flywheel::AtGoal() { return m_controller.AtGoal(); }
 
-void Flywheel::Shoot() {
+void Flywheel::SetGoalFromPose() {
     if (frc::DriverStation::GetInstance().IsTest()) {
         SetGoal(ThrottleToReference(m_testThrottle));
     } else {
@@ -116,6 +116,10 @@ void Flywheel::RobotPeriodic() {
 }
 
 void Flywheel::ControllerPeriodic() {
+    if (IsOn()) {
+        SetGoalFromPose();
+    }
+
     m_angle = GetAngle();
     m_time = frc2::Timer::GetFPGATimestamp();
 
