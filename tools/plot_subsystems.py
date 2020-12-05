@@ -15,7 +15,7 @@ import sys
 
 plt.rcParams.update({'figure.max_open_warning': 0})
 
-prefix = r"^\./.*?/"
+prefix = r"^\./.*?"
 postfix = r"-(?P<date>\d{4}-\d{2}-\d{2}-\d{2}_\d{2}_\d{2})\.csv$"
 unit_rgx = re.compile(r"^(?P<name>[\w\- ]+) \((?P<unit>.*?)\)$")
 
