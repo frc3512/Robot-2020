@@ -139,15 +139,12 @@ void Drivetrain::ControllerPeriodic() {
 
         m_drivetrainSim.Update(m_controller->GetDt());
 
-        using State = frc::sim::DifferentialDrivetrainSim::State;
         m_leftEncoderSim.SetDistance(
-            m_drivetrainSim.GetState(State::kLeftPosition));
+            m_drivetrainSim.GetLeftPosition().to<double>());
         m_rightEncoderSim.SetDistance(
-            m_drivetrainSim.GetState(State::kRightPosition));
-
+            m_drivetrainSim.GetRightPosition().to<double>());
         m_gyroSim.SetAngle(-units::degree_t{
-            units::radian_t{m_drivetrainSim.GetState(State::kHeading)} -
-            m_headingOffset});
+            m_drivetrainSim.GetHeading().Radians() - m_headingOffset});
         m_field.SetRobotPose(m_drivetrainSim.GetPose());
     }
 }

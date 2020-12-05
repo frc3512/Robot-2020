@@ -15,7 +15,7 @@
 #include <frc/simulation/ADXRS450_GyroSim.h>
 #include <frc/simulation/DifferentialDrivetrainSim.h>
 #include <frc/simulation/EncoderSim.h>
-#include <frc/simulation/Field2d.h>
+#include <frc/smartdashboard/Field2d.h>
 #include <frc/trajectory/TrajectoryConfig.h>
 #include <frc2/Timer.h>
 #include <networktables/NetworkTableEntry.h>
