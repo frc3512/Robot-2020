@@ -120,6 +120,11 @@ public:
                       const frc::Pose2d& end, frc::TrajectoryConfig& config);
 
     /**
+     * Abort trajectory tracking.
+     */
+    void AbortTrajectory();
+
+    /**
      * Returns whether the drivetrain controller is at the goal waypoint.
      */
     bool AtGoal() const;

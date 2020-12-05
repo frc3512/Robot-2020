@@ -190,6 +190,7 @@ void Drivetrain::AutonomousInit() {
 }
 
 void Drivetrain::TeleopInit() {
+    m_controller->AbortTrajectory();
     m_controller->Enable();
     m_drive.SetSafetyEnabled(true);
 }

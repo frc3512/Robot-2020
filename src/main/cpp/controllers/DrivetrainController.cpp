@@ -65,6 +65,10 @@ void DrivetrainController::SetWaypoints(
     SetClosedLoop(true);
 }
 
+void DrivetrainController::AbortTrajectory() {
+    m_trajectory = frc::Trajectory{};
+}
+
 bool DrivetrainController::AtGoal() const {
     frc::Pose2d ref{units::meter_t{m_r(State::kX)},
                     units::meter_t{m_r(State::kY)},
