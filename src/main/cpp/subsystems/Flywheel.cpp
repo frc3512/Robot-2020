@@ -111,6 +111,7 @@ void Flywheel::RobotPeriodic() {
 }
 
 void Flywheel::ControllerPeriodic() {
+    // Adjusts the flywheel's goal while moving and shooting
     if (IsOn()) {
         SetGoalFromPose();
     }
