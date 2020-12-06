@@ -70,6 +70,21 @@ void DrivetrainController::AbortTrajectory() {
     m_trajectory = frc::Trajectory{};
 }
 
+void DrivetrainController::SetWaypoints(
+    const std::vector<frc::Pose2d>& waypoints) {
+    auto config = MakeTrajectoryConfig();
+    SetWaypoints(waypoints, config);
+}
+
+void DrivetrainController::SetWaypoints(
+    const std::vector<frc::Pose2d>& waypoints, frc::TrajectoryConfig& config) {
+    m_goal = waypoints.back();
+    m_trajectory =
+        frc::TrajectoryGenerator::GenerateTrajectory(waypoints, config);
+    m_timeSinceSetWaypoints.Reset();
+    SetClosedLoop(true);
+}
+
 bool DrivetrainController::AtGoal() const {
     frc::Pose2d ref{units::meter_t{m_r(State::kX)},
                     units::meter_t{m_r(State::kY)},
@@ -176,7 +191,7 @@ frc::LinearSystem<2, 2, 2> DrivetrainController::GetPlant() const {
 }
 
 frc::TrajectoryConfig DrivetrainController::MakeTrajectoryConfig() const {
-    frc::TrajectoryConfig config{kMaxV, kMaxA - 16.5_mps_sq};
+    frc::TrajectoryConfig config{kMaxV, kMaxA - 14.5_mps_sq};
 
     auto plant = frc::LinearSystemId::IdentifyDrivetrainSystem(
         kLinearV, kLinearA, kAngularV, kAngularA);

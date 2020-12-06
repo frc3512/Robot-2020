@@ -162,6 +162,15 @@ void Drivetrain::SetWaypoints(const frc::Pose2d& start,
     m_controller->SetWaypoints(start, interior, end, config);
 }
 
+void Drivetrain::SetWaypoints(const std::vector<frc::Pose2d>& waypoints) {
+    m_controller->SetWaypoints(waypoints);
+}
+
+void Drivetrain::SetWaypoints(const std::vector<frc::Pose2d>& waypoints,
+                              frc::TrajectoryConfig& config) {
+    m_controller->SetWaypoints(waypoints, config);
+}
+
 frc::TrajectoryConfig Drivetrain::MakeTrajectoryConfig() const {
     return m_controller->MakeTrajectoryConfig();
 }

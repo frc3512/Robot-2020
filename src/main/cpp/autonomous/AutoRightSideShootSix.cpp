@@ -12,9 +12,10 @@ namespace {
 enum class State {
     kInit,
     kShoot,
+    kDoneShooting,
     kTrenchRun,
+    kDriveBack,
     kTrenchShoot,
-    kTrenchIntake,
     kIdle
 };
 }  // namespace
@@ -54,17 +55,17 @@ void Robot::AutoRightSideShootSixPeriodic() {
             // Shoot x3
             if (m_drivetrain.AtGoal()) {
                 Shoot();
+                state = State::kDoneShooting;
+            }
+            break;
+        }
+        case State::kDoneShooting: {
+            if (!IsShooting()) {
                 state = State::kTrenchRun;
             }
             break;
         }
         case State::kTrenchRun: {
-            if (!IsShooting()) {
-                state = State::kTrenchIntake;
-            }
-            break;
-        }
-        case State::kTrenchIntake: {
             // Add a constraint to slow down the drivetrain while it's
             // approaching the balls
             static frc::RectangularRegionConstraint regionConstraint{
@@ -73,7 +74,7 @@ void Robot::AutoRightSideShootSixPeriodic() {
                 // X: First/Closest ball in the trench run
                 frc::Translation2d{9.82_m + 0.5 * Drivetrain::kLength,
                                    initialPose.Y() + 0.5 * Drivetrain::kLength},
-                frc::MaxVelocityConstraint{1_mps}};
+                frc::MaxVelocityConstraint{1.6_mps}};
 
             if (lastState != state) {
                 auto config = m_drivetrain.MakeTrajectoryConfig();
@@ -90,16 +91,27 @@ void Robot::AutoRightSideShootSixPeriodic() {
             }
 
             if (m_drivetrain.AtGoal()) {
-                state = State::kTrenchShoot;
+                state = State::kDriveBack;
             }
             break;
         }
-        case State::kTrenchShoot: {
+        case State::kDriveBack: {
             m_intake.SetArmMotor(Intake::ArmMotorDirection::kIdle);
             m_intake.SetFunnel(0.0);
+
+            auto config = m_drivetrain.MakeTrajectoryConfig();
+            config.SetReversed(true);
+
+            m_drivetrain.SetWaypoints({endPose, midPose}, config);
+            state = State::kTrenchShoot;
+            break;
+        }
+        case State::kTrenchShoot: {
             // Shoot x3
-            Shoot();
-            state = State::kIdle;
+            if (m_drivetrain.AtGoal()) {
+                Shoot();
+                state = State::kIdle;
+            }
             break;
         }
         case State::kIdle: {

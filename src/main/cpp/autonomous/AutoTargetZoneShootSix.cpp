@@ -9,7 +9,14 @@
 namespace frc3512 {
 
 namespace {
-enum class State { kInit, kDoneShooting, kTrenchRun, kTrenchShoot, kIdle };
+enum class State {
+    kInit,
+    kDoneShooting,
+    kTrenchRun,
+    kDriveBack,
+    kTrenchShoot,
+    kIdle
+};
 }  // namespace
 
 // TODO: This autonomous mode doesn't pass unit tests
@@ -21,6 +28,9 @@ static frc2::Timer autonTimer;
 // Initial Pose - Right in line with the Target Zone
 static const frc::Pose2d initialPose{12.89_m, 2.41_m,
                                      units::radian_t{wpi::math::pi}};
+// Mid Pose - Right before first/closest ball in the Trench Run
+static const frc::Pose2d midPose{9.82_m + 0.5 * Drivetrain::kLength, 0.705_m,
+                                 units::radian_t{wpi::math::pi}};
 // End Pose - Third/Farthest ball in the Trench Run
 static const frc::Pose2d endPose{8_m, 0.71_m, units::radian_t{wpi::math::pi}};
 
@@ -56,7 +66,7 @@ void Robot::AutoTargetZoneShootSixPeriodic() {
                 // X: Rightmost ball on trench run
                 frc::Translation2d{9.82_m + 0.5 * Drivetrain::kLength,
                                    0.71_m + 0.5 * Drivetrain::kLength},
-                frc::MaxVelocityConstraint{1_mps}};
+                frc::MaxVelocityConstraint{1.6_mps}};
 
             if (lastState != state) {
                 // Add a constraint to slow down the drivetrain while it's
@@ -65,29 +75,39 @@ void Robot::AutoTargetZoneShootSixPeriodic() {
 
                 config.AddConstraint(regionConstraint);
                 // Interior Translation: First/Closest ball in trench run
-                m_drivetrain.SetWaypoints(initialPose,
-                                          {frc::Translation2d{9.82_m, 0.705_m}},
-                                          endPose, config);
+
+                m_drivetrain.SetWaypoints({initialPose, midPose, endPose},
+                                          config);
 
                 lastState = state;
             }
 
             // Intake Balls x3
-            if (regionConstraint.IsPoseInRegion(m_drivetrain.GetPose())) {
-                m_intake.SetArmMotor(Intake::ArmMotorDirection::kIntake);
-                m_intake.SetFunnel(0.4);
-            }
+            m_intake.SetArmMotor(Intake::ArmMotorDirection::kIntake);
+            m_intake.SetFunnel(0.4);
+
             if (m_drivetrain.AtGoal()) {
-                state = State::kTrenchShoot;
+                state = State::kDriveBack;
             }
             break;
         }
-        case State::kTrenchShoot: {
+        case State::kDriveBack: {
             m_intake.SetArmMotor(Intake::ArmMotorDirection::kIdle);
             m_intake.SetFunnel(0.0);
+
+            auto config = m_drivetrain.MakeTrajectoryConfig();
+            config.SetReversed(true);
+
+            m_drivetrain.SetWaypoints({endPose, midPose}, config);
+            state = State::kTrenchShoot;
+            break;
+        }
+        case State::kTrenchShoot: {
             // Shoot x3
-            Shoot();
-            state = State::kIdle;
+            if (m_drivetrain.AtGoal()) {
+                Shoot();
+                state = State::kIdle;
+            }
             break;
         }
         case State::kIdle: {

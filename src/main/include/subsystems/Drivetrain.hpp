@@ -126,6 +126,11 @@ public:
                       const std::vector<frc::Translation2d>& interior,
                       const frc::Pose2d& end, frc::TrajectoryConfig& config);
 
+    void SetWaypoints(const std::vector<frc::Pose2d>& waypoints);
+
+    void SetWaypoints(const std::vector<frc::Pose2d>& waypoints,
+                      frc::TrajectoryConfig& config);
+
     /**
      * Returns a TrajectoryConfig containing a differential drive dynamics
      * constraint.
