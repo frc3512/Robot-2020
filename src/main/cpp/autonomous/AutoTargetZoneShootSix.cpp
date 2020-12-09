@@ -71,7 +71,7 @@ void Robot::AutoTargetZoneShootSixPeriodic() {
             if (lastState != state) {
                 // Add a constraint to slow down the drivetrain while it's
                 // approaching the balls
-                auto config = m_drivetrain.MakeTrajectoryConfig();
+                auto config = Drivetrain::MakeTrajectoryConfig();
 
                 config.AddConstraint(regionConstraint);
                 // Interior Translation: First/Closest ball in trench run
@@ -95,7 +95,7 @@ void Robot::AutoTargetZoneShootSixPeriodic() {
             m_intake.SetArmMotor(Intake::ArmMotorDirection::kIdle);
             m_intake.SetFunnel(0.0);
 
-            auto config = m_drivetrain.MakeTrajectoryConfig();
+            auto config = Drivetrain::MakeTrajectoryConfig();
             config.SetReversed(true);
 
             m_drivetrain.SetWaypoints({endPose, midPose}, config);

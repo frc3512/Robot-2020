@@ -77,7 +77,7 @@ void Robot::AutoRightSideShootSixPeriodic() {
                 frc::MaxVelocityConstraint{1.6_mps}};
 
             if (lastState != state) {
-                auto config = m_drivetrain.MakeTrajectoryConfig();
+                auto config = Drivetrain::MakeTrajectoryConfig();
                 config.AddConstraint(regionConstraint);
                 m_drivetrain.SetWaypoints(midPose, {}, endPose, config);
 
@@ -99,7 +99,7 @@ void Robot::AutoRightSideShootSixPeriodic() {
             m_intake.SetArmMotor(Intake::ArmMotorDirection::kIdle);
             m_intake.SetFunnel(0.0);
 
-            auto config = m_drivetrain.MakeTrajectoryConfig();
+            auto config = Drivetrain::MakeTrajectoryConfig();
             config.SetReversed(true);
 
             m_drivetrain.SetWaypoints({endPose, midPose}, config);

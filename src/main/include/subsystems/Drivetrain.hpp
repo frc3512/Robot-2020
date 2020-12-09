@@ -124,18 +124,34 @@ public:
      */
     void SetWaypoints(const frc::Pose2d& start,
                       const std::vector<frc::Translation2d>& interior,
-                      const frc::Pose2d& end, frc::TrajectoryConfig& config);
+                      const frc::Pose2d& end,
+                      const frc::TrajectoryConfig& config);
 
+    /**
+     * Sets the waypoints for a generated trajectory.
+     *
+     * @param waypoints Waypoints.
+     */
     void SetWaypoints(const std::vector<frc::Pose2d>& waypoints);
 
+    /**
+     * Sets the waypoints for a generated trajectory.
+     *
+     * @param waypoints Waypoints.
+     * @param config    TrajectoryConfig for this trajectory. This can include
+     *                  constraints on the trajectory dynamics. If adding custom
+     *                  constraints, it is recommended to start with the config
+     *                  returned by MakeTrajectoryConfig() so differential drive
+     *                  dynamics constraints are included automatically.
+     */
     void SetWaypoints(const std::vector<frc::Pose2d>& waypoints,
-                      frc::TrajectoryConfig& config);
+                      const frc::TrajectoryConfig& config);
 
     /**
      * Returns a TrajectoryConfig containing a differential drive dynamics
      * constraint.
      */
-    frc::TrajectoryConfig MakeTrajectoryConfig() const;
+    static frc::TrajectoryConfig MakeTrajectoryConfig();
 
     /**
      * Returns whether the drivetrain controller is at the goal waypoint.

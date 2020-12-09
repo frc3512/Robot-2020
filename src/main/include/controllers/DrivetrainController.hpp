@@ -98,31 +98,30 @@ public:
      * @param start    Starting pose.
      * @param interior Intermediate waypoints excluding heading.
      * @param end      Ending pose.
-     */
-    void SetWaypoints(const frc::Pose2d& start,
-                      const std::vector<frc::Translation2d>& interior,
-                      const frc::Pose2d& end);
-
-    /**
-     * Sets the waypoints for a generated trajectory.
-     *
-     * @param start    Starting pose.
-     * @param interior Intermediate waypoints excluding heading.
-     * @param end      Ending pose.
      * @param config   TrajectoryConfig for this trajectory. This can include
      *                 constraints on the trajectory dynamics. If adding custom
      *                 constraints, it is recommended to start with the config
      *                 returned by MakeTrajectoryConfig() so differential drive
      *                 dynamics constraints are included automatically.
      */
-    void SetWaypoints(const frc::Pose2d& start,
-                      const std::vector<frc::Translation2d>& interior,
-                      const frc::Pose2d& end, frc::TrajectoryConfig& config);
+    void SetWaypoints(
+        const frc::Pose2d& start,
+        const std::vector<frc::Translation2d>& interior, const frc::Pose2d& end,
+        const frc::TrajectoryConfig& config = MakeTrajectoryConfig());
 
-    void SetWaypoints(const std::vector<frc::Pose2d>& waypoints);
-
-    void SetWaypoints(const std::vector<frc::Pose2d>& waypoints,
-                      frc::TrajectoryConfig& config);
+    /**
+     * Sets the waypoints for a generated trajectory.
+     *
+     * @param waypoints Waypoints.
+     * @param config    TrajectoryConfig for this trajectory. This can include
+     *                  constraints on the trajectory dynamics. If adding custom
+     *                  constraints, it is recommended to start with the config
+     *                  returned by MakeTrajectoryConfig() so differential drive
+     *                  dynamics constraints are included automatically.
+     */
+    void SetWaypoints(
+        const std::vector<frc::Pose2d>& waypoints,
+        const frc::TrajectoryConfig& config = MakeTrajectoryConfig());
 
     /**
      * Abort trajectory tracking.
@@ -169,7 +168,7 @@ public:
      * Returns a TrajectoryConfig containing a differential drive dynamics
      * constraint.
      */
-    frc::TrajectoryConfig MakeTrajectoryConfig() const;
+    static frc::TrajectoryConfig MakeTrajectoryConfig();
 
     /**
      * Returns the linear time-varying controller gain for the given state.

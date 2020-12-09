@@ -50,14 +50,7 @@ DrivetrainController::DrivetrainController()
 
 void DrivetrainController::SetWaypoints(
     const frc::Pose2d& start, const std::vector<frc::Translation2d>& interior,
-    const frc::Pose2d& end) {
-    auto config = MakeTrajectoryConfig();
-    SetWaypoints(start, interior, end, config);
-}
-
-void DrivetrainController::SetWaypoints(
-    const frc::Pose2d& start, const std::vector<frc::Translation2d>& interior,
-    const frc::Pose2d& end, frc::TrajectoryConfig& config) {
+    const frc::Pose2d& end, const frc::TrajectoryConfig& config) {
     m_goal = end;
     m_trajectory = frc::TrajectoryGenerator::GenerateTrajectory(start, interior,
                                                                 end, config);
@@ -65,24 +58,19 @@ void DrivetrainController::SetWaypoints(
     SetClosedLoop(true);
 }
 
-void DrivetrainController::AbortTrajectory() {
-    SetClosedLoop(false);
-    m_trajectory = frc::Trajectory{};
-}
-
 void DrivetrainController::SetWaypoints(
-    const std::vector<frc::Pose2d>& waypoints) {
-    auto config = MakeTrajectoryConfig();
-    SetWaypoints(waypoints, config);
-}
-
-void DrivetrainController::SetWaypoints(
-    const std::vector<frc::Pose2d>& waypoints, frc::TrajectoryConfig& config) {
+    const std::vector<frc::Pose2d>& waypoints,
+    const frc::TrajectoryConfig& config) {
     m_goal = waypoints.back();
     m_trajectory =
         frc::TrajectoryGenerator::GenerateTrajectory(waypoints, config);
     m_timeSinceSetWaypoints.Reset();
     SetClosedLoop(true);
+}
+
+void DrivetrainController::AbortTrajectory() {
+    SetClosedLoop(false);
+    m_trajectory = frc::Trajectory{};
 }
 
 bool DrivetrainController::AtGoal() const {
@@ -190,7 +178,7 @@ frc::LinearSystem<2, 2, 2> DrivetrainController::GetPlant() const {
                                                          kAngularV, kAngularA);
 }
 
-frc::TrajectoryConfig DrivetrainController::MakeTrajectoryConfig() const {
+frc::TrajectoryConfig DrivetrainController::MakeTrajectoryConfig() {
     frc::TrajectoryConfig config{kMaxV, kMaxA - 14.5_mps_sq};
 
     auto plant = frc::LinearSystemId::IdentifyDrivetrainSystem(

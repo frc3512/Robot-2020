@@ -51,7 +51,7 @@ void Robot::AutoLeftSideIntakePeriodic() {
                 frc::MaxVelocityConstraint{1_mps}};
 
             if (lastState != state) {
-                auto config = m_drivetrain.MakeTrajectoryConfig();
+                auto config = Drivetrain::MakeTrajectoryConfig();
                 config.AddConstraint(regionConstraint);
                 m_drivetrain.SetWaypoints(initialPose, {}, endPose, config);
 
