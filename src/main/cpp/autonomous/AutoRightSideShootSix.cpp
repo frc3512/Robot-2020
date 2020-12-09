@@ -85,10 +85,8 @@ void Robot::AutoRightSideShootSixPeriodic() {
             }
 
             // Intake Balls x3
-            if (regionConstraint.IsPoseInRegion(m_drivetrain.GetPose())) {
-                m_intake.SetArmMotor(Intake::ArmMotorDirection::kIntake);
-                m_intake.SetFunnel(0.4);
-            }
+            m_intake.SetArmMotor(Intake::ArmMotorDirection::kIntake);
+            m_intake.SetFunnel(0.4);
 
             if (m_drivetrain.AtGoal()) {
                 state = State::kDriveBack;
