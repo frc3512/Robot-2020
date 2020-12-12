@@ -1,12 +1,12 @@
 plugins {
     id "cpp"
     id "google-test-test-suite"
-    id "edu.wpi.first.GradleRIO" version "2021.1.1-beta-3"
+    id "edu.wpi.first.GradleRIO" version "2021.1.1-beta-4"
     id "org.ysb33r.doxygen" version "0.5"
 }
 
 // For testing development versions of WPILib
-wpi.wpilibVersion = '2021.1.1-beta-3'
+wpi.wpilibVersion = '2021.1.1-beta-4'
 
 // For automatically using the newest development version of WPILib
 // wpi.wpilibVersion = '2020.+'
