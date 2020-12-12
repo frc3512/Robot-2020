@@ -28,14 +28,18 @@ DifferentialDriveVelocitySystemConstraint::MaxVelocity(
   auto [vl, vr] =
       m_kinematics.ToWheelSpeeds({velocity, 0_mps, velocity * curvature});
 
-  Eigen::Vector2d x;
+  Eigen::Matrix<double, 2, 1> x;
   x << vl.to<double>(), vr.to<double>();
+
+  Eigen::Matrix<double, 2, 1> u;
+  u << m_maxVoltage.to<double>(), m_maxVoltage.to<double>();
+  Eigen::Matrix<double, 2, 1> maxX =
+      -m_system.A().householderQr().solve(m_system.B() * u);
 
   // If either wheel velocity is greater than its maximum, normalize the wheel
   // speeds to within an achievable range while maintaining the curvature
-  if (std::abs(x(0)) > velocity.to<double>() ||
-      std::abs(x(1)) > velocity.to<double>()) {
-    x *= velocity.to<double>() / x.lpNorm<Eigen::Infinity>();
+  if (std::abs(x(0)) > maxX(0) || std::abs(x(1)) > maxX(1)) {
+    x *= maxX(0) / x.lpNorm<Eigen::Infinity>();
   }
   return units::meters_per_second_t{(x(0) + x(1)) / 2.0};
 }
@@ -47,25 +51,23 @@ DifferentialDriveVelocitySystemConstraint::MinMaxAcceleration(
   auto wheelSpeeds =
       m_kinematics.ToWheelSpeeds({speed, 0_mps, speed * curvature});
 
-  Eigen::Vector2d x;
+  Eigen::Matrix<double, 2, 1> x;
   x << wheelSpeeds.left.to<double>(), wheelSpeeds.right.to<double>();
 
-  Eigen::Vector2d xDot;
-  Eigen::Vector2d u;
+  Eigen::Matrix<double, 2, 1> u;
+  Eigen::Matrix<double, 2, 1> xDot;
 
   // dx/dt for minimum u
   u << -m_maxVoltage.to<double>(), -m_maxVoltage.to<double>();
   xDot = m_system.A() * x + m_system.B() * u;
-  units::meters_per_second_squared_t minChassisAcceleration;
-  minChassisAcceleration =
-      units::meters_per_second_squared_t((xDot(0, 0) + xDot(1, 0)) / 2.0);
+  units::meters_per_second_squared_t minChassisAcceleration{
+      (xDot(0) + xDot(1)) / 2.0};
 
   // dx/dt for maximum u
   u << m_maxVoltage.to<double>(), m_maxVoltage.to<double>();
   xDot = m_system.A() * x + m_system.B() * u;
-  units::meters_per_second_squared_t maxChassisAcceleration;
-  maxChassisAcceleration =
-      units::meters_per_second_squared_t((xDot(0, 0) + xDot(1, 0)) / 2.0);
+  units::meters_per_second_squared_t maxChassisAcceleration{
+      (xDot(0) + xDot(1)) / 2.0};
 
   return {minChassisAcceleration, maxChassisAcceleration};
 }
