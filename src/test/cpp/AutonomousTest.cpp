@@ -30,9 +30,7 @@ TEST_P(AutonomousTest, RunMode) {
 
         std::thread robotThread{[&] { robot.StartCompetition(); }};
 
-        frc::sim::StepTiming(20_ms);
         robot.SelectAutonomous(GetParam());
-        frc::sim::StepTiming(20_ms);
 
         ds.SetAutonomous(true);
         ds.SetEnabled(true);
