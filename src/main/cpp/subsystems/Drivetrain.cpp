@@ -4,11 +4,11 @@
 
 #include <algorithm>
 
-#include <frc/Joystick.h>
 #include <frc/MathUtil.h>
 #include <frc/RobotBase.h>
 #include <frc/RobotController.h>
 #include <frc/StateSpaceUtil.h>
+#include <frc/XboxController.h>
 #include <frc/smartdashboard/SmartDashboard.h>
 
 #include "CANSparkMaxUtil.hpp"
@@ -300,17 +300,23 @@ void Drivetrain::TeleopInit() {
 }
 
 void Drivetrain::TeleopPeriodic() {
-    static frc::Joystick driveStick1{kDriveStick1Port};
-    static frc::Joystick driveStick2{kDriveStick2Port};
+    using JoystickHand = frc::XboxController::JoystickHand;
 
-    double y = ApplyDeadband(-driveStick1.GetY(), kJoystickDeadband);
-    double x = ApplyDeadband(driveStick2.GetX(), kJoystickDeadband);
+    static frc::XboxController xboxController{kXboxControllerPort};
 
-    if (driveStick1.GetRawButton(1)) {
-        y *= 0.5;
-        x *= 0.5;
-    }
-    auto [left, right] = CurvatureDrive(y, x, driveStick2.GetRawButton(2));
+    double y = ApplyDeadband(
+        xboxController.GetTriggerAxis(JoystickHand::kRightHand) -
+            xboxController.GetTriggerAxis(JoystickHand::kLeftHand),
+        kJoystickDeadband);
+    double x = ApplyDeadband(xboxController.GetX(JoystickHand::kRightHand),
+                             kJoystickDeadband);
+
+    x = x * x * x;
+
+    auto [left, right] =
+        CurvatureDrive(y, x,
+                       xboxController.GetBumper(JoystickHand::kLeftHand) ||
+                           xboxController.GetBumper(JoystickHand::kRightHand));
 
     // Implicit model following
     // TODO: Velocities need filtering
