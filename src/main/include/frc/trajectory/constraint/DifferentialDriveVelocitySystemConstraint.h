@@ -7,6 +7,7 @@
 
 #pragma once
 
+#include <units/velocity.h>
 #include <units/voltage.h>
 
 #include "frc/kinematics/DifferentialDriveKinematics.h"
@@ -47,5 +48,6 @@ class DifferentialDriveVelocitySystemConstraint : public TrajectoryConstraint {
   LinearSystem<2, 2, 2> m_system;
   DifferentialDriveKinematics m_kinematics;
   units::volt_t m_maxVoltage;
+  units::meters_per_second_t m_maxVelocity;
 };
 }  // namespace frc
