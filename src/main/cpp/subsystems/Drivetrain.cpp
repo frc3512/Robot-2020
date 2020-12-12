@@ -5,6 +5,7 @@
 #include <frc/Joystick.h>
 #include <frc/RobotBase.h>
 #include <frc/RobotController.h>
+#include <frc/smartdashboard/SmartDashboard.h>
 #include <units/math.h>
 
 #include "CANSparkMaxUtil.hpp"
@@ -40,6 +41,8 @@ Drivetrain::Drivetrain()
     m_rightEncoder.SetReverseDirection(true);
     m_leftEncoder.SetDistancePerPulse(DrivetrainController::kDpP);
     m_rightEncoder.SetDistancePerPulse(DrivetrainController::kDpP);
+
+    frc::SmartDashboard::PutData("Field", &m_field);
 }
 
 Drivetrain::~Drivetrain() {}
