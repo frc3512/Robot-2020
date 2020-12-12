@@ -28,7 +28,6 @@ Flywheel::Flywheel(Drivetrain& drivetrain) : m_drivetrain(drivetrain) {
     m_leftGrbx.SetInverted(false);
     m_rightGrbx.SetInverted(false);
 
-    // TODO: add more entries to the look up table
     m_table.Insert(125_in, 450_rad_per_s);
     m_table.Insert(175_in, 463_rad_per_s);
     m_table.Insert(200_in, 472_rad_per_s);

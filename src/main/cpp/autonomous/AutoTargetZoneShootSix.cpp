@@ -19,8 +19,6 @@ enum class State {
 };
 }  // namespace
 
-// TODO: This autonomous mode doesn't pass unit tests
-
 static State state;
 static State lastState;
 static frc2::Timer autonTimer;
