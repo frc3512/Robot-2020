@@ -39,9 +39,9 @@ TEST_F(TurretTest, ConfigSpaceLimits) {
         frc3512::Drivetrain drivetrain;
         frc3512::Flywheel flywheel{drivetrain};
         frc3512::Turret turret{vision, drivetrain, flywheel};
-        turret.SetControlMode(frc3512::TurretController::ControlMode::kManual);
 
         frc3512::SubsystemBase::RunAllTeleopInit();
+        turret.SetControlMode(frc3512::TurretController::ControlMode::kManual);
         frc::Notifier controllerPeriodic{[&] {
             turret.TeleopPeriodic();
             turret.ControllerPeriodic();
