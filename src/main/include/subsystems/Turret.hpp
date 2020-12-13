@@ -119,7 +119,7 @@ public:
 
     void TeleopInit() override {
         m_controller.Enable();
-        SetControlMode(TurretController::ControlMode::kManual);
+        SetControlMode(TurretController::ControlMode::kAutoAim);
     }
 
     void RobotPeriodic() override;
@@ -152,8 +152,16 @@ private:
 
     uint32_t m_poseMeasurementFaultCounter = 0;
     nt::NetworkTableInstance m_inst = nt::NetworkTableInstance::GetDefault();
-    nt::NetworkTableEntry m_headingEntry =
-        m_inst.GetEntry("/Diagnostics/Turret/Heading");
+    nt::NetworkTableEntry m_angleStateEntry =
+        m_inst.GetEntry("/Diagnostics/Turret/States/Angle");
+    nt::NetworkTableEntry m_angularVelocityStateEntry =
+        m_inst.GetEntry("/Diagnostics/Turret/States/Angular velocity");
+    nt::NetworkTableEntry m_inputVoltageEntry =
+        m_inst.GetEntry("/Diagnostics/Turret/Inputs/Voltage");
+    nt::NetworkTableEntry m_angleOutputEntry =
+        m_inst.GetEntry("/Diagnostics/Turret/Outputs/Angle");
+    nt::NetworkTableEntry m_controlModeEntry =
+        m_inst.GetEntry("/Diagnostics/Turret/Control mode");
     nt::NetworkTableEntry m_poseMeasurementFaultEntry =
         m_inst.GetEntry("/Diagnostics/Turret/Measurement fault counter");
 

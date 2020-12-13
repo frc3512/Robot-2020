@@ -195,8 +195,8 @@ public:
 private:
     static constexpr auto kV = 4.42_V / 1_rad_per_s;
     static constexpr auto kA = 0.14_V / 1_rad_per_s_sq;
-    static constexpr auto kMaxV = 1.477996_rad_per_s;
-    static constexpr auto kMaxA = 7.782482_rad_per_s_sq;
+    static constexpr auto kMaxV = 12_V / kV;
+    static constexpr auto kMaxA = 1.5_V / kA;
 
     static const frc::Pose2d kTargetPoseInGlobal;
 
@@ -220,7 +220,6 @@ private:
     Eigen::Matrix<double, 2, 1> m_r;
     Eigen::Matrix<double, 2, 1> m_nextR;
 
-    // TODO: Let the turret aim on its own once we trust it in teleop
     ControlMode m_controlMode = ControlMode::kManual;
 
     bool m_atReferences = false;

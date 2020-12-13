@@ -81,7 +81,21 @@ units::volt_t Turret::GetMotorOutput() const {
 }
 
 void Turret::RobotPeriodic() {
-    m_headingEntry.SetDouble(GetAngle().to<double>());
+    m_angleStateEntry.SetDouble(
+        m_controller.GetStates()(TurretController::State::kAngle));
+    m_angularVelocityStateEntry.SetDouble(
+        m_controller.GetStates()(TurretController::State::kAngularVelocity));
+    m_inputVoltageEntry.SetDouble(m_controller.GetInputs()(0));
+    m_angleOutputEntry.SetDouble(GetAngle().to<double>());
+
+    int controlMode = static_cast<int>(m_controller.GetControlMode());
+    if (controlMode == 0) {
+        m_controlModeEntry.SetString("Manual");
+    } else if (controlMode == 1) {
+        m_controlModeEntry.SetString("ClosedLoop");
+    } else if (controlMode == 2) {
+        m_controlModeEntry.SetString("AutoAim");
+    }
 }
 
 void Turret::TeleopPeriodic() {
