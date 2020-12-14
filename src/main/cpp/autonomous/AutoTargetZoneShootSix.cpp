@@ -96,7 +96,7 @@ void Robot::AutoTargetZoneShootSixPeriodic() {
             auto config = Drivetrain::MakeTrajectoryConfig();
             config.SetReversed(true);
 
-            m_drivetrain.SetWaypoints({endPose, midPose}, config);
+            m_drivetrain.SetWaypoints(endPose, {}, midPose, config);
             state = State::kTrenchShoot;
             break;
         }
