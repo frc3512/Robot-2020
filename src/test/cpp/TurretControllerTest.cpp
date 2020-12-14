@@ -33,12 +33,10 @@ TEST(TurretControllerTest, CalculateAngularVelocity) {
     frc::Translation2d targetTranslationInGlobal{4_m, 2_m};
     frc::Translation2d turretTranslationInGlobal{2_m, 0_m};
 
-    auto translationToTargetInGlobal =
-        targetTranslationInGlobal - turretTranslationInGlobal;
+    auto translationFromTargetInGlobal =
+        turretTranslationInGlobal - targetTranslationInGlobal;
 
     // Moving along x axis
-    frc::Velocity2d turretVelocityInGlobal{2_mps, 0_mps};
-
     // Component of v perpendicular to target should be 1/std::sqrt(2) * v =
     // std::sqrt(2)
     //
@@ -46,9 +44,11 @@ TEST(TurretControllerTest, CalculateAngularVelocity) {
     //
     // ω = v perp / r to target = std::sqrt(2) / (2 sqrt(2)) = 0.5
     auto omega = controller.CalculateAngularVelocity(
-        turretVelocityInGlobal, translationToTargetInGlobal);
-
+        {2_mps, 0_mps}, translationFromTargetInGlobal);
     EXPECT_EQ(omega, 0.5_rad_per_s);
+    omega = controller.CalculateAngularVelocity({-2_mps, 0_mps},
+                                                translationFromTargetInGlobal);
+    EXPECT_EQ(omega, -0.5_rad_per_s);
 }
 
 void VerifyHeadingAdjustment(units::meters_per_second_t drivetrainSpeed,

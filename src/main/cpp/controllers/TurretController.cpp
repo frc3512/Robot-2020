@@ -128,27 +128,42 @@ Eigen::Matrix<double, 1, 1> TurretController::Update(
                 kDrivetrainToTurretFrame.Rotation().Radians();
 
             // Find angular velocity reference for this timestep
-            units::meters_per_second_t v =
+            units::meters_per_second_t drivetrainV =
                 (m_drivetrainLeftVelocity + m_drivetrainRightVelocity) / 2.0;
-            frc::Velocity2d drivetrainVelocity{
-                v, m_drivetrainNextPoseInGlobal.Rotation()};
+            units::radians_per_second_t drivetrainW =
+                (m_drivetrainRightVelocity - m_drivetrainLeftVelocity) /
+                DrivetrainController::kWidth * 1_rad;
+            frc::Velocity2d drivetrainVelocityInGlobal{
+                drivetrainV, m_drivetrainNextPoseInGlobal.Rotation()};
 
-            auto turretDesiredAngularVelocity = CalculateAngularVelocity(
-                drivetrainVelocity, kTargetPoseInGlobal.Translation() +
-                                        TargetModel::kOffset -
-                                        turretNextPoseInGlobal.Translation());
+            // The desired turret angular velocity is the turret's angular
+            // velocity relative to the target minus the drivetrain's angular
+            // velocity relative to the field.
+            auto turretDesiredAngularVelocity =
+                CalculateAngularVelocity(
+                    drivetrainVelocityInGlobal,
+                    turretNextPoseInGlobal.Translation() -
+                        (kTargetPoseInGlobal.Translation() +
+                         TargetModel::kOffset)) -
+                drivetrainW;
 
+            // Auto-aiming doesn't need a trapezoid profile because the
+            // drivetrain pose already profiles the heading. We still set the
+            // trapezoid profile goal to the reference so AtGoal() works with
+            // auto-aiming.
             SetGoal(turretDesiredHeadingInTurret, turretDesiredAngularVelocity);
+            SetReferences(m_goal.position, m_goal.velocity);
+        } else if (m_controlMode == ControlMode::kClosedLoop) {
+            // Calculate profiled references to the goal
+            frc::TrapezoidProfile<units::radian>::State references = {
+                units::radian_t{m_nextR(State::kAngle)},
+                units::radians_per_second_t{m_nextR(State::kAngularVelocity)}};
+            frc::TrapezoidProfile<units::radian> profile{m_constraints, m_goal,
+                                                         references};
+            auto profiledReference = profile.Calculate(Constants::kDt);
+            SetReferences(profiledReference.position,
+                          profiledReference.velocity);
         }
-
-        // Calculate profiled references to the goal
-        frc::TrapezoidProfile<units::radian>::State references = {
-            units::radian_t{m_nextR(State::kAngle)},
-            units::radians_per_second_t{m_nextR(State::kAngularVelocity)}};
-        frc::TrapezoidProfile<units::radian> profile{m_constraints, m_goal,
-                                                     references};
-        auto profiledReference = profile.Calculate(Constants::kDt);
-        SetReferences(profiledReference.position, profiledReference.velocity);
 
         u << m_lqr.K() * (m_r - m_observer.Xhat()) + m_ff.Calculate(m_nextR);
 
@@ -195,6 +210,8 @@ units::radian_t TurretController::CalculateHeading(
         units::math::max(0_rad_per_s,
                          m_flywheelAngularVelocityRef - 50_rad_per_s));
 
+    // TODO: Heading adjustment isn't included in angular velocity reference
+    // calculation
     return units::math::atan2(targetInGlobal.Y() - turretInGlobal.Y(),
                               targetInGlobal.X() - turretInGlobal.X()) +
            adjustment;
@@ -267,8 +284,8 @@ units::radians_per_second_t TurretController::CalculateAngularVelocity(
     frc::Velocity2d v, frc::Translation2d r) {
     // No Translation2d::operator* exists that takes a 1/s and gives a
     // Velocity2d.
-    frc::Translation2d v2{units::meter_t{v.X().to<double>()},
-                          units::meter_t{v.Y().to<double>()}};
+    frc::Translation2d vVec{units::meter_t{v.X().to<double>()},
+                            units::meter_t{v.Y().to<double>()}};
 
     // We want the angular velocity around the target. We know:
     //
@@ -279,18 +296,20 @@ units::radians_per_second_t TurretController::CalculateAngularVelocity(
     // vector, and r is the displacement vector from the center of rotation.
     //
     // |w| = |v_perp| / |r| where v_perp is the component of v perpendicular to
-    // the displacement vector.
+    // the displacement vector. This can be obtained via
     //
-    // |w| = |v_perp| / |r|             (1)
-    // v_perp = v - proj_r(v)           (2)
-    // proj_r(v) = v . r / (r . r) * r  (3)
+    // |w| = |v_perp| / |r|                 (1)
     //
-    // |w| = |v_perp| / |r|
-    // |w| = |(v - proj_r(v))| / |r|
-    // |w| = |(v - v . r / (r . r) * r| / |r|
-    // |w| = |(v - r * (v . r / (r . r))| / |r|
+    // |v_perp| = r_perp / |r| . v          (2)
+    // r_perp = <-r.y, r.x>                 (3)
+    //
+    // |w| = (r_perp / |r| . v) / |r|
+    // |w| = (<-r.y, r.x> / |r| . v) / |r|
+    // |w| = (<-r.y, r.x> / |r|^2 . v)
+    // |w| = (<-r.y, r.x> / (r . r) . v)    (4)
     return units::radians_per_second_t{
-        ((v2 - r * (Dot(v2, r) / Dot(r, r))).Norm() / r.Norm()).to<double>()};
+        Dot(frc::Translation2d{-r.Y(), r.X()} / Dot(r, r).to<double>(), vVec)
+            .to<double>()};
 }
 
 frc::Pose2d TurretController::DrivetrainToTurretInGlobal(

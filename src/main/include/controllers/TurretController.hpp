@@ -196,7 +196,7 @@ private:
     static constexpr auto kV = 4.42_V / 1_rad_per_s;
     static constexpr auto kA = 0.14_V / 1_rad_per_s_sq;
     static constexpr auto kMaxV = 12_V / kV;
-    static constexpr auto kMaxA = 1.5_V / kA;
+    static constexpr auto kMaxA = 10_V / kA;
 
     static const frc::Pose2d kTargetPoseInGlobal;
 
