@@ -6,51 +6,33 @@
 
 namespace frc3512 {
 
-namespace {
-enum class State { kInit, kShoot, kIdle };
-}  // namespace
+void Robot::AutoRightSideShootThree() {
+    // Initial Pose - Right in line with the three balls in the Trench Run
+    const frc::Pose2d initialPose{12.89_m, 0.71_m,
+                                  units::radian_t{wpi::math::pi}};
+    // Drive forward slightly
+    const frc::Pose2d endPose{12.89_m - 1.5 * Drivetrain::kLength, 0.71_m,
+                              units::radian_t{wpi::math::pi}};
 
-static State state;
-static frc2::Timer autonTimer;
-
-// Initial Pose - Right in line with the three balls in the Trench Run
-static const frc::Pose2d initialPose{12.89_m, 0.71_m,
-                                     units::radian_t{wpi::math::pi}};
-// Drive forward slightly
-static const frc::Pose2d endPose{12.89_m - 1.5 * Drivetrain::kLength, 0.71_m,
-                                 units::radian_t{wpi::math::pi}};
-
-void Robot::AutoRightSideShootThreeInit() {
     m_drivetrain.Reset(initialPose);
+    m_drivetrain.SetWaypoints(initialPose, {}, endPose);
 
-    state = State::kInit;
-    autonTimer.Reset();
-    autonTimer.Start();
-}
-
-void Robot::AutoRightSideShootThreePeriodic() {
-    switch (state) {
-        case State::kInit: {
-            m_drivetrain.SetWaypoints(initialPose, {}, endPose);
-            state = State::kShoot;
-            break;
-        }
-        case State::kShoot: {
-            if (m_drivetrain.AtGoal()) {
-                // Shoot x3
-                Shoot();
-                state = State::kIdle;
-            }
-            break;
-        }
-        case State::kIdle: {
-            break;
+    while (!m_drivetrain.AtGoal()) {
+        m_autonChooser.Yield();
+        if (!IsAutonomousEnabled()) {
+            EXPECT_TRUE(false) << "Autonomous mode didn't complete";
+            return;
         }
     }
 
-    if constexpr (IsSimulation()) {
-        if (autonTimer.HasElapsed(14.97_s)) {
-            EXPECT_EQ(State::kIdle, state);
+    // Shoot x3
+    Shoot();
+
+    while (IsShooting()) {
+        m_autonChooser.Yield();
+        if (!IsAutonomousEnabled()) {
+            EXPECT_TRUE(false) << "Autonomous mode didn't complete";
+            return;
         }
     }
 }

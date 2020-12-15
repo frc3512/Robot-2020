@@ -14,36 +14,24 @@
 namespace frc3512 {
 
 Robot::Robot() {
-    m_autonChooser.AddAutonomous(
-        "Left Side Intake", [=] { AutoLeftSideIntakeInit(); },
-        [=] { AutoLeftSideIntakePeriodic(); });
-    m_autonChooser.AddAutonomous(
-        "Loading Zone Drive Forward",
-        [=] { AutoLoadingZoneDriveForwardInit(); },
-        [=] { AutoLoadingZoneDriveForwardPeriodic(); });
-    m_autonChooser.AddAutonomous(
-        "Loading Zone Shoot Three Balls",
-        [=] { AutoLoadingZoneShootThreeInit(); },
-        [=] { AutoLoadingZoneShootThreePeriodic(); });
-    m_autonChooser.AddAutonomous(
-        "Target Zone Shoot Three Balls",
-        [=] { AutoTargetZoneShootThreeInit(); },
-        [=] { AutoTargetZoneShootThreePeriodic(); });
-    m_autonChooser.AddAutonomous(
-        "Target Zone Shoot Six Balls", [=] { AutoTargetZoneShootSixInit(); },
-        [=] { AutoTargetZoneShootSixPeriodic(); });
-    m_autonChooser.AddAutonomous(
-        "Right Side Drive Forward", [=] { AutoRightSideDriveForwardInit(); },
-        [=] { AutoRightSideDriveForwardPeriodic(); });
-    m_autonChooser.AddAutonomous(
-        "Right Side Shoot Three Balls", [=] { AutoRightSideShootThreeInit(); },
-        [=] { AutoRightSideShootThreePeriodic(); });
-    m_autonChooser.AddAutonomous(
-        "Right Side Shoot Six Balls", [=] { AutoRightSideShootSixInit(); },
-        [=] { AutoRightSideShootSixPeriodic(); });
-    m_autonChooser.AddAutonomous(
-        "Right Side Intake", [=] { AutoRightSideIntakeInit(); },
-        [=] { AutoRightSideIntakePeriodic(); });
+    m_autonChooser.AddAutonomous("Left Side Intake",
+                                 [=] { AutoLeftSideIntake(); });
+    m_autonChooser.AddAutonomous("Loading Zone Drive Forward",
+                                 [=] { AutoLoadingZoneDriveForward(); });
+    m_autonChooser.AddAutonomous("Loading Zone Shoot Three Balls",
+                                 [=] { AutoLoadingZoneShootThree(); });
+    m_autonChooser.AddAutonomous("Target Zone Shoot Three Balls",
+                                 [=] { AutoTargetZoneShootThree(); });
+    m_autonChooser.AddAutonomous("Target Zone Shoot Six Balls",
+                                 [=] { AutoTargetZoneShootSix(); });
+    m_autonChooser.AddAutonomous("Right Side Drive Forward",
+                                 [=] { AutoRightSideDriveForward(); });
+    m_autonChooser.AddAutonomous("Right Side Shoot Three Balls",
+                                 [=] { AutoRightSideShootThree(); });
+    m_autonChooser.AddAutonomous("Right Side Shoot Six Balls",
+                                 [=] { AutoRightSideShootSix(); });
+    m_autonChooser.AddAutonomous("Right Side Intake",
+                                 [=] { AutoRightSideIntake(); });
 
     frc::LiveWindow::GetInstance()->DisableAllTelemetry();
 
@@ -63,6 +51,7 @@ bool Robot::IsShooting() const { return m_state != ShootingState::kIdle; }
 void Robot::SimulationInit() { SubsystemBase::RunAllSimulationInit(); }
 
 void Robot::DisabledInit() {
+    m_autonChooser.EndAutonomous();
     SubsystemBase::RunAllDisabledInit();
 
     // Reset teleop shooting state machine when disabling robot
@@ -74,12 +63,18 @@ void Robot::DisabledInit() {
 
 void Robot::AutonomousInit() {
     SubsystemBase::RunAllAutonomousInit();
-    m_autonChooser.RunAutonomousInit();
+    m_autonChooser.AwaitStartAutonomous();
 }
 
-void Robot::TeleopInit() { SubsystemBase::RunAllTeleopInit(); }
+void Robot::TeleopInit() {
+    m_autonChooser.EndAutonomous();
+    SubsystemBase::RunAllTeleopInit();
+}
 
-void Robot::TestInit() { SubsystemBase::RunAllTestInit(); }
+void Robot::TestInit() {
+    m_autonChooser.EndAutonomous();
+    SubsystemBase::RunAllTestInit();
+}
 
 void Robot::RobotPeriodic() {
     SubsystemBase::RunAllRobotPeriodic();
@@ -100,7 +95,7 @@ void Robot::DisabledPeriodic() { SubsystemBase::RunAllDisabledPeriodic(); }
 
 void Robot::AutonomousPeriodic() {
     SubsystemBase::RunAllAutonomousPeriodic();
-    m_autonChooser.RunAutonomousPeriodic();
+    m_autonChooser.AwaitRunAutonomous();
 
     RunShooterSM();
 }

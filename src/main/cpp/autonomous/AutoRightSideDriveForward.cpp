@@ -7,43 +7,22 @@
 
 namespace frc3512 {
 
-namespace {
-enum class State { kInit, kIdle };
-}  // namespace
+void Robot::AutoRightSideDriveForward() {
+    // Initial Pose - Right in line with the three balls in the Trench Run
+    const frc::Pose2d initialPose{12.89_m, 0.71_m,
+                                  units::radian_t{wpi::math::pi}};
+    // End Pose - Drive forward slightly
+    const frc::Pose2d endPose{12.89_m - 1.5 * Drivetrain::kLength, 0.71_m,
+                              units::radian_t{wpi::math::pi}};
 
-static State state;
-static frc2::Timer autonTimer;
-
-// Initial Pose - Right in line with the three balls in the Trench Run
-static const frc::Pose2d initialPose{12.89_m, 0.71_m,
-                                     units::radian_t{wpi::math::pi}};
-// End Pose - Drive forward slightly
-static const frc::Pose2d endPose{12.89_m - 1.5 * Drivetrain::kLength, 0.71_m,
-                                 units::radian_t{wpi::math::pi}};
-
-void Robot::AutoRightSideDriveForwardInit() {
     m_drivetrain.Reset(initialPose);
+    m_drivetrain.SetWaypoints(initialPose, {}, endPose);
 
-    state = State::kInit;
-    autonTimer.Reset();
-    autonTimer.Start();
-}
-
-void Robot::AutoRightSideDriveForwardPeriodic() {
-    switch (state) {
-        case State::kInit: {
-            m_drivetrain.SetWaypoints(initialPose, {}, endPose);
-            state = State::kIdle;
-            break;
-        }
-        case State::kIdle: {
-            break;
-        }
-    }
-
-    if constexpr (IsSimulation()) {
-        if (autonTimer.HasElapsed(14.97_s)) {
-            EXPECT_EQ(State::kIdle, state);
+    while (!m_drivetrain.AtGoal()) {
+        m_autonChooser.Yield();
+        if (!IsAutonomousEnabled()) {
+            EXPECT_TRUE(false) << "Autonomous mode didn't complete";
+            return;
         }
     }
 }

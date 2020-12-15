@@ -12,11 +12,16 @@
 #if RUNNING_FRC_TESTS
 #include <gtest/gtest.h>
 #else
-#define EXPECT_EQ(a, b)
-#define EXPECT_FALSE(a)
-#define EXPECT_GT(a, b)
-#define EXPECT_LT(a, b)
-#define EXPECT_TRUE(a)
+namespace frc3512::testing {
+struct NoOp {
+    void operator<<(const char*) {}
+};
+}  // namespace frc3512::testing
+#define EXPECT_EQ(a, b) frc3512::testing::NoOp()
+#define EXPECT_FALSE(a) frc3512::testing::NoOp()
+#define EXPECT_GT(a, b) frc3512::testing::NoOp()
+#define EXPECT_LT(a, b) frc3512::testing::NoOp()
+#define EXPECT_TRUE(a) frc3512::testing::NoOp()
 #endif
 
 #include "AutonomousChooser.hpp"
@@ -86,130 +91,63 @@ public:
     void RunShooterSM();
 
     /**
-     * Initialization code for no-op autonomous.
+     * No-op autonomous.
      */
-    void AutoNoOpInit();
+    void AutoNoOp();
 
     /**
-     * Initialization code for driving towards the allied alliance station from
-     * the initiation line and in front of the loading zone.
-     */
-    void AutoLoadingZoneDriveForwardInit();
-
-    /**
-     * Initialization code for shooting three power cells from the initiation
-     * line in front of the loading zone.
-     */
-    void AutoLoadingZoneShootThreeInit();
-
-    /**
-     * Initialization code for shooting three power cells from the initiation
-     * line in front of the target zone.
-     */
-    void AutoTargetZoneShootThreeInit();
-
-    /**
-     * Initialization code for driving towards the allied alliance station from
-     * the initiation line in front of the allied trench run.
-     */
-    void AutoRightSideDriveForwardInit();
-
-    /**
-     * Initialization code for shooting three power cells from the initiation
-     * line in front of the allied trench run.
-     */
-    void AutoRightSideShootThreeInit();
-
-    /**
-     * Initialization code for shooting three power cells from the initiation
-     * line in front of the opposing trench run and intaking two balls in the
-     * trench run.
-     */
-    void AutoLeftSideIntakeInit();
-
-    /**
-     * Initialization code for shooting three power cells from the initiation
-     * line in front of the allied trench run and intaking three balls in the
-     * trench run.
-     */
-    void AutoRightSideIntakeInit();
-
-    /**
-     * Initialization code for shooting three power cells from the initiation
-     * line in front of the allied trench run, intaking three balls in the
-     * trench run, then shooting them.
-     */
-    void AutoRightSideShootSixInit();
-
-    /**
-     * Initialization code for shooting three power cells from the initiation
-     * line in front of the target zone, intaking two balls under the power
-     * generator, then shooting them.
-     */
-    void AutoTargetZoneShootSixInit();
-
-    /**
-     * Periodic code for no-op autonomous.
-     */
-    void AutoNoOpPeriodic();
-
-    /**
-     * Periodic code for driving towards the allied alliance station from the
-     * initiation line and in front of the loading zone.
-     */
-    void AutoLoadingZoneDriveForwardPeriodic();
-
-    /**
-     * Periodic code for shooting three power cells from the initiation line in
+     * Drive towards the allied alliance station from the initiation line and in
      * front of the loading zone.
      */
-    void AutoLoadingZoneShootThreePeriodic();
+    void AutoLoadingZoneDriveForward();
 
     /**
-     * Periodic code for shooting three power cells from the initiation line in
-     * front of the target zone.
+     * Shoot three power cells from the initiation line in front of the loading
+     * zone.
      */
-    void AutoTargetZoneShootThreePeriodic();
+    void AutoLoadingZoneShootThree();
 
     /**
-     * Periodic code for driving towards the allied alliance station from the
-     * initiation line in front of the allied trench run.
+     * Shoot three power cells from the initiation line in front of the target
+     * zone.
      */
-    void AutoRightSideDriveForwardPeriodic();
+    void AutoTargetZoneShootThree();
 
     /**
-     * Periodic code for shooting three power cells from the initiation line in
+     * Drive towards the allied alliance station from the initiation line in
      * front of the allied trench run.
      */
-    void AutoRightSideShootThreePeriodic();
+    void AutoRightSideDriveForward();
 
     /**
-     * Periodic code for shooting three power cells from the initiation line in
-     * front of the opposing trench run and intaking two balls in the trench
-     * run.
+     * Shoot three power cells from the initiation line in front of the allied
+     * trench run.
      */
-    void AutoLeftSideIntakePeriodic();
+    void AutoRightSideShootThree();
 
     /**
-     * Periodic code for shooting three power cells from the initiation line in
-     * front of the allied trench run and intaking three balls in the trench
-     * run.
+     * Shoot three power cells from the initiation line in front of the opposing
+     * trench run and intake two balls in the trench run.
      */
-    void AutoRightSideIntakePeriodic();
+    void AutoLeftSideIntake();
 
     /**
-     * Periodic code for shooting three power cells from the initiation line in
-     * front of the allied trench run, intaking three balls in the trench run,
-     * then shooting them.
+     * Shoot three power cells from the initiation line in front of the allied
+     * trench run and intake three balls in the trench run.
      */
-    void AutoRightSideShootSixPeriodic();
+    void AutoRightSideIntake();
 
     /**
-     * Periodic code for shooting three power cells from the initiation line in
-     * front of the target zone, intaking two balls under the power generator,
-     * then shooting them.
+     * Shoot three power cells from the initiation line in front of the allied
+     * trench run, intake three balls in the trench run, then shooting them.
      */
-    void AutoTargetZoneShootSixPeriodic();
+    void AutoRightSideShootSix();
+
+    /**
+     * Shoot three power cells from the initiation line in front of the target
+     * zone, intake two balls under the power generator, then shoot them.
+     */
+    void AutoTargetZoneShootSix();
 
     /**
      * Sets the selected autonomous mode for testing purposes.
@@ -243,8 +181,7 @@ private:
     ShootingState m_state = ShootingState::kIdle;
     frc2::Timer m_timer;
 
-    AutonomousChooser m_autonChooser{"No-op", [=] { AutoNoOpInit(); },
-                                     [=] { AutoNoOpPeriodic(); }};
+    AutonomousChooser m_autonChooser{"No-op", [=] { AutoNoOp(); }};
 
     frc::CSVLogFile m_batteryLogger{"Battery", "Battery voltage (V)"};
 };

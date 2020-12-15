@@ -5,7 +5,6 @@
 #include <chrono>
 #include <vector>
 
-#include <frc/RobotBase.h>
 #include <frc/geometry/Pose2d.h>
 #include <frc/geometry/Transform2d.h>
 #include <frc2/Timer.h>

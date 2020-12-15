@@ -4,11 +4,9 @@
 
 namespace frc3512 {
 
-void Robot::AutoNoOpInit() {
+void Robot::AutoNoOp() {
     m_turret.SetControlMode(TurretController::ControlMode::kManual);
-}
 
-void Robot::AutoNoOpPeriodic() {
     if constexpr (IsSimulation()) {
         EXPECT_EQ(0_V, m_turret.GetMotorOutput());
     }
