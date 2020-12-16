@@ -96,6 +96,12 @@ public:
     void AutoNoOp();
 
     /**
+     * Shoot three power cells from the initiation line in front of the opposing
+     * trench run and intake two balls in the trench run.
+     */
+    void AutoLeftSideIntake();
+
+    /**
      * Drive towards the allied alliance station from the initiation line and in
      * front of the loading zone.
      */
@@ -114,22 +120,16 @@ public:
     void AutoTargetZoneShootThree();
 
     /**
+     * Shoot three power cells from the initiation line in front of the target
+     * zone, intake two balls under the power generator, then shoot them.
+     */
+    void AutoTargetZoneShootSix();
+
+    /**
      * Drive towards the allied alliance station from the initiation line in
      * front of the allied trench run.
      */
     void AutoRightSideDriveForward();
-
-    /**
-     * Shoot three power cells from the initiation line in front of the allied
-     * trench run.
-     */
-    void AutoRightSideShootThree();
-
-    /**
-     * Shoot three power cells from the initiation line in front of the opposing
-     * trench run and intake two balls in the trench run.
-     */
-    void AutoLeftSideIntake();
 
     /**
      * Shoot three power cells from the initiation line in front of the allied
@@ -139,15 +139,15 @@ public:
 
     /**
      * Shoot three power cells from the initiation line in front of the allied
+     * trench run.
+     */
+    void AutoRightSideShootThree();
+
+    /**
+     * Shoot three power cells from the initiation line in front of the allied
      * trench run, intake three balls in the trench run, then shooting them.
      */
     void AutoRightSideShootSix();
-
-    /**
-     * Shoot three power cells from the initiation line in front of the target
-     * zone, intake two balls under the power generator, then shoot them.
-     */
-    void AutoTargetZoneShootSix();
 
     /**
      * Sets the selected autonomous mode for testing purposes.

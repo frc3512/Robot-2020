@@ -26,12 +26,12 @@ Robot::Robot() {
                                  [=] { AutoTargetZoneShootSix(); });
     m_autonChooser.AddAutonomous("Right Side Drive Forward",
                                  [=] { AutoRightSideDriveForward(); });
+    m_autonChooser.AddAutonomous("Right Side Intake",
+                                 [=] { AutoRightSideIntake(); });
     m_autonChooser.AddAutonomous("Right Side Shoot Three Balls",
                                  [=] { AutoRightSideShootThree(); });
     m_autonChooser.AddAutonomous("Right Side Shoot Six Balls",
                                  [=] { AutoRightSideShootSix(); });
-    m_autonChooser.AddAutonomous("Right Side Intake",
-                                 [=] { AutoRightSideIntake(); });
 
     frc::LiveWindow::GetInstance()->DisableAllTelemetry();
 
