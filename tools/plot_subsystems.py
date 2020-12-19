@@ -14,10 +14,6 @@ import sys
 
 plt.rcParams.update({'figure.max_open_warning': 0})
 
-prefix = r"^\./.*?"
-postfix = r"-(?P<date>\d{4}-\d{2}-\d{2}-\d{2}_\d{2}_\d{2})\.csv$"
-unit_rgx = re.compile(r"^(?P<name>[\w\- ]+) \((?P<unit>.*?)\)$")
-
 
 def num_lines(filename):
     with open(filename) as f:
@@ -40,9 +36,13 @@ def get_file_list():
     if len(sys.argv) > 1:
         files = [f for f in files if re.search(sys.argv[1], f)]
 
-    # Maps subsystem name to tuple of csv_group and date
+    # Maps subsystem name to tuple of csv_group and date (group is set of files
+    # with states, inputs, or outputs suffixes and the same name stub like
+    # "Flywheel")
     filtered = {}
-    file_rgx = re.compile(r"(?P<name>" + prefix + r"[A-Za-z ]+)" + postfix)
+    file_rgx = re.compile(
+        r"(?P<name>^\./.*?[A-Za-z ]+)-(?P<date>\d{4}-\d{2}-\d{2}-\d{2}_\d{2}_\d{2})\.csv$"
+    )
     for f in files:
         match = file_rgx.search(f)
         if not match:
@@ -73,7 +73,7 @@ def make_groups(files):
     # Group files by category (sets of files with states, inputs, or outputs
     # suffixes and the same name stub like "Flywheel")
     category_rgx = re.compile(
-        prefix + r"(?P<category>[A-Za-z ]+) (states|inputs|outputs)" + postfix)
+        r"^\./.*?(?P<category>[A-Za-z ]+) (states|inputs|outputs)-")
     file_groups = {}
     if files:
         print("Loading CSVs...")
@@ -112,6 +112,7 @@ if file_groups:
 
 # Within each group, make groups of datasets keyed on their unit, then plot each
 # group on their own figure
+unit_rgx = re.compile(r"^(?P<name>[\w\- ]+) \((?P<unit>.*?)\)$")
 for category, file_group in file_groups.items():
     unit_groups = {}
     name_groups = {}
