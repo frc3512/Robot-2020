@@ -6,7 +6,6 @@ If provided, the first argument to this script is a filename regex that
 restricts which CSVs are plotted to those that match the regex.
 """
 
-import argparse
 import matplotlib.pyplot as plt
 import numpy as np
 import os
@@ -168,16 +167,16 @@ for category, file_group in file_groups.items():
     if not (set(["X reference", "Y reference", "X estimate", "Y estimate"]) -
             set(name_groups.keys())):
         print(f'  [y vs x] {category}')
-        plt.figure()
-        plt.title(f"{category} trajectory")
+        fig = plt.figure()
+        fig.title(f"{category} trajectory")
 
-        plt.plot(name_groups["X reference"], name_groups["Y reference"])
-        plt.plot(name_groups["X estimate"], name_groups["Y estimate"])
+        fig.plot(name_groups["X reference"], name_groups["Y reference"])
+        fig.plot(name_groups["X estimate"], name_groups["Y estimate"])
 
-        plt.xlabel("X (m)")
-        plt.ylabel("Y (m)")
-        plt.legend(["Reference", "Estimate"])
+        fig.xlabel("X (m)")
+        fig.ylabel("Y (m)")
+        fig.legend(["Reference", "Estimate"])
 
         # This equalizes the X and Y axes so the trajectories aren't warped
-        plt.axis("equal")
+        fig.axis("equal")
 plt.show()
