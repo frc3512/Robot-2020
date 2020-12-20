@@ -152,32 +152,32 @@ for category, file_group in file_groups.items():
     # Plot time domain datasets
     print(f'  [vs time] {category} ({", ".join(unit_groups.keys())})')
     for unit, data_tups in unit_groups.items():
-        plt.figure()
-        plt.title(f"{category} ({unit})")
+        fig, ax = plt.subplots(1, 1)
+        ax.set_title(f"{category} ({unit})")
 
         for i in range(len(data_tups[1])):
-            plt.plot(data_tups[0], data_tups[1][i])
+            ax.plot(data_tups[0], data_tups[1][i])
 
         # First label is x axis label (time). The remainder are dataset names.
-        plt.xlabel("Time (s)")
-        plt.ylabel(f"Data ({unit})")
-        plt.legend(data_tups[2])
+        ax.set_xlabel("Time (s)")
+        ax.set_ylabel(f"Data ({unit})")
+        ax.legend(data_tups[2])
 
     # Plot X-Y datasets. If the file doesn't have all the required keys, skip
     # it.
     if not (set(["X reference", "Y reference", "X estimate", "Y estimate"]) -
             set(name_groups.keys())):
         print(f'  [y vs x] {category}')
-        fig = plt.figure()
-        fig.title(f"{category} trajectory")
+        fig, ax = plt.subplots(1, 1)
+        ax.set_title(f"{category} trajectory")
 
-        fig.plot(name_groups["X reference"], name_groups["Y reference"])
-        fig.plot(name_groups["X estimate"], name_groups["Y estimate"])
+        ax.plot(name_groups["X reference"], name_groups["Y reference"])
+        ax.plot(name_groups["X estimate"], name_groups["Y estimate"])
 
-        fig.xlabel("X (m)")
-        fig.ylabel("Y (m)")
-        fig.legend(["Reference", "Estimate"])
+        ax.set_xlabel("X (m)")
+        ax.set_ylabel("Y (m)")
+        ax.legend(["Reference", "Estimate"])
 
         # This equalizes the X and Y axes so the trajectories aren't warped
-        fig.axis("equal")
+        ax.axis("equal")
 plt.show()
