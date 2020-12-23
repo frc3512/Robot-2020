@@ -6,9 +6,11 @@
 
 #include <Eigen/Core>
 #include <fmt/core.h>
+#include <frc/logging/CSVLogFile.h>
 #include <frc2/Timer.h>
 #include <units/time.h>
 #include <wpi/StringRef.h>
+#include <wpi/Twine.h>
 
 #include "logging/CSVControllerLogger.hpp"
 #include "logging/LiveGrapherControllerLogger.hpp"
@@ -45,8 +47,9 @@ public:
                    const std::array<ControllerLabel, Outputs>& outputLabels)
 #ifndef RUNNING_FRC_TESTS
         : m_csvLogger{controllerName, stateLabels, inputLabels, outputLabels},
-          m_liveGrapher{controllerName, stateLabels, inputLabels,
-                        outputLabels} {
+          m_liveGrapher{controllerName, stateLabels, inputLabels, outputLabels},
+          m_dtLogger{(controllerName + " scheduling period").str(),
+                     "Period (s)"} {
         // Write at least one data point to LiveGrapher for each dataset so they
         // are available when the robot is disabled.
         //
@@ -67,7 +70,9 @@ public:
         m_liveGrapher.Log(now, r, x, u, y);
     }
 #else
-        : m_csvLogger{controllerName, stateLabels, inputLabels, outputLabels} {
+        : m_csvLogger{controllerName, stateLabels, inputLabels, outputLabels},
+          m_dtLogger{(controllerName + " scheduling period").str(),
+                     "Period (s)"} {
     }
 #endif
 
@@ -152,6 +157,7 @@ public:
         m_liveGrapher.Log(now - m_startTime, GetReferences(), GetStates(), m_u,
                           y);
 #endif
+        m_dtLogger.Log(now - m_startTime, m_dt.to<double>());
 
         if (m_dt > 0_s) {
             m_u = Update(y, m_dt);
@@ -177,6 +183,7 @@ private:
 #ifndef RUNNING_FRC_TESTS
     LiveGrapherControllerLogger<States, Inputs, Outputs> m_liveGrapher;
 #endif
+    frc::CSVLogFile m_dtLogger;
 
     // Controller reference
     Eigen::Matrix<double, 2, 1> m_r;
