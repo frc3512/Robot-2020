@@ -163,27 +163,19 @@ task buildAthena {
     dependsOn 'frcUserProgramLinuxathenaReleaseExecutable'
 }
 
-task removeLogs(type: Exec) {
-    workingDir '.'
-    commandLine './buildscripts/remove-logs.sh'
-}
-
 task test {
     dependsOn 'testRelease'
 }
 
 task testDebug {
-    dependsOn 'removeLogs'
     dependsOn 'runFrcUserProgramTest' + wpi.platforms.desktop.capitalize() + 'DebugGoogleTestExe'
 }
 
 task testRelease {
-    dependsOn 'removeLogs'
     dependsOn 'runFrcUserProgramTest' + wpi.platforms.desktop.capitalize() + 'ReleaseGoogleTestExe'
 }
 
 task simulate(type: Exec) {
-    dependsOn 'removeLogs'
     dependsOn 'simulateFrcUserProgram' + wpi.platforms.desktop.capitalize() + 'DebugExecutable'
     workingDir 'build/stdout'
     commandLine 'tail', '-f', 'simulateFrcUserProgram' + wpi.platforms.desktop.capitalize() + 'DebugExecutable.log'

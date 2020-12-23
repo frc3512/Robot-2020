@@ -8,8 +8,8 @@
 #include <frc/simulation/SimHooks.h>
 #include <gtest/gtest.h>
 
-#include "CSVTestUtil.hpp"
 #include "Robot.hpp"
+#include "logging/CSVUtil.hpp"
 
 class AutonomousTest : public testing::TestWithParam<std::string> {
 protected:

@@ -10,6 +10,7 @@
 #include <frc/simulation/RoboRioSim.h>
 
 #include "Constants.hpp"
+#include "logging/CSVUtil.hpp"
 
 namespace frc3512 {
 
@@ -180,5 +181,10 @@ void Robot::ExpectAutonomousEndConds() {
 }  // namespace frc3512
 
 #ifndef RUNNING_FRC_TESTS
-int main() { return frc::StartRobot<frc3512::Robot>(); }
+int main() {
+    if constexpr (frc::RobotBase::IsSimulation()) {
+        frc3512::DeleteCSVs();
+    }
+    return frc::StartRobot<frc3512::Robot>();
+}
 #endif

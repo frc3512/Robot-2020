@@ -4,7 +4,7 @@
 #include <frc/simulation/SimHooks.h>
 #include <gtest/gtest.h>
 
-#include "CSVTestUtil.hpp"
+#include "logging/CSVUtil.hpp"
 #include "subsystems/Drivetrain.hpp"
 #include "subsystems/Flywheel.hpp"
 #include "subsystems/Vision.hpp"

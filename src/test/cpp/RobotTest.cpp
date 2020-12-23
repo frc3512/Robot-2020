@@ -2,8 +2,8 @@
 
 #include <gtest/gtest.h>
 
-#include "CSVTestUtil.hpp"
 #include "Robot.hpp"
+#include "logging/CSVUtil.hpp"
 
 // Make sure robot initializes
 TEST(RobotTest, Init) {

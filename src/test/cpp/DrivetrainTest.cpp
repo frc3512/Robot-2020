@@ -4,8 +4,8 @@
 #include <frc/simulation/SimHooks.h>
 #include <gtest/gtest.h>
 
-#include "CSVTestUtil.hpp"
 #include "Constants.hpp"
+#include "logging/CSVUtil.hpp"
 #include "subsystems/Drivetrain.hpp"
 
 namespace {

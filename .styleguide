@@ -19,10 +19,6 @@ modifiableFileExclude {
   Win32PipeImpl\.
 }
 
-includeCppSys {
-  experimental/
-}
-
 includeOtherLibs {
   Eigen/
   fmt/

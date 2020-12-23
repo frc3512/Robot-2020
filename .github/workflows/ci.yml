@@ -2,6 +2,10 @@ name: CI
 
 on: [push, pull_request]
 
+defaults:
+  run:
+    shell: bash
+
 jobs:
   format:
     runs-on: ubuntu-latest
@@ -33,7 +37,7 @@ jobs:
 
     - name: Verify wpiformat made no changes
       run: git --no-pager diff --exit-code HEAD
-  build:
+  build-athena:
     runs-on: ubuntu-latest
 
     container: wpilib/roborio-cross-ubuntu:2021-18.04
@@ -47,9 +51,22 @@ jobs:
     - name: Compile robot code for Athena
       run: ./gradlew buildAthena
   test:
-    runs-on: ubuntu-latest
-
-    container: wpilib/roborio-cross-ubuntu:2021-18.04
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            name: linux
+            build-options: "-Ponlylinuxx86-64"
+          - os: windows-latest
+            name: windows
+            build-options: "-Ponlywindowsx86-64"
+          - os: macos-latest
+            name: macos
+            build-options: "-Ponlymacosx86-64"
+    name: "test-${{ matrix.name }}"
+    runs-on: ${{ matrix.os }}
 
     steps:
     - uses: actions/checkout@v2
@@ -57,5 +74,8 @@ jobs:
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
 
+    - name: Install roboRIO toolchain
+      run: ./gradlew installRoboRioToolchain
+
     - name: Compile and run x86-64 unit tests
-      run: ./gradlew testRelease
+      run: ./gradlew test ${{ matrix.build-options }}

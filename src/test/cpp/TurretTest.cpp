@@ -7,8 +7,8 @@
 #include <gtest/gtest.h>
 #include <wpi/math>
 
-#include "CSVTestUtil.hpp"
 #include "Constants.hpp"
+#include "logging/CSVUtil.hpp"
 #include "subsystems/Drivetrain.hpp"
 #include "subsystems/Flywheel.hpp"
 #include "subsystems/Turret.hpp"
