@@ -42,7 +42,7 @@ Drivetrain::Drivetrain()
     m_leftEncoder.SetDistancePerPulse(DrivetrainController::kDpP);
     m_rightEncoder.SetDistancePerPulse(DrivetrainController::kDpP);
 
-    frc::SmartDashboard::PutData("Field", &m_field);
+    frc::SmartDashboard::PutData(&m_field);
 }
 
 Drivetrain::~Drivetrain() {}
