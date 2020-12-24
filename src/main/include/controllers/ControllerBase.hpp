@@ -71,6 +71,8 @@ public:
     }
 #endif
 
+    virtual ~ControllerBase() = default;
+
     /**
      * Enables the control loop.
      */
