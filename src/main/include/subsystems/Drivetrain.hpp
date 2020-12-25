@@ -44,7 +44,7 @@ public:
     static constexpr units::meter_t kMiddleOfRobotToIntake = 0.656_m;
 
     Drivetrain();
-    virtual ~Drivetrain();
+    ~Drivetrain();
 
     Drivetrain(Drivetrain&&) = default;
     Drivetrain& operator=(Drivetrain&&) = default;
