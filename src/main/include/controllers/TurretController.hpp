@@ -9,7 +9,6 @@
 #include <frc/geometry/Translation2d.h>
 #include <frc/geometry/Velocity2d.h>
 #include <frc/system/LinearSystem.h>
-#include <frc/system/LinearSystemLoop.h>
 #include <frc/system/plant/LinearSystemId.h>
 #include <frc/trajectory/TrapezoidProfile.h>
 #include <units/angle.h>
@@ -213,8 +212,6 @@ private:
     frc::LinearPlantInversionFeedforward<2, 1> m_ff{m_plant, Constants::kDt};
     frc::KalmanFilter<2, 1, 1> m_observer{
         m_plant, {0.21745, 0.28726}, {0.01}, Constants::kDt};
-    frc::LinearSystemLoop<2, 1, 1> m_loop{m_plant, m_lqr, m_ff, m_observer,
-                                          12_V};
 
     // Controller reference
     Eigen::Matrix<double, 2, 1> m_r;
