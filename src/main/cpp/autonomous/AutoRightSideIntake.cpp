@@ -37,7 +37,7 @@ void Robot::AutoRightSideIntake() {
     m_intake.SetFunnel(0.4);
 
     while (!m_drivetrain.AtGoal()) {
-        m_autonChooser.Yield();
+        m_autonChooser.YieldToMain();
         if (!IsAutonomousEnabled()) {
             EXPECT_TRUE(false) << "Autonomous mode didn't complete";
             return;

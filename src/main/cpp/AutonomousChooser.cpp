@@ -65,7 +65,7 @@ const std::vector<std::string>& AutonomousChooser::GetAutonomousNames() const {
     return m_names;
 }
 
-void AutonomousChooser::Yield() {
+void AutonomousChooser::YieldToMain() {
     m_awaitingAuton = false;
     m_cond.notify_one();
     m_cond.wait(m_autonLock, [&] { return m_awaitingAuton; });

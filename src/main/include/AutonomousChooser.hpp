@@ -63,7 +63,7 @@ public:
      * This function should only be called by the autonomous mode. A call by the
      * main robot thread will block indefinitely.
      */
-    void Yield();
+    void YieldToMain();
 
     /**
      * Return to main robot thread.
