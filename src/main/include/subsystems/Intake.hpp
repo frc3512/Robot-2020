@@ -26,12 +26,6 @@ class Flywheel;
  */
 class Intake : public SubsystemBase {
 public:
-    enum class State {
-        kIdle,
-        kDropBalls,
-        kRaiseBalls,
-    };
-
     enum class ArmMotorDirection { kIntake, kOuttake, kIdle };
 
     explicit Intake(Flywheel& flywheel);
@@ -96,8 +90,6 @@ public:
     void TeleopPeriodic() override;
 
 private:
-    State m_state = State::kIdle;
-
     frc2::Timer m_conveyorTimer;
 
     Flywheel& m_flywheel;
