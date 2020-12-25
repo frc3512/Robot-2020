@@ -374,12 +374,26 @@ inline std::tm gmtime(
 namespace detail {
 inline size_t strftime(char* str, size_t count, const char* format,
                        const std::tm* time) {
+#if defined(__GNUC__) && !defined(__llvm__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-nonliteral"
+#endif
   return std::strftime(str, count, format, time);
+#if defined(__GNUC__) && !defined(__llvm__)
+#pragma GCC diagnostic pop
+#endif
 }
 
 inline size_t strftime(wchar_t* str, size_t count, const wchar_t* format,
                        const std::tm* time) {
+#if defined(__GNUC__) && !defined(__llvm__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-nonliteral"
+#endif
   return std::wcsftime(str, count, format, time);
+#if defined(__GNUC__) && !defined(__llvm__)
+#pragma GCC diagnostic pop
+#endif
 }
 }  // namespace detail
 

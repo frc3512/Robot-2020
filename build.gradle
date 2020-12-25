@@ -1,3 +1,5 @@
+import org.gradle.internal.os.OperatingSystem
+
 plugins {
     id "cpp"
     id "google-test-test-suite"
@@ -59,6 +61,29 @@ dependencies {
     // Websocket extensions require additional configuration.
     // simulation wpi.deps.sim.ws_server(wpi.platforms.desktop, true)
     // simulation wpi.deps.sim.ws_client(wpi.platforms.desktop, true)
+}
+
+nativeUtils.platformConfigs.named("linuxathena").configure {
+    it.cppCompiler.args.add('-Wall')
+    it.cppCompiler.args.add('-Wextra')
+    it.cppCompiler.args.add('-pedantic')
+    it.cppCompiler.args.add('-Werror')
+    it.cppCompiler.args.add('-Wno-unused-parameter')
+}
+
+if (OperatingSystem.current().isWindows()) {
+    nativeUtils.platformConfigs.named(wpi.platforms.desktop).configure {
+        it.cppCompiler.args.add('/W3')
+        it.cppCompiler.args.add('/WX')
+    }
+} else {
+    nativeUtils.platformConfigs.named(wpi.platforms.desktop).configure {
+        it.cppCompiler.args.add('-Wall')
+        it.cppCompiler.args.add('-Wextra')
+        it.cppCompiler.args.add('-pedantic')
+        it.cppCompiler.args.add('-Werror')
+        it.cppCompiler.args.add('-Wno-unused-parameter')
+    }
 }
 
 nativeUtils.platformConfigs.named("linuxx86-64").configure {
