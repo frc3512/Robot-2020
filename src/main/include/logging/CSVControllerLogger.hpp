@@ -62,9 +62,9 @@ public:
              const Eigen::Matrix<double, States, 1>& x,
              const Eigen::Matrix<double, Inputs, 1>& u,
              const Eigen::Matrix<double, Outputs, 1>& y) {
-        LogVector2WithTime(m_stateLogger, time, r, x);
-        LogVectorWithTime(m_inputLogger, time, u);
-        LogVectorWithTime(m_outputLogger, time, y);
+        LogVector2WithTime<States, States>(m_stateLogger, time, r, x);
+        LogVectorWithTime<Inputs>(m_inputLogger, time, u);
+        LogVectorWithTime<Outputs>(m_outputLogger, time, y);
     }
 
     /**
@@ -79,9 +79,9 @@ public:
              const Eigen::Matrix<double, States, 1>& x,
              const Eigen::Matrix<double, Inputs, 1>& u,
              const Eigen::Matrix<double, Outputs, 1>& y) {
-        LogVector2(m_stateLogger, r, x);
-        LogVector(m_inputLogger, u);
-        LogVector(m_outputLogger, y);
+        LogVector2<States, States>(m_stateLogger, r, x);
+        LogVector<Inputs>(m_inputLogger, u);
+        LogVector<Outputs>(m_outputLogger, y);
     }
 
 private:
@@ -190,16 +190,18 @@ private:
         return LogVectorWithTimeImpl(logger, time, vec, Indices{});
     }
 
-    template <int Rows1, typename Indices1 = std::make_index_sequence<Rows1>,
-              int Rows2, typename Indices2 = std::make_index_sequence<Rows2>>
+    template <int Rows1, int Rows2,
+              typename Indices1 = std::make_index_sequence<Rows1>,
+              typename Indices2 = std::make_index_sequence<Rows2>>
     void LogVector2(frc::CSVLogFile& logger,
                     const Eigen::Matrix<double, Rows1, 1>& vec1,
                     const Eigen::Matrix<double, Rows2, 1>& vec2) {
         return LogVector2Impl(logger, vec1, Indices1{}, vec2, Indices2{});
     }
 
-    template <int Rows1, typename Indices1 = std::make_index_sequence<Rows1>,
-              int Rows2, typename Indices2 = std::make_index_sequence<Rows2>>
+    template <int Rows1, int Rows2,
+              typename Indices1 = std::make_index_sequence<Rows1>,
+              typename Indices2 = std::make_index_sequence<Rows2>>
     void LogVector2WithTime(frc::CSVLogFile& logger, units::second_t time,
                             const Eigen::Matrix<double, Rows1, 1>& vec1,
                             const Eigen::Matrix<double, Rows2, 1>& vec2) {
