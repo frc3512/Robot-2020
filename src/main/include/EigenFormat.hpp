@@ -6,8 +6,8 @@
 
 #include <fmt/format.h>
 
-template <int Rows, int Cols>
-struct fmt::formatter<Eigen::Matrix<double, Rows, Cols>> {
+template <int Rows, int Cols, int... Args>
+struct fmt::formatter<Eigen::Matrix<double, Rows, Cols, Args...>> {
     char presentation = 'f';
 
     constexpr auto parse(fmt::format_parse_context& ctx) {
@@ -24,7 +24,7 @@ struct fmt::formatter<Eigen::Matrix<double, Rows, Cols>> {
     }
 
     template <typename FormatContext>
-    auto format(const Eigen::Matrix<double, Rows, Cols>& mat,
+    auto format(const Eigen::Matrix<double, Rows, Cols, Args...>& mat,
                 FormatContext& ctx) {
         auto out = ctx.out();
         for (int i = 0; i < Rows; ++i) {
