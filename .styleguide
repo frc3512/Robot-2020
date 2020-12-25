@@ -16,6 +16,7 @@ generatedFileExclude {
 
 modifiableFileExclude {
   gradle/
+  Win32PipeImpl\.
 }
 
 includeCppSys {

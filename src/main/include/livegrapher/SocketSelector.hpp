@@ -2,7 +2,17 @@
 
 #pragma once
 
+#ifdef _WIN32
+#define _WIN32_LEAN_AND_MEAN
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+
+#include <winsock2.h>
+
+#else
 #include <sys/select.h>
+#endif
 
 #include "livegrapher/Pipe.hpp"
 #include "livegrapher/Socket.hpp"
@@ -109,7 +119,11 @@ private:
     fd_set m_selectReadFds;
     fd_set m_selectWriteFds;
     fd_set m_selectErrorFds;
+#ifdef _WIN32
+    SOCKET m_maxFd = 0;
+#else
     int m_maxFd = 0;
+#endif
 
     Pipe m_pipe;
 
@@ -120,7 +134,11 @@ private:
      * @param selectFlags A bitfield representing whether to select on read,
      *                    write, and/or error.
      */
+#ifdef _WIN32
+    void Add(SOCKET fd, int selectFlags);
+#else
     void Add(int fd, int selectFlags);
+#endif
 
     /**
      * Remove socket file descriptor from the selector.
@@ -129,5 +147,9 @@ private:
      * @param selectFlags A bitfield representing whether to stop selecting on
      *                    read, write, and/or error.
      */
+#ifdef _WIN32
+    void Remove(SOCKET fd, int selectFlags);
+#else
     void Remove(int fd, int selectFlags);
+#endif
 };

@@ -4,6 +4,10 @@
 
 #include <system_error>
 
+#ifdef _WIN32
+#pragma warning(disable : 4244)
+#endif
+
 SocketSelector::SocketSelector() {
     FD_ZERO(&m_readFds);
     FD_ZERO(&m_writeFds);
@@ -85,7 +89,11 @@ bool SocketSelector::IsWriteReady(const Pipe& pipe) {
 
 void SocketSelector::Cancel() { m_pipe.Write("x"); }
 
+#ifdef _WIN32
+void SocketSelector::Add(SOCKET fd, int selectFlags) {
+#else
 void SocketSelector::Add(int fd, int selectFlags) {
+#endif
     if (fd > m_maxFd) {
         m_maxFd = fd;
     }
@@ -99,7 +107,11 @@ void SocketSelector::Add(int fd, int selectFlags) {
     }
 }
 
+#ifdef _WIN32
+void SocketSelector::Remove(SOCKET fd, int selectFlags) {
+#else
 void SocketSelector::Remove(int fd, int selectFlags) {
+#endif
     if (selectFlags & kRead) {
         FD_CLR(fd, &m_readFds);
     } else if (selectFlags & kWrite) {

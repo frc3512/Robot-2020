@@ -2,7 +2,17 @@
 
 #pragma once
 
+#ifdef _WIN32
+#define _WIN32_LEAN_AND_MEAN
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+
+#include <winsock2.h>
+
+#else
 #include <sys/socket.h>
+#endif
 
 #include <array>
 #include <cerrno>
@@ -11,7 +21,11 @@
 class Socket {
 public:
     Socket() = default;
-    explicit Socket(int fd);
+#ifdef _WIN32
+    explicit Socket(SOCKET fd) : m_fd{fd} {}
+#else
+    explicit Socket(int fd) : m_fd{fd} {}
+#endif
     ~Socket();
 
     Socket(Socket&& rhs);
@@ -76,5 +90,9 @@ public:
 protected:
     friend class SocketSelector;
 
+#ifdef _WIN32
+    SOCKET m_fd = INVALID_SOCKET;
+#else
     int m_fd = -1;
+#endif
 };

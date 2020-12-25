@@ -13,7 +13,11 @@ public:
      *
      * @param fd The socket file descriptor to assume ownership of.
      */
+#ifdef _WIN32
+    explicit TcpSocket(SOCKET fd);
+#else
     explicit TcpSocket(int fd);
+#endif
 
     TcpSocket(TcpSocket&&) = default;
     TcpSocket& operator=(TcpSocket&&) = default;

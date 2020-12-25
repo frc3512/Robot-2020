@@ -2,16 +2,20 @@
 
 #include "livegrapher/ClientConnection.hpp"
 
+#ifdef _WIN32
+#pragma warning(disable : 4267)
+#endif
+
 ClientConnection::ClientConnection(TcpSocket&& socket) {
     this->socket = std::move(socket);
 }
 
-void ClientConnection::SelectGraph(uint8_t id) { m_datasets |= 1L << id; }
+void ClientConnection::SelectGraph(uint8_t id) { m_datasets |= 1LL << id; }
 
-void ClientConnection::UnselectGraph(uint8_t id) { m_datasets &= ~(1L << id); }
+void ClientConnection::UnselectGraph(uint8_t id) { m_datasets &= ~(1LL << id); }
 
 bool ClientConnection::IsGraphSelected(uint8_t id) {
-    return m_datasets & (1L << id);
+    return m_datasets & (1LL << id);
 }
 
 void ClientConnection::AddData(std::string_view data) {
@@ -25,7 +29,8 @@ bool ClientConnection::HasDataToWrite() const {
 }
 
 bool ClientConnection::WriteToSocket() {
-    int count = socket.Write({m_writeQueue.data(), m_writeQueue.size()});
+    int count = socket.Write(
+        std::string_view{m_writeQueue.data(), m_writeQueue.size()});
     if (count == -1) {
         return false;
     } else {

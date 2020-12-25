@@ -2,18 +2,38 @@
 
 #include "livegrapher/Socket.hpp"
 
+#ifdef _WIN32
+#define _WIN32_LEAN_AND_MEAN
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+
+#include <winsock2.h>
+
+#pragma comment(lib, "Ws2_32.lib")
+
+#else
 #include <fcntl.h>
 #include <unistd.h>
+#endif
 
 #include <system_error>
 #include <utility>
 
-Socket::Socket(int fd) : m_fd(fd) {}
+#ifdef _WIN32
+#pragma warning(disable : 4267)
+#endif
 
 Socket::~Socket() {
+#ifdef _WIN32
+    if (m_fd != INVALID_SOCKET) {
+        closesocket(m_fd);
+    }
+#else
     if (m_fd != -1) {
         close(m_fd);
     }
+#endif
 }
 
 Socket::Socket(Socket&& rhs) { std::swap(m_fd, rhs.m_fd); }
@@ -55,6 +75,12 @@ bool Socket::WriteBlocking(std::string_view data) {
 }
 
 void Socket::SetBlocking(bool blocking) {
+#ifdef _WIN32
+    u_long nbenable = !blocking;
+    if (ioctlsocket(m_fd, FIONBIO, &nbenable) != 0) {
+        throw std::system_error(errno, std::system_category(), "Socket");
+    }
+#else
     int flags = fcntl(m_fd, F_GETFL, 0);
     if (flags == -1) {
         throw std::system_error(errno, std::system_category(), "Socket");
@@ -65,4 +91,18 @@ void Socket::SetBlocking(bool blocking) {
     } else {
         fcntl(m_fd, F_SETFL, flags | O_NONBLOCK);
     }
+#endif
 }
+
+#ifdef _WIN32
+struct SocketInitializer {
+    SocketInitializer() {
+        WSADATA init;
+        WSAStartup(MAKEWORD(2, 2), &init);
+    }
+
+    ~SocketInitializer() { WSACleanup(); }
+};
+
+SocketInitializer globalInitializer;
+#endif

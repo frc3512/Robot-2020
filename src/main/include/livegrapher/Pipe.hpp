@@ -2,6 +2,18 @@
 
 #pragma once
 
+#ifdef _WIN32
+#define _WIN32_LEAN_AND_MEAN
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+
+#include <winsock2.h>
+
+#else
+#include <unistd.h>
+#endif
+
 #include <array>
 #include <cerrno>
 #include <string_view>
@@ -66,5 +78,9 @@ public:
 private:
     friend class SocketSelector;
 
+#ifdef _WIN32
+    SOCKET m_fds[2];
+#else
     int m_fds[2];
+#endif
 };

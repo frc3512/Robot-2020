@@ -2,12 +2,38 @@
 
 #include "livegrapher/LiveGrapher.hpp"
 
+#include <stdint.h>
+
+#ifdef _WIN32
+#define _WIN32_LEAN_AND_MEAN
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+
+#include <winsock2.h>
+
+#else
 #include <arpa/inet.h>
+#endif
 
 #include <algorithm>
 #include <cstring>
 
 #include "livegrapher/Protocol.hpp"
+
+uint64_t HostToNetwork64(uint64_t in) {
+    uint64_t out;
+    auto outArr = reinterpret_cast<uint8_t*>(&out);
+    outArr[0] = in >> 56 & 0xff;
+    outArr[1] = in >> 48 & 0xff;
+    outArr[2] = in >> 40 & 0xff;
+    outArr[3] = in >> 32 & 0xff;
+    outArr[4] = in >> 24 & 0xff;
+    outArr[5] = in >> 16 & 0xff;
+    outArr[6] = in >> 8 & 0xff;
+    outArr[7] = in >> 0 & 0xff;
+    return out;
+}
 
 LiveGrapher::LiveGrapher(uint16_t port) : m_listener{port} {
     m_selector.Add(m_listener, SocketSelector::kRead);
@@ -56,7 +82,7 @@ void LiveGrapher::AddDataImpl(const std::string& dataset,
 
     // Give the dataset an ID if it doesn't already have one
     if (i == m_graphList.end()) {
-        m_graphList.emplace(dataset, m_graphList.size());
+        m_graphList.emplace(dataset, static_cast<uint8_t>(m_graphList.size()));
     }
 
     // Do nothing if there's no active connections to receive the data
@@ -72,7 +98,7 @@ void LiveGrapher::AddDataImpl(const std::string& dataset,
     // Change to network byte order
     // Swap bytes in x, and copy into the payload struct
     uint64_t timeMs = time.count();
-    timeMs = htobe64(timeMs);
+    timeMs = HostToNetwork64(timeMs);
     std::memcpy(&packet.x, &timeMs, sizeof(timeMs));
 
     // Swap bytes in y, and copy into the payload struct
@@ -179,20 +205,20 @@ void LiveGrapher::ThreadMain() {
 }
 
 int LiveGrapher::ReadPackets(ClientConnection& conn) {
-    char id;
+    char packetID;
 
-    if (!conn.socket.Read(&id, 1)) {
+    if (!conn.socket.Read(&packetID, 1)) {
         return -1;
     }
 
-    switch (PacketType(id)) {
+    switch (PacketType(packetID)) {
         case kHostConnectPacket:
             // Start sending data for the graph specified by the ID
-            conn.SelectGraph(GraphID(id));
+            conn.SelectGraph(GraphID(packetID));
             break;
         case kHostDisconnectPacket:
             // Stop sending data for the graph specified by the ID
-            conn.UnselectGraph(GraphID(id));
+            conn.UnselectGraph(GraphID(packetID));
             break;
         case kHostListPacket:
             // 255 is the max graph name length
@@ -203,10 +229,11 @@ int LiveGrapher::ReadPackets(ClientConnection& conn) {
             // graph name instead of the ID. Since, the IDs are not necessarily
             // in order, early traversal termination could occur.
             size_t graphCount = 0;
-            for (const auto& [graph, id] : m_graphList) {
-                buf[0] = kClientListPacket | id;
-                buf[1] = graph.length();
-                std::strncpy(&buf[2], graph.c_str(), graph.length());
+            for (const auto& [graph, graphID] : m_graphList) {
+                buf[0] = kClientListPacket | graphID;
+                buf[1] = static_cast<char>(graph.length());
+                std::copy(graph.c_str(), graph.c_str() + graph.length(),
+                          &buf[2]);
 
                 // Is this the last element in the list?
                 if (graphCount + 1 == m_graphList.size()) {
