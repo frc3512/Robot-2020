@@ -16,6 +16,11 @@ public:
      */
     SubsystemBase();
 
+    SubsystemBase(const SubsystemBase&) = default;
+    SubsystemBase& operator=(const SubsystemBase&) = default;
+    SubsystemBase(SubsystemBase&&) = default;
+    SubsystemBase& operator=(SubsystemBase&&) = default;
+
     virtual ~SubsystemBase();
 
     /**

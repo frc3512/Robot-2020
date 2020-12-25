@@ -27,8 +27,8 @@ class Turret;
 class Climber : public SubsystemBase {
 public:
     explicit Climber(Turret& turret);
-    Climber(Climber&&) = default;
-    Climber& operator=(Climber&&) = default;
+    Climber(const Climber&) = delete;
+    Climber& operator=(const Climber&) = delete;
 
     /**
      * Returns the position of the elevator.

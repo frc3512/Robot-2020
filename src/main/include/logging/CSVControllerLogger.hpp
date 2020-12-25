@@ -46,6 +46,9 @@ public:
           m_outputLogger{(controllerName + " outputs").str(),
                          MakeOutputLabels(outputLabels)} {}
 
+    CSVControllerLogger(CSVControllerLogger&&) = default;
+    CSVControllerLogger& operator=(CSVControllerLogger&&) = default;
+
     /**
      * Logs the references, states, inputs, and outputs.
      *

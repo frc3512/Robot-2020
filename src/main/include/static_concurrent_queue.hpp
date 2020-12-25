@@ -87,8 +87,15 @@ public:
     }
 
     static_concurrent_queue() = default;
-    static_concurrent_queue(const static_concurrent_queue&) = delete;
-    static_concurrent_queue& operator=(const static_concurrent_queue&) = delete;
+
+    static_concurrent_queue(static_concurrent_queue&& rhs) {
+        std::swap(m_queue, rhs.m_queue);
+    }
+
+    static_concurrent_queue& operator=(static_concurrent_queue&& rhs) {
+        std::swap(m_queue, rhs.m_queue);
+        return *this;
+    }
 
 private:
     wpi::static_circular_buffer<T, N> m_queue;

@@ -40,8 +40,8 @@ public:
 
     explicit Turret(Vision& vision, Drivetrain& drivetrain, Flywheel& flywheel);
 
-    Turret(Turret&&) = default;
-    Turret& operator=(Turret&&) = default;
+    Turret(const Turret&) = delete;
+    Turret& operator=(const Turret&) = delete;
 
     /**
      * Sets turret control mode.

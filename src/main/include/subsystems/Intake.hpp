@@ -36,8 +36,8 @@ public:
 
     explicit Intake(Flywheel& flywheel);
 
-    Intake(Intake&&) = default;
-    Intake& operator=(Intake&&) = default;
+    Intake(const Intake&) = delete;
+    Intake& operator=(const Intake&) = delete;
 
     /**
      * Deploys the Intake

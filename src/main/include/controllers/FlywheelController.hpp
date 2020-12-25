@@ -31,8 +31,8 @@ public:
      */
     FlywheelController();
 
-    FlywheelController(const FlywheelController&) = delete;
-    FlywheelController& operator=(const FlywheelController&) = delete;
+    FlywheelController(FlywheelController&&) = default;
+    FlywheelController& operator=(FlywheelController&&) = default;
 
     /**
      * States of the flywheel system.

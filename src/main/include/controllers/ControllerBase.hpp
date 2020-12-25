@@ -71,6 +71,9 @@ public:
     }
 #endif
 
+    ControllerBase(ControllerBase&&) = default;
+    ControllerBase& operator=(ControllerBase&&) = default;
+
     virtual ~ControllerBase() = default;
 
     /**

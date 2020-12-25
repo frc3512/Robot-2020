@@ -89,8 +89,8 @@ public:
      */
     DrivetrainController();
 
-    DrivetrainController(const DrivetrainController&) = delete;
-    DrivetrainController& operator=(const DrivetrainController&) = delete;
+    DrivetrainController(DrivetrainController&&) = default;
+    DrivetrainController& operator=(DrivetrainController&&) = default;
 
     /**
      * Sets the waypoints for a generated trajectory.

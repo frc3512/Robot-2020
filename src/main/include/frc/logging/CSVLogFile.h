@@ -68,6 +68,9 @@ class CSVLogFile {
                std::tuple_cat(std::tuple{this}, columnHeadings));
   }
 
+  CSVLogFile(CSVLogFile&&) = default;
+  CSVLogFile& operator=(CSVLogFile&&) = default;
+
   /**
    * Print a new line of values in the CSVLogFile.
    *

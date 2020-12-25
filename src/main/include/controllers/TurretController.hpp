@@ -73,8 +73,8 @@ public:
 
     TurretController();
 
-    TurretController(const TurretController&) = delete;
-    TurretController& operator=(const TurretController&) = delete;
+    TurretController(TurretController&&) = default;
+    TurretController& operator=(TurretController&&) = default;
 
     /**
      * Sets the end goal of the controller profile.

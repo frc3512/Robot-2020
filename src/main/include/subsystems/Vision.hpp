@@ -29,8 +29,9 @@ public:
 
     Vision();
     ~Vision();
-    Vision(Vision&&) = default;
-    Vision& operator=(Vision&&) = default;
+
+    Vision(const Vision&) = delete;
+    Vision& operator=(const Vision&) = delete;
 
     /**
      * Turns on power to the LED ring light.

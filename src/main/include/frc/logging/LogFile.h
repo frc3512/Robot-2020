@@ -34,6 +34,9 @@ class LogFile {
   explicit LogFile(wpi::StringRef filePrefix = "log",
                    wpi::StringRef fileExtension = "txt");
 
+  LogFile(LogFile&&) = default;
+  LogFile& operator=(LogFile&&) = default;
+
   /**
    * Write text in the LogFile.
    *

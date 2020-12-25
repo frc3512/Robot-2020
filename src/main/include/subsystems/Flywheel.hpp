@@ -35,8 +35,8 @@ class Flywheel : public SubsystemBase {
 public:
     explicit Flywheel(Drivetrain& drivetrain);
 
-    Flywheel(Flywheel&&) = default;
-    Flywheel& operator=(Flywheel&&) = default;
+    Flywheel(const Flywheel&) = delete;
+    Flywheel& operator=(const Flywheel&) = delete;
 
     /**
      * Returns angular displacement of the flywheel

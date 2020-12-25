@@ -46,8 +46,8 @@ public:
     Drivetrain();
     ~Drivetrain();
 
-    Drivetrain(Drivetrain&&) = default;
-    Drivetrain& operator=(Drivetrain&&) = default;
+    Drivetrain(const Drivetrain&) = delete;
+    Drivetrain& operator=(const Drivetrain&) = delete;
 
     /**
      * Returns the drivetrain's pose estimate.

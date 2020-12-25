@@ -46,6 +46,10 @@ public:
           m_inputLabels{MakeInputLabels(controllerName, inputLabels)},
           m_outputLabels{MakeOutputLabels(controllerName, outputLabels)} {}
 
+    LiveGrapherControllerLogger(LiveGrapherControllerLogger&&) = default;
+    LiveGrapherControllerLogger& operator=(LiveGrapherControllerLogger&&) =
+        default;
+
     /**
      * Logs the references, states, inputs, and outputs.
      *
