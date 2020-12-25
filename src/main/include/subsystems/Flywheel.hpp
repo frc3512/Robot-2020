@@ -17,11 +17,9 @@
 #include <units/current.h>
 #include <units/length.h>
 #include <units/voltage.h>
-#include <wpi/math>
 
 #include "Constants.hpp"
 #include "LerpTable.hpp"
-#include "TargetModel.hpp"
 #include "controllers/FlywheelController.hpp"
 #include "rev/CANSparkMax.hpp"
 #include "subsystems/SubsystemBase.hpp"
@@ -128,9 +126,7 @@ public:
     void ControllerPeriodic();
 
 private:
-    const frc::Pose2d kTargetPoseInGlobal{TargetModel::kCenter.X(),
-                                          TargetModel::kCenter.Y(),
-                                          units::radian_t{wpi::math::pi}};
+    static const frc::Pose2d kTargetPoseInGlobal;
 
     LerpTable<units::meter_t, units::radians_per_second_t> m_table;
 

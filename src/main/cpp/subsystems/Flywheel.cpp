@@ -7,13 +7,19 @@
 #include <frc/RobotBase.h>
 #include <frc/RobotController.h>
 #include <units/math.h>
+#include <wpi/math>
 
 #include "CANSparkMaxUtil.hpp"
+#include "TargetModel.hpp"
 #include "controllers/TurretController.hpp"
 #include "subsystems/Drivetrain.hpp"
 
 using namespace frc3512;
 using namespace frc3512::Constants::Robot;
+
+const frc::Pose2d Flywheel::kTargetPoseInGlobal{TargetModel::kCenter.X(),
+                                                TargetModel::kCenter.Y(),
+                                                units::radian_t{wpi::math::pi}};
 
 Flywheel::Flywheel(Drivetrain& drivetrain) : m_drivetrain(drivetrain) {
     SetCANSparkMaxBusUsage(m_leftGrbx, Usage::kMinimal);
