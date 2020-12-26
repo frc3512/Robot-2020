@@ -158,6 +158,7 @@ Eigen::Matrix<double, 2, 1> DrivetrainController::Update(
 
         Eigen::Matrix<double, 5, 1> error =
             m_r.block<5, 1>(0, 0) - m_observer.Xhat().block<5, 1>(0, 0);
+        error(State::kHeading) = frc::NormalizeAngle(error(State::kHeading));
         m_atReferences = std::abs(error(0)) < kPositionTolerance &&
                          std::abs(error(1)) < kPositionTolerance &&
                          std::abs(error(2)) < kAngleTolerance &&

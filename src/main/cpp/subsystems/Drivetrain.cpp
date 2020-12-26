@@ -5,6 +5,7 @@
 #include <frc/Joystick.h>
 #include <frc/RobotBase.h>
 #include <frc/RobotController.h>
+#include <frc/estimator/AngleStatistics.h>
 #include <frc/smartdashboard/SmartDashboard.h>
 #include <units/math.h>
 
@@ -104,22 +105,9 @@ void Drivetrain::CorrectWithGlobalOutputs(units::meter_t x, units::meter_t y,
 }
 
 void Drivetrain::ControllerPeriodic() {
-    using State = DrivetrainController::State;
-    using LocalOutput = DrivetrainController::LocalOutput;
-
     Eigen::Matrix<double, 3, 1> y;
-    y << GetAngle().to<double>(), GetLeftPosition().to<double>(),
-        GetRightPosition().to<double>();
-
-    // Fix heading residual
-    if (GetAngle().to<double>() - m_controller->GetStates()(State::kHeading) >
-        wpi::math::pi / 2.0) {
-        y(LocalOutput::kHeading) -= 2.0 * wpi::math::pi;
-    } else if (GetAngle().to<double>() -
-                   m_controller->GetStates()(State::kHeading) <
-               -wpi::math::pi / 2.0) {
-        y(0) += 2.0 * wpi::math::pi;
-    }
+    y << frc::NormalizeAngle(GetAngle().to<double>()),
+        GetLeftPosition().to<double>(), GetRightPosition().to<double>();
 
     Eigen::Matrix<double, 2, 1> u = m_controller->UpdateAndLog(y);
 
