@@ -5,6 +5,7 @@
 #include <units/length.h>
 
 #include "Constants.hpp"
+#include "SetCurrentPath.hpp"
 #include "controllers/DrivetrainController.hpp"
 
 TEST(DrivetrainControllerTest, CorrectsTowardGlobalY) {
@@ -12,6 +13,8 @@ TEST(DrivetrainControllerTest, CorrectsTowardGlobalY) {
 
     using frc3512::Constants::kDt;
 
+    frc3512::SetCurrentPath testPath{
+        "DrivetrainControllerTest/CorrectsTowardGlobalY"};
     frc3512::DrivetrainController controller;
 
     controller.SetWaypoints(frc::Pose2d(0_m, 0_m, 0_rad), {},

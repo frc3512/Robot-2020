@@ -5,6 +5,7 @@
 #include <networktables/NetworkTableInstance.h>
 #include <units/math.h>
 
+#include "SetCurrentPath.hpp"
 #include "TargetModel.hpp"
 #include "subsystems/Vision.hpp"
 
@@ -12,6 +13,7 @@
     EXPECT_LE(units::math::abs(val1 - val2), eps)
 
 TEST(VisionTest, CalculateDrivetrainInGlobal) {
+    frc3512::SetCurrentPath testPath{"VisionTest/CalculateDrivetrainInGlobal"};
     frc3512::Vision vision;
 
     auto inst = nt::NetworkTableInstance::GetDefault();

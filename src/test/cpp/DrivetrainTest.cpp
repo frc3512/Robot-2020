@@ -5,7 +5,7 @@
 #include <gtest/gtest.h>
 
 #include "Constants.hpp"
-#include "logging/CSVUtil.hpp"
+#include "SetCurrentPath.hpp"
 #include "subsystems/Drivetrain.hpp"
 
 namespace {
@@ -18,81 +18,72 @@ protected:
 }  // namespace
 
 TEST_F(DrivetrainTest, ReachesReferenceStraight) {
-    {
-        frc3512::Drivetrain drivetrain;
+    frc3512::SetCurrentPath testPath{"DrivetrainTest/Straight"};
+    frc3512::Drivetrain drivetrain;
 
-        frc3512::SubsystemBase::RunAllAutonomousInit();
-        frc::Notifier controllerPeriodic{[&] {
-            drivetrain.AutonomousPeriodic();
-            drivetrain.ControllerPeriodic();
-        }};
-        controllerPeriodic.StartPeriodic(frc3512::Constants::kDt);
+    frc3512::SubsystemBase::RunAllAutonomousInit();
+    frc::Notifier controllerPeriodic{[&] {
+        drivetrain.AutonomousPeriodic();
+        drivetrain.ControllerPeriodic();
+    }};
+    controllerPeriodic.StartPeriodic(frc3512::Constants::kDt);
 
-        frc::Pose2d initialPose{12.65_m, 5.800_m - 0.343_m,
-                                units::radian_t{wpi::math::pi}};
+    frc::Pose2d initialPose{12.65_m, 5.800_m - 0.343_m,
+                            units::radian_t{wpi::math::pi}};
 
-        drivetrain.Reset(initialPose);
-        drivetrain.SetWaypoints(
-            initialPose, {},
-            frc::Pose2d(12.65_m - 0.9398_m - 0.5_m, 5.800_m - 0.343_m,
-                        units::radian_t{wpi::math::pi}));
+    drivetrain.Reset(initialPose);
+    drivetrain.SetWaypoints(
+        initialPose, {},
+        frc::Pose2d(12.65_m - 0.9398_m - 0.5_m, 5.800_m - 0.343_m,
+                    units::radian_t{wpi::math::pi}));
 
-        frc::sim::StepTiming(10_s);
+    frc::sim::StepTiming(10_s);
 
-        frc3512::SubsystemBase::RunAllDisabledInit();
+    frc3512::SubsystemBase::RunAllDisabledInit();
 
-        EXPECT_TRUE(drivetrain.AtGoal());
-    }
-
-    frc3512::AddPrefixToCSVs("DrivetrainTest Straight");
+    EXPECT_TRUE(drivetrain.AtGoal());
 }
 
 TEST_F(DrivetrainTest, ReachesReferenceCurve) {
-    {
-        frc3512::Drivetrain drivetrain;
+    frc3512::SetCurrentPath testPath{"DrivetrainTest/SCurve"};
 
-        frc3512::SubsystemBase::RunAllAutonomousInit();
-        frc::Notifier controllerPeriodic{
-            [&] { drivetrain.ControllerPeriodic(); }};
-        controllerPeriodic.StartPeriodic(frc3512::Constants::kDt);
+    frc3512::Drivetrain drivetrain;
 
-        frc::Pose2d initialPose{0_m, 0_m, 0_rad};
+    frc3512::SubsystemBase::RunAllAutonomousInit();
+    frc::Notifier controllerPeriodic{[&] { drivetrain.ControllerPeriodic(); }};
+    controllerPeriodic.StartPeriodic(frc3512::Constants::kDt);
 
-        drivetrain.Reset(initialPose);
-        drivetrain.SetWaypoints(initialPose, {},
-                                frc::Pose2d(4.8768_m, 2.7432_m, 0_rad));
+    frc::Pose2d initialPose{0_m, 0_m, 0_rad};
 
-        frc::sim::StepTiming(10_s);
+    drivetrain.Reset(initialPose);
+    drivetrain.SetWaypoints(initialPose, {},
+                            frc::Pose2d(4.8768_m, 2.7432_m, 0_rad));
 
-        frc3512::SubsystemBase::RunAllDisabledInit();
+    frc::sim::StepTiming(10_s);
 
-        EXPECT_TRUE(drivetrain.AtGoal());
-    }
+    frc3512::SubsystemBase::RunAllDisabledInit();
 
-    frc3512::AddPrefixToCSVs("DrivetrainTest Curve");
+    EXPECT_TRUE(drivetrain.AtGoal());
 }
 
 TEST_F(DrivetrainTest, ReachesReferenceOffsetCurve) {
-    {
-        frc3512::Drivetrain drivetrain;
+    frc3512::SetCurrentPath testPath{"DrivetrainTest/OffsetCurve"};
 
-        frc3512::SubsystemBase::RunAllAutonomousInit();
-        frc::Notifier controllerPeriodic{
-            [&] { drivetrain.ControllerPeriodic(); }};
-        controllerPeriodic.StartPeriodic(frc3512::Constants::kDt);
+    frc3512::Drivetrain drivetrain;
 
-        frc::Pose2d initialPose{5_m, 2_m, 0_rad};
+    frc3512::SubsystemBase::RunAllAutonomousInit();
+    frc::Notifier controllerPeriodic{[&] { drivetrain.ControllerPeriodic(); }};
+    controllerPeriodic.StartPeriodic(frc3512::Constants::kDt);
 
-        drivetrain.Reset(initialPose);
-        drivetrain.SetWaypoints(initialPose, {},
-                                frc::Pose2d(9.8768_m, 4.7432_m, 0_rad));
+    frc::Pose2d initialPose{5_m, 2_m, 0_rad};
 
-        frc::sim::StepTiming(10_s);
+    drivetrain.Reset(initialPose);
+    drivetrain.SetWaypoints(initialPose, {},
+                            frc::Pose2d(9.8768_m, 4.7432_m, 0_rad));
 
-        frc3512::SubsystemBase::RunAllDisabledInit();
+    frc::sim::StepTiming(10_s);
 
-        EXPECT_TRUE(drivetrain.AtGoal());
-    }
+    frc3512::SubsystemBase::RunAllDisabledInit();
 
-    frc3512::AddPrefixToCSVs("DrivetrainTest OffsetCurve");
+    EXPECT_TRUE(drivetrain.AtGoal());
 }

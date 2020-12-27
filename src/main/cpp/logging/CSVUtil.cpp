@@ -2,6 +2,8 @@
 
 #include "logging/CSVUtil.hpp"
 
+#include <algorithm>
+
 #if !defined(__FRC_ROBORIO__)
 #if defined(__GNUC__) && __GNUC__ < 9 && !defined(__llvm__)
 #include <experimental/filesystem>
@@ -30,34 +32,22 @@ void DeleteCSVs() {
 #if !defined(__FRC_ROBORIO__)
     namespace fs = std::filesystem;
 
+    // Delete CSV files
     for (auto& p : fs::recursive_directory_iterator(".")) {
-        if (ends_with(p.path().string(), ".csv")) {
+        if (!p.is_directory() && ends_with(p.path().string(), ".csv")) {
             fs::remove(p.path());
         }
     }
-#endif  // !defined(__FRC_ROBORIO__)
-}
 
-void AddPrefixToCSVs(std::string_view prefix) {
-#if !defined(__FRC_ROBORIO__)
-    namespace fs = std::filesystem;
-
-    for (auto& p : fs::recursive_directory_iterator(".")) {
-        auto src = p.path();
-        auto filename = src.filename().string();
-
-        if (!ends_with(filename, ".csv")) {
-            continue;
-        }
-
-        auto filePrefix =
-            std::string_view{filename}.substr(0, filename.find("-"));
-        for (const auto& subsystem :
-             {"Battery", "Drivetrain ", "Flywheel ", "Intake", "Turret "}) {
-            if (starts_with(filePrefix, subsystem)) {
-                auto dest = src;
-                dest.replace_filename(fmt::format("{} {}", prefix, filename));
-                fs::rename(src, dest);
+    // Delete empty directories
+    for (auto& p : fs::directory_iterator(".")) {
+        if (p.is_directory()) {
+            auto childPath = fs::recursive_directory_iterator(p.path());
+            auto numFiles =
+                std::count_if(fs::begin(childPath), fs::end(childPath),
+                              [](const auto& p) { return !p.is_directory(); });
+            if (numFiles == 0) {
+                fs::remove_all(p.path());
             }
         }
     }

@@ -9,7 +9,7 @@
 #include <gtest/gtest.h>
 
 #include "Robot.hpp"
-#include "logging/CSVUtil.hpp"
+#include "SetCurrentPath.hpp"
 
 class AutonomousTest : public testing::TestWithParam<std::string> {
 protected:
@@ -25,34 +25,33 @@ TEST_P(AutonomousTest, RunMode) {
 
     frc::sim::DriverStationSim ds;
 
-    {
-        frc3512::Robot robot;
+    frc3512::SetCurrentPath testPath{
+        fmt::format("AutonomousTest/{}", GetParam())};
+    frc3512::Robot robot;
 
-        std::thread robotThread{[&] { robot.StartCompetition(); }};
+    std::thread robotThread{[&] { robot.StartCompetition(); }};
 
-        robot.SelectAutonomous(GetParam());
+    robot.SelectAutonomous(GetParam());
 
-        ds.SetAutonomous(true);
-        ds.SetEnabled(true);
-        ds.NotifyNewData();
+    ds.SetAutonomous(true);
+    ds.SetEnabled(true);
+    ds.NotifyNewData();
 
-        frc::sim::StepTiming(15_s);
+    frc::sim::StepTiming(15_s);
 
-        robot.ExpectAutonomousEndConds();
+    robot.ExpectAutonomousEndConds();
 
-        ds.SetEnabled(false);
-        ds.NotifyNewData();
+    ds.SetEnabled(false);
+    ds.NotifyNewData();
 
-        frc::sim::StepTiming(20_ms);
+    frc::sim::StepTiming(20_ms);
 
-        robot.EndCompetition();
-        robotThread.join();
-    }
-
-    frc3512::AddPrefixToCSVs("AutonomousTest "s + GetParam());
+    robot.EndCompetition();
+    robotThread.join();
 }
 
 INSTANTIATE_TEST_SUITE_P(AutonomousTests, AutonomousTest, [] {
+    frc3512::SetCurrentPath testPath{"AutonomousTest/Parameterization"};
     frc3512::Robot robot;
     return testing::ValuesIn(robot.GetAutonomousNames());
 }());
