@@ -3,10 +3,9 @@
 #include <gtest/gtest.h>
 
 #include "Robot.hpp"
-#include "SetCurrentPath.hpp"
+#include "SimulatorTest.hpp"
+
+class RobotTest : public frc3512::SimulatorTest {};
 
 // Make sure robot initializes
-TEST(RobotTest, Init) {
-    frc3512::SetCurrentPath testPath{"RobotTest/Init"};
-    frc3512::Robot robot;
-}
+TEST_F(RobotTest, Init) { frc3512::Robot robot; }

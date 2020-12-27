@@ -8,15 +8,16 @@
 #include <wpi/math>
 
 #include "Constants.hpp"
-#include "SetCurrentPath.hpp"
+#include "SimulatorTest.hpp"
 #include "TargetModel.hpp"
 #include "controllers/TurretController.hpp"
 
 #define EXPECT_NEAR_UNITS(val1, val2, eps) \
     EXPECT_LE(units::math::abs((val1) - (val2)), eps)
 
-TEST(TurretControllerTest, CalculateHeading) {
-    frc3512::SetCurrentPath testPath{"TurretControllerTest/CalculateHeading"};
+class TurretControllerTest : public frc3512::SimulatorTest {};
+
+TEST_F(TurretControllerTest, CalculateHeading) {
     frc3512::TurretController controller;
     controller.Enable();
 
@@ -26,9 +27,7 @@ TEST(TurretControllerTest, CalculateHeading) {
               units::radian_t{wpi::math::pi / 4.0});
 }
 
-TEST(TurretControllerTest, CalculateAngularVelocity) {
-    frc3512::SetCurrentPath testPath{
-        "TurretControllerTest/CalculateAngularVelocity"};
+TEST_F(TurretControllerTest, CalculateAngularVelocity) {
     frc3512::TurretController controller;
     controller.Reset(0_rad);
     controller.Enable();
@@ -88,19 +87,17 @@ void VerifyHeadingAdjustment(units::meters_per_second_t drivetrainSpeed,
     EXPECT_NEAR(sumRotation.Sin(), displacementRotation.Sin(), 1e-6);
 }
 
-TEST(TurretControllerTest, CalculateHeadingAdjustment) {
+TEST_F(TurretControllerTest, CalculateHeadingAdjustment) {
     VerifyHeadingAdjustment(3.5_mps, units::radian_t{wpi::math::pi / 2.0},
                             {-2_m, 0_m});
     VerifyHeadingAdjustment(3.5_mps, units::radian_t{wpi::math::pi},
                             {-2_m, 1_m});
 }
 
-TEST(TurretControllerTest, ProperDistanceFromTarget) {
+TEST_F(TurretControllerTest, ProperDistanceFromTarget) {
     constexpr units::meter_t kDrivetrainX = 12.65_m - 0.9398_m;
     constexpr units::meter_t kDrivetrainY = 2.600_m - 0.343_m;
 
-    frc3512::SetCurrentPath testPath{
-        "TurretControllerTest/ProperDistanceFromTarget"};
     frc3512::TurretController controller;
     controller.Enable();
     frc::sim::StepTiming(frc3512::Constants::kDt);

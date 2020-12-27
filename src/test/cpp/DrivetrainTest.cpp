@@ -1,24 +1,15 @@
 // Copyright (c) 2019-2020 FRC Team 3512. All Rights Reserved.
 
 #include <frc/Notifier.h>
-#include <frc/simulation/SimHooks.h>
 #include <gtest/gtest.h>
 
 #include "Constants.hpp"
-#include "SetCurrentPath.hpp"
+#include "SimulatorTest.hpp"
 #include "subsystems/Drivetrain.hpp"
 
-namespace {
-class DrivetrainTest : public testing::Test {
-protected:
-    void SetUp() override { frc::sim::PauseTiming(); }
-
-    void TearDown() override { frc::sim::ResumeTiming(); }
-};
-}  // namespace
+class DrivetrainTest : public frc3512::SimulatorTest {};
 
 TEST_F(DrivetrainTest, ReachesReferenceStraight) {
-    frc3512::SetCurrentPath testPath{"DrivetrainTest/Straight"};
     frc3512::Drivetrain drivetrain;
 
     frc3512::SubsystemBase::RunAllAutonomousInit();
@@ -45,8 +36,6 @@ TEST_F(DrivetrainTest, ReachesReferenceStraight) {
 }
 
 TEST_F(DrivetrainTest, ReachesReferenceCurve) {
-    frc3512::SetCurrentPath testPath{"DrivetrainTest/SCurve"};
-
     frc3512::Drivetrain drivetrain;
 
     frc3512::SubsystemBase::RunAllAutonomousInit();
@@ -67,8 +56,6 @@ TEST_F(DrivetrainTest, ReachesReferenceCurve) {
 }
 
 TEST_F(DrivetrainTest, ReachesReferenceOffsetCurve) {
-    frc3512::SetCurrentPath testPath{"DrivetrainTest/OffsetCurve"};
-
     frc3512::Drivetrain drivetrain;
 
     frc3512::SubsystemBase::RunAllAutonomousInit();

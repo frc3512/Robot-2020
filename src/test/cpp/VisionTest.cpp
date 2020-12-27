@@ -5,15 +5,16 @@
 #include <networktables/NetworkTableInstance.h>
 #include <units/math.h>
 
-#include "SetCurrentPath.hpp"
+#include "SimulatorTest.hpp"
 #include "TargetModel.hpp"
 #include "subsystems/Vision.hpp"
 
 #define EXPECT_NEAR_UNITS(val1, val2, eps) \
     EXPECT_LE(units::math::abs(val1 - val2), eps)
 
-TEST(VisionTest, CalculateDrivetrainInGlobal) {
-    frc3512::SetCurrentPath testPath{"VisionTest/CalculateDrivetrainInGlobal"};
+class VisionTest : public frc3512::SimulatorTest {};
+
+TEST_F(VisionTest, CalculateDrivetrainInGlobal) {
     frc3512::Vision vision;
 
     auto inst = nt::NetworkTableInstance::GetDefault();

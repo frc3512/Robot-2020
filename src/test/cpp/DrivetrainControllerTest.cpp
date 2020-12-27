@@ -5,16 +5,16 @@
 #include <units/length.h>
 
 #include "Constants.hpp"
-#include "SetCurrentPath.hpp"
+#include "SimulatorTest.hpp"
 #include "controllers/DrivetrainController.hpp"
 
-TEST(DrivetrainControllerTest, CorrectsTowardGlobalY) {
+class DrivetrainControllerTest : public frc3512::SimulatorTest {};
+
+TEST_F(DrivetrainControllerTest, CorrectsTowardGlobalY) {
     static constexpr bool kIdealModel = false;
 
     using frc3512::Constants::kDt;
 
-    frc3512::SetCurrentPath testPath{
-        "DrivetrainControllerTest/CorrectsTowardGlobalY"};
     frc3512::DrivetrainController controller;
 
     controller.SetWaypoints(frc::Pose2d(0_m, 0_m, 0_rad), {},

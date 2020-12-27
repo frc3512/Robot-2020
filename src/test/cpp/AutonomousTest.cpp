@@ -5,28 +5,19 @@
 
 #include <fmt/core.h>
 #include <frc/simulation/DriverStationSim.h>
-#include <frc/simulation/SimHooks.h>
 #include <gtest/gtest.h>
 
 #include "Robot.hpp"
 #include "SetCurrentPath.hpp"
+#include "SimulatorTestWithParam.hpp"
 
-class AutonomousTest : public testing::TestWithParam<std::string> {
-protected:
-    void SetUp() override { frc::sim::PauseTiming(); }
+class AutonomousTest : public frc3512::SimulatorTestWithParam<std::string> {};
 
-    void TearDown() override { frc::sim::ResumeTiming(); }
-};
-
-TEST_P(AutonomousTest, RunMode) {
-    using namespace std::literals;
-
+TEST_P(AutonomousTest, Run) {
     fmt::print("[          ] where GetParam() = \"{}\"\n", GetParam());
 
     frc::sim::DriverStationSim ds;
 
-    frc3512::SetCurrentPath testPath{
-        fmt::format("AutonomousTest/{}", GetParam())};
     frc3512::Robot robot;
 
     std::thread robotThread{[&] { robot.StartCompetition(); }};
@@ -51,7 +42,8 @@ TEST_P(AutonomousTest, RunMode) {
 }
 
 INSTANTIATE_TEST_SUITE_P(AutonomousTests, AutonomousTest, [] {
-    frc3512::SetCurrentPath testPath{"AutonomousTest/Parameterization"};
+    frc3512::SetCurrentPath testPath{
+        "AutonomousTests/AutonomousTest/Parameterization"};
     frc3512::Robot robot;
     return testing::ValuesIn(robot.GetAutonomousNames());
 }());

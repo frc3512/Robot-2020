@@ -4,22 +4,14 @@
 #include <frc/simulation/SimHooks.h>
 #include <gtest/gtest.h>
 
-#include "SetCurrentPath.hpp"
+#include "SimulatorTest.hpp"
 #include "subsystems/Drivetrain.hpp"
 #include "subsystems/Flywheel.hpp"
 #include "subsystems/Vision.hpp"
 
-namespace {
-class FlywheelTest : public testing::Test {
-protected:
-    void SetUp() override { frc::sim::PauseTiming(); }
-
-    void TearDown() override { frc::sim::ResumeTiming(); }
-};
-}  // namespace
+class FlywheelTest : public frc3512::SimulatorTest {};
 
 TEST_F(FlywheelTest, ReachesGoal) {
-    frc3512::SetCurrentPath testPath{"FlywheelTest"};
     frc3512::Vision vision;
     frc3512::Drivetrain drivetrain;
     frc3512::Flywheel flywheel{drivetrain};

@@ -31,6 +31,9 @@ public:
 
     ~SetCurrentPath() { std::filesystem::current_path(m_originalPath); }
 
+    SetCurrentPath(SetCurrentPath&&) = default;
+    SetCurrentPath& operator=(SetCurrentPath&&) = default;
+
 private:
     std::filesystem::path m_originalPath;
 };

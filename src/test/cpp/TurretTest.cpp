@@ -8,20 +8,13 @@
 #include <wpi/math>
 
 #include "Constants.hpp"
-#include "SetCurrentPath.hpp"
+#include "SimulatorTest.hpp"
 #include "subsystems/Drivetrain.hpp"
 #include "subsystems/Flywheel.hpp"
 #include "subsystems/Turret.hpp"
 #include "subsystems/Vision.hpp"
 
-namespace {
-class TurretTest : public testing::Test {
-protected:
-    void SetUp() override { frc::sim::PauseTiming(); }
-
-    void TearDown() override { frc::sim::ResumeTiming(); }
-};
-}  // namespace
+class TurretTest : public frc3512::SimulatorTest {};
 
 TEST_F(TurretTest, ConfigSpaceLimits) {
     using namespace frc3512::Constants::Robot;
@@ -34,7 +27,6 @@ TEST_F(TurretTest, ConfigSpaceLimits) {
 
     frc::sim::JoystickSim appendageStick1{kAppendageStick1Port};
 
-    frc3512::SetCurrentPath testPath{"TurretTest/ConfigSpaceLimits"};
     frc3512::Vision vision;
     frc3512::Drivetrain drivetrain;
     frc3512::Flywheel flywheel{drivetrain};
@@ -100,7 +92,6 @@ TEST_F(TurretTest, ConfigSpaceLimits) {
 }
 
 TEST_F(TurretTest, ReachesReferenceStaticDrivetrain) {
-    frc3512::SetCurrentPath testPath{"TurretTest/StaticDrivetrain"};
     frc3512::Vision vision;
     frc3512::Drivetrain drivetrain;
     frc3512::Flywheel flywheel{drivetrain};
@@ -128,7 +119,6 @@ TEST_F(TurretTest, ReachesReferenceStaticDrivetrain) {
 }
 
 TEST_F(TurretTest, ReachesReferenceSCurveDrivetrain) {
-    frc3512::SetCurrentPath testPath{"TurretTest/SCurveDrivetrain"};
     frc3512::Vision vision;
     frc3512::Drivetrain drivetrain;
     frc3512::Flywheel flywheel{drivetrain};
@@ -158,7 +148,6 @@ TEST_F(TurretTest, ReachesReferenceSCurveDrivetrain) {
 }
 
 TEST_F(TurretTest, ReachesReferenceAutonDrivetrain) {
-    frc3512::SetCurrentPath testPath{"TurretTest/SCurveDrivetrain"};
     frc3512::Vision vision;
     frc3512::Drivetrain drivetrain;
     frc3512::Flywheel flywheel{drivetrain};
