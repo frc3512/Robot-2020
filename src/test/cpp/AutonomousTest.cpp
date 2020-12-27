@@ -1,7 +1,6 @@
 // Copyright (c) 2020 FRC Team 3512. All Rights Reserved.
 
 #include <string>
-#include <vector>
 
 #include <fmt/core.h>
 #include <frc/simulation/DriverStationSim.h>

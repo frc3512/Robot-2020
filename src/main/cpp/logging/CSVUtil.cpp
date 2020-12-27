@@ -15,13 +15,7 @@ namespace filesystem = experimental::filesystem;
 #endif  // defined(__GNUC__) && __GNUC__ < 9 && !defined(__llvm__)
 #endif  // !defined(__FRC_ROBORIO__)
 
-#include <fmt/core.h>
-
 namespace frc3512 {
-
-constexpr bool starts_with(std::string_view str, std::string_view x) noexcept {
-    return str.substr(0, x.size()) == x;
-}
 
 constexpr bool ends_with(std::string_view str, std::string_view x) noexcept {
     return str.size() >= x.size() &&
