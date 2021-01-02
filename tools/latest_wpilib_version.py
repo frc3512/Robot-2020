@@ -50,11 +50,11 @@ def main():
     ).text
 
     # Get the first <latest> tag in the XML, which will be the latest version
-    version = re.search(r"(?<=<latest>)[\w\-.]+(?=</latest>)", content).group()
+    version = re.search(r"<latest>([^<]+)</latest>", content).group(1)
     print(version)
 
     # Get longer commit hash and short description from Git
-    devel_version_match = re.search(r".*?-g([a-f0-9]+)", version)
+    devel_version_match = re.search(r"-g([a-f0-9]{7})$", version)
     if devel_version_match:
         commit = devel_version_match.group(1)
     else:
