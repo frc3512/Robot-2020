@@ -8,8 +8,8 @@ plugins {
 }
 
 // For testing development versions of WPILib
-wpi.wpilibVersion = '2021.1.1-beta-4-78-g948af6d'
-wpi.wpimathVersion = '2021.1.1-beta-4-78-g948af6d'
+wpi.wpilibVersion = '2021.1.1-beta-4-87-g62f0f81'
+wpi.wpimathVersion = '2021.1.1-beta-4-87-g62f0f81'
 
 // For automatically using the newest development version of WPILib
 // wpi.wpilibVersion = '2021.+'

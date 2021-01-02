@@ -1,9 +1,9 @@
-// Copyright (c) 2018-2020 FRC Team 3512. All Rights Reserved.
+// Copyright (c) 2018-2021 FRC Team 3512. All Rights Reserved.
 
 #include "controllers/TurretController.hpp"
 
+#include <frc/MathUtil.h>
 #include <frc/RobotController.h>
-#include <units/math.h>
 
 #include "TargetModel.hpp"
 #include "controllers/DrivetrainController.hpp"
@@ -42,7 +42,7 @@ TurretController::TurretController()
 
 void TurretController::SetGoal(units::radian_t angle,
                                units::radians_per_second_t angularVelocity) {
-    m_goal = {units::math::NormalizeAngle(angle), angularVelocity};
+    m_goal = {frc::AngleModulus(angle), angularVelocity};
 }
 
 void TurretController::SetReferences(units::radian_t angle,

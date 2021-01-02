@@ -1,11 +1,11 @@
-// Copyright (c) 2020 FRC Team 3512. All Rights Reserved.
+// Copyright (c) 2020-2021 FRC Team 3512. All Rights Reserved.
 
 #include "subsystems/Drivetrain.hpp"
 
 #include <frc/Joystick.h>
+#include <frc/MathUtil.h>
 #include <frc/RobotBase.h>
 #include <frc/RobotController.h>
-#include <frc/estimator/AngleStatistics.h>
 #include <frc/smartdashboard/SmartDashboard.h>
 #include <units/math.h>
 
@@ -106,7 +106,7 @@ void Drivetrain::CorrectWithGlobalOutputs(units::meter_t x, units::meter_t y,
 
 void Drivetrain::ControllerPeriodic() {
     Eigen::Matrix<double, 3, 1> y;
-    y << frc::NormalizeAngle(GetAngle().to<double>()),
+    y << frc::AngleModulus(GetAngle()).to<double>(),
         GetLeftPosition().to<double>(), GetRightPosition().to<double>();
 
     Eigen::Matrix<double, 2, 1> u = m_controller->UpdateAndLog(y);

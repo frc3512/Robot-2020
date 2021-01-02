@@ -1,4 +1,4 @@
-// Copyright (c) 2018-2020 FRC Team 3512. All Rights Reserved.
+// Copyright (c) 2018-2021 FRC Team 3512. All Rights Reserved.
 
 #include "controllers/DrivetrainController.hpp"
 
@@ -6,6 +6,7 @@
 #include <cmath>
 
 #include <fmt/core.h>
+#include <frc/MathUtil.h>
 #include <frc/RobotController.h>
 #include <frc/StateSpaceUtil.h>
 #include <frc/controller/LinearQuadraticRegulator.h>
@@ -15,7 +16,6 @@
 #include <frc/system/plant/LinearSystemId.h>
 #include <frc/trajectory/TrajectoryGenerator.h>
 #include <frc/trajectory/constraint/DifferentialDriveVelocitySystemConstraint.h>
-#include <units/math.h>
 
 #include "EigenFormat.hpp"
 
@@ -158,7 +158,9 @@ Eigen::Matrix<double, 2, 1> DrivetrainController::Update(
 
         Eigen::Matrix<double, 5, 1> error =
             m_r.block<5, 1>(0, 0) - m_observer.Xhat().block<5, 1>(0, 0);
-        error(State::kHeading) = frc::NormalizeAngle(error(State::kHeading));
+        error(State::kHeading) =
+            frc::AngleModulus(units::radian_t{error(State::kHeading)})
+                .to<double>();
         m_atReferences = std::abs(error(0)) < kPositionTolerance &&
                          std::abs(error(1)) < kPositionTolerance &&
                          std::abs(error(2)) < kAngleTolerance &&
@@ -262,8 +264,7 @@ Eigen::Matrix<double, 2, 1> DrivetrainController::Controller(
     Eigen::Matrix<double, 5, 1> error =
         r.block<5, 1>(0, 0) - x.block<5, 1>(0, 0);
     error(State::kHeading) =
-        units::math::NormalizeAngle(units::radian_t{error(State::kHeading)})
-            .to<double>();
+        frc::AngleModulus(units::radian_t{error(State::kHeading)}).to<double>();
     return m_K * inRobotFrame * error;
 }
 
