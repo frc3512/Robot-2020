@@ -1,11 +1,22 @@
 #!/usr/bin/env python3
-"""Grabs latest development build version string from the wpilib maven repo,
-finds the corresponding commit in the allwpilib Git repo, then prints the
-version string, commit hash, and a short description.
+"""Grabs latest build version string from the wpilib maven repo, finds the
+corresponding commit in the allwpilib Git repo, then prints the version string,
+commit hash, and a short description.
 
-To use it in a robot program, add the following to build.gradle:
+Release versions are of the form "[0-9]{4}\.[0-9]+\.[0-9]+". Development
+versions are of the form "[0-9]{4}\.[0-9]+\.[0-9]+-[0-9]+-g[a-f0-9]+".
+
+To use a release version in a robot program, add the following to build.gradle:
 ```
 wpi.wpilibVersion = 'version string'
+wpi.wpimathVersion = 'version string'
+```
+
+To use a specific development version in a robot program, add the following to
+build.gradle:
+```
+wpi.wpilibVersion = 'version string'
+wpi.wpimathVersion = 'version string'
 wpi.maven.useDevelopment = true
 ```
 """
@@ -38,17 +49,19 @@ def main():
         "https://frcmaven.wpi.edu:443/artifactory/development/edu/wpi/first/wpilibc/wpilibc-cpp/maven-metadata.xml"
     ).text
 
-    # Get the first <version> tag in the XML, which will be the latest version
-    version_rgx = re.compile(
-        r"""(?<=<latest>)[\w\-.]+-g([a-f0-9]+)(?=</latest>)""")
-    match = version_rgx.search(content)
-    print(f"{match.group()}")
+    # Get the first <latest> tag in the XML, which will be the latest version
+    version = re.search(r"(?<=<latest>)[\w\-.]+(?=</latest>)", content).group()
+    print(version)
 
     # Get longer commit hash and short description from Git
-    log_msg = (subprocess.check_output(
+    devel_version_match = re.search(r".*?-g([a-f0-9]+)", version)
+    if devel_version_match:
+        commit = devel_version_match.group(1)
+    else:
+        commit = f"v{version}"
+    msgs = subprocess.check_output(
         ["git", "log", "--pretty=oneline", "-1",
-         match.group(1)]).decode().strip())
-    msgs = log_msg.split(maxsplit=1)
+         commit]).decode().rstrip().split(maxsplit=1)
     print(f"\tcommit {msgs[0]}")
     print(f"\t{msgs[1]}")
 
