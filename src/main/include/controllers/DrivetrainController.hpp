@@ -1,4 +1,4 @@
-// Copyright (c) 2018-2020 FRC Team 3512. All Rights Reserved.
+// Copyright (c) 2018-2021 FRC Team 3512. All Rights Reserved.
 
 #pragma once
 
@@ -275,7 +275,5 @@ private:
         auto vr = velocity * (1 + (curvature / 1_rad * trackWidth / 2.0));
         return {vl, vr};
     }
-
-    static void ScaleCapU(Eigen::Matrix<double, 2, 1>* u);
 };
 }  // namespace frc3512

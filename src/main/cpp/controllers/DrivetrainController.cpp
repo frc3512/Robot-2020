@@ -152,9 +152,9 @@ Eigen::Matrix<double, 2, 1> DrivetrainController::Update(
             vrRef.to<double>(), 0, 0;
 
         Eigen::Matrix<double, 2, 1> u_fb = Controller(m_observer.Xhat(), m_r);
-        ScaleCapU(&u_fb);
+        u_fb = frc::NormalizeInputVector<2>(u_fb, 12.0);
         u = u_fb + m_ff.Calculate(m_nextR);
-        ScaleCapU(&u);
+        u = frc::NormalizeInputVector<2>(u, 12.0);
 
         Eigen::Matrix<double, 5, 1> error =
             m_r.block<5, 1>(0, 0) - m_observer.Xhat().block<5, 1>(0, 0);
@@ -312,11 +312,4 @@ Eigen::Matrix<double, 2, 1> DrivetrainController::GlobalMeasurementModel(
     Eigen::Matrix<double, 2, 1> y;
     y << x(State::kX), x(State::kY);
     return y;
-}
-
-void DrivetrainController::ScaleCapU(Eigen::Matrix<double, 2, 1>* u) {
-    double norm = u->lpNorm<Eigen::Infinity>();
-    if (norm > 12.0) {
-        *u *= 12.0 / norm;
-    }
 }
