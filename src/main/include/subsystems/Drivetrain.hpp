@@ -1,4 +1,4 @@
-// Copyright (c) 2020 FRC Team 3512. All Rights Reserved.
+// Copyright (c) 2020-2021 FRC Team 3512. All Rights Reserved.
 
 #pragma once
 
@@ -100,18 +100,24 @@ public:
                                   units::second_t timestamp);
 
     /**
-     * Sets the waypoints for a generated trajectory.
+     * Adds a trajectory with the given waypoints.
+     *
+     * This can be called more than once to create a queue of trajectories.
+     * Closed-loop control will be enabled to track the first trajectory.
      *
      * @param start    Starting pose.
      * @param interior Intermediate waypoints excluding heading.
      * @param end      Ending pose.
      */
-    void SetWaypoints(const frc::Pose2d& start,
-                      const std::vector<frc::Translation2d>& interior,
-                      const frc::Pose2d& end);
+    void AddTrajectory(const frc::Pose2d& start,
+                       const std::vector<frc::Translation2d>& interior,
+                       const frc::Pose2d& end);
 
     /**
-     * Sets the waypoints for a generated trajectory.
+     * Adds a trajectory with the given waypoints.
+     *
+     * This can be called more than once to create a queue of trajectories.
+     * Closed-loop control will be enabled to track the first trajectory.
      *
      * @param start    Starting pose.
      * @param interior Intermediate waypoints excluding heading.
@@ -122,20 +128,26 @@ public:
      *                 returned by MakeTrajectoryConfig() so differential drive
      *                 dynamics constraints are included automatically.
      */
-    void SetWaypoints(const frc::Pose2d& start,
-                      const std::vector<frc::Translation2d>& interior,
-                      const frc::Pose2d& end,
-                      const frc::TrajectoryConfig& config);
+    void AddTrajectory(const frc::Pose2d& start,
+                       const std::vector<frc::Translation2d>& interior,
+                       const frc::Pose2d& end,
+                       const frc::TrajectoryConfig& config);
 
     /**
-     * Sets the waypoints for a generated trajectory.
+     * Adds a trajectory with the given waypoints.
+     *
+     * This can be called more than once to create a queue of trajectories.
+     * Closed-loop control will be enabled to track the first trajectory.
      *
      * @param waypoints Waypoints.
      */
-    void SetWaypoints(const std::vector<frc::Pose2d>& waypoints);
+    void AddTrajectory(const std::vector<frc::Pose2d>& waypoints);
 
     /**
-     * Sets the waypoints for a generated trajectory.
+     * Adds a trajectory with the given waypoints.
+     *
+     * This can be called more than once to create a queue of trajectories.
+     * Closed-loop control will be enabled to track the first trajectory.
      *
      * @param waypoints Waypoints.
      * @param config    TrajectoryConfig for this trajectory. This can include
@@ -144,8 +156,8 @@ public:
      *                  returned by MakeTrajectoryConfig() so differential drive
      *                  dynamics constraints are included automatically.
      */
-    void SetWaypoints(const std::vector<frc::Pose2d>& waypoints,
-                      const frc::TrajectoryConfig& config);
+    void AddTrajectory(const std::vector<frc::Pose2d>& waypoints,
+                       const frc::TrajectoryConfig& config);
 
     /**
      * Returns a TrajectoryConfig containing a differential drive dynamics

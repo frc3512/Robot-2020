@@ -1,4 +1,4 @@
-// Copyright (c) 2020 FRC Team 3512. All Rights Reserved.
+// Copyright (c) 2020-2021 FRC Team 3512. All Rights Reserved.
 
 #include <frc/geometry/Pose2d.h>
 #include <wpi/math>
@@ -14,7 +14,7 @@ void Robot::AutoTargetZoneShootThree() {
                               units::radian_t{wpi::math::pi}};
 
     m_drivetrain.Reset(initialPose);
-    m_drivetrain.SetWaypoints(initialPose, {}, endPose);
+    m_drivetrain.AddTrajectory(initialPose, {}, endPose);
 
     while (!m_drivetrain.AtGoal()) {
         m_autonChooser.YieldToMain();

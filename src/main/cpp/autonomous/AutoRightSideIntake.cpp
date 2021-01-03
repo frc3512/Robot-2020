@@ -1,4 +1,4 @@
-// Copyright (c) 2020 FRC Team 3512. All Rights Reserved.
+// Copyright (c) 2020-2021 FRC Team 3512. All Rights Reserved.
 
 #include <frc/trajectory/constraint/MaxVelocityConstraint.h>
 #include <frc/trajectory/constraint/RectangularRegionConstraint.h>
@@ -29,7 +29,7 @@ void Robot::AutoRightSideIntake() {
 
     auto config = Drivetrain::MakeTrajectoryConfig();
     config.AddConstraint(regionConstraint);
-    m_drivetrain.SetWaypoints(initialPose, {}, endPose, config);
+    m_drivetrain.AddTrajectory(initialPose, {}, endPose, config);
 
     // Intake Balls x2
     m_intake.Deploy();

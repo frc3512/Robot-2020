@@ -1,4 +1,4 @@
-// Copyright (c) 2020 FRC Team 3512. All Rights Reserved.
+// Copyright (c) 2020-2021 FRC Team 3512. All Rights Reserved.
 
 #include <frc/trajectory/constraint/MaxVelocityConstraint.h>
 #include <frc/trajectory/constraint/RectangularRegionConstraint.h>
@@ -21,7 +21,7 @@ void Robot::AutoRightSideShootSix() {
     m_drivetrain.Reset(initialPose);
 
     // Move back to shoot three comfortably
-    m_drivetrain.SetWaypoints(initialPose, {}, midPose);
+    m_drivetrain.AddTrajectory(initialPose, {}, midPose);
 
     m_intake.Deploy();
 
@@ -57,7 +57,7 @@ void Robot::AutoRightSideShootSix() {
     {
         auto config = Drivetrain::MakeTrajectoryConfig();
         config.AddConstraint(regionConstraint);
-        m_drivetrain.SetWaypoints(midPose, {}, endPose, config);
+        m_drivetrain.AddTrajectory(midPose, {}, endPose, config);
     }
 
     // Intake Balls x3
@@ -79,7 +79,7 @@ void Robot::AutoRightSideShootSix() {
     {
         auto config = Drivetrain::MakeTrajectoryConfig();
         config.SetReversed(true);
-        m_drivetrain.SetWaypoints({endPose, midPose}, config);
+        m_drivetrain.AddTrajectory({endPose, midPose}, config);
     }
 
     while (!m_drivetrain.AtGoal()) {

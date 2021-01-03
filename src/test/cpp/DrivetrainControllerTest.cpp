@@ -1,4 +1,4 @@
-// Copyright (c) 2019-2020 FRC Team 3512. All Rights Reserved.
+// Copyright (c) 2019-2021 FRC Team 3512. All Rights Reserved.
 
 #include <frc2/Timer.h>
 #include <gtest/gtest.h>
@@ -17,8 +17,8 @@ TEST_F(DrivetrainControllerTest, CorrectsTowardGlobalY) {
 
     frc3512::DrivetrainController controller;
 
-    controller.SetWaypoints(frc::Pose2d(0_m, 0_m, 0_rad), {},
-                            frc::Pose2d(4.8768_m, 2.7432_m, 0_rad));
+    controller.AddTrajectory(frc::Pose2d(0_m, 0_m, 0_rad), {},
+                             frc::Pose2d(4.8768_m, 2.7432_m, 0_rad));
 
     // Ensure error covariance is nonzero
     for (units::second_t t = 0_s; t < 10_s; t += kDt) {

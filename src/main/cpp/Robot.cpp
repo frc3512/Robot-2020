@@ -1,4 +1,4 @@
-// Copyright (c) 2020 FRC Team 3512. All Rights Reserved.
+// Copyright (c) 2020-2021 FRC Team 3512. All Rights Reserved.
 
 #include "Robot.hpp"
 
@@ -173,6 +173,11 @@ const std::vector<std::string>& Robot::GetAutonomousNames() const {
 void Robot::ExpectAutonomousEndConds() {
     if constexpr (IsSimulation()) {
         EXPECT_TRUE(m_drivetrain.AtGoal());
+
+        // Verify left/right wheel velocities are zero
+        EXPECT_NEAR(m_drivetrain.GetStates()(3), 0.0, 1e-6);
+        EXPECT_NEAR(m_drivetrain.GetStates()(4), 0.0, 1e-6);
+
         EXPECT_EQ(m_flywheel.GetGoal(), 0_rad_per_s);
         EXPECT_TRUE(m_turret.AtGoal());
     }

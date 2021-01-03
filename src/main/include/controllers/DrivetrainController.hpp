@@ -24,6 +24,7 @@
 #include <units/time.h>
 #include <units/voltage.h>
 #include <wpi/math>
+#include <wpi/static_circular_buffer.h>
 
 #include "Constants.hpp"
 #include "controllers/ControllerBase.hpp"
@@ -94,7 +95,10 @@ public:
     DrivetrainController& operator=(DrivetrainController&&) = default;
 
     /**
-     * Sets the waypoints for a generated trajectory.
+     * Adds a trajectory with the given waypoints.
+     *
+     * This can be called more than once to create a queue of trajectories.
+     * Closed-loop control will be enabled to track the first trajectory.
      *
      * @param start    Starting pose.
      * @param interior Intermediate waypoints excluding heading.
@@ -105,13 +109,16 @@ public:
      *                 returned by MakeTrajectoryConfig() so differential drive
      *                 dynamics constraints are included automatically.
      */
-    void SetWaypoints(
+    void AddTrajectory(
         const frc::Pose2d& start,
         const std::vector<frc::Translation2d>& interior, const frc::Pose2d& end,
         const frc::TrajectoryConfig& config = MakeTrajectoryConfig());
 
     /**
-     * Sets the waypoints for a generated trajectory.
+     * Adds a trajectory with the given waypoints.
+     *
+     * This can be called more than once to create a queue of trajectories.
+     * Closed-loop control will be enabled to track the first trajectory.
      *
      * @param waypoints Waypoints.
      * @param config    TrajectoryConfig for this trajectory. This can include
@@ -120,14 +127,14 @@ public:
      *                  returned by MakeTrajectoryConfig() so differential drive
      *                  dynamics constraints are included automatically.
      */
-    void SetWaypoints(
+    void AddTrajectory(
         const std::vector<frc::Pose2d>& waypoints,
         const frc::TrajectoryConfig& config = MakeTrajectoryConfig());
 
     /**
      * Abort trajectory tracking.
      */
-    void AbortTrajectory();
+    void AbortTrajectories();
 
     /**
      * Returns whether the drivetrain controller is at the goal waypoint.
@@ -240,9 +247,9 @@ private:
     Eigen::Matrix<double, 7, 1> m_r;
     Eigen::Matrix<double, 7, 1> m_nextR;
 
-    frc::Trajectory m_trajectory;
+    wpi::static_circular_buffer<frc::Trajectory, 8> m_trajectories;
     frc::Pose2d m_goal;
-    frc2::Timer m_timeSinceSetWaypoints;
+    frc2::Timer m_trajectoryTimeElapsed;
 
     bool m_atReferences = false;
 

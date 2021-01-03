@@ -45,32 +45,42 @@ DrivetrainController::DrivetrainController()
                                            Eigen::Matrix<double, 2, 1>::Zero())
               .block<5, 2>(0, 0);
 
-    m_timeSinceSetWaypoints.Start();
+    m_trajectoryTimeElapsed.Start();
 }
 
-void DrivetrainController::SetWaypoints(
+void DrivetrainController::AddTrajectory(
     const frc::Pose2d& start, const std::vector<frc::Translation2d>& interior,
     const frc::Pose2d& end, const frc::TrajectoryConfig& config) {
-    m_goal = end;
-    m_trajectory = frc::TrajectoryGenerator::GenerateTrajectory(start, interior,
-                                                                end, config);
-    m_timeSinceSetWaypoints.Reset();
-    SetClosedLoop(true);
+    m_trajectories.emplace_back(frc::TrajectoryGenerator::GenerateTrajectory(
+        start, interior, end, config));
+    m_goal = m_trajectories.front().States().back().pose;
+
+    // If a trajectory wasn't being tracked until now, reset the timer.
+    // Otherwise, let the timer continue on the current trajectory.
+    if (m_trajectories.size() == 1) {
+        m_trajectoryTimeElapsed.Reset();
+        SetClosedLoop(true);
+    }
 }
 
-void DrivetrainController::SetWaypoints(
+void DrivetrainController::AddTrajectory(
     const std::vector<frc::Pose2d>& waypoints,
     const frc::TrajectoryConfig& config) {
-    m_goal = waypoints.back();
-    m_trajectory =
-        frc::TrajectoryGenerator::GenerateTrajectory(waypoints, config);
-    m_timeSinceSetWaypoints.Reset();
-    SetClosedLoop(true);
+    m_trajectories.emplace_back(
+        frc::TrajectoryGenerator::GenerateTrajectory(waypoints, config));
+    m_goal = m_trajectories.front().States().back().pose;
+
+    // If a trajectory wasn't being tracked until now, reset the timer.
+    // Otherwise, let the timer continue on the current trajectory.
+    if (m_trajectories.size() == 1) {
+        m_trajectoryTimeElapsed.Reset();
+        SetClosedLoop(true);
+    }
 }
 
-void DrivetrainController::AbortTrajectory() {
+void DrivetrainController::AbortTrajectories() {
     SetClosedLoop(false);
-    m_trajectory = frc::Trajectory{};
+    m_trajectories.reset();
 }
 
 bool DrivetrainController::AtGoal() const {
@@ -129,14 +139,16 @@ Eigen::Matrix<double, 2, 1> DrivetrainController::Update(
     m_observer.Correct(GetInputs(), y);
 
     Eigen::Matrix<double, 2, 1> u;
+    u << 0.0, 0.0;
 
     if (IsClosedLoop()) {
         frc::Trajectory::State ref;
 
         // Only sample the trajectory if one was created.
         {
-            if (m_trajectory.States().size() != 0) {
-                ref = m_trajectory.Sample(m_timeSinceSetWaypoints.Get());
+            if (m_trajectories.size() > 0) {
+                ref = m_trajectories.front().Sample(
+                    m_trajectoryTimeElapsed.Get());
             } else {
                 ref.pose = frc::Pose2d(
                     units::meter_t{m_observer.Xhat(State::kX)},
@@ -166,12 +178,19 @@ Eigen::Matrix<double, 2, 1> DrivetrainController::Update(
                          std::abs(error(2)) < kAngleTolerance &&
                          std::abs(error(3)) < kVelocityTolerance &&
                          std::abs(error(4)) < kVelocityTolerance;
-    } else {
-        u << 0.0, 0.0;
     }
 
     m_r = m_nextR;
     m_observer.Predict(u, dt);
+
+    if (IsClosedLoop() && AtGoal() && m_trajectories.size() > 0) {
+        m_trajectories.pop_front();
+        m_trajectoryTimeElapsed.Reset();
+
+        if (m_trajectories.size() > 0) {
+            m_goal = m_trajectories.front().States().back().pose;
+        }
+    }
 
     return u;
 }

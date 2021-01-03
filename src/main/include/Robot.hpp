@@ -1,4 +1,4 @@
-// Copyright (c) 2020 FRC Team 3512. All Rights Reserved.
+// Copyright (c) 2020-2021 FRC Team 3512. All Rights Reserved.
 
 #pragma once
 
@@ -21,6 +21,7 @@ struct NoOp {
 #define EXPECT_FALSE(a) frc3512::testing::NoOp()
 #define EXPECT_GT(a, b) frc3512::testing::NoOp()
 #define EXPECT_LT(a, b) frc3512::testing::NoOp()
+#define EXPECT_NEAR(a, b, c) frc3512::testing::NoOp()
 #define EXPECT_TRUE(a) frc3512::testing::NoOp()
 #endif
 

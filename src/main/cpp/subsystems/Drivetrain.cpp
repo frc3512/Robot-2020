@@ -140,26 +140,26 @@ void Drivetrain::ControllerPeriodic() {
     }
 }
 
-void Drivetrain::SetWaypoints(const frc::Pose2d& start,
-                              const std::vector<frc::Translation2d>& interior,
-                              const frc::Pose2d& end) {
-    m_controller->SetWaypoints(start, interior, end);
+void Drivetrain::AddTrajectory(const frc::Pose2d& start,
+                               const std::vector<frc::Translation2d>& interior,
+                               const frc::Pose2d& end) {
+    m_controller->AddTrajectory(start, interior, end);
 }
 
-void Drivetrain::SetWaypoints(const frc::Pose2d& start,
-                              const std::vector<frc::Translation2d>& interior,
-                              const frc::Pose2d& end,
-                              const frc::TrajectoryConfig& config) {
-    m_controller->SetWaypoints(start, interior, end, config);
+void Drivetrain::AddTrajectory(const frc::Pose2d& start,
+                               const std::vector<frc::Translation2d>& interior,
+                               const frc::Pose2d& end,
+                               const frc::TrajectoryConfig& config) {
+    m_controller->AddTrajectory(start, interior, end, config);
 }
 
-void Drivetrain::SetWaypoints(const std::vector<frc::Pose2d>& waypoints) {
-    m_controller->SetWaypoints(waypoints);
+void Drivetrain::AddTrajectory(const std::vector<frc::Pose2d>& waypoints) {
+    m_controller->AddTrajectory(waypoints);
 }
 
-void Drivetrain::SetWaypoints(const std::vector<frc::Pose2d>& waypoints,
-                              const frc::TrajectoryConfig& config) {
-    m_controller->SetWaypoints(waypoints, config);
+void Drivetrain::AddTrajectory(const std::vector<frc::Pose2d>& waypoints,
+                               const frc::TrajectoryConfig& config) {
+    m_controller->AddTrajectory(waypoints, config);
 }
 
 frc::TrajectoryConfig Drivetrain::MakeTrajectoryConfig() {
@@ -190,7 +190,7 @@ void Drivetrain::TeleopInit() {
     // If the robot was disabled while still following a trajectory in
     // autonomous, it will continue to do so in teleop. This aborts any
     // trajectories so teleop driving can occur.
-    m_controller->AbortTrajectory();
+    m_controller->AbortTrajectories();
 
     m_controller->Enable();
     m_drive.SetSafetyEnabled(true);

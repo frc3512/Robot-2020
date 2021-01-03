@@ -1,4 +1,4 @@
-// Copyright (c) 2019-2020 FRC Team 3512. All Rights Reserved.
+// Copyright (c) 2019-2021 FRC Team 3512. All Rights Reserved.
 
 #include <frc/Notifier.h>
 #include <frc/simulation/JoystickSim.h>
@@ -137,7 +137,7 @@ TEST_F(TurretTest, ReachesReferenceSCurveDrivetrain) {
     frc::Pose2d initialPose{4.8768_m, 2.7432_m, units::radian_t{wpi::math::pi}};
 
     drivetrain.Reset(initialPose);
-    drivetrain.SetWaypoints(
+    drivetrain.AddTrajectory(
         initialPose, {}, frc::Pose2d(0_m, 0_m, units::radian_t{wpi::math::pi}));
 
     frc::sim::StepTiming(10_s);
@@ -165,7 +165,7 @@ TEST_F(TurretTest, ReachesReferenceAutonDrivetrain) {
 
     frc::Pose2d initialPose{12.65_m, 5.800_m, units::radian_t{wpi::math::pi}};
     drivetrain.Reset(initialPose);
-    drivetrain.SetWaypoints(
+    drivetrain.AddTrajectory(
         initialPose, {},
         frc::Pose2d(12.65_m - frc3512::Drivetrain::kLength, 5.800_m,
                     units::radian_t{wpi::math::pi}));
