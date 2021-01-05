@@ -172,6 +172,10 @@ Eigen::Matrix<double, 7, 1> Drivetrain::GetStates() const {
     return m_controller->GetStates();
 }
 
+Eigen::Matrix<double, 2, 1> Drivetrain::GetInputs() const {
+    return m_controller->GetInputs();
+}
+
 units::ampere_t Drivetrain::GetCurrentDraw() const {
     return m_drivetrainSim.GetCurrentDraw();
 }

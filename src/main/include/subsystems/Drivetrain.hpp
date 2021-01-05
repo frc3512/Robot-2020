@@ -176,6 +176,11 @@ public:
     Eigen::Matrix<double, 7, 1> GetStates() const;
 
     /**
+     * Returns the drivetrain inputs.
+     */
+    Eigen::Matrix<double, 2, 1> GetInputs() const;
+
+    /**
      * Returns current drawn in simulation.
      */
     units::ampere_t GetCurrentDraw() const;
