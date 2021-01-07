@@ -1,11 +1,11 @@
-// Copyright (c) 2020 FRC Team 3512. All Rights Reserved.
+// Copyright (c) 2020-2021 FRC Team 3512. All Rights Reserved.
 
 #include "logging/CSVUtil.hpp"
 
 #include <algorithm>
 
 #if !defined(__FRC_ROBORIO__)
-#if defined(__GNUC__) && __GNUC__ < 9 && !defined(__llvm__)
+#if defined(__GNUC__) && __GNUC__ < 8 && !defined(__llvm__)
 #include <experimental/filesystem>
 namespace std {
 namespace filesystem = experimental::filesystem;
