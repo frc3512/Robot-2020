@@ -9,14 +9,14 @@ namespace frc3512 {
 
 void Robot::AutoRightSideDriveForward() {
     // Initial Pose - Right in line with the three balls in the Trench Run
-    const frc::Pose2d initialPose{12.89_m, 0.71_m,
-                                  units::radian_t{wpi::math::pi}};
+    const frc::Pose2d kInitialPose{12.89_m, 0.71_m,
+                                   units::radian_t{wpi::math::pi}};
     // End Pose - Drive forward slightly
-    const frc::Pose2d endPose{12.89_m - 1.5 * Drivetrain::kLength, 0.71_m,
-                              units::radian_t{wpi::math::pi}};
+    const frc::Pose2d kEndPose{12.89_m - 1.5 * Drivetrain::kLength, 0.71_m,
+                               units::radian_t{wpi::math::pi}};
 
-    m_drivetrain.Reset(initialPose);
-    m_drivetrain.AddTrajectory(initialPose, {}, endPose);
+    m_drivetrain.Reset(kInitialPose);
+    m_drivetrain.AddTrajectory(kInitialPose, {}, kEndPose);
 
     while (!m_drivetrain.AtGoal()) {
         m_autonChooser.YieldToMain();
