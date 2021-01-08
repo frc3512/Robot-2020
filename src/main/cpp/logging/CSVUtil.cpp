@@ -12,7 +12,7 @@ namespace filesystem = experimental::filesystem;
 }  // namespace std
 #else
 #include <filesystem>
-#endif  // defined(__GNUC__) && __GNUC__ < 9 && !defined(__llvm__)
+#endif  // defined(__GNUC__) && __GNUC__ < 8 && !defined(__llvm__)
 #endif  // !defined(__FRC_ROBORIO__)
 
 namespace frc3512 {
