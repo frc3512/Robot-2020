@@ -1,4 +1,4 @@
-// Copyright (c) 2020 FRC Team 3512. All Rights Reserved.
+// Copyright (c) 2020-2021 FRC Team 3512. All Rights Reserved.
 
 #pragma once
 
@@ -124,6 +124,15 @@ public:
     void RobotPeriodic() override;
 
     void ControllerPeriodic();
+
+    /**
+     * Sets the simulation model's angular velocity.
+     *
+     * This is useful for simulating balls exiting the shooter.
+     *
+     * @param velocity The simulation's angular velocity.
+     */
+    void SetSimAngularVelocity(units::radians_per_second_t velocity);
 
 private:
     static const frc::Pose2d kTargetPoseInGlobal;

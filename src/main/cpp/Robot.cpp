@@ -51,11 +51,12 @@ Robot::Robot() {
     }
 }
 
-void Robot::Shoot() {
+void Robot::Shoot(int ballsToShoot) {
     if (m_state == ShootingState::kIdle) {
         vision.TurnLEDOn();
         flywheel.SetGoalFromPose();
         m_state = ShootingState::kStartFlywheel;
+        m_ballsToShoot = ballsToShoot;
     }
 }
 
@@ -99,6 +100,10 @@ void Robot::RobotPeriodic() {
 
 void Robot::SimulationPeriodic() {
     SubsystemBase::RunAllSimulationPeriodic();
+
+    if (intakeSim.Update(intake.IsConveyorRunning(), 20_ms)) {
+        flywheel.SetSimAngularVelocity(0.98 * flywheel.GetAngularVelocity());
+    }
 
     frc::sim::RoboRioSim::SetVInVoltage(frc::sim::BatterySim::Calculate(
         {drivetrain.GetCurrentDraw(), flywheel.GetCurrentDraw()}));
@@ -166,8 +171,18 @@ void Robot::RunShooterSM() {
         }
         // Feed balls until conveyor is empty and timeout has occurred.
         case ShootingState::kStartConveyor: {
-            if (m_timer.HasElapsed(kShootTimeout) &&
-                !intake.IsUpperSensorBlocked()) {
+            // If shooting a specific number of balls and the flywheel has gone
+            // from not at the goal to at the goal, we shot a ball and have
+            // recovered
+            if (m_ballsToShoot > 0 && !m_prevFlywheelAtGoal &&
+                flywheel.AtGoal()) {
+                --m_ballsToShoot;
+            }
+
+            // If we shot the number of balls required or we were using a
+            // timeout instead and the timeout expired, stop shooting
+            if (m_ballsToShoot == 0 || (m_timer.HasElapsed(kShootTimeout) &&
+                                        !intake.IsUpperSensorBlocked())) {
                 flywheel.SetGoal(0_rad_per_s);
                 vision.TurnLEDOff();
                 m_timer.Stop();
@@ -176,6 +191,8 @@ void Robot::RunShooterSM() {
             break;
         }
     }
+
+    m_prevFlywheelAtGoal = flywheel.AtGoal();
 }
 
 void Robot::SelectAutonomous(wpi::StringRef name) {

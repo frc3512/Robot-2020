@@ -1,4 +1,4 @@
-// Copyright (c) 2020 FRC Team 3512. All Rights Reserved.
+// Copyright (c) 2020-2021 FRC Team 3512. All Rights Reserved.
 
 #pragma once
 
@@ -72,6 +72,11 @@ public:
      * @param speed voltage to set motors forwards or backwards
      */
     void SetConveyor(double speed);
+
+    /**
+     * Returns true if the conveyor is running.
+     */
+    bool IsConveyorRunning() const;
 
     /**
      * Returns whether or not the upper proximity sensor detects something; true

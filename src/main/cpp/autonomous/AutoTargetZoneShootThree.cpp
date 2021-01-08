@@ -24,8 +24,12 @@ void Robot::AutoTargetZoneShootThree() {
         }
     }
 
-    // Shoot x3
-    Shoot();
+    if constexpr (IsSimulation()) {
+        for (int i = 0; i < 3; ++i) {
+            intakeSim.AddBall();
+        }
+    }
+    Shoot(3);
 
     while (IsShooting()) {
         m_autonChooser.YieldToMain();

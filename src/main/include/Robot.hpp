@@ -27,6 +27,7 @@ struct NoOp {
 #endif
 
 #include "AutonomousChooser.hpp"
+#include "IntakeSim.hpp"
 #include "subsystems/Climber.hpp"
 #include "subsystems/Drivetrain.hpp"
 #include "subsystems/Flywheel.hpp"
@@ -48,7 +49,7 @@ public:
      */
     enum class ShootingState { kIdle, kStartFlywheel, kStartConveyor };
 
-    static constexpr auto kShootTimeout = 2_s;
+    static constexpr auto kShootTimeout = 3_s;
 
     // The order the subsystems are initialized determines the order the
     // controllers run in.
@@ -59,12 +60,23 @@ public:
     Intake intake{flywheel};
     Climber climber{turret};
 
+    // Simulation variables
+    IntakeSim intakeSim;
+
     Robot();
 
     /**
      * Start shooting.
+     *
+     * If the user provides a number of balls to shoot, the shooter will run
+     * until it detects that many dips and recoveries after initially reaching
+     * the angular velocity goal. After that point, the flywheel and intake will
+     * turn off. If no number is given, a timeout will be used to stop the
+     * flywheel instead.
+     *
+     * @param ballsToShoot Number of balls to shoot.
      */
-    void Shoot();
+    void Shoot(int ballsToShoot = -1);
 
     /**
      * Returns true if currently shooting.
@@ -183,6 +195,8 @@ public:
 
 private:
     ShootingState m_state = ShootingState::kIdle;
+    int m_ballsToShoot = -1;
+    bool m_prevFlywheelAtGoal = false;
     frc2::Timer m_timer;
 
     AutonomousChooser m_autonChooser{"No-op", [=] { AutoNoOp(); }};

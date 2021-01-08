@@ -1,4 +1,4 @@
-// Copyright (c) 2020 FRC Team 3512. All Rights Reserved.
+// Copyright (c) 2020-2021 FRC Team 3512. All Rights Reserved.
 
 #include "controllers/FlywheelController.hpp"
 
@@ -17,10 +17,19 @@ FlywheelController::FlywheelController()
 
 void FlywheelController::SetGoal(units::radians_per_second_t angularVelocity) {
     m_nextR << angularVelocity.to<double>();
-    m_atGoal = units::math::abs(units::radians_per_second_t{
-                   m_nextR(State::kAngularVelocity) -
-                   m_observer.Xhat(State::kAngularVelocity)}) <
-               kAngularVelocityTolerance;
+    auto absError = units::math::abs(
+        units::radians_per_second_t{m_nextR(State::kAngularVelocity) -
+                                    m_observer.Xhat(State::kAngularVelocity)});
+
+    // Add hysteresis to AtGoal() so it won't chatter due to measurement noise
+    // when the angular velocity drops. Threshold when going out of tolerance
+    // (e.g., down after shooting a ball) is tolerance + 20. Threshold when
+    // going into tolerance (e.g., up from recovery) is threshold.
+    if (m_atGoal && absError > kAngularVelocityTolerance + 20_rad_per_s) {
+        m_atGoal = false;
+    } else if (!m_atGoal && absError < kAngularVelocityTolerance) {
+        m_atGoal = true;
+    }
 }
 
 units::radians_per_second_t FlywheelController::GetGoal() const {

@@ -153,6 +153,14 @@ void Flywheel::ControllerPeriodic() {
     m_lastTime = m_time;
 }
 
+void Flywheel::SetSimAngularVelocity(units::radians_per_second_t velocity) {
+    Eigen::Matrix<double, 2, 1> state;
+    state << m_flywheelPositionSim.GetOutput(0), velocity.to<double>();
+
+    m_flywheelSim.SetState(state.block<1, 1>(1, 0));
+    m_flywheelPositionSim.SetState(state);
+}
+
 void Flywheel::SetVoltage(units::volt_t voltage) {
     m_leftGrbx.SetVoltage(voltage);
     m_rightGrbx.SetVoltage(-voltage);

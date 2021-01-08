@@ -1,4 +1,4 @@
-// Copyright (c) 2020 FRC Team 3512. All Rights Reserved.
+// Copyright (c) 2020-2021 FRC Team 3512. All Rights Reserved.
 
 #include "subsystems/Intake.hpp"
 
@@ -48,6 +48,8 @@ void Intake::FeedBalls() {
 }
 
 void Intake::SetConveyor(double speed) { m_conveyorMotor.Set(speed); }
+
+bool Intake::IsConveyorRunning() const { return m_conveyorMotor.Get() != 0.0; }
 
 bool Intake::IsUpperSensorBlocked() const { return !m_upperSensor.Get(); }
 
