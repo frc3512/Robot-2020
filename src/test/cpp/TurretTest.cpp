@@ -14,7 +14,13 @@
 #include "subsystems/Turret.hpp"
 #include "subsystems/Vision.hpp"
 
-class TurretTest : public frc3512::SimulatorTest {};
+class TurretTest : public frc3512::SimulatorTest {
+public:
+    frc3512::Vision vision;
+    frc3512::Drivetrain drivetrain;
+    frc3512::Flywheel flywheel{drivetrain};
+    frc3512::Turret turret{vision, drivetrain, flywheel};
+};
 
 TEST_F(TurretTest, ConfigSpaceLimits) {
     using namespace frc3512::Constants::Robot;
@@ -26,11 +32,6 @@ TEST_F(TurretTest, ConfigSpaceLimits) {
     timer.Start();
 
     frc::sim::JoystickSim appendageStick1{kAppendageStick1Port};
-
-    frc3512::Vision vision;
-    frc3512::Drivetrain drivetrain;
-    frc3512::Flywheel flywheel{drivetrain};
-    frc3512::Turret turret{vision, drivetrain, flywheel};
 
     frc3512::SubsystemBase::RunAllTeleopInit();
     turret.SetControlMode(frc3512::TurretController::ControlMode::kManual);
@@ -87,15 +88,9 @@ TEST_F(TurretTest, ConfigSpaceLimits) {
     appendageStick1.SetPOV(kPovCW);
     frc::sim::StepTiming(20_ms);
     EXPECT_LT(turret.GetMotorOutput(), 0_V);
-
-    frc3512::SubsystemBase::RunAllDisabledInit();
 }
 
 TEST_F(TurretTest, ReachesReferenceStaticDrivetrain) {
-    frc3512::Vision vision;
-    frc3512::Drivetrain drivetrain;
-    frc3512::Flywheel flywheel{drivetrain};
-    frc3512::Turret turret{vision, drivetrain, flywheel};
     turret.SetControlMode(frc3512::TurretController::ControlMode::kAutoAim);
 
     frc3512::SubsystemBase::RunAllAutonomousInit();
@@ -113,16 +108,10 @@ TEST_F(TurretTest, ReachesReferenceStaticDrivetrain) {
 
     frc::sim::StepTiming(10_s);
 
-    frc3512::SubsystemBase::RunAllDisabledInit();
-
     EXPECT_TRUE(turret.AtGoal());
 }
 
 TEST_F(TurretTest, ReachesReferenceSCurveDrivetrain) {
-    frc3512::Vision vision;
-    frc3512::Drivetrain drivetrain;
-    frc3512::Flywheel flywheel{drivetrain};
-    frc3512::Turret turret{vision, drivetrain, flywheel};
     turret.SetControlMode(frc3512::TurretController::ControlMode::kAutoAim);
 
     frc3512::SubsystemBase::RunAllAutonomousInit();
@@ -142,16 +131,10 @@ TEST_F(TurretTest, ReachesReferenceSCurveDrivetrain) {
 
     frc::sim::StepTiming(10_s);
 
-    frc3512::SubsystemBase::RunAllDisabledInit();
-
     EXPECT_TRUE(turret.AtGoal());
 }
 
 TEST_F(TurretTest, ReachesReferenceAutonDrivetrain) {
-    frc3512::Vision vision;
-    frc3512::Drivetrain drivetrain;
-    frc3512::Flywheel flywheel{drivetrain};
-    frc3512::Turret turret{vision, drivetrain, flywheel};
     turret.SetControlMode(frc3512::TurretController::ControlMode::kAutoAim);
 
     frc3512::SubsystemBase::RunAllAutonomousInit();
@@ -171,8 +154,6 @@ TEST_F(TurretTest, ReachesReferenceAutonDrivetrain) {
                     units::radian_t{wpi::math::pi}));
 
     frc::sim::StepTiming(10_s);
-
-    frc3512::SubsystemBase::RunAllDisabledInit();
 
     EXPECT_TRUE(turret.AtGoal());
 }

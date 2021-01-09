@@ -11,16 +11,23 @@
 #include "SetCurrentPath.hpp"
 #include "SimulatorTestWithParam.hpp"
 
-class AutonomousTest : public frc3512::SimulatorTestWithParam<std::string> {};
+class AutonomousTest : public frc3512::SimulatorTestWithParam<std::string> {
+public:
+    frc3512::Robot robot;
+
+    ~AutonomousTest() {
+        robot.EndCompetition();
+        robotThread.join();
+    }
+
+private:
+    std::thread robotThread{[&] { robot.StartCompetition(); }};
+};
 
 TEST_P(AutonomousTest, Run) {
     fmt::print("[          ] where GetParam() = \"{}\"\n", GetParam());
 
     frc::sim::DriverStationSim ds;
-
-    frc3512::Robot robot;
-
-    std::thread robotThread{[&] { robot.StartCompetition(); }};
 
     robot.SelectAutonomous(GetParam());
 
@@ -36,9 +43,6 @@ TEST_P(AutonomousTest, Run) {
     ds.NotifyNewData();
 
     frc::sim::StepTiming(20_ms);
-
-    robot.EndCompetition();
-    robotThread.join();
 }
 
 INSTANTIATE_TEST_SUITE_P(AutonomousTests, AutonomousTest, [] {

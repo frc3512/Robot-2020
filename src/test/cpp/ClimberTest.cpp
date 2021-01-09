@@ -14,7 +14,14 @@
 #include "subsystems/Turret.hpp"
 #include "subsystems/Vision.hpp"
 
-class ClimberTest : public frc3512::SimulatorTest {};
+class ClimberTest : public frc3512::SimulatorTest {
+public:
+    frc3512::Vision vision;
+    frc3512::Drivetrain drivetrain;
+    frc3512::Flywheel flywheel{drivetrain};
+    frc3512::Turret turret{vision, drivetrain, flywheel};
+    frc3512::Climber climber{turret};
+};
 
 TEST_F(ClimberTest, ConfigSpaceLimits) {
     frc2::Timer timer;
@@ -22,12 +29,6 @@ TEST_F(ClimberTest, ConfigSpaceLimits) {
 
     frc::sim::JoystickSim appendageStick1{
         frc3512::Constants::Robot::kAppendageStick1Port};
-
-    frc3512::Vision vision;
-    frc3512::Drivetrain drivetrain;
-    frc3512::Flywheel flywheel{drivetrain};
-    frc3512::Turret turret{vision, drivetrain, flywheel};
-    frc3512::Climber climber{turret};
 
     // Make sure turret doesn't interfere with climber movement
     turret.Reset(units::radian_t{wpi::math::pi / 2.0});
@@ -62,6 +63,4 @@ TEST_F(ClimberTest, ConfigSpaceLimits) {
     appendageStick1.SetY(-1.0);
     frc::sim::StepTiming(20_ms);
     EXPECT_EQ(climber.GetElevatorMotorOutput(), 0_V);
-
-    frc3512::SubsystemBase::RunAllDisabledInit();
 }

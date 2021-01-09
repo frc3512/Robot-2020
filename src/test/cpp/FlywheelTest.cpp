@@ -1,4 +1,4 @@
-// Copyright (c) 2020 FRC Team 3512. All Rights Reserved.
+// Copyright (c) 2020-2021 FRC Team 3512. All Rights Reserved.
 
 #include <frc/Notifier.h>
 #include <frc/simulation/SimHooks.h>
@@ -9,25 +9,26 @@
 #include "subsystems/Flywheel.hpp"
 #include "subsystems/Vision.hpp"
 
-class FlywheelTest : public frc3512::SimulatorTest {};
-
-TEST_F(FlywheelTest, ReachesGoal) {
+class FlywheelTest : public frc3512::SimulatorTest {
+public:
     frc3512::Vision vision;
     frc3512::Drivetrain drivetrain;
     frc3512::Flywheel flywheel{drivetrain};
-
-    frc3512::SubsystemBase::RunAllTeleopInit();
     frc::Notifier controllerPeriodic{[&] {
         flywheel.TeleopPeriodic();
         flywheel.ControllerPeriodic();
     }};
-    controllerPeriodic.StartPeriodic(frc3512::Constants::kDt);
 
+    FlywheelTest() {
+        frc3512::SubsystemBase::RunAllTeleopInit();
+        controllerPeriodic.StartPeriodic(frc3512::Constants::kDt);
+    }
+};
+
+TEST_F(FlywheelTest, ReachesGoal) {
     flywheel.SetGoal(500_rad_per_s);
 
     frc::sim::StepTiming(2_s);
-
-    frc3512::SubsystemBase::RunAllDisabledInit();
 
     EXPECT_TRUE(flywheel.AtGoal());
 }
