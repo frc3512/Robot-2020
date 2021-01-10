@@ -33,7 +33,8 @@ Drivetrain::Drivetrain()
            ControllerLabel{"Right voltage", "V"}},
           {ControllerLabel{"Heading", "rad"},
            ControllerLabel{"Left position", "m"},
-           ControllerLabel{"Right position", "m"}}) {
+           ControllerLabel{"Right position", "m"},
+           ControllerLabel{"Acceleration", "m/s^2"}}) {
     SetCANSparkMaxBusUsage(m_leftLeader, Usage::kMinimal);
     SetCANSparkMaxBusUsage(m_leftFollower, Usage::kMinimal);
     SetCANSparkMaxBusUsage(m_rightLeader, Usage::kMinimal);
@@ -70,7 +71,7 @@ frc::Pose2d Drivetrain::GetPose() const {
 }
 
 units::radian_t Drivetrain::GetAngle() const {
-    return units::degree_t{-m_gyro.GetAngle()} + m_headingOffset;
+    return units::degree_t{-m_imu.GetAngle()} + m_headingOffset;
 }
 
 units::meter_t Drivetrain::GetLeftPosition() const {
@@ -89,6 +90,10 @@ units::meters_per_second_t Drivetrain::GetRightVelocity() const {
     return units::meters_per_second_t{m_rightEncoder.GetRate()};
 }
 
+units::meters_per_second_squared_t Drivetrain::GetAcceleration() const {
+    return m_imu.GetAccelInstantX() * 9.8_mps_sq;
+}
+
 void Drivetrain::Reset(const frc::Pose2d& initialPose) {
     using State = frc::sim::DifferentialDrivetrainSim::State;
 
@@ -97,7 +102,7 @@ void Drivetrain::Reset(const frc::Pose2d& initialPose) {
     m_u = Eigen::Matrix<double, 2, 1>::Zero();
     m_leftEncoder.Reset();
     m_rightEncoder.Reset();
-    m_gyro.Reset();
+    m_imu.Reset();
     m_headingOffset = initialPose.Rotation().Radians();
 
     Eigen::Matrix<double, 7, 1> xHat;
@@ -132,9 +137,10 @@ void Drivetrain::ControllerPeriodic() {
 
     m_observer.Predict(m_u, GetDt());
 
-    Eigen::Matrix<double, 3, 1> y;
+    Eigen::Matrix<double, 4, 1> y;
     y << frc::AngleModulus(GetAngle()).to<double>(),
-        GetLeftPosition().to<double>(), GetRightPosition().to<double>();
+        GetLeftPosition().to<double>(), GetRightPosition().to<double>(),
+        GetAcceleration().to<double>();
     m_latencyComp.AddObserverState(m_observer, m_controller.GetInputs(), y,
                                    frc2::Timer::GetFPGATimestamp());
     m_observer.Correct(m_controller.GetInputs(), y);
@@ -173,8 +179,20 @@ void Drivetrain::ControllerPeriodic() {
             m_drivetrainSim.GetLeftPosition().to<double>());
         m_rightEncoderSim.SetDistance(
             m_drivetrainSim.GetRightPosition().to<double>());
-        m_gyroSim.SetAngle(-units::degree_t{
+        m_imuSim.SetAngle(-units::degree_t{
             m_drivetrainSim.GetHeading().Radians() - m_headingOffset});
+
+        const auto& plant = DrivetrainController::GetPlant();
+        Eigen::Matrix<double, 2, 1> x;
+        x << m_drivetrainSim.GetLeftVelocity().to<double>(),
+            m_drivetrainSim.GetRightVelocity().to<double>();
+        Eigen::Matrix<double, 2, 1> u;
+        u << m_leftGrbx.Get() * batteryVoltage,
+            m_rightGrbx.Get() * batteryVoltage;
+        Eigen::Matrix<double, 2, 1> xdot = plant.A() * x + plant.B() * u;
+        m_imuSim.SetAccelInstantX(
+            units::meters_per_second_squared_t{(xdot(0) + xdot(1)) / 2.0});
+
         m_field.SetRobotPose(m_drivetrainSim.GetPose());
     }
 }
@@ -247,6 +265,7 @@ void Drivetrain::RobotPeriodic() {
     m_headingOutputEntry.SetDouble(GetAngle().to<double>());
     m_leftPositionOutputEntry.SetDouble(GetLeftPosition().to<double>());
     m_rightPositionOutputEntry.SetDouble(GetRightPosition().to<double>());
+    m_accelerationOutputEntry.SetDouble(GetAcceleration().to<double>());
 }
 
 void Drivetrain::TeleopPeriodic() {

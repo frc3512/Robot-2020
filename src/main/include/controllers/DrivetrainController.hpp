@@ -28,7 +28,7 @@
 
 namespace frc3512 {
 
-class DrivetrainController : public ControllerBase<7, 2, 3> {
+class DrivetrainController : public ControllerBase<7, 2, 4> {
 public:
     static constexpr units::meter_t kWheelRadius = 3.05_in;
     static constexpr double kDriveGearRatio = 1.0 / 1.0;
@@ -72,6 +72,7 @@ public:
         static constexpr int kHeading = 0;
         static constexpr int kLeftPosition = 1;
         static constexpr int kRightPosition = 2;
+        static constexpr int kAcceleration = 3;
     };
 
     /**
@@ -194,7 +195,7 @@ public:
     static Eigen::Matrix<double, 5, 2> JacobianU(
         const Eigen::Matrix<double, 2, 1>& u);
 
-    static Eigen::Matrix<double, 3, 1> LocalMeasurementModel(
+    static Eigen::Matrix<double, 4, 1> LocalMeasurementModel(
         const Eigen::Matrix<double, 7, 1>& x,
         const Eigen::Matrix<double, 2, 1>& u);
 

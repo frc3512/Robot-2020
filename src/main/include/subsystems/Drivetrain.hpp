@@ -5,14 +5,14 @@
 #include <vector>
 
 #include <Eigen/Core>
-#include <frc/ADXRS450_Gyro.h>
+#include <adi/ADIS16470_IMU.h>
+#include <adi/simulation/ADIS16470_IMUSim.h>
 #include <frc/Encoder.h>
 #include <frc/SpeedControllerGroup.h>
 #include <frc/estimator/AngleStatistics.h>
 #include <frc/estimator/KalmanFilterLatencyCompensator.h>
 #include <frc/geometry/Pose2d.h>
 #include <frc/geometry/Translation2d.h>
-#include <frc/simulation/ADXRS450_GyroSim.h>
 #include <frc/simulation/DifferentialDrivetrainSim.h>
 #include <frc/simulation/EncoderSim.h>
 #include <frc/smartdashboard/Field2d.h>
@@ -20,6 +20,7 @@
 #include <frc2/Timer.h>
 #include <networktables/NetworkTableEntry.h>
 #include <networktables/NetworkTableInstance.h>
+#include <units/acceleration.h>
 #include <units/angle.h>
 #include <units/angular_velocity.h>
 #include <units/current.h>
@@ -44,7 +45,7 @@ namespace frc3512 {
 /**
  * Drivetrain subsystem.
  */
-class Drivetrain : public ControlledSubsystemBase<7, 2, 3> {
+class Drivetrain : public ControlledSubsystemBase<7, 2, 4> {
 public:
     static constexpr units::meter_t kLength = 0.9398_m;
     static constexpr units::meter_t kMiddleOfRobotToIntake = 0.656_m;
@@ -83,6 +84,11 @@ public:
      * Returns right encoder velocity.
      */
     units::meters_per_second_t GetRightVelocity() const;
+
+    /**
+     * Returns longitudinal acceleration from IMU.
+     */
+    units::meters_per_second_squared_t GetAcceleration() const;
 
     /**
      * Resets all sensors and controller.
@@ -219,28 +225,29 @@ private:
     frc::Encoder m_rightEncoder{Constants::Drivetrain::kRightEncoderA,
                                 Constants::Drivetrain::kRightEncoderB};
 
-    frc::ADXRS450_Gyro m_gyro;
+    frc::ADIS16470_IMU m_imu;
     units::radian_t m_headingOffset = 0_rad;
 
 #if defined(__FRC_ROBORIO__)
-    frc::ExtendedKalmanFilter<7, 2, 3> m_observer {
+    frc::ExtendedKalmanFilter<7, 2, 4> m_observer {
 #else
-    frc::UnscentedKalmanFilter<7, 2, 3> m_observer {
+    frc::UnscentedKalmanFilter<7, 2, 4> m_observer {
 #endif  // defined(__FRC_ROBORIO__)
         DrivetrainController::Dynamics,
             DrivetrainController::LocalMeasurementModel,
-            {0.002, 0.002, 0.0001, 1.5, 1.5, 0.5, 0.5}, {0.0001, 0.005, 0.005},
+            {0.002, 0.002, 0.0001, 1.5, 1.5, 0.5, 0.5},
+            {0.0001, 0.005, 0.005, 7.0},
 #if !defined(__FRC_ROBORIO__)
-            frc::AngleMean<7, 7>(2), frc::AngleMean<3, 7>(0),
+            frc::AngleMean<7, 7>(2), frc::AngleMean<4, 7>(0),
             frc::AngleResidual<7>(2),
 #endif  // !defined(__FRC_ROBORIO__)
-            frc::AngleResidual<3>(0), frc::AngleAdd<7>(2), Constants::kDt
+            frc::AngleResidual<4>(0), frc::AngleAdd<7>(2), Constants::kDt
     };
-    frc::KalmanFilterLatencyCompensator<7, 2, 3,
+    frc::KalmanFilterLatencyCompensator<7, 2, 4,
 #if defined(__FRC_ROBORIO__)
-                                        frc::ExtendedKalmanFilter<7, 2, 3>>
+                                        frc::ExtendedKalmanFilter<7, 2, 4>>
 #else
-                                        frc::UnscentedKalmanFilter<7, 2, 3>>
+                                        frc::UnscentedKalmanFilter<7, 2, 4>>
 #endif  // defined(__FRC_ROBORIO__)
         m_latencyComp;
     DrivetrainController m_controller;
@@ -277,6 +284,9 @@ private:
     nt::NetworkTableEntry m_rightPositionOutputEntry =
         NetworkTableUtil::MakeEntry(
             "/Diagnostics/Drivetrain/Outputs/Right position", 0);
+    nt::NetworkTableEntry m_accelerationOutputEntry =
+        NetworkTableUtil::MakeEntry(
+            "/Diagnostics/Drivetrain/Outputs/Acceleration", 0);
 
     // Simulation variables
     frc::sim::DifferentialDrivetrainSim m_drivetrainSim{
@@ -285,7 +295,7 @@ private:
         DrivetrainController::kWheelRadius};
     frc::sim::EncoderSim m_leftEncoderSim{m_leftEncoder};
     frc::sim::EncoderSim m_rightEncoderSim{m_rightEncoder};
-    frc::sim::ADXRS450_GyroSim m_gyroSim{m_gyro};
+    frc::sim::ADIS16470_IMUSim m_imuSim{m_imu};
     frc::Field2d m_field;
 };
 

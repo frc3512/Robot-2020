@@ -256,13 +256,17 @@ Eigen::Matrix<double, 5, 2> DrivetrainController::JacobianU(
     // clang-format on
 }
 
-Eigen::Matrix<double, 3, 1> DrivetrainController::LocalMeasurementModel(
+Eigen::Matrix<double, 4, 1> DrivetrainController::LocalMeasurementModel(
     const Eigen::Matrix<double, 7, 1>& x,
     const Eigen::Matrix<double, 2, 1>& u) {
-    static_cast<void>(u);
+    auto plant = frc::LinearSystemId::IdentifyDrivetrainSystem(
+        kLinearV, kLinearA, kAngularV, kAngularA);
+    Eigen::Matrix<double, 2, 1> xdot =
+        plant.A() * x.block<2, 1>(State::kLeftVelocity, 0) + plant.B() * u;
 
-    Eigen::Matrix<double, 3, 1> y;
-    y << x(State::kHeading), x(State::kLeftPosition), x(State::kRightPosition);
+    Eigen::Matrix<double, 4, 1> y;
+    y << x(State::kHeading), x(State::kLeftPosition), x(State::kRightPosition),
+        (xdot(0) + xdot(1)) / 2.0;
     return y;
 }
 
