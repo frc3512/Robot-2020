@@ -62,8 +62,8 @@ public:
 private:
     rev::CANSparkMax m_elevator{Constants::Climber::kElevatorPortRight,
                                 rev::CANSparkMax::MotorType::kBrushless};
-    rev::CANEncoder m_elevatorEncoder{
-        m_elevator, rev::CANEncoder::EncoderType::kHallSensor};
+    rev::CANEncoder m_elevatorEncoder =
+        m_elevator.GetEncoder(rev::CANEncoder::EncoderType::kHallSensor);
 
     rev::CANSparkMax m_traverser{frc3512::Constants::Climber::kTraverserPort,
                                  rev::CANSparkMax::MotorType::kBrushless};

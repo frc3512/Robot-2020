@@ -1,4 +1,4 @@
-// Copyright (c) 2020 FRC Team 3512. All Rights Reserved.
+// Copyright (c) 2020-2021 FRC Team 3512. All Rights Reserved.
 
 #pragma once
 
@@ -9,6 +9,7 @@
 #include <frc/SpeedController.h>
 #include <rev/CANError.h>
 
+#include "rev/CANEncoder.hpp"
 #include "rev/CANSparkMaxLowLevel.hpp"
 
 namespace rev {
@@ -36,6 +37,12 @@ public:
     void StopMotor() override { Disable(); }
 
     void PIDWrite(double output) override { Set(output); }
+
+    CANEncoder GetEncoder(CANEncoder::EncoderType sensorType =
+                              CANEncoder::EncoderType::kHallSensor,
+                          int countsPerRev = 32) {
+        return CANEncoder{*this, sensorType, countsPerRev};
+    }
 
 private:
     double m_speed = 0.0;

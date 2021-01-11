@@ -71,6 +71,9 @@ nativeUtils.platformConfigs.named("linuxathena").configure {
     it.cppCompiler.args.add('-pedantic')
     it.cppCompiler.args.add('-Werror')
     it.cppCompiler.args.add('-Wno-unused-parameter')
+    // Suppress warning from incorrect [[deprecated]] attribute usage in
+    // CANSparkMax.h
+    it.cppCompiler.args.add('-Wno-attributes')
 }
 
 if (OperatingSystem.current().isWindows()) {
