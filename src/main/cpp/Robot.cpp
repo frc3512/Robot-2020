@@ -34,6 +34,7 @@ Robot::Robot() {
     m_autonChooser.AddAutonomous("Right Side Shoot Six Balls",
                                  [=] { AutoRightSideShootSix(); });
 
+    frc::DriverStation::GetInstance().SilenceJoystickConnectionWarning(true);
     frc::LiveWindow::GetInstance()->DisableAllTelemetry();
 
     AddPeriodic([=] { ControllerPeriodic(); }, Constants::kDt, 7.5_ms);
