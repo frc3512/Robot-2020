@@ -18,14 +18,14 @@ void Robot::AutoRightSideShootSix() {
     // End Pose - Third/Farthest ball in the Trench Run
     const frc::Pose2d kEndPose{8_m, 0.71_m, units::radian_t{wpi::math::pi}};
 
-    m_drivetrain.Reset(kInitialPose);
+    drivetrain.Reset(kInitialPose);
 
     // Move back to shoot three comfortably
-    m_drivetrain.AddTrajectory(kInitialPose, {}, kMidPose);
+    drivetrain.AddTrajectory(kInitialPose, {}, kMidPose);
 
-    m_intake.Deploy();
+    intake.Deploy();
 
-    while (!m_drivetrain.AtGoal()) {
+    while (!drivetrain.AtGoal()) {
         m_autonChooser.YieldToMain();
         if (!IsAutonomousEnabled()) {
             EXPECT_TRUE(false) << "Autonomous mode didn't complete";
@@ -57,14 +57,14 @@ void Robot::AutoRightSideShootSix() {
     {
         auto config = Drivetrain::MakeTrajectoryConfig();
         config.AddConstraint(regionConstraint);
-        m_drivetrain.AddTrajectory(kMidPose, {}, kEndPose, config);
+        drivetrain.AddTrajectory(kMidPose, {}, kEndPose, config);
     }
 
     // Intake Balls x3
-    m_intake.SetArmMotor(Intake::ArmMotorDirection::kIntake);
-    m_intake.SetFunnel(0.4);
+    intake.SetArmMotor(Intake::ArmMotorDirection::kIntake);
+    intake.SetFunnel(0.4);
 
-    while (!m_drivetrain.AtGoal()) {
+    while (!drivetrain.AtGoal()) {
         m_autonChooser.YieldToMain();
         if (!IsAutonomousEnabled()) {
             EXPECT_TRUE(false) << "Autonomous mode didn't complete";
@@ -72,17 +72,17 @@ void Robot::AutoRightSideShootSix() {
         }
     }
 
-    m_intake.SetArmMotor(Intake::ArmMotorDirection::kIdle);
-    m_intake.SetFunnel(0.0);
+    intake.SetArmMotor(Intake::ArmMotorDirection::kIdle);
+    intake.SetFunnel(0.0);
 
     // Drive back
     {
         auto config = Drivetrain::MakeTrajectoryConfig();
         config.SetReversed(true);
-        m_drivetrain.AddTrajectory({kEndPose, kMidPose}, config);
+        drivetrain.AddTrajectory({kEndPose, kMidPose}, config);
     }
 
-    while (!m_drivetrain.AtGoal()) {
+    while (!drivetrain.AtGoal()) {
         m_autonChooser.YieldToMain();
         if (!IsAutonomousEnabled()) {
             EXPECT_TRUE(false) << "Autonomous mode didn't complete";

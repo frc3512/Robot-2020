@@ -17,7 +17,7 @@ void Robot::AutoLeftSideIntake() {
     const frc::Pose2d kEndPose{9.63_m + Drivetrain::kMiddleOfRobotToIntake,
                                7.513_m, units::radian_t{wpi::math::pi}};
 
-    m_drivetrain.Reset(kInitialPose);
+    drivetrain.Reset(kInitialPose);
 
     // Add a region constraint to slow down the drivetrain while
     // it's approaching the balls
@@ -30,14 +30,14 @@ void Robot::AutoLeftSideIntake() {
 
     auto config = Drivetrain::MakeTrajectoryConfig();
     config.AddConstraint(regionConstraint);
-    m_drivetrain.AddTrajectory(kInitialPose, {}, kEndPose, config);
+    drivetrain.AddTrajectory(kInitialPose, {}, kEndPose, config);
 
     // Intake Balls x2
-    m_intake.Deploy();
-    m_intake.SetArmMotor(Intake::ArmMotorDirection::kIntake);
-    m_intake.SetFunnel(0.4);
+    intake.Deploy();
+    intake.SetArmMotor(Intake::ArmMotorDirection::kIntake);
+    intake.SetFunnel(0.4);
 
-    while (!m_drivetrain.AtGoal()) {
+    while (!drivetrain.AtGoal()) {
         m_autonChooser.YieldToMain();
         if (!IsAutonomousEnabled()) {
             EXPECT_TRUE(false) << "Autonomous mode didn't complete";
@@ -45,8 +45,8 @@ void Robot::AutoLeftSideIntake() {
         }
     }
 
-    m_intake.SetArmMotor(Intake::ArmMotorDirection::kIdle);
-    m_intake.SetFunnel(0);
+    intake.SetArmMotor(Intake::ArmMotorDirection::kIdle);
+    intake.SetFunnel(0);
 }
 
 }  // namespace frc3512
