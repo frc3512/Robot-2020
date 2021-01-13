@@ -47,6 +47,8 @@ public:
      */
     enum class ShootingState { kIdle, kStartFlywheel, kStartConveyor };
 
+    static constexpr auto kShootTimeout = 2_s;
+
     Robot();
 
     /**

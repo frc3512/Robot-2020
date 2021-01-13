@@ -152,7 +152,8 @@ void Robot::RunShooterSM() {
         }
         // Feed balls until conveyor is empty and timeout has occurred.
         case ShootingState::kStartConveyor: {
-            if (m_timer.HasElapsed(2_s) && !m_intake.IsUpperSensorBlocked()) {
+            if (m_timer.HasElapsed(kShootTimeout) &&
+                !m_intake.IsUpperSensorBlocked()) {
                 m_flywheel.SetGoal(0_rad_per_s);
                 m_vision.TurnLEDOff();
                 m_timer.Stop();
