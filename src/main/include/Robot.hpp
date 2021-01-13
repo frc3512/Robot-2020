@@ -8,6 +8,7 @@
 #include <frc/TimedRobot.h>
 #include <frc/logging/CSVLogFile.h>
 #include <frc2/Timer.h>
+#include <units/time.h>
 
 #if RUNNING_FRC_TESTS
 #include <gtest/gtest.h>
