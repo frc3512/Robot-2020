@@ -1,4 +1,4 @@
-// Copyright (c) 2020 FRC Team 3512. All Rights Reserved.
+// Copyright (c) 2020-2021 FRC Team 3512. All Rights Reserved.
 
 #pragma once
 
@@ -26,9 +26,9 @@ protected:
                                           testInfo->name())};
     }();
 
-    void SetUp() override { frc::sim::PauseTiming(); }
+    SimulatorTest() { frc::sim::PauseTiming(); }
 
-    void TearDown() override { frc::sim::ResumeTiming(); }
+    virtual ~SimulatorTest() { frc::sim::ResumeTiming(); }
 };
 
 }  // namespace frc3512
