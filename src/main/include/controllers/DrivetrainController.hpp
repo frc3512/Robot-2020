@@ -168,7 +168,7 @@ public:
                                        units::second_t dt) override;
 
     /**
-     * Returns the drivetrains plant.
+     * Returns the drivetrain's plant.
      */
     frc::LinearSystem<2, 2, 2> GetPlant() const;
 
