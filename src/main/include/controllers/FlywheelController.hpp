@@ -90,7 +90,8 @@ public:
     const frc::LinearSystem<1, 1, 1>& GetPlant() const;
 
 private:
-    static constexpr auto kAngularVelocityTolerance = 20_rad_per_s;
+    static constexpr auto kAngularVelocityShotTolerance = 20_rad_per_s;
+    static constexpr auto kAngularVelocityRecoveryTolerance = 10_rad_per_s;
 
     frc::LinearSystem<1, 1, 1> m_plant =
         frc::LinearSystemId::IdentifyVelocitySystem<units::radian>(kV, kA);
@@ -109,5 +110,7 @@ private:
     Eigen::Matrix<double, 1, 1> m_nextR;
 
     bool m_atGoal = false;
+
+    void UpdateAtGoal();
 };
 }  // namespace frc3512

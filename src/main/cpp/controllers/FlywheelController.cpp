@@ -17,19 +17,7 @@ FlywheelController::FlywheelController()
 
 void FlywheelController::SetGoal(units::radians_per_second_t angularVelocity) {
     m_nextR << angularVelocity.to<double>();
-    auto absError = units::math::abs(
-        units::radians_per_second_t{m_nextR(State::kAngularVelocity) -
-                                    m_observer.Xhat(State::kAngularVelocity)});
-
-    // Add hysteresis to AtGoal() so it won't chatter due to measurement noise
-    // when the angular velocity drops. Threshold when going out of tolerance
-    // (e.g., down after shooting a ball) is tolerance + 20. Threshold when
-    // going into tolerance (e.g., up from recovery) is threshold.
-    if (m_atGoal && absError > kAngularVelocityTolerance + 20_rad_per_s) {
-        m_atGoal = false;
-    } else if (!m_atGoal && absError < kAngularVelocityTolerance) {
-        m_atGoal = true;
-    }
+    UpdateAtGoal();
 }
 
 units::radians_per_second_t FlywheelController::GetGoal() const {
@@ -70,10 +58,7 @@ Eigen::Matrix<double, 1, 1> FlywheelController::Update(
     u *= 12.0 / frc::RobotController::GetInputVoltage();
     u = frc::NormalizeInputVector<1>(u, 12.0);
 
-    m_atGoal = units::math::abs(units::radians_per_second_t{
-                   m_lqr.R(State::kAngularVelocity) -
-                   m_observer.Xhat(State::kAngularVelocity)}) <
-               kAngularVelocityTolerance;
+    UpdateAtGoal();
     m_r = m_nextR;
     m_observer.Predict(u * frc::RobotController::GetInputVoltage() / 12.0, dt);
 
@@ -82,4 +67,20 @@ Eigen::Matrix<double, 1, 1> FlywheelController::Update(
 
 const frc::LinearSystem<1, 1, 1>& FlywheelController::GetPlant() const {
     return m_plant;
+}
+
+void FlywheelController::UpdateAtGoal() {
+    units::radians_per_second_t error{m_nextR(State::kAngularVelocity) -
+                                      m_observer.Xhat(State::kAngularVelocity)};
+    auto absError = units::math::abs(error);
+
+    // Add hysteresis to AtGoal() so it won't chatter due to measurement noise
+    // when the angular velocity drops. Threshold when going out of tolerance
+    // (e.g., down after shooting a ball) is tolerance + 20. Threshold when
+    // going into tolerance (e.g., up from recovery) is threshold.
+    if (m_atGoal && error > kAngularVelocityShotTolerance) {
+        m_atGoal = false;
+    } else if (!m_atGoal && absError < kAngularVelocityRecoveryTolerance) {
+        m_atGoal = true;
+    }
 }

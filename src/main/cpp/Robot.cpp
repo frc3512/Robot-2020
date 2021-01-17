@@ -96,6 +96,7 @@ void Robot::RobotPeriodic() {
     m_batteryLogger.Log(
         units::second_t{std::chrono::steady_clock::now().time_since_epoch()},
         frc::RobotController::GetInputVoltage());
+    m_ballsToShootEntry.SetDouble(m_ballsToShoot);
 }
 
 void Robot::SimulationPeriodic() {
@@ -138,6 +139,8 @@ void Robot::ControllerPeriodic() {
         turret.ControllerPeriodic();
         flywheel.ControllerPeriodic();
     }
+
+    m_inst.Flush();
 }
 
 void Robot::RunShooterSM() {

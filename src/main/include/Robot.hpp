@@ -8,6 +8,8 @@
 #include <frc/TimedRobot.h>
 #include <frc/logging/CSVLogFile.h>
 #include <frc2/Timer.h>
+#include <networktables/NetworkTableEntry.h>
+#include <networktables/NetworkTableInstance.h>
 #include <units/time.h>
 
 #if RUNNING_FRC_TESTS
@@ -202,6 +204,10 @@ private:
     AutonomousChooser m_autonChooser{"No-op", [=] { AutoNoOp(); }};
 
     frc::CSVLogFile m_batteryLogger{"Battery", "Battery voltage (V)"};
+
+    nt::NetworkTableInstance m_inst = nt::NetworkTableInstance::GetDefault();
+    nt::NetworkTableEntry m_ballsToShootEntry =
+        m_inst.GetEntry("/Diagnostics/Robot/ballsToShoot");
 };
 
 }  // namespace frc3512
