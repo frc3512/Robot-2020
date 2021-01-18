@@ -66,7 +66,7 @@ This runs a release build of the robot code's unit tests from `src/test`.
 
 ### Simulation GUI
 
-* `./gradlew simulate`
+* `./gradlew simulateCpp`
 
 This runs a debug build of the robot code in the simulation GUI.
 

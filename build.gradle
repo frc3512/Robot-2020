@@ -180,7 +180,7 @@ task testRelease {
     dependsOn 'runFrcUserProgramTest' + wpi.platforms.desktop.capitalize() + 'ReleaseGoogleTestExe'
 }
 
-task simulate(type: Exec) {
+task simulateCpp(type: Exec) {
     dependsOn 'simulateFrcUserProgram' + wpi.platforms.desktop.capitalize() + 'DebugExecutable'
     workingDir 'build/stdout'
     commandLine 'tail', '-f', 'simulateFrcUserProgram' + wpi.platforms.desktop.capitalize() + 'DebugExecutable.log'
