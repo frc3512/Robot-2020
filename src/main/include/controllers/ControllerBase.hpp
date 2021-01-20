@@ -1,4 +1,4 @@
-// Copyright (c) 2020 FRC Team 3512. All Rights Reserved.
+// Copyright (c) 2020-2021 FRC Team 3512. All Rights Reserved.
 
 #pragma once
 
@@ -12,6 +12,7 @@
 #include <wpi/StringRef.h>
 #include <wpi/Twine.h>
 
+#include "UnitsFormat.hpp"
 #include "logging/CSVControllerLogger.hpp"
 #include "logging/LiveGrapherControllerLogger.hpp"
 
@@ -163,7 +164,7 @@ public:
             m_u = Update(y, m_dt);
             m_lastTime = now;
         } else {
-            fmt::print(stderr, "ERROR: dt = 0 @ t = {} s\n", now.to<double>());
+            fmt::print(stderr, "ERROR: dt = 0 @ t = {}\n", now);
         }
         return m_u;
     }
