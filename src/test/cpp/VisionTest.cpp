@@ -19,7 +19,7 @@ TEST_F(VisionTest, CalculateDrivetrainInGlobal) {
     frc3512::Vision vision;
 
     auto pose = frc3512::NetworkTableUtil::MakeDoubleArrayEntry(
-        "chameleon-vision/RPI-Cam/target-Pose", {0, 0, 0});
+        "photonvision/RPI-Cam/targetPose", {0, 0, 0});
 
     auto testMeasurement = [&](units::inch_t x, units::inch_t y,
                                units::degree_t theta, units::inch_t globalX,

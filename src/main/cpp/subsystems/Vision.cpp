@@ -25,11 +25,13 @@ Vision::Vision() {
 
 Vision::~Vision() { m_pose.RemoveListener(m_listenerHandle); }
 
-void Vision::TurnLEDOn() { m_ledIsOn.SetBoolean(true); }
+void Vision::TurnLEDOn() { m_rpiCam.SetLEDMode(photonlib::LEDMode::kOn); }
 
-void Vision::TurnLEDOff() { m_ledIsOn.SetBoolean(false); }
+void Vision::TurnLEDOff() { m_rpiCam.SetLEDMode(photonlib::LEDMode::kOff); }
 
-bool Vision::IsLEDOn() const { return !m_ledIsOn.GetBoolean(false); }
+bool Vision::IsLEDOn() const {
+    return m_rpiCam.GetLEDMode() == photonlib::LEDMode::kOn;
+}
 
 std::optional<Vision::GlobalMeasurement> Vision::GetGlobalMeasurement() {
     return m_measurements.pop();

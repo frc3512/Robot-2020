@@ -18,7 +18,7 @@ using namespace frc3512;
 using namespace frc3512::Constants::Robot;
 
 const Eigen::Matrix<double, 2, 2> Drivetrain::kGlobalR =
-    frc::MakeCovMatrix(0.05, 0.05);
+    frc::MakeCovMatrix(0.2, 0.2);
 
 Drivetrain::Drivetrain()
     : ControlledSubsystemBase(

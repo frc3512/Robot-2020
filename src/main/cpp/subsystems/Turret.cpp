@@ -2,6 +2,7 @@
 
 #include "subsystems/Turret.hpp"
 
+#include <frc/DriverStation.h>
 #include <frc/Joystick.h>
 #include <frc/RobotBase.h>
 #include <frc/RobotController.h>
@@ -108,6 +109,10 @@ units::volt_t Turret::GetMotorOutput() const {
            units::volt_t{frc::RobotController::GetInputVoltage()};
 }
 
+const Eigen::Matrix<double, 2, 1>& Turret::GetStates() const {
+    return m_observer.Xhat();
+}
+
 void Turret::RobotPeriodic() {
     m_angleStateEntry.SetDouble(
         m_observer.Xhat()(TurretController::State::kAngle));
@@ -117,6 +122,19 @@ void Turret::RobotPeriodic() {
     m_angleOutputEntry.SetDouble(GetAngle().to<double>());
     m_ccwLimitSwitchValueEntry.SetBoolean(m_ccwLimitSwitch.Get());
     m_cwLimitSwitchValueEntry.SetBoolean(m_cwLimitSwitch.Get());
+
+    if (!frc::DriverStation::GetInstance().IsDisabled()) {
+        auto turretHeadingInGlobal = units::radian_t{
+            GetStates()(TurretController::State::kAngle) +
+            m_drivetrain.GetStates()(DrivetrainController::State::kHeading)};
+        if (turretHeadingInGlobal < 45_deg && turretHeadingInGlobal > -45_deg) {
+            m_vision.TurnLEDOn();
+        } else {
+            m_vision.TurnLEDOff();
+        }
+    } else {
+        m_vision.TurnLEDOff();
+    }
 
     int controlMode = static_cast<int>(m_controller.GetControlMode());
     if (controlMode == 0) {
@@ -178,8 +196,7 @@ void Turret::ControllerPeriodic() {
     m_observer.Correct(m_controller.GetInputs(), y);
 
     auto globalMeasurement = m_vision.GetGlobalMeasurement();
-    // TODO: Reenable when vision measurements are reliable
-    if constexpr (0) {
+    if (globalMeasurement.has_value()) {
         auto turretInGlobal = globalMeasurement.value();
 
         frc::Transform2d turretInGlobalToDrivetrainInGlobal{

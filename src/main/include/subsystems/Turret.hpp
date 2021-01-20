@@ -112,6 +112,11 @@ public:
      */
     units::volt_t GetMotorOutput() const;
 
+    /**
+     * Returns the turret state estimate.
+     */
+    const Eigen::Matrix<double, 2, 1>& GetStates() const;
+
     void DisabledInit() override {
         Disable();
         SetControlMode(TurretController::ControlMode::kManual);

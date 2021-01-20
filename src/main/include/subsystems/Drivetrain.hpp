@@ -209,7 +209,6 @@ public:
     void ControllerPeriodic() override;
 
 private:
-    // TODO: Find a good measurement covariance for global measurements
     static const Eigen::Matrix<double, 2, 2> kGlobalR;
 
     rev::CANSparkMax m_leftLeader{Constants::Drivetrain::kLeftLeaderPort,

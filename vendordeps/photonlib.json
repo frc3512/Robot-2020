@@ -1,0 +1,35 @@
+{
+    "fileName": "photonlib.json",
+    "name": "photonlib",
+    "version": "2021.1.2",
+    "uuid": "515fe07e-bfc6-11fa-b3de-0242ac130004 ",
+    "mavenUrls": [
+        "https://maven.photonvision.org/repository/internal"
+    ],
+    "jsonUrl": "https://maven.photonvision.org/repository/internal/org/photonvision/lib/PhotonLib-json/1.0/PhotonLib-json-1.0.json",
+    "jniDependencies": [],
+    "cppDependencies": [
+        {
+            "groupId": "org.photonvision.lib",
+            "artifactId": "PhotonLib-cpp",
+            "version": "2021.1.2",
+            "libName": "Photon",
+            "headerClassifier": "headers",
+            "sharedLibrary": true,
+            "skipInvalidPlatforms": true,
+            "binaryPlatforms": [
+                "windowsx86-64",
+                "linuxathena",
+                "linuxx86-64",
+                "osxx86-64"
+            ]
+        }
+    ],
+    "javaDependencies": [
+        {
+            "groupId": "org.photonvision.lib",
+            "artifactId": "PhotonLib-java",
+            "version": "2021.1.2"
+        }
+    ]
+}

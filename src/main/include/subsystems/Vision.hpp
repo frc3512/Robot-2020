@@ -2,6 +2,8 @@
 
 #pragma once
 
+#include <photonlib/PhotonCamera.h>
+
 #include <frc/geometry/Pose2d.h>
 #include <frc/geometry/Transform2d.h>
 #include <frc/geometry/Translation2d.h>
@@ -61,13 +63,13 @@ public:
     void ProcessNewMeasurement();
 
 private:
-    nt::NetworkTableEntry m_ledIsOn =
-        NetworkTableUtil::MakeStringEntry("LED Ring Light/LED-State", "0");
     nt::NetworkTableEntry m_pose = NetworkTableUtil::MakeDoubleArrayEntry(
-        "chameleon-vision/RPI-Cam/target-Pose", {0.0, 0.0, 0.0});
+        "photonvision/RPI-Cam/targetPose", {0.0, 0.0, 0.0});
     nt::NetworkTableEntry m_latency = NetworkTableUtil::MakeDoubleEntry(
-        "chameleon-vision/RPI-Cam/latency", 0.0);
+        "photonvision/RPI-Cam/latencyMillis", 0.0);
     NT_EntryListener m_listenerHandle;
+
+    photonlib::PhotonCamera m_rpiCam{"RPI-Cam"};
 
     frc3512::static_concurrent_queue<GlobalMeasurement, 8> m_measurements;
 };
