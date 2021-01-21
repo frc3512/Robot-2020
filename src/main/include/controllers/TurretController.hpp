@@ -1,4 +1,4 @@
-// Copyright (c) 2018-2020 FRC Team 3512. All Rights Reserved.
+// Copyright (c) 2018-2021 FRC Team 3512. All Rights Reserved.
 
 #pragma once
 
@@ -43,8 +43,8 @@ public:
     static constexpr auto kAngularVelocityTolerance = 2.0_rad_per_s;
 
     // Turret configuration space limits
-    static constexpr units::radian_t kCCWLimit{wpi::math::pi / 2.0};
-    static constexpr units::radian_t kCWLimit{-wpi::math::pi / 2.0};
+    static constexpr units::radian_t kCCWLimit{2.0 / 3.0 * wpi::math::pi};
+    static constexpr units::radian_t kCWLimit{-2.0 / 3.0 * wpi::math::pi};
 
     /**
      * States of the turret system.
