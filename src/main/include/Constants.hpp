@@ -1,4 +1,4 @@
-// Copyright (c) 2020 FRC Team 3512. All Rights Reserved.
+// Copyright (c) 2020-2021 FRC Team 3512. All Rights Reserved.
 
 #pragma once
 
@@ -90,5 +90,5 @@ constexpr auto kDt = 5_ms;
 #else
 constexpr auto kDt = 50_ms;
 #endif
-constexpr int kControllerPrio = 50;
+constexpr int kControllerPrio = 40;
 }  // namespace frc3512::Constants
