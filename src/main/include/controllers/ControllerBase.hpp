@@ -49,8 +49,8 @@ public:
 #ifndef RUNNING_FRC_TESTS
         : m_csvLogger{controllerName, stateLabels, inputLabels, outputLabels},
           m_liveGrapher{controllerName, stateLabels, inputLabels, outputLabels},
-          m_dtLogger{(controllerName + " scheduling period").str(),
-                     "Period (s)"} {
+          m_timingLogger{(controllerName + " timing").str(),
+                         "Loop duration (ms)", "Scheduling period (ms)"} {
         // Write at least one data point to LiveGrapher for each dataset so they
         // are available when the robot is disabled.
         //
@@ -72,8 +72,8 @@ public:
     }
 #else
         : m_csvLogger{controllerName, stateLabels, inputLabels, outputLabels},
-          m_dtLogger{(controllerName + " scheduling period").str(),
-                     "Period (s)"} {
+          m_timingLogger{(controllerName + " timing").str(),
+                         "Loop duration (ms)", "Scheduling period (ms)"} {
     }
 #endif
 
@@ -149,22 +149,26 @@ public:
      */
     Eigen::Matrix<double, Inputs, 1> UpdateAndLog(
         const Eigen::Matrix<double, Outputs, 1>& y) {
-        auto now = frc2::Timer::GetFPGATimestamp();
-        m_dt = now - m_lastTime;
+        auto nowBegin = frc2::Timer::GetFPGATimestamp();
+        m_dt = nowBegin - m_lastTime;
 
-        m_csvLogger.Log(now - m_startTime, GetReferences(), GetStates(), m_u,
-                        y);
+        m_csvLogger.Log(nowBegin - m_startTime, GetReferences(), GetStates(),
+                        m_u, y);
 #ifndef RUNNING_FRC_TESTS
-        m_liveGrapher.Log(now - m_startTime, GetReferences(), GetStates(), m_u,
-                          y);
+        m_liveGrapher.Log(nowBegin - m_startTime, GetReferences(), GetStates(),
+                          m_u, y);
 #endif
-        m_dtLogger.Log(now - m_startTime, m_dt.to<double>());
 
         if (m_dt > 0_s) {
             m_u = Update(y, m_dt);
-            m_lastTime = now;
+            auto nowEnd = frc2::Timer::GetFPGATimestamp();
+            m_timingLogger.Log(
+                nowBegin - m_startTime,
+                units::millisecond_t{nowEnd - nowBegin}.to<double>(),
+                units::millisecond_t{m_dt}.to<double>());
+            m_lastTime = nowBegin;
         } else {
-            fmt::print(stderr, "ERROR: dt = 0 @ t = {}\n", now);
+            fmt::print(stderr, "ERROR: dt = 0 @ t = {}\n", nowBegin);
         }
         return m_u;
     }
@@ -184,7 +188,7 @@ private:
 #ifndef RUNNING_FRC_TESTS
     LiveGrapherControllerLogger<States, Inputs, Outputs> m_liveGrapher;
 #endif
-    frc::CSVLogFile m_dtLogger;
+    frc::CSVLogFile m_timingLogger;
 
     // Controller reference
     Eigen::Matrix<double, 2, 1> m_r;
