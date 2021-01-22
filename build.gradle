@@ -186,9 +186,10 @@ task simulateCpp(type: Exec) {
     commandLine 'less', '+F', 'simulateFrcUserProgram' + wpi.platforms.desktop.capitalize() + 'DebugExecutable.log'
 }
 
-task valgrind(type: Exec) {
-    workingDir '.'
-    commandLine './buildscripts/valgrind.sh'
+if (!OperatingSystem.current().isWindows()) {
+    task valgrind(type: Exec) {
+        commandLine './buildscripts/valgrind.sh'
+    }
 }
 
 doxygen {
