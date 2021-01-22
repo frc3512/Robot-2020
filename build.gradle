@@ -183,7 +183,7 @@ task testRelease {
 task simulateCpp(type: Exec) {
     dependsOn 'simulateFrcUserProgram' + wpi.platforms.desktop.capitalize() + 'DebugExecutable'
     workingDir 'build/stdout'
-    commandLine 'tail', '-f', 'simulateFrcUserProgram' + wpi.platforms.desktop.capitalize() + 'DebugExecutable.log'
+    commandLine 'less', '+F', 'simulateFrcUserProgram' + wpi.platforms.desktop.capitalize() + 'DebugExecutable.log'
 }
 
 task valgrind(type: Exec) {
