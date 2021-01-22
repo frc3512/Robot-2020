@@ -40,7 +40,7 @@ public:
 
     CANEncoder GetEncoder(CANEncoder::EncoderType sensorType =
                               CANEncoder::EncoderType::kHallSensor,
-                          int countsPerRev = 32) {
+                          int countsPerRev = 0) {
         return CANEncoder{*this, sensorType, countsPerRev};
     }
 

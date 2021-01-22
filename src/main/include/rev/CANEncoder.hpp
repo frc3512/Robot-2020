@@ -1,4 +1,4 @@
-// Copyright (c) 2020 FRC Team 3512. All Rights Reserved.
+// Copyright (c) 2020-2021 FRC Team 3512. All Rights Reserved.
 
 #pragma once
 
@@ -26,7 +26,7 @@ public:
     explicit CANEncoder(
         CANSparkMax& device,
         EncoderType sensorType = CANEncoder::EncoderType::kHallSensor,
-        int counts_per_rev = 42) {}
+        int countsPerRev = 42) {}
 
     double GetPosition() { return 0.0; }
 };
