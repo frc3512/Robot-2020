@@ -180,13 +180,18 @@ task testRelease {
     dependsOn 'runFrcUserProgramTest' + wpi.platforms.desktop.capitalize() + 'ReleaseGoogleTestExe'
 }
 
-task simulateCpp(type: Exec) {
+task simulateCpp {
     dependsOn 'simulateFrcUserProgram' + wpi.platforms.desktop.capitalize() + 'DebugExecutable'
-    workingDir 'build/stdout'
-    commandLine 'less', '+F', 'simulateFrcUserProgram' + wpi.platforms.desktop.capitalize() + 'DebugExecutable.log'
 }
 
 if (!OperatingSystem.current().isWindows()) {
+    simulateCpp.doLast {
+        exec {
+            executable 'tail'
+            args '-f', 'build/stdout/simulateFrcUserProgram' + wpi.platforms.desktop.capitalize() + 'DebugExecutable.log'
+        }
+    }
+
     task valgrind(type: Exec) {
         commandLine './buildscripts/valgrind.sh'
     }
