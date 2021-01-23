@@ -137,7 +137,7 @@ void Robot::RunShooterSM() {
             if (flywheel.AtGoal()) {
                 // AtGoal() returns true if either the flywheel is at the goal
                 // or a timeout occurred. If a timeout occurred, the flywheel
-                // may not be moving due to flywheel motor issues. Only start
+                // may not be spinning due to flywheel motor issues. Only start
                 // the conveyor if the flywheel is moving to avoid jams.
                 if (flywheel.GetAngularVelocity() > 0_rad_per_s) {
                     m_timer.Reset();
@@ -146,6 +146,9 @@ void Robot::RunShooterSM() {
                 } else {
                     flywheel.SetGoal(0_rad_per_s);
                     m_state = ShootingState::kIdle;
+                    frc::DriverStation::GetInstance().ReportError(
+                        "Flywheel didn't start spinning. Either the motors "
+                        "aren't responding or the encoder isn't plugged in.");
                 }
             }
             break;
