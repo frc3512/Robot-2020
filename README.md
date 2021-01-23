@@ -81,14 +81,14 @@ an `index.html` page as the root.
 
 ### GNU debugger (GDB)
 
-* `./buildscripts/gdb-test.sh`
+* `./buildscripts/gdb_test.py`
 
 This runs a debug build of the tests in GDB. Once the build completes and GDB's
 prompt appears, enter `run` to start the robot program. It may take a while due
 to the debugger having to load a lot of symbols. If the robot code crashes,
 enter `bt` to get a backtrace.
 
-* `./buildscripts/gdb-simulate.sh`
+* `./buildscripts/gdb_simulate.py`
 
 This runs a debug desktop build of the robot code and simulation GUI in GDB.
 

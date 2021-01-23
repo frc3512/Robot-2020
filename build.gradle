@@ -199,7 +199,8 @@ if (!OperatingSystem.current().isWindows()) {
     }
 
     task valgrind(type: Exec) {
-        commandLine './buildscripts/valgrind.sh'
+        dependsOn 'installFrcUserProgramTest' + wpi.platforms.desktop.capitalize() + 'ReleaseGoogleTestExe'
+        commandLine 'python3', './buildscripts/valgrind.py'
     }
 }
 
