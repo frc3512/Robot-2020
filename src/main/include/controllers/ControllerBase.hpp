@@ -160,6 +160,14 @@ public:
 #endif
 
         if (m_dt > 0_s) {
+            // The observer update doesn't run when the robot is disabled. When
+            // the robot is reenabled, the period since the last update may be
+            // very large. Large periods make the state estimate diverge. To
+            // avoid this, large periods are replaced with the nominal dt.
+            if (m_dt > 10_ms) {
+                m_dt = Constants::kDt;
+            }
+
             m_u = Update(y, m_dt);
             auto nowEnd = frc2::Timer::GetFPGATimestamp();
             m_timingLogger.Log(
