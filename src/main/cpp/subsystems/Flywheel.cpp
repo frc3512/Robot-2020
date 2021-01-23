@@ -1,7 +1,8 @@
-// Copyright (c) 2016-2020 FRC Team 3512. All Rights Reserved.
+// Copyright (c) 2016-2021 FRC Team 3512. All Rights Reserved.
 
 #include "subsystems/Flywheel.hpp"
 
+#include <fmt/core.h>
 #include <frc/DriverStation.h>
 #include <frc/Joystick.h>
 #include <frc/RobotBase.h>
@@ -111,7 +112,7 @@ void Flywheel::RobotPeriodic() {
         m_testThrottle = appendageStick2.GetThrottle();
         double manualRef = ThrottleToReference(m_testThrottle).to<double>();
         m_manualAngularVelocityReferenceEntry.SetDouble(manualRef);
-        wpi::outs() << "Manual angular velocity: " << manualRef << " rad/s\n";
+        fmt::print("Manual angular velocity: {}\n", manualRef);
     }
 }
 
