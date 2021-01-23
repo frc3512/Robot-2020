@@ -106,7 +106,7 @@ void Climber::TestPeriodic() {
 }
 
 void Climber::SetTraverser(double speed) {
-    static constexpr double kDeadband = 0.02;
+    static constexpr double kDeadband = 0.1;
     static constexpr double kMinInput = 0.5;
 
     // Apply a deadband to the input to avoid chattering
