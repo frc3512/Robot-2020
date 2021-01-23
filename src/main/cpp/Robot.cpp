@@ -20,6 +20,8 @@ namespace frc3512 {
 Robot::Robot() {
     m_autonChooser.AddAutonomous("Left Side Intake",
                                  [=] { AutoLeftSideIntake(); });
+    m_autonChooser.AddAutonomous("Left Side Shoot Ten Balls",
+                                 [=] { AutoLeftSideShootTen(); });
     m_autonChooser.AddAutonomous("Loading Zone Drive Forward",
                                  [=] { AutoLoadingZoneDriveForward(); });
     m_autonChooser.AddAutonomous("Loading Zone Shoot Three Balls",
@@ -36,6 +38,8 @@ Robot::Robot() {
                                  [=] { AutoRightSideShootThree(); });
     m_autonChooser.AddAutonomous("Right Side Shoot Six Balls",
                                  [=] { AutoRightSideShootSix(); });
+    m_autonChooser.AddAutonomous("Right Side Shoot Eight Balls",
+                                 [=] { AutoRightSideShootEight(); });
     if constexpr (Constants::Robot::kAtHomeChallenge) {
         m_autonChooser.AddAutonomous(
             "AutoNav Bounce", [=] { AutoNavBounce(); }, false);

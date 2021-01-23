@@ -128,6 +128,11 @@ public:
     void AutoLeftSideIntake();
 
     /**
+     * 10-ball autonomous.
+     */
+    void AutoLeftSideShootTen();
+
+    /**
      * Drive towards the allied alliance station from the initiation line and in
      * front of the loading zone.
      */
@@ -174,6 +179,13 @@ public:
      * trench run, intake three balls in the trench run, then shoot them.
      */
     void AutoRightSideShootSix();
+
+    /**
+     * Shoot three power cells from the initiation line in front of the allied
+     * trench run, intake three balls in the trench run, intake two balls under
+     * shield generator, then shoot all five.
+     */
+    void AutoRightSideShootEight();
 
     /**
      * Follow the "bounce" path defined in the 2021 At-Home Challenges manual.
