@@ -5,6 +5,7 @@
 #include <stdint.h>
 
 #include <frc/DutyCycleEncoder.h>
+#include <frc/estimator/KalmanFilter.h>
 #include <frc/geometry/Pose2d.h>
 #include <frc/simulation/DutyCycleEncoderSim.h>
 #include <frc/simulation/LinearSystemSim.h>
@@ -18,7 +19,7 @@
 #include "Constants.hpp"
 #include "controllers/TurretController.hpp"
 #include "rev/CANSparkMax.hpp"
-#include "subsystems/SubsystemBase.hpp"
+#include "subsystems/ControlledSubsystemBase.hpp"
 
 namespace frc3512 {
 
@@ -31,7 +32,7 @@ class Flywheel;
  *
  * This is a circular plate below the shooter that can rotate to aim it.
  */
-class Turret : public SubsystemBase {
+class Turret : public ControlledSubsystemBase<2, 1, 1> {
 public:
     enum class Direction { kNone, kCCW, kCW };
 
@@ -108,17 +109,17 @@ public:
     units::volt_t GetMotorOutput() const;
 
     void DisabledInit() override {
-        m_controller.Disable();
+        Disable();
         SetControlMode(TurretController::ControlMode::kManual);
     }
 
     void AutonomousInit() override {
-        m_controller.Enable();
+        Enable();
         SetControlMode(TurretController::ControlMode::kAutoAim);
     }
 
     void TeleopInit() override {
-        m_controller.Enable();
+        Enable();
         SetControlMode(TurretController::ControlMode::kAutoAim);
     }
 
@@ -128,7 +129,7 @@ public:
 
     void TestPeriodic() override;
 
-    void ControllerPeriodic();
+    void ControllerPeriodic() override;
 
 private:
     // A CCW (positive) offset makes the encoder hit the soft limit sooner when
@@ -144,6 +145,9 @@ private:
     rev::CANSparkMax m_motor{Constants::Turret::kPort,
                              rev::CANSparkMax::MotorType::kBrushless};
 
+    frc::LinearSystem<2, 1, 1> m_plant{TurretController::GetPlant()};
+    frc::KalmanFilter<2, 1, 1> m_observer{
+        m_plant, {0.21745, 0.28726}, {0.01}, Constants::kDt};
     TurretController m_controller;
 
     Vision& m_vision;

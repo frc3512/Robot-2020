@@ -5,7 +5,7 @@
 #include <frc/controller/LinearPlantInversionFeedforward.h>
 #include <frc/controller/LinearQuadraticRegulator.h>
 #include <frc/estimator/KalmanFilter.h>
-#include <frc/system/plant/LinearSystemId.h>
+#include <frc/system/LinearSystem.h>
 #include <units/angular_acceleration.h>
 #include <units/angular_velocity.h>
 #include <units/time.h>
@@ -72,42 +72,27 @@ public:
      */
     bool AtGoal() const;
 
-    const Eigen::Matrix<double, 1, 1>& GetReferences() const override;
-
-    const Eigen::Matrix<double, 1, 1>& GetStates() const override;
-
     /**
      * Resets any internal state.
      */
     void Reset();
 
-    Eigen::Matrix<double, 1, 1> Update(const Eigen::Matrix<double, 1, 1>& y,
-                                       units::second_t dt) override;
+    Eigen::Matrix<double, 1, 1> Calculate(
+        const Eigen::Matrix<double, 1, 1>& x) override;
 
     /**
      * Returns the flywheel plant.
      */
-    const frc::LinearSystem<1, 1, 1>& GetPlant() const;
+    static frc::LinearSystem<1, 1, 1> GetPlant();
 
 private:
     static constexpr auto kAngularVelocityShotTolerance = 20_rad_per_s;
     static constexpr auto kAngularVelocityRecoveryTolerance = 10_rad_per_s;
 
-    frc::LinearSystem<1, 1, 1> m_plant =
-        frc::LinearSystemId::IdentifyVelocitySystem<units::radian>(kV, kA);
+    frc::LinearSystem<1, 1, 1> m_plant{GetPlant()};
     frc::LinearQuadraticRegulator<1, 1> m_lqr{
         m_plant, {80.0}, {12.0}, Constants::kDt};
     frc::LinearPlantInversionFeedforward<1, 1> m_ff{m_plant, Constants::kDt};
-
-    frc::KalmanFilter<1, 1, 1> m_observer{
-        m_plant,
-        {700.0},
-        {FlywheelController::kDpP / Constants::kDt.to<double>()},
-        Constants::kDt};
-
-    // Controller reference
-    Eigen::Matrix<double, 1, 1> m_r;
-    Eigen::Matrix<double, 1, 1> m_nextR;
 
     bool m_atGoal = false;
 
@@ -116,7 +101,9 @@ private:
      *
      * This function applies hysteresis so AtGoal() doesn't chatter between true
      * and false.
+     *
+     * @param error The error vector.
      */
-    void UpdateAtGoal();
+    void UpdateAtGoal(const Eigen::Matrix<double, 1, 1>& error);
 };
 }  // namespace frc3512

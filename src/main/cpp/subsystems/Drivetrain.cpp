@@ -6,19 +6,35 @@
 #include <frc/MathUtil.h>
 #include <frc/RobotBase.h>
 #include <frc/RobotController.h>
+#include <frc/StateSpaceUtil.h>
 #include <frc/smartdashboard/SmartDashboard.h>
 #include <units/math.h>
 
 #include "CANSparkMaxUtil.hpp"
-#include "controllers/DrivetrainController.hpp"
+#include "EigenFormat.hpp"
 
 using namespace frc3512;
 using namespace frc3512::Constants::Robot;
 
+const Eigen::Matrix<double, 2, 2> Drivetrain::kGlobalR =
+    frc::MakeCovMatrix(0.05, 0.05);
+
 Drivetrain::Drivetrain()
-    : m_controller{new DrivetrainController},
-      m_drivetrainSim{m_controller->GetPlant(), DrivetrainController::kWidth,
-                      frc::DCMotor::NEO(2),
+    : ControlledSubsystemBase(
+          "Drivetrain",
+          {ControllerLabel{"X", "m"}, ControllerLabel{"Y", "m"},
+           ControllerLabel{"Heading", "rad"},
+           ControllerLabel{"Left velocity", "m/s"},
+           ControllerLabel{"Right velocity", "m/s"},
+           ControllerLabel{"Left position", "m"},
+           ControllerLabel{"Right position", "m"}},
+          {ControllerLabel{"Left voltage", "V"},
+           ControllerLabel{"Right voltage", "V"}},
+          {ControllerLabel{"Heading", "rad"},
+           ControllerLabel{"Left position", "m"},
+           ControllerLabel{"Right position", "m"}}),
+      m_drivetrainSim{DrivetrainController::GetPlant(),
+                      DrivetrainController::kWidth, frc::DCMotor::NEO(2),
                       DrivetrainController::kDriveGearRatio,
                       DrivetrainController::kWheelRadius} {
     SetCANSparkMaxBusUsage(m_leftLeader, Usage::kMinimal);
@@ -54,7 +70,7 @@ Drivetrain::Drivetrain()
 Drivetrain::~Drivetrain() {}
 
 frc::Pose2d Drivetrain::GetPose() const {
-    const auto& x = m_controller->GetStates();
+    const auto& x = m_observer.Xhat();
     return frc::Pose2d{
         units::meter_t{x(DrivetrainController::State::kX)},
         units::meter_t{x(DrivetrainController::State::kY)},
@@ -82,38 +98,55 @@ units::meters_per_second_t Drivetrain::GetRightVelocity() const {
 }
 
 void Drivetrain::Reset(const frc::Pose2d& initialPose) {
-    m_controller->Reset(initialPose);
+    using State = frc::sim::DifferentialDrivetrainSim::State;
+
+    m_observer.Reset();
+    m_controller.Reset(initialPose);
     m_leftEncoder.Reset();
     m_rightEncoder.Reset();
     m_gyro.Reset();
     m_headingOffset = initialPose.Rotation().Radians();
 
-    if constexpr (frc::RobotBase::IsSimulation()) {
-        Eigen::Matrix<double, 7, 1> x = Eigen::Matrix<double, 7, 1>::Zero();
+    Eigen::Matrix<double, 7, 1> xHat;
+    xHat(State::kX) = initialPose.X().to<double>();
+    xHat(State::kY) = initialPose.Y().to<double>();
+    xHat(State::kHeading) = initialPose.Rotation().Radians().to<double>();
+    xHat.block<4, 1>(3, 0).setZero();
+    m_observer.SetXhat(xHat);
 
-        using State = frc::sim::DifferentialDrivetrainSim::State;
-        x(State::kX) = initialPose.X().to<double>();
-        x(State::kY) = initialPose.Y().to<double>();
-        x(State::kHeading) = initialPose.Rotation().Radians().to<double>();
-        m_drivetrainSim.SetState(x);
+    if constexpr (frc::RobotBase::IsSimulation()) {
+        m_drivetrainSim.SetState(xHat);
         m_field.SetRobotPose(initialPose);
     }
 }
 
 void Drivetrain::CorrectWithGlobalOutputs(units::meter_t x, units::meter_t y,
                                           units::second_t timestamp) {
-    m_controller->CorrectWithGlobalOutputs(x, y, timestamp);
+    Eigen::Matrix<double, 2, 1> globalY;
+    globalY << x.to<double>(), y.to<double>();
+    m_latencyComp.ApplyPastMeasurement<2>(
+        &m_observer, Constants::kDt, globalY,
+        [&](const Eigen::Matrix<double, 2, 1>& u,
+            const Eigen::Matrix<double, 2, 1>& y) {
+            m_observer.Correct<2>(
+                u, y, &DrivetrainController::GlobalMeasurementModel, kGlobalR);
+        },
+        timestamp);
 }
 
 void Drivetrain::ControllerPeriodic() {
+    UpdateDt();
+
     Eigen::Matrix<double, 3, 1> y;
     y << frc::AngleModulus(GetAngle()).to<double>(),
         GetLeftPosition().to<double>(), GetRightPosition().to<double>();
+    m_latencyComp.AddObserverState(m_observer, m_controller.GetInputs(), y,
+                                   frc2::Timer::GetFPGATimestamp());
+    m_observer.Correct(m_controller.GetInputs(), y);
 
     Eigen::Matrix<double, 2, 1> u;
-
-    if (m_controller->HaveTrajectory()) {
-        u = m_controller->UpdateAndLog(y);
+    if (m_controller.HaveTrajectory()) {
+        u = m_controller.Calculate(m_observer.Xhat());
 
         if (!AtGoal()) {
             m_leftGrbx.SetVoltage(units::volt_t{u(0)});
@@ -123,9 +156,16 @@ void Drivetrain::ControllerPeriodic() {
             m_rightGrbx.SetVoltage(0_V);
         }
     } else {
+        // Update previous u stored in the controller
+        u = m_controller.Calculate(m_observer.Xhat());
+
         // TODO: Set to teleop voltages
-        u = m_controller->UpdateAndLog(y);
+        u << 0.0, 0.0;
     }
+
+    Log(m_controller.GetReferences(), m_observer.Xhat(), u, y);
+
+    m_observer.Predict(u, GetDt());
 
     if constexpr (frc::RobotBase::IsSimulation()) {
         auto batteryVoltage = frc::RobotController::GetInputVoltage();
@@ -133,7 +173,7 @@ void Drivetrain::ControllerPeriodic() {
             units::volt_t{m_leftGrbx.Get() * batteryVoltage},
             units::volt_t{m_rightGrbx.Get() * batteryVoltage});
 
-        m_drivetrainSim.Update(m_controller->GetDt());
+        m_drivetrainSim.Update(GetDt());
 
         m_leftEncoderSim.SetDistance(
             m_drivetrainSim.GetLeftPosition().to<double>());
@@ -148,60 +188,50 @@ void Drivetrain::ControllerPeriodic() {
 void Drivetrain::AddTrajectory(const frc::Pose2d& start,
                                const std::vector<frc::Translation2d>& interior,
                                const frc::Pose2d& end) {
-    m_controller->AddTrajectory(start, interior, end);
+    m_controller.AddTrajectory(start, interior, end);
 }
 
 void Drivetrain::AddTrajectory(const frc::Pose2d& start,
                                const std::vector<frc::Translation2d>& interior,
                                const frc::Pose2d& end,
                                const frc::TrajectoryConfig& config) {
-    m_controller->AddTrajectory(start, interior, end, config);
+    m_controller.AddTrajectory(start, interior, end, config);
 }
 
 void Drivetrain::AddTrajectory(const std::vector<frc::Pose2d>& waypoints) {
-    m_controller->AddTrajectory(waypoints);
+    m_controller.AddTrajectory(waypoints);
 }
 
 void Drivetrain::AddTrajectory(const std::vector<frc::Pose2d>& waypoints,
                                const frc::TrajectoryConfig& config) {
-    m_controller->AddTrajectory(waypoints, config);
+    m_controller.AddTrajectory(waypoints, config);
 }
 
 frc::TrajectoryConfig Drivetrain::MakeTrajectoryConfig() {
     return DrivetrainController::MakeTrajectoryConfig();
 }
 
-bool Drivetrain::AtGoal() const { return m_controller->AtGoal(); }
+bool Drivetrain::AtGoal() const { return m_controller.AtGoal(); }
 
-Eigen::Matrix<double, 7, 1> Drivetrain::GetStates() const {
-    return m_controller->GetStates();
+const Eigen::Matrix<double, 7, 1>& Drivetrain::GetStates() const {
+    return m_observer.Xhat();
 }
 
-Eigen::Matrix<double, 2, 1> Drivetrain::GetInputs() const {
-    return m_controller->GetInputs();
+const Eigen::Matrix<double, 2, 1>& Drivetrain::GetInputs() const {
+    return m_controller.GetInputs();
 }
 
 units::ampere_t Drivetrain::GetCurrentDraw() const {
     return m_drivetrainSim.GetCurrentDraw();
 }
 
-void Drivetrain::DisabledInit() {
-    m_controller->Disable();
-    m_drive.SetSafetyEnabled(true);
-}
-
-void Drivetrain::AutonomousInit() {
-    m_controller->Enable();
-    m_drive.SetSafetyEnabled(false);
-}
-
 void Drivetrain::TeleopInit() {
     // If the robot was disabled while still following a trajectory in
     // autonomous, it will continue to do so in teleop. This aborts any
     // trajectories so teleop driving can occur.
-    m_controller->AbortTrajectories();
+    m_controller.AbortTrajectories();
 
-    m_controller->Enable();
+    Enable();
     m_drive.SetSafetyEnabled(true);
 }
 
@@ -209,7 +239,7 @@ void Drivetrain::RobotPeriodic() {
     using State = DrivetrainController::State;
     using Input = DrivetrainController::Input;
 
-    const auto& xHat = m_controller->GetStates();
+    const auto& xHat = m_observer.Xhat();
     m_xStateEntry.SetDouble(xHat(State::kX));
     m_yStateEntry.SetDouble(xHat(State::kY));
     m_headingStateEntry.SetDouble(xHat(State::kHeading));
@@ -218,9 +248,9 @@ void Drivetrain::RobotPeriodic() {
     m_leftPositionStateEntry.SetDouble(xHat(State::kLeftPosition));
     m_rightPositionStateEntry.SetDouble(xHat(State::kRightPosition));
     m_leftVoltageInputEntry.SetDouble(
-        m_controller->GetInputs()(Input::kLeftVoltage));
+        m_controller.GetInputs()(Input::kLeftVoltage));
     m_rightVoltageInputEntry.SetDouble(
-        m_controller->GetInputs()(Input::kRightVoltage));
+        m_controller.GetInputs()(Input::kRightVoltage));
     m_headingOutputEntry.SetDouble(GetAngle().to<double>());
     m_leftPositionOutputEntry.SetDouble(GetLeftPosition().to<double>());
     m_rightPositionOutputEntry.SetDouble(GetRightPosition().to<double>());

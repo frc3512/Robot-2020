@@ -11,7 +11,9 @@
 #include <wpi/math>
 
 #include "CANSparkMaxUtil.hpp"
+#include "EigenFormat.hpp"
 #include "TargetModel.hpp"
+#include "UnitsFormat.hpp"
 #include "controllers/TurretController.hpp"
 #include "subsystems/Drivetrain.hpp"
 
@@ -22,7 +24,12 @@ const frc::Pose2d Flywheel::kTargetPoseInGlobal{TargetModel::kCenter.X(),
                                                 TargetModel::kCenter.Y(),
                                                 units::radian_t{wpi::math::pi}};
 
-Flywheel::Flywheel(Drivetrain& drivetrain) : m_drivetrain(drivetrain) {
+Flywheel::Flywheel(Drivetrain& drivetrain)
+    : ControlledSubsystemBase("Flywheel",
+                              {ControllerLabel{"Angular velocity", "rad/s"}},
+                              {ControllerLabel{"Voltage", "V"}},
+                              {ControllerLabel{"Angular velocity", "rad/s"}}),
+      m_drivetrain(drivetrain) {
     SetCANSparkMaxBusUsage(m_leftGrbx, Usage::kMinimal);
     SetCANSparkMaxBusUsage(m_rightGrbx, Usage::kMinimal);
 
@@ -77,6 +84,7 @@ bool Flywheel::IsOn() const { return GetGoal() > 0_rad_per_s; }
 bool Flywheel::IsReady() { return GetGoal() > 0_rad_per_s && AtGoal(); }
 
 void Flywheel::Reset() {
+    m_observer.Reset();
     m_controller.Reset();
     m_encoder.Reset();
     m_angle = GetAngle();
@@ -101,22 +109,23 @@ void Flywheel::RobotPeriodic() {
     m_angularVelocityRefEntry.SetDouble(
         m_controller.GetReferences()(State::kAngularVelocity));
     m_angularVelocityStateEntry.SetDouble(
-        m_controller.GetStates()(State::kAngularVelocity));
+        m_observer.Xhat()(State::kAngularVelocity));
     m_isOnEntry.SetBoolean(IsOn());
     m_isReadyEntry.SetBoolean(IsReady());
-    m_controllerEnabledEntry.SetBoolean(m_controller.IsEnabled());
 
     if (frc::DriverStation::GetInstance().IsTest()) {
         static frc::Joystick appendageStick2{kAppendageStick2Port};
 
         m_testThrottle = appendageStick2.GetThrottle();
-        double manualRef = ThrottleToReference(m_testThrottle).to<double>();
-        m_manualAngularVelocityReferenceEntry.SetDouble(manualRef);
+        auto manualRef = ThrottleToReference(m_testThrottle);
+        m_manualAngularVelocityReferenceEntry.SetDouble(manualRef.to<double>());
         fmt::print("Manual angular velocity: {}\n", manualRef);
     }
 }
 
 void Flywheel::ControllerPeriodic() {
+    UpdateDt();
+
     // Adjusts the flywheel's goal while moving and shooting
     if (IsOn()) {
         SetGoalFromPose();
@@ -134,8 +143,13 @@ void Flywheel::ControllerPeriodic() {
 
     Eigen::Matrix<double, 1, 1> y;
     y << GetAngularVelocity().to<double>();
-    Eigen::Matrix<double, 1, 1> u = m_controller.UpdateAndLog(y);
+    m_observer.Correct(m_controller.GetInputs(), y);
+    Eigen::Matrix<double, 1, 1> u = m_controller.Calculate(m_observer.Xhat());
     SetVoltage(units::volt_t{u(0)});
+
+    Log(m_controller.GetReferences(), m_observer.Xhat(), u, y);
+
+    m_observer.Predict(u, GetDt());
 
     if constexpr (frc::RobotBase::IsSimulation()) {
         m_flywheelSim.SetInput(frc::MakeMatrix<1, 1>(
@@ -143,8 +157,8 @@ void Flywheel::ControllerPeriodic() {
         m_flywheelPositionSim.SetInput(frc::MakeMatrix<1, 1>(
             m_leftGrbx.Get() * frc::RobotController::GetInputVoltage()));
 
-        m_flywheelSim.Update(m_controller.GetDt());
-        m_flywheelPositionSim.Update(m_controller.GetDt());
+        m_flywheelSim.Update(GetDt());
+        m_flywheelPositionSim.Update(GetDt());
 
         m_encoderSim.SetDistance(m_flywheelPositionSim.GetOutput(0));
     }

@@ -8,9 +8,6 @@
 #include <vector>
 
 #include <frc/controller/ControlAffinePlantInversionFeedforward.h>
-#include <frc/estimator/AngleStatistics.h>
-#include <frc/estimator/ExtendedKalmanFilter.hpp>
-#include <frc/estimator/KalmanFilterLatencyCompensator.h>
 #include <frc/geometry/Pose2d.h>
 #include <frc/system/LinearSystem.h>
 #include <frc/trajectory/Trajectory.h>
@@ -146,22 +143,6 @@ public:
      */
     bool AtGoal() const;
 
-    void Predict(const Eigen::Matrix<double, 2, 1>& u, units::second_t dt);
-
-    /**
-     * Set global measurements.
-     *
-     * @param x         X position of the robot in meters.
-     * @param y         Y position of the robot in meters.
-     * @param timestamp Absolute time the translation data comes from.
-     */
-    void CorrectWithGlobalOutputs(units::meter_t x, units::meter_t y,
-                                  units::second_t timestamp);
-
-    const Eigen::Matrix<double, 7, 1>& GetReferences() const override;
-
-    const Eigen::Matrix<double, 7, 1>& GetStates() const override;
-
     /**
      * Resets any internal state.
      *
@@ -169,8 +150,8 @@ public:
      */
     void Reset(const frc::Pose2d& initialPose);
 
-    Eigen::Matrix<double, 2, 1> Update(const Eigen::Matrix<double, 3, 1>& y,
-                                       units::second_t dt) override;
+    Eigen::Matrix<double, 2, 1> Calculate(
+        const Eigen::Matrix<double, 7, 1>& x) override;
 
     /**
      * Returns the drivetrain's plant.
@@ -232,33 +213,12 @@ private:
     static constexpr auto kMaxV = 12_V / kLinearV;
     static constexpr auto kMaxA = 12_V / kLinearA;
 
-    // TODO: Find a good measurement covariance for global measurements
-    static const Eigen::Matrix<double, 2, 2> kGlobalR;
-
     static const frc::LinearSystem<2, 2, 2> kPlant;
-
-    // Design observer. See the enums above for lists of the states, inputs, and
-    // outputs.
-    frc::ExtendedKalmanFilter<7, 2, 3> m_observer{
-        Dynamics,
-        LocalMeasurementModel,
-        {0.002, 0.002, 0.0001, 1.5, 1.5, 0.5, 0.5},
-        {0.0001, 0.005, 0.005},
-        frc::AngleResidual<3>(0),
-        frc::AngleAdd<7>(2),
-        Constants::kDt};
-    frc::KalmanFilterLatencyCompensator<7, 2, 3,
-                                        frc::ExtendedKalmanFilter<7, 2, 3>>
-        m_latencyComp;
 
     frc::ControlAffinePlantInversionFeedforward<7, 2> m_ff{Dynamics,
                                                            Constants::kDt};
 
     Eigen::Matrix<double, 5, 2> m_B;
-
-    // Controller reference
-    Eigen::Matrix<double, 7, 1> m_r;
-    Eigen::Matrix<double, 7, 1> m_nextR;
 
     wpi::static_circular_buffer<frc::Trajectory, 8> m_trajectories;
     frc::Pose2d m_goal;
@@ -269,8 +229,10 @@ private:
     /**
      * Update "at references" flag based on next reference and current state
      * estimate.
+     *
+     * @param error The error vector.
      */
-    void UpdateAtReferences();
+    void UpdateAtReferences(const Eigen::Matrix<double, 5, 1>& error);
 
     /**
      * Converts velocity and curvature of drivetrain into left and right wheel

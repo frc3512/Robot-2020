@@ -4,11 +4,13 @@
 
 #include <frc/Encoder.h>
 #include <frc/LinearFilter.h>
+#include <frc/estimator/KalmanFilter.h>
 #include <frc/geometry/Pose2d.h>
 #include <frc/simulation/EncoderSim.h>
 #include <frc/simulation/FlywheelSim.h>
 #include <frc/simulation/LinearSystemSim.h>
 #include <frc/system/LinearSystem.h>
+#include <frc/system/plant/LinearSystemId.h>
 #include <frc2/Timer.h>
 #include <networktables/NetworkTableEntry.h>
 #include <networktables/NetworkTableInstance.h>
@@ -22,7 +24,7 @@
 #include "LerpTable.hpp"
 #include "controllers/FlywheelController.hpp"
 #include "rev/CANSparkMax.hpp"
-#include "subsystems/SubsystemBase.hpp"
+#include "subsystems/ControlledSubsystemBase.hpp"
 
 namespace frc3512 {
 
@@ -31,7 +33,7 @@ class Drivetrain;
 /**
  * Flywheel subsystem.
  */
-class Flywheel : public SubsystemBase {
+class Flywheel : public ControlledSubsystemBase<1, 1, 1> {
 public:
     explicit Flywheel(Drivetrain& drivetrain);
 
@@ -106,15 +108,15 @@ public:
     units::radians_per_second_t GetReferenceForPose(
         const frc::Pose2d& drivetrainPose) const;
 
-    void DisabledInit() override { m_controller.Disable(); }
+    void DisabledInit() override { Disable(); }
 
-    void AutonomousInit() override { m_controller.Enable(); }
+    void AutonomousInit() override { Enable(); }
 
-    void TeleopInit() override { m_controller.Enable(); }
+    void TeleopInit() override { Enable(); }
 
     void RobotPeriodic() override;
 
-    void ControllerPeriodic();
+    void ControllerPeriodic() override;
 
     /**
      * Sets the simulation model's angular velocity.
@@ -137,6 +139,12 @@ private:
     frc::Encoder m_encoder{Constants::Flywheel::kEncoderA,
                            Constants::Flywheel::kEncoderB};
 
+    frc::LinearSystem<1, 1, 1> m_plant{FlywheelController::GetPlant()};
+    frc::KalmanFilter<1, 1, 1> m_observer{
+        m_plant,
+        {700.0},
+        {FlywheelController::kDpP / Constants::kDt.to<double>()},
+        Constants::kDt};
     FlywheelController m_controller;
     units::radian_t m_angle;
     units::radian_t m_lastAngle;
@@ -163,8 +171,6 @@ private:
         m_inst.GetEntry("/Diagnostics/Flywheel/IsOn");
     nt::NetworkTableEntry m_isReadyEntry =
         m_inst.GetEntry("/Diagnostics/Flywheel/IsReady");
-    nt::NetworkTableEntry m_controllerEnabledEntry =
-        m_inst.GetEntry("/Diagnostics/Flywheel/Controller enabled");
     nt::NetworkTableEntry m_manualAngularVelocityReferenceEntry =
         m_inst.GetEntry(
             "/Diagnostics/Flywheel/Manual angular velocity reference");

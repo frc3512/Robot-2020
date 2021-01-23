@@ -4,12 +4,10 @@
 
 #include <frc/controller/LinearPlantInversionFeedforward.h>
 #include <frc/controller/LinearQuadraticRegulator.h>
-#include <frc/estimator/KalmanFilter.h>
 #include <frc/geometry/Pose2d.h>
 #include <frc/geometry/Translation2d.h>
 #include <frc/geometry/Velocity2d.h>
 #include <frc/system/LinearSystem.h>
-#include <frc/system/plant/LinearSystemId.h>
 #include <frc/trajectory/TrapezoidProfile.h>
 #include <units/angle.h>
 #include <units/angular_acceleration.h>
@@ -115,10 +113,6 @@ public:
      */
     void SetFlywheelReferences(units::radians_per_second_t r);
 
-    const Eigen::Matrix<double, 2, 1>& GetReferences() const override;
-
-    const Eigen::Matrix<double, 2, 1>& GetStates() const override;
-
     /**
      * Sets turret control mode.
      *
@@ -138,13 +132,13 @@ public:
      */
     void Reset(units::radian_t initialHeading);
 
-    Eigen::Matrix<double, 1, 1> Update(const Eigen::Matrix<double, 1, 1>& y,
-                                       units::second_t dt) override;
+    Eigen::Matrix<double, 1, 1> Calculate(
+        const Eigen::Matrix<double, 2, 1>& x) override;
 
     /**
      * Returns the turret plant.
      */
-    const frc::LinearSystem<2, 1, 1>& GetPlant() const;
+    static frc::LinearSystem<2, 1, 1> GetPlant();
 
     /**
      * Returns the angle the target must rotate to in the global frame to point
@@ -204,18 +198,10 @@ private:
                                                                     kMaxA};
     frc::TrapezoidProfile<units::radian>::State m_profiledReference;
 
-    frc::LinearSystem<2, 1, 1> m_plant =
-        frc::LinearSystemId::IdentifyPositionSystem<units::radian>(kV, kA);
-
+    frc::LinearSystem<2, 1, 1> m_plant{GetPlant()};
     frc::LinearQuadraticRegulator<2, 1> m_lqr{
         m_plant, {0.01245, 0.109726}, {12.0}, Constants::kDt};
     frc::LinearPlantInversionFeedforward<2, 1> m_ff{m_plant, Constants::kDt};
-    frc::KalmanFilter<2, 1, 1> m_observer{
-        m_plant, {0.21745, 0.28726}, {0.01}, Constants::kDt};
-
-    // Controller reference
-    Eigen::Matrix<double, 2, 1> m_r;
-    Eigen::Matrix<double, 2, 1> m_nextR;
 
     ControlMode m_controlMode = ControlMode::kManual;
 
@@ -230,8 +216,10 @@ private:
     /**
      * Update internal m_atReferences variable using next reference and current
      * state.
+     *
+     * @param error The error vector.
      */
-    void UpdateAtReferences();
+    void UpdateAtReferences(const Eigen::Matrix<double, 2, 1>& error);
 };
 
 }  // namespace frc3512

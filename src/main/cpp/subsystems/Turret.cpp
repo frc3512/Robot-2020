@@ -1,4 +1,4 @@
-// Copyright (c) 2020 FRC Team 3512. All Rights Reserved.
+// Copyright (c) 2020-2021 FRC Team 3512. All Rights Reserved.
 
 #include "subsystems/Turret.hpp"
 
@@ -15,7 +15,14 @@ using namespace frc3512;
 using namespace frc3512::Constants::Robot;
 
 Turret::Turret(Vision& vision, Drivetrain& drivetrain, Flywheel& flywheel)
-    : m_vision(vision), m_drivetrain(drivetrain), m_flywheel(flywheel) {
+    : ControlledSubsystemBase("Turret",
+                              {ControllerLabel{"Angle", "rad"},
+                               ControllerLabel{"Angular velocity", "rad/s"}},
+                              {ControllerLabel{"Voltage", "V"}},
+                              {ControllerLabel{"Angle", "rad"}}),
+      m_vision(vision),
+      m_drivetrain(drivetrain),
+      m_flywheel(flywheel) {
     SetCANSparkMaxBusUsage(m_motor, Usage::kMinimal);
 
     // Ensures CANSparkMax::Get() returns an initialized value
@@ -43,13 +50,15 @@ void Turret::SetDirection(Direction direction) {
 }
 
 void Turret::Reset(units::radian_t initialHeading) {
+    Eigen::Matrix<double, 2, 1> xHat;
+    xHat << initialHeading.to<double>(), 0.0;
+
+    m_observer.Reset();
+    m_observer.SetXhat(xHat);
     m_controller.Reset(initialHeading);
 
     if constexpr (frc::RobotBase::IsSimulation()) {
-        Eigen::Matrix<double, 2, 1> xHat;
-        xHat << initialHeading.to<double>(), 0.0;
         m_turretSim.SetState(xHat);
-
         m_encoderSim.SetDistance(HeadingToEncoderDistance(initialHeading));
     }
 }
@@ -82,9 +91,9 @@ units::volt_t Turret::GetMotorOutput() const {
 
 void Turret::RobotPeriodic() {
     m_angleStateEntry.SetDouble(
-        m_controller.GetStates()(TurretController::State::kAngle));
+        m_observer.Xhat()(TurretController::State::kAngle));
     m_angularVelocityStateEntry.SetDouble(
-        m_controller.GetStates()(TurretController::State::kAngularVelocity));
+        m_observer.Xhat()(TurretController::State::kAngularVelocity));
     m_inputVoltageEntry.SetDouble(m_controller.GetInputs()(0));
     m_angleOutputEntry.SetDouble(GetAngle().to<double>());
 
@@ -135,17 +144,19 @@ void Turret::TestPeriodic() {
 }
 
 void Turret::ControllerPeriodic() {
+    UpdateDt();
+
     m_controller.SetDrivetrainStates(m_drivetrain.GetStates());
     m_controller.SetFlywheelReferences(
         m_flywheel.GetReferenceForPose(m_drivetrain.GetPose()));
 
     Eigen::Matrix<double, 1, 1> y;
     y << GetAngle().to<double>();
-    Eigen::Matrix<double, 1, 1> u = m_controller.UpdateAndLog(y);
+    m_observer.Correct(m_controller.GetInputs(), y);
 
     auto globalMeasurement = m_vision.GetGlobalMeasurement();
     // TODO: Reenable when vision measurements are reliable
-    if (0) {
+    if constexpr (0) {
         auto turretInGlobal = globalMeasurement.value();
 
         frc::Transform2d turretInGlobalToDrivetrainInGlobal{
@@ -172,17 +183,23 @@ void Turret::ControllerPeriodic() {
         }
     }
 
+    Eigen::Matrix<double, 1, 1> u = m_controller.Calculate(m_observer.Xhat());
+
     // Set motor input
     if (m_controller.GetControlMode() !=
         TurretController::ControlMode::kManual) {
         SetVoltage(units::volt_t{u(0)});
     }
 
+    Log(m_controller.GetReferences(), m_observer.Xhat(), u, y);
+
+    m_observer.Predict(u, GetDt());
+
     if constexpr (frc::RobotBase::IsSimulation()) {
         m_turretSim.SetInput(frc::MakeMatrix<1, 1>(
             m_motor.Get() * frc::RobotController::GetInputVoltage()));
 
-        m_turretSim.Update(m_controller.GetDt());
+        m_turretSim.Update(GetDt());
 
         m_encoderSim.SetDistance(HeadingToEncoderDistance(
             units::radian_t{m_turretSim.GetOutput(0)}));

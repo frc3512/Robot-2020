@@ -4,6 +4,7 @@
 
 #include <frc/MathUtil.h>
 #include <frc/RobotController.h>
+#include <frc/system/plant/LinearSystemId.h>
 
 #include "TargetModel.hpp"
 #include "controllers/DrivetrainController.hpp"
@@ -31,14 +32,7 @@ auto Cross(const Vector1& a, const Vector2& b) -> decltype(auto) {
     return a.X() * b.Y() - a.Y() * b.X();
 }
 
-TurretController::TurretController()
-    : ControllerBase("Turret",
-                     {ControllerLabel{"Angle", "rad"},
-                      ControllerLabel{"Angular velocity", "rad/s"}},
-                     {ControllerLabel{"Voltage", "V"}},
-                     {ControllerLabel{"Angle", "rad"}}) {
-    Reset(0_rad);
-}
+TurretController::TurretController() { Reset(0_rad); }
 
 void TurretController::SetGoal(units::radian_t angle,
                                units::radians_per_second_t angularVelocity) {
@@ -75,14 +69,6 @@ void TurretController::SetFlywheelReferences(units::radians_per_second_t r) {
     m_flywheelAngularVelocityRef = r;
 }
 
-const Eigen::Matrix<double, 2, 1>& TurretController::GetReferences() const {
-    return m_r;
-}
-
-const Eigen::Matrix<double, 2, 1>& TurretController::GetStates() const {
-    return m_observer.Xhat();
-}
-
 void TurretController::SetControlMode(ControlMode mode) {
     m_controlMode = mode;
 }
@@ -95,21 +81,15 @@ void TurretController::Reset(units::radian_t initialHeading) {
     Eigen::Matrix<double, 2, 1> xHat;
     xHat << initialHeading.to<double>(), 0.0;
 
-    m_observer.Reset();
-    m_observer.SetXhat(xHat);
     m_ff.Reset(xHat);
     m_r = xHat;
     m_nextR = xHat;
 
-    UpdateAtReferences();
+    UpdateAtReferences(Eigen::Matrix<double, 2, 1>::Zero());
 }
 
-Eigen::Matrix<double, 1, 1> TurretController::Update(
-    const Eigen::Matrix<double, 1, 1>& y, units::second_t dt) {
-    m_observer.Correct(GetInputs(), y);
-
-    Eigen::Matrix<double, 1, 1> u;
-
+Eigen::Matrix<double, 1, 1> TurretController::Calculate(
+    const Eigen::Matrix<double, 2, 1>& x) {
     if (m_controlMode != ControlMode::kManual) {
         if (m_controlMode == ControlMode::kAutoAim) {
             // Calculate next drivetrain and turret pose in global frame
@@ -165,31 +145,30 @@ Eigen::Matrix<double, 1, 1> TurretController::Update(
                           profiledReference.velocity);
         }
 
-        u << m_lqr.K() * (m_r - m_observer.Xhat()) + m_ff.Calculate(m_nextR);
+        m_u << m_lqr.K() * (m_r - x) + m_ff.Calculate(m_nextR);
 
-        units::radian_t heading{m_observer.Xhat(State::kAngle)};
-        if (heading > kCCWLimit && u(0) > 0.0) {
-            u << 0.0;
-        } else if (heading < kCWLimit && u(0) < 0.0) {
-            u << 0.0;
+        units::radian_t heading{x(State::kAngle)};
+        if (heading > kCCWLimit && m_u(0) > 0.0) {
+            m_u << 0.0;
+        } else if (heading < kCWLimit && m_u(0) < 0.0) {
+            m_u << 0.0;
         }
 
-        u *= 12.0 / frc::RobotController::GetInputVoltage();
-        u = frc::NormalizeInputVector<1>(u, 12.0);
+        m_u *= 12.0 / frc::RobotController::GetInputVoltage();
+        m_u = frc::NormalizeInputVector<1>(m_u, 12.0);
 
-        UpdateAtReferences();
+        UpdateAtReferences(m_nextR - x);
     } else {
-        u << 0.0;
+        m_u << 0.0;
     }
 
     m_r = m_nextR;
-    m_observer.Predict(u, dt);
 
-    return u;
+    return m_u;
 }
 
-const frc::LinearSystem<2, 1, 1>& TurretController::GetPlant() const {
-    return m_plant;
+frc::LinearSystem<2, 1, 1> TurretController::GetPlant() {
+    return frc::LinearSystemId::IdentifyPositionSystem<units::radian>(kV, kA);
 }
 
 units::radian_t TurretController::CalculateHeading(
@@ -321,13 +300,10 @@ frc::Pose2d TurretController::DrivetrainToTurretInGlobal(
     return drivetrainInGlobal.TransformBy(drivetrainToTurretFrame);
 }
 
-void TurretController::UpdateAtReferences() {
-    m_atReferences =
-        units::math::abs(units::radian_t{m_nextR(State::kAngle) -
-                                         m_observer.Xhat(State::kAngle)}) <
-            kAngleTolerance &&
-        units::math::abs(units::radians_per_second_t{
-            m_nextR(State::kAngularVelocity) -
-            m_observer.Xhat(State::kAngularVelocity)}) <
-            kAngularVelocityTolerance;
+void TurretController::UpdateAtReferences(
+    const Eigen::Matrix<double, 2, 1>& error) {
+    m_atReferences = units::math::abs(units::radian_t{error(State::kAngle)}) <
+                         kAngleTolerance &&
+                     units::math::abs(units::radians_per_second_t{error(
+                         State::kAngularVelocity)}) < kAngularVelocityTolerance;
 }

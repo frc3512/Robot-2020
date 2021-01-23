@@ -100,3 +100,50 @@ TEST_F(DrivetrainTest, TrajectoryQueue) {
 
     EXPECT_TRUE(drivetrain.AtGoal());
 }
+
+TEST_F(DrivetrainTest, CorrectsTowardGlobalY) {
+    static constexpr bool kIdealModel = false;
+
+    drivetrain.AddTrajectory(frc::Pose2d(0_m, 0_m, 0_rad), {},
+                             frc::Pose2d(4.8768_m, 2.7432_m, 0_rad));
+
+    // Ensure error covariance is nonzero
+    frc::sim::StepTiming(10_s);
+
+    Eigen::Matrix<double, 7, 1> x;
+    x << 5.0, 5.0, 1.0, 1.0, 1.0, 1.0, 1.0;
+
+    Eigen::Matrix<double, 3, 1> localY =
+        frc3512::DrivetrainController::LocalMeasurementModel(
+            x, Eigen::Matrix<double, 2, 1>::Zero());
+    Eigen::Matrix<double, 2, 1> globalY =
+        frc3512::DrivetrainController::GlobalMeasurementModel(
+            x, Eigen::Matrix<double, 2, 1>::Zero());
+    auto globalTimestamp = frc2::Timer::GetFPGATimestamp();
+
+    // Add measurement noise
+    if constexpr (!kIdealModel) {
+        localY += frc::MakeWhiteNoiseVector(0.0001, 0.005, 0.005);
+        globalY += frc::MakeWhiteNoiseVector(0.05, 0.05);
+    }
+
+    using State = frc3512::DrivetrainController::State;
+    using GlobalOutput = frc3512::DrivetrainController::GlobalOutput;
+
+    auto xHat = drivetrain.GetStates();
+    double xDiff1 = std::abs(xHat(State::kX) - x(State::kX));
+    double yDiff1 = std::abs(xHat(State::kY) - x(State::kY));
+
+    frc::sim::StepTiming(2_s);
+
+    drivetrain.CorrectWithGlobalOutputs(
+        units::meter_t{globalY(GlobalOutput::kX)},
+        units::meter_t{globalY(GlobalOutput::kY)}, globalTimestamp);
+
+    xHat = drivetrain.GetStates();
+    double xDiff2 = std::abs(xHat(State::kX) - x(State::kX));
+    double yDiff2 = std::abs(xHat(State::kY) - x(State::kY));
+
+    EXPECT_GT(xDiff1, xDiff2);
+    EXPECT_GT(yDiff1, yDiff2);
+}

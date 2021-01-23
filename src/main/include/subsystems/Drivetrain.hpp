@@ -2,7 +2,6 @@
 
 #pragma once
 
-#include <memory>
 #include <vector>
 
 #include <Eigen/Core>
@@ -10,6 +9,9 @@
 #include <frc/Encoder.h>
 #include <frc/SpeedControllerGroup.h>
 #include <frc/drive/DifferentialDrive.h>
+#include <frc/estimator/AngleStatistics.h>
+#include <frc/estimator/ExtendedKalmanFilter.hpp>
+#include <frc/estimator/KalmanFilterLatencyCompensator.h>
 #include <frc/geometry/Pose2d.h>
 #include <frc/geometry/Translation2d.h>
 #include <frc/simulation/ADXRS450_GyroSim.h>
@@ -28,17 +30,16 @@
 #include <units/velocity.h>
 
 #include "Constants.hpp"
+#include "controllers/DrivetrainController.hpp"
 #include "rev/CANSparkMax.hpp"
-#include "subsystems/SubsystemBase.hpp"
+#include "subsystems/ControlledSubsystemBase.hpp"
 
 namespace frc3512 {
-
-class DrivetrainController;
 
 /**
  * Drivetrain subsystem.
  */
-class Drivetrain : public SubsystemBase {
+class Drivetrain : public ControlledSubsystemBase<7, 2, 3> {
 public:
     static constexpr units::meter_t kLength = 0.9398_m;
     static constexpr units::meter_t kMiddleOfRobotToIntake = 0.656_m;
@@ -168,21 +169,27 @@ public:
     /**
      * Returns the drivetrain state estimate.
      */
-    Eigen::Matrix<double, 7, 1> GetStates() const;
+    const Eigen::Matrix<double, 7, 1>& GetStates() const;
 
     /**
      * Returns the drivetrain inputs.
      */
-    Eigen::Matrix<double, 2, 1> GetInputs() const;
+    const Eigen::Matrix<double, 2, 1>& GetInputs() const;
 
     /**
      * Returns current drawn in simulation.
      */
     units::ampere_t GetCurrentDraw() const;
 
-    void DisabledInit() override;
+    void DisabledInit() override {
+        Disable();
+        m_drive.SetSafetyEnabled(true);
+    }
 
-    void AutonomousInit() override;
+    void AutonomousInit() override {
+        Enable();
+        m_drive.SetSafetyEnabled(false);
+    }
 
     void TeleopInit() override;
 
@@ -190,9 +197,12 @@ public:
 
     void TeleopPeriodic() override;
 
-    void ControllerPeriodic();
+    void ControllerPeriodic() override;
 
 private:
+    // TODO: Find a good measurement covariance for global measurements
+    static const Eigen::Matrix<double, 2, 2> kGlobalR;
+
     rev::CANSparkMax m_leftLeader{Constants::Drivetrain::kLeftLeaderPort,
                                   rev::CANSparkMax::MotorType::kBrushless};
     rev::CANSparkMax m_leftFollower{Constants::Drivetrain::kLeftFollowerPort,
@@ -216,7 +226,18 @@ private:
     frc::ADXRS450_Gyro m_gyro;
     units::radian_t m_headingOffset = 0_rad;
 
-    std::unique_ptr<DrivetrainController> m_controller;
+    frc::ExtendedKalmanFilter<7, 2, 3> m_observer{
+        DrivetrainController::Dynamics,
+        DrivetrainController::LocalMeasurementModel,
+        {0.002, 0.002, 0.0001, 1.5, 1.5, 0.5, 0.5},
+        {0.0001, 0.005, 0.005},
+        frc::AngleResidual<3>(0),
+        frc::AngleAdd<7>(2),
+        Constants::kDt};
+    frc::KalmanFilterLatencyCompensator<7, 2, 3,
+                                        frc::ExtendedKalmanFilter<7, 2, 3>>
+        m_latencyComp;
+    DrivetrainController m_controller;
 
     nt::NetworkTableInstance m_inst = nt::NetworkTableInstance::GetDefault();
     nt::NetworkTableEntry m_xStateEntry =

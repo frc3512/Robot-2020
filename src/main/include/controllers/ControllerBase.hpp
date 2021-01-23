@@ -2,19 +2,7 @@
 
 #pragma once
 
-#include <array>
-
 #include <Eigen/Core>
-#include <fmt/core.h>
-#include <frc/logging/CSVLogFile.h>
-#include <frc2/Timer.h>
-#include <units/time.h>
-#include <wpi/StringRef.h>
-#include <wpi/Twine.h>
-
-#include "UnitsFormat.hpp"
-#include "logging/CSVControllerLogger.hpp"
-#include "logging/LiveGrapherControllerLogger.hpp"
 
 namespace frc3512 {
 
@@ -31,97 +19,21 @@ namespace frc3512 {
 template <int States, int Inputs, int Outputs>
 class ControllerBase {
 public:
-    /**
-     * Constructs a ControllerBase.
-     *
-     * @param controllerName Name of the controller log file.
-     * @param stateLabels    Labels for states each consisting of its name and
-     *                       unit.
-     * @param inputLabels    Labels for inputs each consisting of its name and
-     *                       unit.
-     * @param outputLabels   Labels for outputs each consisting of its name and
-     *                       unit.
-     */
-    ControllerBase(wpi::StringRef controllerName,
-                   const std::array<ControllerLabel, States>& stateLabels,
-                   const std::array<ControllerLabel, Inputs>& inputLabels,
-                   const std::array<ControllerLabel, Outputs>& outputLabels)
-#ifndef RUNNING_FRC_TESTS
-        : m_csvLogger{controllerName, stateLabels, inputLabels, outputLabels},
-          m_liveGrapher{controllerName, stateLabels, inputLabels, outputLabels},
-          m_timingLogger{(controllerName + " timing").str(),
-                         "Loop duration (ms)", "Scheduling period (ms)"} {
-        // Write at least one data point to LiveGrapher for each dataset so they
-        // are available when the robot is disabled.
-        //
-        // Graphs are only created when data has been logged for them,
-        // ControllerPeriodic() is the only logger, and ControllerPeriodic()
-        // only runs when the robot is enabled. Without the Log() call below,
-        // the robot would need to be enabled at least once for any datasets to
-        // be selectable.
-        auto now = frc2::Timer::GetFPGATimestamp();
-        Eigen::Matrix<double, States, 1> r;
-        r.setZero();
-        Eigen::Matrix<double, States, 1> x;
-        x.setZero();
-        Eigen::Matrix<double, Inputs, 1> u;
-        u.setZero();
-        Eigen::Matrix<double, Outputs, 1> y;
-        y.setZero();
-        m_liveGrapher.Log(now, r, x, u, y);
-    }
-#else
-        : m_csvLogger{controllerName, stateLabels, inputLabels, outputLabels},
-          m_timingLogger{(controllerName + " timing").str(),
-                         "Loop duration (ms)", "Scheduling period (ms)"} {
-    }
-#endif
-
+    ControllerBase() = default;
     ControllerBase(ControllerBase&&) = default;
     ControllerBase& operator=(ControllerBase&&) = default;
 
     virtual ~ControllerBase() = default;
 
     /**
-     * Enables the control loop.
-     */
-    void Enable() {
-        // m_lastTime is reset so that a large time delta isn't generated from
-        // Update() not being called in a while.
-        m_lastTime = frc2::Timer::GetFPGATimestamp() - Constants::kDt;
-        m_isEnabled = true;
-    }
-
-    /**
-     * Disables the control loop.
-     */
-    void Disable() { m_isEnabled = false; }
-
-    /**
-     * Returns true if the control loop is enabled.
-     */
-    bool IsEnabled() const { return m_isEnabled; }
-
-    /**
-     * Returns the most recent timestep.
-     */
-    units::second_t GetDt() const { return m_dt; }
-
-    /**
      * Returns the current references.
-     *
-     * See the State class in the derived class for what each element correspond
-     * to.
-     */
-    virtual const Eigen::Matrix<double, States, 1>& GetReferences() const = 0;
-
-    /**
-     * Returns the current state estimate.
      *
      * See the State class in the derived class for what each element
      * corresponds to.
      */
-    virtual const Eigen::Matrix<double, States, 1>& GetStates() const = 0;
+    virtual const Eigen::Matrix<double, States, 1>& GetReferences() const {
+        return m_r;
+    }
 
     /**
      * Returns the control inputs.
@@ -132,68 +44,37 @@ public:
     const Eigen::Matrix<double, Inputs, 1>& GetInputs() const { return m_u; }
 
     /**
-     * Logs the current controller information, then executes the control loop
-     * for a cycle.
+     * Returns the next output of the controller.
      *
-     * @param y The measurements for this timestep.
+     * @param x The current state x.
      */
-    Eigen::Matrix<double, Inputs, 1> UpdateAndLog(
-        const Eigen::Matrix<double, Outputs, 1>& y) {
-        auto nowBegin = frc2::Timer::GetFPGATimestamp();
-        m_dt = nowBegin - m_lastTime;
+    virtual Eigen::Matrix<double, Inputs, 1> Calculate(
+        const Eigen::Matrix<double, States, 1>& x) = 0;
 
-        m_csvLogger.Log(nowBegin - m_startTime, GetReferences(), GetStates(),
-                        m_u, y);
-#ifndef RUNNING_FRC_TESTS
-        m_liveGrapher.Log(nowBegin - m_startTime, GetReferences(), GetStates(),
-                          m_u, y);
-#endif
-
-        if (m_dt > 0_s) {
-            // The observer update doesn't run when the robot is disabled. When
-            // the robot is reenabled, the period since the last update may be
-            // very large. Large periods make the state estimate diverge. To
-            // avoid this, large periods are replaced with the nominal dt.
-            if (m_dt > 10_ms) {
-                m_dt = Constants::kDt;
-            }
-
-            m_u = Update(y, m_dt);
-            auto nowEnd = frc2::Timer::GetFPGATimestamp();
-            m_timingLogger.Log(
-                nowBegin - m_startTime,
-                units::millisecond_t{nowEnd - nowBegin}.to<double>(),
-                units::millisecond_t{m_dt}.to<double>());
-            m_lastTime = nowBegin;
-        } else {
-            fmt::print(stderr, "ERROR: dt = 0 @ t = {}\n", nowBegin);
-        }
-        return m_u;
+    /**
+     * Returns the next output of the controller.
+     *
+     * @param x The current state x.
+     * @param r The next reference r.
+     */
+    Eigen::Matrix<double, Inputs, 1> Calculate(
+        const Eigen::Matrix<double, States, 1>& x,
+        const Eigen::Matrix<double, States, 1>& r) {
+        m_nextR = r;
+        Eigen::Matrix<double, Inputs, 1> u = Calculate(x);
+        m_r = m_nextR;
+        return u;
     }
 
 protected:
-    /**
-     * Executes the control loop for a cycle and returns the input.
-     *
-     * @param y  The measurements for this timestep.
-     * @param dt The time since the last call to this function.
-     */
-    virtual Eigen::Matrix<double, Inputs, 1> Update(
-        const Eigen::Matrix<double, Outputs, 1>& y, units::second_t dt) = 0;
-
-private:
-    CSVControllerLogger<States, Inputs, Outputs> m_csvLogger;
-#ifndef RUNNING_FRC_TESTS
-    LiveGrapherControllerLogger<States, Inputs, Outputs> m_liveGrapher;
-#endif
-    frc::CSVLogFile m_timingLogger;
+    // Controller reference
+    Eigen::Matrix<double, States, 1> m_r =
+        Eigen::Matrix<double, States, 1>::Zero();
+    Eigen::Matrix<double, States, 1> m_nextR =
+        Eigen::Matrix<double, States, 1>::Zero();
 
     Eigen::Matrix<double, Inputs, 1> m_u =
         Eigen::Matrix<double, Inputs, 1>::Zero();
-    units::second_t m_lastTime = frc2::Timer::GetFPGATimestamp();
-    units::second_t m_startTime = frc2::Timer::GetFPGATimestamp();
-    units::second_t m_dt = Constants::kDt;
-    bool m_isEnabled = false;
 };
 
 }  // namespace frc3512

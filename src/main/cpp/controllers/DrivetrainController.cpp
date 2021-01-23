@@ -8,7 +8,6 @@
 #include <fmt/core.h>
 #include <frc/MathUtil.h>
 #include <frc/RobotController.h>
-#include <frc/StateSpaceUtil.h>
 #include <frc/controller/LinearQuadraticRegulator.h>
 #include <frc/kinematics/DifferentialDriveKinematics.h>
 #include <frc/system/plant/DCMotor.h>
@@ -21,24 +20,9 @@
 using namespace frc3512;
 using namespace frc3512::Constants;
 
-const Eigen::Matrix<double, 2, 2> DrivetrainController::kGlobalR =
-    frc::MakeCovMatrix(0.05, 0.05);
-
 const frc::LinearSystem<2, 2, 2> DrivetrainController::kPlant{GetPlant()};
 
-DrivetrainController::DrivetrainController()
-    : ControllerBase("Drivetrain",
-                     {ControllerLabel{"X", "m"}, ControllerLabel{"Y", "m"},
-                      ControllerLabel{"Heading", "rad"},
-                      ControllerLabel{"Left velocity", "m/s"},
-                      ControllerLabel{"Right velocity", "m/s"},
-                      ControllerLabel{"Left position", "m"},
-                      ControllerLabel{"Right position", "m"}},
-                     {ControllerLabel{"Left voltage", "V"},
-                      ControllerLabel{"Right voltage", "V"}},
-                     {ControllerLabel{"Heading", "rad"},
-                      ControllerLabel{"Left position", "m"},
-                      ControllerLabel{"Right position", "m"}}) {
+DrivetrainController::DrivetrainController() {
     // Reset the pose estimate to the field's bottom-left corner with the turret
     // facing in the target's general direction. This is relatively close to the
     // robot's testing configuration, so the turret won't hit the soft limits.
@@ -90,34 +74,6 @@ bool DrivetrainController::AtGoal() const {
     return m_goal == ref && m_atReferences;
 }
 
-void DrivetrainController::Predict(const Eigen::Matrix<double, 2, 1>& u,
-                                   units::second_t dt) {
-    m_observer.Predict(u, dt);
-}
-
-void DrivetrainController::CorrectWithGlobalOutputs(units::meter_t x,
-                                                    units::meter_t y,
-                                                    units::second_t timestamp) {
-    Eigen::Matrix<double, 2, 1> globalY;
-    globalY << x.to<double>(), y.to<double>();
-    m_latencyComp.ApplyPastMeasurement<2>(
-        &m_observer, Constants::kDt, globalY,
-        [&](const Eigen::Matrix<double, 2, 1>& u,
-            const Eigen::Matrix<double, 2, 1>& y) {
-            m_observer.Correct<2>(
-                u, y, &DrivetrainController::GlobalMeasurementModel, kGlobalR);
-        },
-        timestamp);
-}
-
-const Eigen::Matrix<double, 7, 1>& DrivetrainController::GetReferences() const {
-    return m_r;
-}
-
-const Eigen::Matrix<double, 7, 1>& DrivetrainController::GetStates() const {
-    return m_observer.Xhat();
-}
-
 void DrivetrainController::Reset(const frc::Pose2d& initialPose) {
     Eigen::Matrix<double, 7, 1> xHat;
     xHat(0) = initialPose.X().to<double>();
@@ -125,24 +81,17 @@ void DrivetrainController::Reset(const frc::Pose2d& initialPose) {
     xHat(2) = initialPose.Rotation().Radians().to<double>();
     xHat.block<4, 1>(3, 0).setZero();
 
-    m_observer.Reset();
-    m_observer.SetXhat(xHat);
     m_ff.Reset(xHat);
     m_r = xHat;
     m_nextR = xHat;
     m_goal = initialPose;
 
-    UpdateAtReferences();
+    UpdateAtReferences(Eigen::Matrix<double, 5, 1>::Zero());
 }
 
-Eigen::Matrix<double, 2, 1> DrivetrainController::Update(
-    const Eigen::Matrix<double, 3, 1>& y, units::second_t dt) {
-    m_latencyComp.AddObserverState(m_observer, GetInputs(), y,
-                                   frc2::Timer::GetFPGATimestamp());
-    m_observer.Correct(GetInputs(), y);
-
-    Eigen::Matrix<double, 2, 1> u;
-    u << 0.0, 0.0;
+Eigen::Matrix<double, 2, 1> DrivetrainController::Calculate(
+    const Eigen::Matrix<double, 7, 1>& x) {
+    m_u << 0.0, 0.0;
 
     if (HaveTrajectory()) {
         frc::Trajectory::State ref =
@@ -154,16 +103,20 @@ Eigen::Matrix<double, 2, 1> DrivetrainController::Update(
             ref.pose.Rotation().Radians().to<double>(), vlRef.to<double>(),
             vrRef.to<double>(), 0, 0;
 
-        Eigen::Matrix<double, 2, 1> u_fb = Controller(m_observer.Xhat(), m_r);
+        Eigen::Matrix<double, 2, 1> u_fb = Controller(x, m_r);
         u_fb = frc::NormalizeInputVector<2>(u_fb, 12.0);
-        u = u_fb + m_ff.Calculate(m_nextR);
-        u = frc::NormalizeInputVector<2>(u, 12.0);
+        m_u = u_fb + m_ff.Calculate(m_nextR);
+        m_u = frc::NormalizeInputVector<2>(m_u, 12.0);
 
-        UpdateAtReferences();
+        Eigen::Matrix<double, 5, 1> error =
+            m_nextR.block<5, 1>(0, 0) - x.block<5, 1>(0, 0);
+        error(State::kHeading) =
+            frc::AngleModulus(units::radian_t{error(State::kHeading)})
+                .to<double>();
+        UpdateAtReferences(error);
+
+        m_r = m_nextR;
     }
-
-    m_r = m_nextR;
-    m_observer.Predict(u, dt);
 
     if (AtGoal() && HaveTrajectory()) {
         m_trajectories.pop_front();
@@ -174,7 +127,7 @@ Eigen::Matrix<double, 2, 1> DrivetrainController::Update(
         }
     }
 
-    return u;
+    return m_u;
 }
 
 frc::LinearSystem<2, 2, 2> DrivetrainController::GetPlant() {
@@ -324,11 +277,8 @@ Eigen::Matrix<double, 2, 1> DrivetrainController::GlobalMeasurementModel(
     return y;
 }
 
-void DrivetrainController::UpdateAtReferences() {
-    Eigen::Matrix<double, 5, 1> error =
-        m_r.block<5, 1>(0, 0) - m_observer.Xhat().block<5, 1>(0, 0);
-    error(State::kHeading) =
-        frc::AngleModulus(units::radian_t{error(State::kHeading)}).to<double>();
+void DrivetrainController::UpdateAtReferences(
+    const Eigen::Matrix<double, 5, 1>& error) {
     m_atReferences = std::abs(error(0)) < kPositionTolerance &&
                      std::abs(error(1)) < kPositionTolerance &&
                      std::abs(error(2)) < kAngleTolerance &&

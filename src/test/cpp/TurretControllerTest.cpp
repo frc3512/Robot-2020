@@ -1,4 +1,4 @@
-// Copyright (c) 2019-2020 FRC Team 3512. All Rights Reserved.
+// Copyright (c) 2019-2021 FRC Team 3512. All Rights Reserved.
 
 #include <cmath>
 
@@ -19,7 +19,6 @@ class TurretControllerTest : public frc3512::SimulatorTest {};
 
 TEST_F(TurretControllerTest, CalculateHeading) {
     frc3512::TurretController controller;
-    controller.Enable();
 
     // Target is pi/4 radians CCW if robot is facing at 0 radians with the
     // following target and turret locations
@@ -30,7 +29,6 @@ TEST_F(TurretControllerTest, CalculateHeading) {
 TEST_F(TurretControllerTest, CalculateAngularVelocity) {
     frc3512::TurretController controller;
     controller.Reset(0_rad);
-    controller.Enable();
 
     frc::Translation2d targetTranslationInGlobal{4_m, 2_m};
     frc::Translation2d turretTranslationInGlobal{2_m, 0_m};
@@ -99,7 +97,6 @@ TEST_F(TurretControllerTest, ProperDistanceFromTarget) {
     constexpr units::meter_t kDrivetrainY = 2.600_m - 0.343_m;
 
     frc3512::TurretController controller;
-    controller.Enable();
     frc::sim::StepTiming(frc3512::Constants::kDt);
 
     Eigen::Matrix<double, 7, 1> drivetrainXhat;
@@ -109,7 +106,6 @@ TEST_F(TurretControllerTest, ProperDistanceFromTarget) {
     controller.SetDrivetrainStates(drivetrainXhat);
     Eigen::Matrix<double, 1, 1> y;
     y << 0.0;
-    controller.UpdateAndLog(y);
     auto turretPose = controller.DrivetrainToTurretInGlobal(frc::Pose2d{
         kDrivetrainX, kDrivetrainY, units::radian_t{wpi::math::pi}});
 
