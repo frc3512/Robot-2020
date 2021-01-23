@@ -181,6 +181,12 @@ public:
     void AutoNavBounce();
 
     /**
+     * Follow the "barrel racing" path defined in the 2021 At-Home Challenges
+     * manual.
+     */
+    void AutoNavBarrelRacing();
+
+    /**
      * Sets the selected autonomous mode for testing purposes.
      *
      * @param name The autonomous mode's name passed to
