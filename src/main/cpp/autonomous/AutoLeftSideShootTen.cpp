@@ -26,6 +26,8 @@ void Robot::AutoLeftSideShootTen() {
                                   units::radian_t{wpi::math::pi / 2}};
     // Gen Pose - Middle of two balls on right side of generator
     const frc::Pose2d kGenPose{10.2_m, 2.386_m, 115_deg};
+    const frc::Pose2d kTrenchStartPose{12.89_m, 1_m,
+                                       units::radian_t{wpi::math::pi}};
     // Front Trench Run Pose - Right before the start of trench run
     const frc::Pose2d kFrontTrenchRunPose{9.82_m + 0.5 * Drivetrain::kLength,
                                           0.705_m,
@@ -121,8 +123,8 @@ void Robot::AutoLeftSideShootTen() {
             frc::MaxVelocityConstraint{kMaxV}};
         auto config = m_drivetrain.MakeTrajectoryConfig();
         config.AddConstraint(regionConstraint);
-        m_drivetrain.AddTrajectory(kFrontTrenchRunPose, {}, kLastBallPose,
-                                   config);
+        m_drivetrain.AddTrajectory(
+            {kTrenchStartPose, kFrontTrenchRunPose, kLastBallPose}, config);
     }
 
     // Intake Balls x3

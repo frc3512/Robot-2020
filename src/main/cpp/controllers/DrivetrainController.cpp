@@ -10,10 +10,13 @@
 #include <frc/system/plant/DCMotor.h>
 #include <frc/system/plant/LinearSystemId.h>
 #include <frc/trajectory/TrajectoryGenerator.h>
+#include <frc/trajectory/TrapezoidProfile.h>
 #include <frc/trajectory/constraint/CentripetalAccelerationConstraint.h>
 #include <frc/trajectory/constraint/DifferentialDriveVelocitySystemConstraint.h>
 
 #include "EigenFormat.hpp"
+#include "TrajectoryUtil.hpp"
+#include "UnitsFormat.hpp"
 #include "controllers/LQR.hpp"
 
 using namespace frc3512;
@@ -58,8 +61,49 @@ void DrivetrainController::AddTrajectory(
     const frc::TrajectoryConfig& config) {
     bool hadTrajectory = HaveTrajectory();
 
-    m_trajectory = m_trajectory + frc::TrajectoryGenerator::GenerateTrajectory(
-                                      waypoints, config);
+    // If waypoints are the same position, generate trajectory to turn in
+    // place
+    auto first = waypoints.cbegin();
+    for (auto last = std::next(waypoints.cbegin());
+         std::next(last) != waypoints.cend(); ++last) {
+        if (last->X() == std::next(last)->X() &&
+            last->Y() == std::next(last)->Y()) {
+            // Emplace trajectory before the turn in place trajectory
+            if (first != last) {
+                m_trajectory =
+                    m_trajectory +
+                    frc::TrajectoryGenerator::GenerateTrajectory(
+                        std::vector<frc::Pose2d>{first, std::next(last)},
+                        config);
+            }
+
+            first = std::next(last);
+
+            m_trajectory =
+                m_trajectory +
+                TrajectoryUtil::TurnInPlaceTrajectory(
+                    frc::TrapezoidProfile<units::radian>::Constraints(
+                        12_V / kAngularV, 12_V / kAngularA),
+                    frc::TrapezoidProfile<units::radian>::State{
+                        std::next(last)->Rotation().Radians(), 0_rad_per_s},
+                    frc::TrapezoidProfile<units::radian>::State{
+                        last->Rotation().Radians(), 0_rad_per_s},
+                    frc::Translation2d{last->X(), last->Y()});
+        }
+    }
+
+    // After rotate in place trajectories create normal trajectory
+    if (first != waypoints.cend()) {
+        m_trajectory =
+            m_trajectory +
+            frc::TrajectoryGenerator::GenerateTrajectory(
+                std::vector<frc::Pose2d>{first, waypoints.cend()}, config);
+    }
+    for (auto trajectory : m_trajectory.States()) {
+        fmt::print(stderr, "Time: {0} Heading: {1}", trajectory.t(),
+                   trajectory.pose.Rotation().Radians().to<double>());
+    }
+
     m_goal = m_trajectory.States().back().pose;
 
     // If a trajectory wasn't being tracked until now, reset the timer.

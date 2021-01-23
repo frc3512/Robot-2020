@@ -70,6 +70,8 @@ TEST_F(DrivetrainTest, TrajectoryQueue) {
     // Mid Pose - Right before first/closest ball in the Trench Run
     const frc::Pose2d kMidPose{9.82_m + 0.5 * frc3512::Drivetrain::kLength,
                                0.705_m, units::radian_t{wpi::math::pi}};
+    const frc::Pose2d kRotatePose{9.82_m + 0.5 * frc3512::Drivetrain::kLength,
+                                  0.705_m, 0_rad};
     // End Pose - Third/Farthest ball in the Trench Run
     const frc::Pose2d kEndPose{8_m, 0.71_m, units::radian_t{wpi::math::pi}};
 
@@ -89,7 +91,8 @@ TEST_F(DrivetrainTest, TrajectoryQueue) {
     // trench run.
     auto config = frc3512::Drivetrain::MakeTrajectoryConfig();
     config.AddConstraint(regionConstraint);
-    drivetrain.AddTrajectory({kInitialPose, kMidPose, kEndPose}, config);
+    drivetrain.AddTrajectory(
+        {kInitialPose, kMidPose, kRotatePose, kMidPose, kEndPose}, config);
 
     // Drive back
     auto config2 = frc3512::Drivetrain::MakeTrajectoryConfig();

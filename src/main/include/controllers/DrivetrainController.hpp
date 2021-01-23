@@ -299,5 +299,29 @@ private:
         auto vr = velocity * (1 + (curvature / 1_rad * trackWidth / 2.0));
         return {vl, vr};
     }
+
+    /**
+     * Converts two headings and the time between them into left and right wheel
+     * velocities.
+     *
+     * @param heading1    Previous heading.
+     * @param heading2    Current heading.
+     * @param dt          Time between headings.
+     * @param trackWidth  Track width of drivetrain.
+     */
+    static constexpr std::tuple<units::meters_per_second_t,
+                                units::meters_per_second_t>
+    ToWheelVelocities(units::radian_t heading1, units::radian_t heading2,
+                      units::second_t dt, units::meter_t trackWidth) {
+        // clang-format off
+        // v_l = v - wr
+        // v_l = -wr
+        //
+        // v_r = v + wr
+        // v_r = wr
+        // clang-format on
+        auto omega = (heading2 - heading1) / dt;
+        return {-1.0 * omega * trackWidth / 1_rad, omega * trackWidth / 1_rad};
+    }
 };
 }  // namespace frc3512
