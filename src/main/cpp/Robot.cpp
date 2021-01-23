@@ -93,9 +93,11 @@ void Robot::TestInit() {
 void Robot::RobotPeriodic() {
     SubsystemBase::RunAllRobotPeriodic();
 
+    auto batteryVoltage = frc::RobotController::GetInputVoltage();
     m_batteryLogger.Log(
         units::second_t{std::chrono::steady_clock::now().time_since_epoch()},
-        frc::RobotController::GetInputVoltage());
+        batteryVoltage);
+    m_batteryVoltageEntry.SetDouble(batteryVoltage);
     m_ballsToShootEntry.SetDouble(m_ballsToShoot);
 }
 

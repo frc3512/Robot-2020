@@ -206,6 +206,8 @@ private:
     frc::CSVLogFile m_batteryLogger{"Battery", "Battery voltage (V)"};
 
     nt::NetworkTableInstance m_inst = nt::NetworkTableInstance::GetDefault();
+    nt::NetworkTableEntry m_batteryVoltageEntry =
+        m_inst.GetEntry("/Diagnostics/Robot/batteryVoltage");
     nt::NetworkTableEntry m_ballsToShootEntry =
         m_inst.GetEntry("/Diagnostics/Robot/ballsToShoot");
 };
