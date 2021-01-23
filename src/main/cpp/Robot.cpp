@@ -36,6 +36,10 @@ Robot::Robot() {
                                  [=] { AutoRightSideShootThree(); });
     m_autonChooser.AddAutonomous("Right Side Shoot Six Balls",
                                  [=] { AutoRightSideShootSix(); });
+    if constexpr (Constants::Robot::kAtHomeChallenge) {
+        m_autonChooser.AddAutonomous("AutoNav Bounce",
+                                     [=] { AutoNavBounce(); });
+    }
 
     frc::DriverStation::GetInstance().SilenceJoystickConnectionWarning(true);
     frc::LiveWindow::GetInstance()->DisableAllTelemetry();

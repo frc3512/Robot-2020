@@ -15,6 +15,8 @@ constexpr int kAppendageStick2Port = 3;
 
 // Joystick axis deadband range
 constexpr double kJoystickDeadband = 0.05;
+
+constexpr bool kAtHomeChallenge = true;
 }  // namespace Robot
 
 namespace Drivetrain {

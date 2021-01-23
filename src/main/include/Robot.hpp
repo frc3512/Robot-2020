@@ -122,6 +122,8 @@ public:
      */
     void AutoNoOp();
 
+    void AutoNavBounce();
+
     /**
      * Shoot three power cells from the initiation line in front of the opposing
      * trench run and intake two balls in the trench run.
