@@ -190,10 +190,6 @@ private:
 #endif
     frc::CSVLogFile m_timingLogger;
 
-    // Controller reference
-    Eigen::Matrix<double, 2, 1> m_r;
-    Eigen::Matrix<double, 2, 1> m_nextR;
-
     Eigen::Matrix<double, Inputs, 1> m_u =
         Eigen::Matrix<double, Inputs, 1>::Zero();
     units::second_t m_lastTime = frc2::Timer::GetFPGATimestamp();
