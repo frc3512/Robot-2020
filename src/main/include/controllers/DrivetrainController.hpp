@@ -251,6 +251,12 @@ private:
     bool m_atReferences = false;
 
     /**
+     * Update "at references" flag based on next reference and current state
+     * estimate.
+     */
+    void UpdateAtReferences();
+
+    /**
      * Converts velocity and curvature of drivetrain into left and right wheel
      * velocities.
      *

@@ -38,7 +38,10 @@ DrivetrainController::DrivetrainController()
                      {ControllerLabel{"Heading", "rad"},
                       ControllerLabel{"Left position", "m"},
                       ControllerLabel{"Right position", "m"}}) {
-    Reset(frc::Pose2d{0_m, 0_m, 0_rad});
+    // Reset the pose estimate to the field's bottom-left corner with the turret
+    // facing in the target's general direction. This is relatively close to the
+    // robot's testing configuration, so the turret won't hit the soft limits.
+    Reset(frc::Pose2d{0_m, 0_m, units::radian_t{wpi::math::pi}});
 
     m_B = frc::NumericalJacobianU<7, 7, 2>(Dynamics,
                                            Eigen::Matrix<double, 7, 1>::Zero(),
@@ -87,7 +90,12 @@ bool DrivetrainController::AtGoal() const {
     frc::Pose2d ref{units::meter_t{m_r(State::kX)},
                     units::meter_t{m_r(State::kY)},
                     units::radian_t{m_r(State::kHeading)}};
-    return m_goal == ref && m_atReferences;
+    // XXX: m_goal and ref aren't compared directly because
+    // Rotation2d::operator== is broken (180 should equal -180 and it doesn't)
+    return m_goal.Translation() == ref.Translation() &&
+           std::hypot(m_goal.Rotation().Cos() - ref.Rotation().Cos(),
+                      m_goal.Rotation().Sin() - ref.Rotation().Sin()) < 1e-9 &&
+           m_atReferences;
 }
 
 void DrivetrainController::Predict(const Eigen::Matrix<double, 2, 1>& u,
@@ -130,6 +138,9 @@ void DrivetrainController::Reset(const frc::Pose2d& initialPose) {
     m_ff.Reset(xHat);
     m_r = xHat;
     m_nextR = xHat;
+    m_goal = initialPose;
+
+    UpdateAtReferences();
 }
 
 Eigen::Matrix<double, 2, 1> DrivetrainController::Update(
@@ -168,16 +179,7 @@ Eigen::Matrix<double, 2, 1> DrivetrainController::Update(
         u = u_fb + m_ff.Calculate(m_nextR);
         u = frc::NormalizeInputVector<2>(u, 12.0);
 
-        Eigen::Matrix<double, 5, 1> error =
-            m_r.block<5, 1>(0, 0) - m_observer.Xhat().block<5, 1>(0, 0);
-        error(State::kHeading) =
-            frc::AngleModulus(units::radian_t{error(State::kHeading)})
-                .to<double>();
-        m_atReferences = std::abs(error(0)) < kPositionTolerance &&
-                         std::abs(error(1)) < kPositionTolerance &&
-                         std::abs(error(2)) < kAngleTolerance &&
-                         std::abs(error(3)) < kVelocityTolerance &&
-                         std::abs(error(4)) < kVelocityTolerance;
+        UpdateAtReferences();
     }
 
     m_r = m_nextR;
@@ -330,4 +332,16 @@ Eigen::Matrix<double, 2, 1> DrivetrainController::GlobalMeasurementModel(
     Eigen::Matrix<double, 2, 1> y;
     y << x(State::kX), x(State::kY);
     return y;
+}
+
+void DrivetrainController::UpdateAtReferences() {
+    Eigen::Matrix<double, 5, 1> error =
+        m_r.block<5, 1>(0, 0) - m_observer.Xhat().block<5, 1>(0, 0);
+    error(State::kHeading) =
+        frc::AngleModulus(units::radian_t{error(State::kHeading)}).to<double>();
+    m_atReferences = std::abs(error(0)) < kPositionTolerance &&
+                     std::abs(error(1)) < kPositionTolerance &&
+                     std::abs(error(2)) < kAngleTolerance &&
+                     std::abs(error(3)) < kVelocityTolerance &&
+                     std::abs(error(4)) < kVelocityTolerance;
 }
