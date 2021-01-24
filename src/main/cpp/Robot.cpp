@@ -141,8 +141,6 @@ void Robot::ControllerPeriodic() {
         turret.ControllerPeriodic();
         flywheel.ControllerPeriodic();
     }
-
-    m_inst.Flush();
 }
 
 void Robot::RunShooterSM() {
