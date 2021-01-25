@@ -213,9 +213,6 @@ private:
     static constexpr auto kMaxV = 12_V / kLinearV;
     static constexpr auto kMaxA = 12_V / kLinearA;
 
-    // Robot radius
-    static constexpr auto rb = kWidth / 2.0;
-
     // TODO: Find a good measurement covariance for global measurements
     static const Eigen::Matrix<double, 2, 2> kGlobalR;
 

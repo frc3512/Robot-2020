@@ -306,9 +306,8 @@ Eigen::Matrix<double, 7, 1> DrivetrainController::Dynamics(
     Eigen::Matrix<double, 7, 1> xdot;
     xdot(0) = v * std::cos(x(State::kHeading));
     xdot(1) = v * std::sin(x(State::kHeading));
-    xdot(2) =
-        ((x(State::kRightVelocity) - x(State::kLeftVelocity)) / (2.0 * rb))
-            .to<double>();
+    xdot(2) = ((x(State::kRightVelocity) - x(State::kLeftVelocity)) / kWidth)
+                  .to<double>();
     xdot.block<4, 1>(3, 0) = A * x.block<4, 1>(3, 0) + B * u;
     return xdot;
 }
