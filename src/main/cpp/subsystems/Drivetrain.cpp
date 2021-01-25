@@ -60,10 +60,6 @@ units::radian_t Drivetrain::GetAngle() const {
     return units::degree_t{-m_gyro.GetAngle()} + m_headingOffset;
 }
 
-units::radians_per_second_t Drivetrain::GetAngularRate() const {
-    return units::degrees_per_second_t{-m_gyro.GetRate()};
-}
-
 units::meter_t Drivetrain::GetLeftPosition() const {
     return units::meter_t{m_leftEncoder.GetDistance()};
 }

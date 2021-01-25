@@ -60,11 +60,6 @@ public:
     units::radian_t GetAngle() const;
 
     /**
-     * Returns gyro angular rate.
-     */
-    units::radians_per_second_t GetAngularRate() const;
-
-    /**
      * Returns left encoder displacement.
      */
     units::meter_t GetLeftPosition() const;
