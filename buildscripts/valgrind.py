@@ -19,4 +19,4 @@ with open("frcUserProgramTest") as input:
 with open("frcUserProgramTest", "w") as output:
     output.write(content.replace("exec ", "valgrind "))
 
-subprocess.run(["./frcUserProgramTest"], shell=True)
+subprocess.run(["./frcUserProgramTest"], shell=True, check=True)

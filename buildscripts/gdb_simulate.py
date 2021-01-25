@@ -12,7 +12,7 @@ elif platform.system() == "Windows":
     task_os = "windows"
 
 # Build simulation
-subprocess.run(["./gradlew simulateExternalCpp"], shell=True)
+subprocess.run(["./gradlew simulateExternalCpp"], shell=True, check=True)
 
 # Configure HALSIM extension
 extensions = [
@@ -33,4 +33,4 @@ with open("frcUserProgram") as input:
 with open("frcUserProgram", "w") as output:
     output.write(content.replace("exec ", "gdb "))
 
-subprocess.run(["./frcUserProgram"], shell=True)
+subprocess.run(["./frcUserProgram"], shell=True, check=True)

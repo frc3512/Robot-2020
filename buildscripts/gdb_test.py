@@ -16,7 +16,8 @@ subprocess.run([
     "./gradlew installFrcUserProgramTest" + task_os.capitalize() +
     "x86-64DebugGoogleTestExe"
 ],
-               shell=True)
+               shell=True,
+               check=True)
 
 # Go to directory for tests debug build
 os.chdir(f"build/install/frcUserProgramTest/{task_os}x86-64/debug")
@@ -27,4 +28,4 @@ with open("frcUserProgramTest") as input:
 with open("frcUserProgramTest", "w") as output:
     output.write(content.replace("exec ", "gdb "))
 
-subprocess.run(["./frcUserProgramTest"], shell=True)
+subprocess.run(["./frcUserProgramTest"], shell=True, check=True)
