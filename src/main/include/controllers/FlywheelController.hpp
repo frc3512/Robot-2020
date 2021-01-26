@@ -111,6 +111,12 @@ private:
 
     bool m_atGoal = false;
 
+    /**
+     * Update "at goal" flag based on next reference and current state estimate.
+     *
+     * This function applies hysteresis so AtGoal() doesn't chatter between true
+     * and false.
+     */
     void UpdateAtGoal();
 };
 }  // namespace frc3512

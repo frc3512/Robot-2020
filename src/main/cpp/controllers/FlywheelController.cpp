@@ -70,6 +70,7 @@ const frc::LinearSystem<1, 1, 1>& FlywheelController::GetPlant() const {
 }
 
 void FlywheelController::UpdateAtGoal() {
+    // m_nextR is used here so AtGoal() returns false after calling SetGoal()
     units::radians_per_second_t error{m_nextR(State::kAngularVelocity) -
                                       m_observer.Xhat(State::kAngularVelocity)};
     auto absError = units::math::abs(error);
