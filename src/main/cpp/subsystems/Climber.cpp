@@ -21,7 +21,9 @@ using namespace frc3512::Constants::Robot;
 
 Climber::Climber(Turret& turret) : m_turret{turret} {
     SetCANSparkMaxBusUsage(m_elevator, Usage::kPositionOnly);
+    m_elevator.SetSmartCurrentLimit(40);
     SetCANSparkMaxBusUsage(m_traverser, Usage::kMinimal);
+    m_traverser.SetSmartCurrentLimit(40);
 }
 
 units::meter_t Climber::GetElevatorPosition() {

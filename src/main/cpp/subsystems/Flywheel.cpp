@@ -31,7 +31,9 @@ Flywheel::Flywheel(Drivetrain& drivetrain)
                               {ControllerLabel{"Angular velocity", "rad/s"}}),
       m_drivetrain(drivetrain) {
     SetCANSparkMaxBusUsage(m_leftGrbx, Usage::kMinimal);
+    m_leftGrbx.SetSmartCurrentLimit(40);
     SetCANSparkMaxBusUsage(m_rightGrbx, Usage::kMinimal);
+    m_rightGrbx.SetSmartCurrentLimit(40);
 
     // Ensures CANSparkMax::Get() returns an initialized value
     m_leftGrbx.Set(0.0);
