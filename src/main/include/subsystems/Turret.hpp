@@ -16,6 +16,7 @@
 #include <units/current.h>
 #include <units/voltage.h>
 
+#include "ADCInput.hpp"
 #include "Constants.hpp"
 #include "controllers/TurretController.hpp"
 #include "rev/CANSparkMax.hpp"
@@ -149,6 +150,9 @@ private:
     frc::KalmanFilter<2, 1, 1> m_observer{
         m_plant, {0.21745, 0.28726}, {0.01}, Constants::kDt};
     TurretController m_controller;
+
+    ADCInput m_leftLimitSwitch{Constants::Turret::kLeftHallPort};
+    ADCInput m_rightLimitSwitch{Constants::Turret::kRightHallPort};
 
     Vision& m_vision;
     Drivetrain& m_drivetrain;

@@ -98,6 +98,13 @@ void Turret::RobotPeriodic() {
     m_inputVoltageEntry.SetDouble(m_controller.GetInputs()(0));
     m_angleOutputEntry.SetDouble(GetAngle().to<double>());
 
+    if (m_leftLimitSwitch.Get()) {
+        SetCWLimit(GetAngle());
+    }
+    if (m_rightLimitSwitch.Get()) {
+        SetCCWLimit(GetAngle());
+    }
+
     int controlMode = static_cast<int>(m_controller.GetControlMode());
     if (controlMode == 0) {
         m_controlModeEntry.SetString("Manual");
