@@ -44,6 +44,14 @@ public:
         return CANEncoder{*this, sensorType, countsPerRev};
     }
 
+    CANError SetSmartCurrentLimit(unsigned int limit) { return CANError::kOk; }
+
+    CANError SetSmartCurrentLimit(unsigned int smallLimit,
+                                  unsigned int freeLimit,
+                                  unsigned int limitRPM = 20000) {
+        return CANError::kOk;
+    }
+
 private:
     double m_speed = 0.0;
 };
