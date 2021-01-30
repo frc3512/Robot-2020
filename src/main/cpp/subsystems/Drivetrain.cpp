@@ -28,6 +28,11 @@ Drivetrain::Drivetrain()
 
     m_drive.SetDeadband(kJoystickDeadband);
 
+    m_leftMaster.SetSmartCurrentLimit(60);
+    m_leftSlave.SetSmartCurrentLimit(60);
+    m_rightMaster.SetSmartCurrentLimit(60);
+    m_rightSlave.SetSmartCurrentLimit(60);
+
     // Ensures CANSparkMax::Get() returns an initialized value
     m_leftGrbx.Set(0.0);
     m_rightGrbx.Set(0.0);
