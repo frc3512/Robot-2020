@@ -11,7 +11,6 @@
 #include <frc/StateSpaceUtil.h>
 #include <frc/controller/LinearQuadraticRegulator.h>
 #include <frc/kinematics/DifferentialDriveKinematics.h>
-#include <frc/system/NumericalJacobian.h>
 #include <frc/system/plant/DCMotor.h>
 #include <frc/system/plant/LinearSystemId.h>
 #include <frc/trajectory/TrajectoryGenerator.h>
@@ -24,6 +23,8 @@ using namespace frc3512::Constants;
 
 const Eigen::Matrix<double, 2, 2> DrivetrainController::kGlobalR =
     frc::MakeCovMatrix(0.05, 0.05);
+
+const frc::LinearSystem<2, 2, 2> DrivetrainController::kPlant{GetPlant()};
 
 DrivetrainController::DrivetrainController()
     : ControllerBase("Drivetrain",
@@ -43,10 +44,7 @@ DrivetrainController::DrivetrainController()
     // robot's testing configuration, so the turret won't hit the soft limits.
     Reset(frc::Pose2d{0_m, 0_m, units::radian_t{wpi::math::pi}});
 
-    m_B = frc::NumericalJacobianU<7, 7, 2>(Dynamics,
-                                           Eigen::Matrix<double, 7, 1>::Zero(),
-                                           Eigen::Matrix<double, 2, 1>::Zero())
-              .block<5, 2>(0, 0);
+    m_B = JacobianU(Eigen::Matrix<double, 2, 1>::Zero());
 
     m_trajectoryTimeElapsed.Start();
 }
@@ -197,7 +195,7 @@ Eigen::Matrix<double, 2, 1> DrivetrainController::Update(
     return u;
 }
 
-frc::LinearSystem<2, 2, 2> DrivetrainController::GetPlant() const {
+frc::LinearSystem<2, 2, 2> DrivetrainController::GetPlant() {
     return frc::LinearSystemId::IdentifyDrivetrainSystem(kLinearV, kLinearA,
                                                          kAngularV, kAngularA);
 }
@@ -205,11 +203,9 @@ frc::LinearSystem<2, 2, 2> DrivetrainController::GetPlant() const {
 frc::TrajectoryConfig DrivetrainController::MakeTrajectoryConfig() {
     frc::TrajectoryConfig config{kMaxV, kMaxA - 14.5_mps_sq};
 
-    auto plant = frc::LinearSystemId::IdentifyDrivetrainSystem(
-        kLinearV, kLinearA, kAngularV, kAngularA);
     frc::DifferentialDriveKinematics kinematics{kWidth};
     frc::DifferentialDriveVelocitySystemConstraint systemConstraint{
-        plant, kinematics, 8_V};
+        kPlant, kinematics, 8_V};
     config.AddConstraint(systemConstraint);
 
     return config;
@@ -230,12 +226,7 @@ Eigen::Matrix<double, 2, 5> DrivetrainController::ControllerGainForState(
         return Eigen::Matrix<double, 2, 5>::Zero();
     }
 
-    Eigen::Matrix<double, 5, 5> A =
-        frc::NumericalJacobianX<7, 7, 2>(Dynamics, x0,
-                                         Eigen::Matrix<double, 2, 1>::Zero())
-            .block<5, 5>(0, 0);
-
-    return frc::LinearQuadraticRegulator<5, 2>(A, m_B, kControllerQ,
+    return frc::LinearQuadraticRegulator<5, 2>(JacobianX(x0), m_B, kControllerQ,
                                                kControllerR, kDt)
         .K();
 }
@@ -263,14 +254,9 @@ Eigen::Matrix<double, 2, 1> DrivetrainController::Controller(
             x0(State::kRightVelocity) += 1e-3;
         }
 
-        Eigen::Matrix<double, 5, 5> A =
-            frc::NumericalJacobianX<7, 7, 2>(
-                Dynamics, x0, Eigen::Matrix<double, 2, 1>::Zero())
-                .block<5, 5>(0, 0);
-
         Eigen::Matrix<double, 5, 5> discA;
         Eigen::Matrix<double, 5, 2> discB;
-        frc::DiscretizeAB<5, 2>(A, m_B, kDt, &discA, &discB);
+        frc::DiscretizeAB<5, 2>(JacobianX(x0), m_B, kDt, &discA, &discB);
         fmt::print(stderr, "A = {}\n", discA);
         fmt::print(stderr, "B = {}\n", discB);
     }
@@ -292,14 +278,11 @@ Eigen::Matrix<double, 2, 1> DrivetrainController::Controller(
 Eigen::Matrix<double, 7, 1> DrivetrainController::Dynamics(
     const Eigen::Matrix<double, 7, 1>& x,
     const Eigen::Matrix<double, 2, 1>& u) {
-    auto plant = frc::LinearSystemId::IdentifyDrivetrainSystem(
-        kLinearV, kLinearA, kAngularV, kAngularA);
-
     Eigen::Matrix<double, 4, 2> B;
-    B.block<2, 2>(0, 0) = plant.B();
+    B.block<2, 2>(0, 0) = kPlant.B();
     B.block<2, 2>(2, 0).setZero();
     Eigen::Matrix<double, 4, 4> A;
-    A.block<2, 2>(0, 0) = plant.A();
+    A.block<2, 2>(0, 0) = kPlant.A();
     A.block<2, 2>(2, 0).setIdentity();
     A.block<4, 2>(0, 2).setZero();
 
@@ -312,6 +295,30 @@ Eigen::Matrix<double, 7, 1> DrivetrainController::Dynamics(
                   .to<double>();
     xdot.block<4, 1>(3, 0) = A * x.block<4, 1>(3, 0) + B * u;
     return xdot;
+}
+
+Eigen::Matrix<double, 5, 5> DrivetrainController::JacobianX(
+    const Eigen::Matrix<double, 7, 1>& x) {
+    // clang-format off
+    return frc::MakeMatrix<5, 5>(
+        0.0, 0.0, 0.0, 0.5, 0.5,
+        0.0, 0.0, (x(State::kLeftVelocity) + x(State::kRightVelocity)) / 2.0, 0.0, 0.0,
+        0.0, 0.0, 0.0, -1.0 / kWidth.to<double>(), 1.0 / kWidth.to<double>(),
+        0.0, 0.0, 0.0, kPlant.A(0, 0), kPlant.A(0, 1),
+        0.0, 0.0, 0.0, kPlant.A(1, 0), kPlant.A(1, 1));
+    // clang-format on
+}
+
+Eigen::Matrix<double, 5, 2> DrivetrainController::JacobianU(
+    const Eigen::Matrix<double, 2, 1>& u) {
+    // clang-format off
+    return frc::MakeMatrix<5, 2>(
+        0.0, 0.0,
+        0.0, 0.0,
+        0.0, 0.0,
+        kPlant.B(0, 0), kPlant.B(0, 1),
+        kPlant.B(1, 0), kPlant.B(1, 1));
+    // clang-format on
 }
 
 Eigen::Matrix<double, 3, 1> DrivetrainController::LocalMeasurementModel(

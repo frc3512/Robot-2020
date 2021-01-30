@@ -170,7 +170,7 @@ public:
     /**
      * Returns the drivetrain's plant.
      */
-    frc::LinearSystem<2, 2, 2> GetPlant() const;
+    static frc::LinearSystem<2, 2, 2> GetPlant();
 
     /**
      * Returns a TrajectoryConfig containing a differential drive dynamics
@@ -194,6 +194,20 @@ public:
         const Eigen::Matrix<double, 7, 1>& x,
         const Eigen::Matrix<double, 2, 1>& u);
 
+    /**
+     * Returns the Jacobian of the pose and velocity dynamics with respect to
+     * the state vector.
+     */
+    static Eigen::Matrix<double, 5, 5> JacobianX(
+        const Eigen::Matrix<double, 7, 1>& x);
+
+    /**
+     * Returns the Jacobian of the pose and velocity dynamics with respect to
+     * the input vector.
+     */
+    static Eigen::Matrix<double, 5, 2> JacobianU(
+        const Eigen::Matrix<double, 2, 1>& u);
+
     static Eigen::Matrix<double, 3, 1> LocalMeasurementModel(
         const Eigen::Matrix<double, 7, 1>& x,
         const Eigen::Matrix<double, 2, 1>& u);
@@ -215,6 +229,8 @@ private:
 
     // TODO: Find a good measurement covariance for global measurements
     static const Eigen::Matrix<double, 2, 2> kGlobalR;
+
+    static const frc::LinearSystem<2, 2, 2> kPlant;
 
     // Design observer. See the enums above for lists of the states, inputs, and
     // outputs.
