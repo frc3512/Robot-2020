@@ -193,17 +193,17 @@ public:
     void ControllerPeriodic();
 
 private:
-    rev::CANSparkMax m_leftMaster{Constants::Drivetrain::kLeftMasterPort,
+    rev::CANSparkMax m_leftLeader{Constants::Drivetrain::kLeftLeaderPort,
                                   rev::CANSparkMax::MotorType::kBrushless};
-    rev::CANSparkMax m_leftSlave{Constants::Drivetrain::kLeftSlavePort,
-                                 rev::CANSparkMax::MotorType::kBrushless};
-    frc::SpeedControllerGroup m_leftGrbx{m_leftMaster, m_leftSlave};
+    rev::CANSparkMax m_leftFollower{Constants::Drivetrain::kLeftFollowerPort,
+                                    rev::CANSparkMax::MotorType::kBrushless};
+    frc::SpeedControllerGroup m_leftGrbx{m_leftLeader, m_leftFollower};
 
-    rev::CANSparkMax m_rightMaster{Constants::Drivetrain::kRightMasterPort,
+    rev::CANSparkMax m_rightLeader{Constants::Drivetrain::kRightLeaderPort,
                                    rev::CANSparkMax::MotorType::kBrushless};
-    rev::CANSparkMax m_rightSlave{Constants::Drivetrain::kRightSlavePort,
-                                  rev::CANSparkMax::MotorType::kBrushless};
-    frc::SpeedControllerGroup m_rightGrbx{m_rightMaster, m_rightSlave};
+    rev::CANSparkMax m_rightFollower{Constants::Drivetrain::kRightFollowerPort,
+                                     rev::CANSparkMax::MotorType::kBrushless};
+    frc::SpeedControllerGroup m_rightGrbx{m_rightLeader, m_rightFollower};
 
     frc::Encoder m_leftEncoder{Constants::Drivetrain::kLeftEncoderA,
                                Constants::Drivetrain::kLeftEncoderB};

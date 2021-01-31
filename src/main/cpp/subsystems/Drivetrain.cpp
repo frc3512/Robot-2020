@@ -21,17 +21,17 @@ Drivetrain::Drivetrain()
                       frc::DCMotor::NEO(2),
                       DrivetrainController::kDriveGearRatio,
                       DrivetrainController::kWheelRadius} {
-    SetCANSparkMaxBusUsage(m_leftMaster, Usage::kMinimal);
-    SetCANSparkMaxBusUsage(m_leftSlave, Usage::kMinimal);
-    SetCANSparkMaxBusUsage(m_rightMaster, Usage::kMinimal);
-    SetCANSparkMaxBusUsage(m_rightSlave, Usage::kMinimal);
+    SetCANSparkMaxBusUsage(m_leftLeader, Usage::kMinimal);
+    SetCANSparkMaxBusUsage(m_leftFollower, Usage::kMinimal);
+    SetCANSparkMaxBusUsage(m_rightLeader, Usage::kMinimal);
+    SetCANSparkMaxBusUsage(m_rightFollower, Usage::kMinimal);
 
     m_drive.SetDeadband(kJoystickDeadband);
 
-    m_leftMaster.SetSmartCurrentLimit(60);
-    m_leftSlave.SetSmartCurrentLimit(60);
-    m_rightMaster.SetSmartCurrentLimit(60);
-    m_rightSlave.SetSmartCurrentLimit(60);
+    m_leftLeader.SetSmartCurrentLimit(60);
+    m_leftFollower.SetSmartCurrentLimit(60);
+    m_rightLeader.SetSmartCurrentLimit(60);
+    m_rightFollower.SetSmartCurrentLimit(60);
 
     // Ensures CANSparkMax::Get() returns an initialized value
     m_leftGrbx.Set(0.0);

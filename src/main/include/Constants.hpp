@@ -19,10 +19,10 @@ constexpr double kJoystickDeadband = 0.05;
 
 namespace Drivetrain {
 // Motor Ports
-constexpr int kLeftMasterPort = 16;
-constexpr int kLeftSlavePort = 1;
-constexpr int kRightMasterPort = 14;
-constexpr int kRightSlavePort = 15;
+constexpr int kLeftLeaderPort = 16;
+constexpr int kLeftFollowerPort = 1;
+constexpr int kRightLeaderPort = 14;
+constexpr int kRightFollowerPort = 15;
 
 // Encoder Ports
 constexpr int kLeftEncoderA = 0;
