@@ -4,8 +4,9 @@
 
 #include "frc/geometry/Velocity2d.h"
 
-#include <units/math.h>
 #include <wpi/json.h>
+
+#include "units/math.h"
 
 using namespace frc;
 

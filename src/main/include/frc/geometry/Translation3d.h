@@ -4,10 +4,9 @@
 
 #pragma once
 
-#include <units/length.h>
-#include <units/math.h>
-
 #include "frc/geometry/Rotation2d.h"
+#include "units/length.h"
+#include "units/math.h"
 
 namespace wpi {
 class json;

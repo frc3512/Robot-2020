@@ -9,12 +9,10 @@ cppSrcFileInclude {
 }
 
 includeOtherLibs {
-  ^wpi/
-}
-
-includeProject {
-  ^drake/
   ^Eigen/
+  ^drake/
+  ^fmt/
   ^units/
   ^unsupported/
+  ^wpi/
 }

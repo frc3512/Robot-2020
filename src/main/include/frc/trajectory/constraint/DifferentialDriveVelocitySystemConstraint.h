@@ -4,12 +4,11 @@
 
 #pragma once
 
-#include <units/velocity.h>
-#include <units/voltage.h>
-
 #include "frc/kinematics/DifferentialDriveKinematics.h"
 #include "frc/system/LinearSystem.h"
 #include "frc/trajectory/constraint/TrajectoryConstraint.h"
+#include "units/velocity.h"
+#include "units/voltage.h"
 
 namespace frc {
 /**

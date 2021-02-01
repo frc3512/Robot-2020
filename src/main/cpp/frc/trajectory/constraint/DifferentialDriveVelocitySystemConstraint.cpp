@@ -7,8 +7,9 @@
 #include <algorithm>
 #include <limits>
 
-#include <units/acceleration.h>
 #include <wpi/MathExtras.h>
+
+#include "units/acceleration.h"
 
 using namespace frc;
 
