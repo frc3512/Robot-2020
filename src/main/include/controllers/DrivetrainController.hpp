@@ -9,8 +9,8 @@
 
 #include <frc/controller/ControlAffinePlantInversionFeedforward.h>
 #include <frc/estimator/AngleStatistics.h>
+#include <frc/estimator/ExtendedKalmanFilter.hpp>
 #include <frc/estimator/KalmanFilterLatencyCompensator.h>
-#include <frc/estimator/UnscentedKalmanFilter.h>
 #include <frc/geometry/Pose2d.h>
 #include <frc/system/LinearSystem.h>
 #include <frc/trajectory/Trajectory.h>
@@ -234,19 +234,16 @@ private:
 
     // Design observer. See the enums above for lists of the states, inputs, and
     // outputs.
-    frc::UnscentedKalmanFilter<7, 2, 3> m_observer{
+    frc::ExtendedKalmanFilter<7, 2, 3> m_observer{
         Dynamics,
         LocalMeasurementModel,
         {0.002, 0.002, 0.0001, 1.5, 1.5, 0.5, 0.5},
         {0.0001, 0.005, 0.005},
-        frc::AngleMean<7, 7>(2),
-        frc::AngleMean<3, 7>(0),
-        frc::AngleResidual<7>(2),
         frc::AngleResidual<3>(0),
         frc::AngleAdd<7>(2),
         Constants::kDt};
     frc::KalmanFilterLatencyCompensator<7, 2, 3,
-                                        frc::UnscentedKalmanFilter<7, 2, 3>>
+                                        frc::ExtendedKalmanFilter<7, 2, 3>>
         m_latencyComp;
 
     frc::ControlAffinePlantInversionFeedforward<7, 2> m_ff{Dynamics,
