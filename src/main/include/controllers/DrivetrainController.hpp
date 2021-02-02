@@ -132,6 +132,11 @@ public:
         const frc::TrajectoryConfig& config = MakeTrajectoryConfig());
 
     /**
+     * Returns true if drivetrain controller has a trajectory to follow.
+     */
+    bool HaveTrajectory() const;
+
+    /**
      * Abort trajectory tracking.
      */
     void AbortTrajectories();

@@ -110,17 +110,21 @@ void Drivetrain::ControllerPeriodic() {
     y << frc::AngleModulus(GetAngle()).to<double>(),
         GetLeftPosition().to<double>(), GetRightPosition().to<double>();
 
-    Eigen::Matrix<double, 2, 1> u = m_controller->UpdateAndLog(y);
+    Eigen::Matrix<double, 2, 1> u;
 
-    if (m_controller->IsClosedLoop()) {
+    if (m_controller->HaveTrajectory()) {
+        u = m_controller->UpdateAndLog(y);
+
         if (!AtGoal()) {
             m_leftGrbx.SetVoltage(units::volt_t{u(0)});
             m_rightGrbx.SetVoltage(units::volt_t{u(1)});
         } else {
             m_leftGrbx.SetVoltage(0_V);
             m_rightGrbx.SetVoltage(0_V);
-            m_controller->SetClosedLoop(false);
         }
+    } else {
+        // TODO: Set to teleop voltages
+        u = m_controller->UpdateAndLog(y);
     }
 
     if constexpr (frc::RobotBase::IsSimulation()) {

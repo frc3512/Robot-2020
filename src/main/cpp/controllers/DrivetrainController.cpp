@@ -60,7 +60,6 @@ void DrivetrainController::AddTrajectory(
     // Otherwise, let the timer continue on the current trajectory.
     if (m_trajectories.size() == 1) {
         m_trajectoryTimeElapsed.Reset();
-        SetClosedLoop(true);
     }
 }
 
@@ -75,14 +74,14 @@ void DrivetrainController::AddTrajectory(
     // Otherwise, let the timer continue on the current trajectory.
     if (m_trajectories.size() == 1) {
         m_trajectoryTimeElapsed.Reset();
-        SetClosedLoop(true);
     }
 }
 
-void DrivetrainController::AbortTrajectories() {
-    SetClosedLoop(false);
-    m_trajectories.reset();
+bool DrivetrainController::HaveTrajectory() const {
+    return m_trajectories.size() > 0;
 }
+
+void DrivetrainController::AbortTrajectories() { m_trajectories.reset(); }
 
 bool DrivetrainController::AtGoal() const {
     frc::Pose2d ref{units::meter_t{m_r(State::kX)},
@@ -145,21 +144,9 @@ Eigen::Matrix<double, 2, 1> DrivetrainController::Update(
     Eigen::Matrix<double, 2, 1> u;
     u << 0.0, 0.0;
 
-    if (IsClosedLoop()) {
-        frc::Trajectory::State ref;
-
-        // Only sample the trajectory if one was created.
-        {
-            if (m_trajectories.size() > 0) {
-                ref = m_trajectories.front().Sample(
-                    m_trajectoryTimeElapsed.Get());
-            } else {
-                ref.pose = frc::Pose2d(
-                    units::meter_t{m_observer.Xhat(State::kX)},
-                    units::meter_t{m_observer.Xhat(State::kY)},
-                    units::radian_t{m_observer.Xhat(State::kHeading)});
-            }
-        }
+    if (HaveTrajectory()) {
+        frc::Trajectory::State ref =
+            m_trajectories.front().Sample(m_trajectoryTimeElapsed.Get());
         auto [vlRef, vrRef] =
             ToWheelVelocities(ref.velocity, ref.curvature, kWidth);
 
@@ -178,11 +165,11 @@ Eigen::Matrix<double, 2, 1> DrivetrainController::Update(
     m_r = m_nextR;
     m_observer.Predict(u, dt);
 
-    if (IsClosedLoop() && AtGoal() && m_trajectories.size() > 0) {
+    if (AtGoal() && HaveTrajectory()) {
         m_trajectories.pop_front();
         m_trajectoryTimeElapsed.Reset();
 
-        if (m_trajectories.size() > 0) {
+        if (HaveTrajectory()) {
             m_goal = m_trajectories.front().States().back().pose;
         }
     }

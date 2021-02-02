@@ -103,16 +103,6 @@ public:
     bool IsEnabled() const { return m_isEnabled; }
 
     /**
-     * Set whether controller should run in closed-loop.
-     */
-    void SetClosedLoop(bool isClosedLoop) { m_isClosedLoop = isClosedLoop; }
-
-    /**
-     * Returns true if controller is running in closed-loop.
-     */
-    bool IsClosedLoop() const { return m_isClosedLoop; }
-
-    /**
      * Returns the most recent timestep.
      */
     units::second_t GetDt() const { return m_dt; }
@@ -204,7 +194,6 @@ private:
     units::second_t m_startTime = frc2::Timer::GetFPGATimestamp();
     units::second_t m_dt = Constants::kDt;
     bool m_isEnabled = false;
-    bool m_isClosedLoop = true;
 };
 
 }  // namespace frc3512

@@ -106,20 +106,11 @@ public:
     units::radians_per_second_t GetReferenceForPose(
         const frc::Pose2d& drivetrainPose) const;
 
-    void DisabledInit() override {
-        m_controller.Disable();
-        m_controller.SetClosedLoop(false);
-    }
+    void DisabledInit() override { m_controller.Disable(); }
 
-    void AutonomousInit() override {
-        m_controller.Enable();
-        m_controller.SetClosedLoop(true);
-    }
+    void AutonomousInit() override { m_controller.Enable(); }
 
-    void TeleopInit() override {
-        m_controller.Enable();
-        m_controller.SetClosedLoop(true);
-    }
+    void TeleopInit() override { m_controller.Enable(); }
 
     void RobotPeriodic() override;
 
