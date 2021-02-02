@@ -88,12 +88,7 @@ bool DrivetrainController::AtGoal() const {
     frc::Pose2d ref{units::meter_t{m_r(State::kX)},
                     units::meter_t{m_r(State::kY)},
                     units::radian_t{m_r(State::kHeading)}};
-    // XXX: m_goal and ref aren't compared directly because
-    // Rotation2d::operator== is broken (180 should equal -180 and it doesn't)
-    return m_goal.Translation() == ref.Translation() &&
-           std::hypot(m_goal.Rotation().Cos() - ref.Rotation().Cos(),
-                      m_goal.Rotation().Sin() - ref.Rotation().Sin()) < 1e-9 &&
-           m_atReferences;
+    return m_goal == ref && m_atReferences;
 }
 
 void DrivetrainController::Predict(const Eigen::Matrix<double, 2, 1>& u,
