@@ -218,9 +218,10 @@ Eigen::Matrix<double, 2, 1> DrivetrainController::Controller(
     const Eigen::Matrix<double, 7, 1>& r) {
     // This implements the linear time-varying differential drive controller in
     // theorem 8.6.4 of https://tavsys.net/controls-in-frc.
+    Eigen::Matrix<double, 2, 5> K;
 
     try {
-        m_K = ControllerGainForState(x);
+        K = ControllerGainForState(x);
     } catch (const std::runtime_error& e) {
         fmt::print(stderr, "{}\n", e.what());
 
@@ -254,7 +255,7 @@ Eigen::Matrix<double, 2, 1> DrivetrainController::Controller(
         r.block<5, 1>(0, 0) - x.block<5, 1>(0, 0);
     error(State::kHeading) =
         frc::AngleModulus(units::radian_t{error(State::kHeading)}).to<double>();
-    return m_K * inRobotFrame * error;
+    return K * inRobotFrame * error;
 }
 
 Eigen::Matrix<double, 7, 1> DrivetrainController::Dynamics(

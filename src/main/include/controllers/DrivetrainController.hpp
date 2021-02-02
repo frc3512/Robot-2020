@@ -256,8 +256,6 @@ private:
 
     Eigen::Matrix<double, 5, 2> m_B;
 
-    Eigen::Matrix<double, 2, 5> m_K = Eigen::Matrix<double, 2, 5>::Zero();
-
     // Controller reference
     Eigen::Matrix<double, 7, 1> m_r;
     Eigen::Matrix<double, 7, 1> m_nextR;
