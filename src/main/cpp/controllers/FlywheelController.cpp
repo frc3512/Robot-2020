@@ -48,7 +48,7 @@ Eigen::Matrix<double, 1, 1> FlywheelController::Update(
 
     // To conserve battery when the flywheel doesn't have to be spinning, don't
     // apply a negative voltage to slow down.
-    if (m_nextR(0) == 0.0 || !IsEnabled()) {
+    if (m_nextR(0) == 0.0) {
         m_lqr.Calculate(m_observer.Xhat(), m_r);
         u(0) = 0.0;
     } else {
