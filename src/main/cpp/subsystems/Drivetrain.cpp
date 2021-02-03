@@ -153,8 +153,9 @@ void Drivetrain::ControllerPeriodic() {
         // Update previous u stored in the controller
         u = m_controller.Calculate(m_observer.Xhat());
 
-        // TODO: Set to teleop voltages
-        u << 0.0, 0.0;
+        // Run observer predict with inputs from teleop
+        u << m_leftGrbx.Get() * frc::RobotController::GetInputVoltage(),
+            m_rightGrbx.Get() * frc::RobotController::GetInputVoltage();
     }
 
     Log(m_controller.GetReferences(), m_observer.Xhat(), u, y);
