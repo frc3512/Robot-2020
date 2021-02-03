@@ -1,4 +1,4 @@
-// Copyright (c) 2020 FRC Team 3512. All Rights Reserved.
+// Copyright (c) 2020-2021 FRC Team 3512. All Rights Reserved.
 
 #include "subsystems/Vision.hpp"
 
@@ -15,7 +15,7 @@
 using namespace frc3512;
 
 const frc::Transform2d Vision::kCameraInGlobalToTurretInGlobal{
-    frc::Pose2d{}, frc::Pose2d{0_in, -1.0 * 3_in, 0_rad}};
+    frc::Pose2d{}, frc::Pose2d{0_in, -3_in, 0_rad}};
 
 Vision::Vision() {
     m_listenerHandle =
