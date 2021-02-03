@@ -11,6 +11,7 @@
 #include <units/math.h>
 
 #include "CANSparkMaxUtil.hpp"
+#include "CurvatureDrive.hpp"
 #include "EigenFormat.hpp"
 
 using namespace frc3512;

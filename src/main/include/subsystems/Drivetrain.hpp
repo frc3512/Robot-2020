@@ -29,7 +29,6 @@
 #include <units/velocity.h>
 
 #include "Constants.hpp"
-#include "CurvatureDrive.hpp"
 #include "controllers/DrivetrainController.hpp"
 #include "rev/CANSparkMax.hpp"
 #include "subsystems/ControlledSubsystemBase.hpp"
