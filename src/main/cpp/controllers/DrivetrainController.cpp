@@ -7,7 +7,6 @@
 
 #include <fmt/core.h>
 #include <frc/MathUtil.h>
-#include <frc/RobotController.h>
 #include <frc/controller/LinearQuadraticRegulator.h>
 #include <frc/kinematics/DifferentialDriveKinematics.h>
 #include <frc/system/plant/DCMotor.h>
