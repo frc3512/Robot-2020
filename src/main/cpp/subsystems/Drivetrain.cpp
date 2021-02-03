@@ -38,8 +38,6 @@ Drivetrain::Drivetrain()
     SetCANSparkMaxBusUsage(m_rightLeader, Usage::kMinimal);
     SetCANSparkMaxBusUsage(m_rightFollower, Usage::kMinimal);
 
-    m_drive.SetDeadband(kJoystickDeadband);
-
     m_leftLeader.SetSmartCurrentLimit(60);
     m_leftFollower.SetSmartCurrentLimit(60);
     m_rightLeader.SetSmartCurrentLimit(60);
@@ -50,7 +48,6 @@ Drivetrain::Drivetrain()
     m_rightGrbx.Set(0.0);
 
     m_leftGrbx.SetInverted(true);
-    m_drive.SetRightSideInverted(false);
 
     m_leftEncoder.SetSamplesToAverage(10);
     m_rightEncoder.SetSamplesToAverage(10);
@@ -227,7 +224,6 @@ void Drivetrain::TeleopInit() {
     m_controller.AbortTrajectories();
 
     Enable();
-    m_drive.SetSafetyEnabled(true);
 }
 
 void Drivetrain::RobotPeriodic() {
@@ -255,12 +251,14 @@ void Drivetrain::TeleopPeriodic() {
     static frc::Joystick driveStick1{kDriveStick1Port};
     static frc::Joystick driveStick2{kDriveStick2Port};
 
-    double y = driveStick1.GetY();
-    double x = driveStick2.GetX();
+    double y = ApplyDeadband(driveStick1.GetY(), kJoystickDeadband);
+    double x = ApplyDeadband(driveStick2.GetX(), kJoystickDeadband);
 
     if (driveStick1.GetRawButton(1)) {
         y *= 0.5;
         x *= 0.5;
     }
-    m_drive.CurvatureDrive(y, x, driveStick2.GetRawButton(2));
+    auto [left, right] = CurvatureDrive(y, x, driveStick2.GetRawButton(2));
+    m_leftGrbx.SetVoltage(left * 12_V);
+    m_rightGrbx.SetVoltage(right * 12_V);
 }

@@ -8,7 +8,6 @@
 #include <frc/ADXRS450_Gyro.h>
 #include <frc/Encoder.h>
 #include <frc/SpeedControllerGroup.h>
-#include <frc/drive/DifferentialDrive.h>
 #include <frc/estimator/AngleStatistics.h>
 #include <frc/estimator/ExtendedKalmanFilter.hpp>
 #include <frc/estimator/KalmanFilterLatencyCompensator.h>
@@ -30,6 +29,7 @@
 #include <units/velocity.h>
 
 #include "Constants.hpp"
+#include "CurvatureDrive.hpp"
 #include "controllers/DrivetrainController.hpp"
 #include "rev/CANSparkMax.hpp"
 #include "subsystems/ControlledSubsystemBase.hpp"
@@ -180,15 +180,9 @@ public:
      */
     units::ampere_t GetCurrentDraw() const;
 
-    void DisabledInit() override {
-        Disable();
-        m_drive.SetSafetyEnabled(true);
-    }
+    void DisabledInit() override { Disable(); }
 
-    void AutonomousInit() override {
-        Enable();
-        m_drive.SetSafetyEnabled(false);
-    }
+    void AutonomousInit() override { Enable(); }
 
     void TeleopInit() override;
 
@@ -219,8 +213,6 @@ private:
 
     frc::Encoder m_rightEncoder{Constants::Drivetrain::kRightEncoderA,
                                 Constants::Drivetrain::kRightEncoderB};
-
-    frc::DifferentialDrive m_drive{m_leftGrbx, m_rightGrbx};
 
     frc::ADXRS450_Gyro m_gyro;
     units::radian_t m_headingOffset = 0_rad;
