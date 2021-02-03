@@ -1,4 +1,4 @@
-// Copyright (c) 2020 FRC Team 3512. All Rights Reserved.
+// Copyright (c) 2020-2021 FRC Team 3512. All Rights Reserved.
 
 #pragma once
 
@@ -9,6 +9,7 @@
 #include <networktables/NetworkTableInstance.h>
 #include <units/time.h>
 
+#include "NetworkTableUtil.hpp"
 #include "static_concurrent_queue.hpp"
 #include "subsystems/SubsystemBase.hpp"
 
@@ -60,13 +61,12 @@ public:
     void ProcessNewMeasurement();
 
 private:
-    nt::NetworkTableInstance m_inst = nt::NetworkTableInstance::GetDefault();
     nt::NetworkTableEntry m_ledIsOn =
-        m_inst.GetEntry("LED Ring Light/LED-State");
-    nt::NetworkTableEntry m_pose =
-        m_inst.GetEntry("chameleon-vision/RPI-Cam/target-Pose");
+        NetworkTableUtil::MakeEntry("LED Ring Light/LED-State", "0");
+    nt::NetworkTableEntry m_pose = NetworkTableUtil::MakeEntry(
+        "chameleon-vision/RPI-Cam/target-Pose", {0.0, 0.0, 0.0});
     nt::NetworkTableEntry m_latency =
-        m_inst.GetEntry("chameleon-vision/RPI-Cam/latency");
+        NetworkTableUtil::MakeEntry("chameleon-vision/RPI-Cam/latency", 0);
     NT_EntryListener m_listenerHandle;
 
     frc3512::static_concurrent_queue<GlobalMeasurement, 8> m_measurements;

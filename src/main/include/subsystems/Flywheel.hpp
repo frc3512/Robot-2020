@@ -22,6 +22,7 @@
 
 #include "Constants.hpp"
 #include "LerpTable.hpp"
+#include "NetworkTableUtil.hpp"
 #include "controllers/FlywheelController.hpp"
 #include "rev/CANSparkMax.hpp"
 #include "subsystems/ControlledSubsystemBase.hpp"
@@ -162,18 +163,19 @@ private:
     // measuring flywheel lookup table values.
     double m_testThrottle = 0.0;
 
-    nt::NetworkTableInstance m_inst = nt::NetworkTableInstance::GetDefault();
     nt::NetworkTableEntry m_angularVelocityRefEntry =
-        m_inst.GetEntry("/Diagnostics/Flywheel/References/Angular velocity");
+        NetworkTableUtil::MakeEntry(
+            "/Diagnostics/Flywheel/References/Angular velocity", 0);
     nt::NetworkTableEntry m_angularVelocityStateEntry =
-        m_inst.GetEntry("/Diagnostics/Flywheel/States/Angular velocity");
+        NetworkTableUtil::MakeEntry(
+            "/Diagnostics/Flywheel/States/Angular velocity", 0);
     nt::NetworkTableEntry m_isOnEntry =
-        m_inst.GetEntry("/Diagnostics/Flywheel/IsOn");
+        NetworkTableUtil::MakeEntry("/Diagnostics/Flywheel/IsOn", false);
     nt::NetworkTableEntry m_isReadyEntry =
-        m_inst.GetEntry("/Diagnostics/Flywheel/IsReady");
+        NetworkTableUtil::MakeEntry("/Diagnostics/Flywheel/IsReady", false);
     nt::NetworkTableEntry m_manualAngularVelocityReferenceEntry =
-        m_inst.GetEntry(
-            "/Diagnostics/Flywheel/Manual angular velocity reference");
+        NetworkTableUtil::MakeEntry(
+            "/Diagnostics/Flywheel/Manual angular velocity reference", 0);
 
     // Measurement noise isn't added because the simulated encoder stores the
     // count as an integer, which already introduces quantization noise.

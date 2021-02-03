@@ -30,6 +30,7 @@ struct NoOp {
 
 #include "AutonomousChooser.hpp"
 #include "IntakeSim.hpp"
+#include "NetworkTableUtil.hpp"
 #include "subsystems/Climber.hpp"
 #include "subsystems/Drivetrain.hpp"
 #include "subsystems/Flywheel.hpp"
@@ -207,11 +208,10 @@ private:
 
     frc::CSVLogFile m_batteryLogger{"Battery", "Battery voltage (V)"};
 
-    nt::NetworkTableInstance m_inst = nt::NetworkTableInstance::GetDefault();
     nt::NetworkTableEntry m_batteryVoltageEntry =
-        m_inst.GetEntry("/Diagnostics/Robot/batteryVoltage");
+        NetworkTableUtil::MakeEntry("/Diagnostics/Robot/batteryVoltage", 0);
     nt::NetworkTableEntry m_ballsToShootEntry =
-        m_inst.GetEntry("/Diagnostics/Robot/ballsToShoot");
+        NetworkTableUtil::MakeEntry("/Diagnostics/Robot/ballsToShoot", 0);
 };
 
 }  // namespace frc3512
