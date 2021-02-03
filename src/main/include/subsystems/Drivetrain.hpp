@@ -45,7 +45,6 @@ public:
     static constexpr units::meter_t kMiddleOfRobotToIntake = 0.656_m;
 
     Drivetrain();
-    ~Drivetrain();
 
     Drivetrain(const Drivetrain&) = delete;
     Drivetrain& operator=(const Drivetrain&) = delete;
@@ -266,7 +265,10 @@ private:
         m_inst.GetEntry("/Diagnostics/Drivetrain/Outputs/Right position");
 
     // Simulation variables
-    frc::sim::DifferentialDrivetrainSim m_drivetrainSim;
+    frc::sim::DifferentialDrivetrainSim m_drivetrainSim{
+        DrivetrainController::GetPlant(), DrivetrainController::kWidth,
+        frc::DCMotor::NEO(2), DrivetrainController::kDriveGearRatio,
+        DrivetrainController::kWheelRadius};
     frc::sim::EncoderSim m_leftEncoderSim{m_leftEncoder};
     frc::sim::EncoderSim m_rightEncoderSim{m_rightEncoder};
     frc::sim::ADXRS450_GyroSim m_gyroSim{m_gyro};

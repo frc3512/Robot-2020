@@ -32,11 +32,7 @@ Drivetrain::Drivetrain()
            ControllerLabel{"Right voltage", "V"}},
           {ControllerLabel{"Heading", "rad"},
            ControllerLabel{"Left position", "m"},
-           ControllerLabel{"Right position", "m"}}),
-      m_drivetrainSim{DrivetrainController::GetPlant(),
-                      DrivetrainController::kWidth, frc::DCMotor::NEO(2),
-                      DrivetrainController::kDriveGearRatio,
-                      DrivetrainController::kWheelRadius} {
+           ControllerLabel{"Right position", "m"}}) {
     SetCANSparkMaxBusUsage(m_leftLeader, Usage::kMinimal);
     SetCANSparkMaxBusUsage(m_leftFollower, Usage::kMinimal);
     SetCANSparkMaxBusUsage(m_rightLeader, Usage::kMinimal);
@@ -66,8 +62,6 @@ Drivetrain::Drivetrain()
 
     frc::SmartDashboard::PutData(&m_field);
 }
-
-Drivetrain::~Drivetrain() {}
 
 frc::Pose2d Drivetrain::GetPose() const {
     const auto& x = m_observer.Xhat();
