@@ -21,6 +21,9 @@ using namespace frc3512::Constants::Robot;
 const Eigen::Matrix<double, 2, 2> Drivetrain::kGlobalR =
     frc::MakeCovMatrix(0.2, 0.2);
 
+const frc::LinearSystem<2, 2, 2> Drivetrain::kPlant{
+    DrivetrainController::GetPlant()};
+
 Drivetrain::Drivetrain()
     : ControlledSubsystemBase(
           "Drivetrain",
@@ -308,6 +311,13 @@ void Drivetrain::TeleopPeriodic() {
         x *= 0.5;
     }
     auto [left, right] = CurvatureDrive(y, x, driveStick2.GetRawButton(2));
-    m_leftGrbx.SetVoltage(left * 12_V);
-    m_rightGrbx.SetVoltage(right * 12_V);
+
+    // Implicit model following
+    Eigen::Matrix<double, 2, 1> u =
+        m_imf.Calculate(frc::MakeMatrix<2, 1>(GetLeftVelocity().to<double>(),
+                                              GetRightVelocity().to<double>()),
+                        frc::MakeMatrix<2, 1>(left * 12.0, right * 12.0));
+
+    m_leftGrbx.SetVoltage(units::volt_t{u(0)});
+    m_rightGrbx.SetVoltage(units::volt_t{u(1)});
 }

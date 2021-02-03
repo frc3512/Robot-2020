@@ -42,6 +42,13 @@ public:
                                                         0.95, 0.95};
     static constexpr std::array<double, 2> kControllerR{12.0, 12.0};
 
+    static constexpr auto kLinearV = 3.02_V / 1_mps;
+    static constexpr auto kLinearA = 0.642_V / 1_mps_sq;
+    static constexpr auto kAngularV = 1.382_V / 1_rad_per_s;
+    static constexpr auto kAngularA = 0.08495_V / 1_rad_per_s_sq;
+    static constexpr auto kMaxV = 12_V / kLinearV;
+    static constexpr auto kMaxA = 12_V / kLinearA;
+
     /**
      * States of the drivetrain system.
      */
@@ -209,12 +216,6 @@ private:
     static constexpr double kPositionTolerance = 0.5;  // meters
     static constexpr double kVelocityTolerance = 2.0;  // meters/second
     static constexpr double kAngleTolerance = 0.52;    // radians
-    static constexpr auto kLinearV = 3.02_V / 1_mps;
-    static constexpr auto kLinearA = 0.642_V / 1_mps_sq;
-    static constexpr auto kAngularV = 1.382_V / 1_rad_per_s;
-    static constexpr auto kAngularA = 0.08495_V / 1_rad_per_s_sq;
-    static constexpr auto kMaxV = 12_V / kLinearV;
-    static constexpr auto kMaxA = 12_V / kLinearA;
 
     static const frc::LinearSystem<2, 2, 2> kPlant;
 

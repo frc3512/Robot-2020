@@ -17,6 +17,7 @@
 #include <frc/simulation/DifferentialDrivetrainSim.h>
 #include <frc/simulation/EncoderSim.h>
 #include <frc/smartdashboard/Field2d.h>
+#include <frc/system/plant/LinearSystemId.h>
 #include <frc/trajectory/TrajectoryConfig.h>
 #include <frc2/Timer.h>
 #include <networktables/NetworkTableEntry.h>
@@ -32,6 +33,7 @@
 #include "Constants.hpp"
 #include "NetworkTableUtil.hpp"
 #include "controllers/DrivetrainController.hpp"
+#include "controllers/ImplicitModelFollower.hpp"
 #include "rev/CANSparkMax.hpp"
 #include "subsystems/ControlledSubsystemBase.hpp"
 
@@ -211,6 +213,8 @@ public:
 private:
     static const Eigen::Matrix<double, 2, 2> kGlobalR;
 
+    static const frc::LinearSystem<2, 2, 2> kPlant;
+
     rev::CANSparkMax m_leftLeader{Constants::Drivetrain::kLeftLeaderPort,
                                   rev::CANSparkMax::MotorType::kBrushless};
     rev::CANSparkMax m_leftFollower{Constants::Drivetrain::kLeftFollowerPort,
@@ -248,6 +252,15 @@ private:
         m_latencyComp;
     DrivetrainController m_controller;
     Eigen::Matrix<double, 2, 1> m_u = Eigen::Matrix<double, 2, 1>::Zero();
+
+    frc::LinearSystem<2, 2, 2> m_imfRef =
+        frc::LinearSystemId::IdentifyDrivetrainSystem(
+            DrivetrainController::kLinearV,
+            DrivetrainController::kLinearA * 2.0,
+            DrivetrainController::kAngularV,
+            DrivetrainController::kAngularA * 2.0);
+    ImplicitModelFollower<2, 2> m_imf{
+        kPlant, m_imfRef, {0.01, 0.01}, {12.0, 12.0}, 20_ms};
 
     nt::NetworkTableEntry m_xStateEntry = NetworkTableUtil::MakeDoubleEntry(
         "/Diagnostics/Drivetrain/States/X", 0.0);
