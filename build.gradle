@@ -212,6 +212,8 @@ doxygen {
             baseURI : 'https://frcmaven.wpi.edu/artifactory/generic-release-mirror/doxygen'
     }
 
+    exclude 'fmt/*'
+
     generate_html true
     extension_mapping 'inc=C++'
     project_name 'Robot-2020'

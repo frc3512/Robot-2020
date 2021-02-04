@@ -4,7 +4,7 @@
 
 namespace frc3512 {
 
-ADCInput::ADCInput(int port) : m_input{port} {}
+ADCInput::ADCInput(int channel) : m_input{channel} {}
 
 bool ADCInput::Get() {
     double voltage = m_input.GetVoltage();

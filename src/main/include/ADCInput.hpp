@@ -17,7 +17,7 @@ public:
      * @param channel The channel number on the roboRIO to represent. 0-3 are
      *                on-board 4-7 are on the MXP port.
      */
-    explicit ADCInput(int port);
+    explicit ADCInput(int channel);
 
     /**
      * Returns true if 3.3V has been reached.

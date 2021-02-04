@@ -94,7 +94,8 @@ public:
     /**
      * Sets the end goal of the controller profile.
      *
-     * @param goal Position in radians to set the goal to.
+     * @param angleGoal           Desired heading.
+     * @param angularVelocityGoal Desired heading rate.
      */
     void SetGoal(units::radian_t angleGoal,
                  units::radians_per_second_t angularVelocityGoal);
