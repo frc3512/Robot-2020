@@ -187,6 +187,11 @@ public:
     void AutoNavBarrelRacing();
 
     /**
+     * Follow the "slalom" path defined in the 2021 At-Home Challenges manual.
+     */
+    void AutoNavSlalom();
+
+    /**
      * Sets the selected autonomous mode for testing purposes.
      *
      * @param name The autonomous mode's name passed to
