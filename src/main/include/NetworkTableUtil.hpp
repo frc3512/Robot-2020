@@ -12,11 +12,10 @@
 namespace frc3512::NetworkTableUtil {
 
 /**
- * Creates a networktable entry that pushes a default or starting value to the
- * networktable. Works for most types.
+ * Creates a NetworkTable entry with a default value.
  *
- * @param name Key; Path of entry in network table.
- * @param defaultValue Set the type and value its going to start with
+ * @param name         Path of network table entry.
+ * @param defaultValue The entry's initial value.
  */
 template <typename T>
 nt::NetworkTableEntry MakeEntry(const wpi::Twine& name, const T& defaultValue) {
@@ -34,12 +33,11 @@ nt::NetworkTableEntry MakeEntry(const wpi::Twine& name, const T& defaultValue) {
 }
 
 /**
- * Creates a networktable entry that pushes a default value to the
- * networktable. Uses double array.
+ * Creates a NetworkTable entry with a default value. This overload is for
+ * double arrays.
  *
- * @param name Key; path of entry in networktable.
- * @param defaultValue Set the double array type and value it's going to start
- * with.
+ * @param name         Path of network table entry.
+ * @param defaultValue The entry's initial value.
  */
 nt::NetworkTableEntry MakeEntry(const wpi::Twine& name,
                                 std::initializer_list<double> defaultValue);
