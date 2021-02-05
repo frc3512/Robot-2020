@@ -29,6 +29,7 @@
 #include <units/velocity.h>
 
 #include "Constants.hpp"
+#include "NetworkTableUtil.hpp"
 #include "controllers/DrivetrainController.hpp"
 #include "rev/CANSparkMax.hpp"
 #include "subsystems/ControlledSubsystemBase.hpp"
@@ -229,31 +230,37 @@ private:
         m_latencyComp;
     DrivetrainController m_controller;
 
-    nt::NetworkTableInstance m_inst = nt::NetworkTableInstance::GetDefault();
     nt::NetworkTableEntry m_xStateEntry =
-        m_inst.GetEntry("/Diagnostics/Drivetrain/States/X");
+        NetworkTableUtil::MakeEntry("/Diagnostics/Drivetrain/States/X", 0);
     nt::NetworkTableEntry m_yStateEntry =
-        m_inst.GetEntry("/Diagnostics/Drivetrain/States/Y");
-    nt::NetworkTableEntry m_headingStateEntry =
-        m_inst.GetEntry("/Diagnostics/Drivetrain/States/Heading");
+        NetworkTableUtil::MakeEntry("/Diagnostics/Drivetrain/States/Y", 0);
+    nt::NetworkTableEntry m_headingStateEntry = NetworkTableUtil::MakeEntry(
+        "/Diagnostics/Drivetrain/States/Heading", 0);
     nt::NetworkTableEntry m_leftVelocityStateEntry =
-        m_inst.GetEntry("/Diagnostics/Drivetrain/States/Left velocity");
+        NetworkTableUtil::MakeEntry(
+            "/Diagnostics/Drivetrain/States/Left velocity", 0);
     nt::NetworkTableEntry m_rightVelocityStateEntry =
-        m_inst.GetEntry("/Diagnostics/Drivetrain/States/Right velocity");
+        NetworkTableUtil::MakeEntry(
+            "/Diagnostics/Drivetrain/States/Right velocity", 0);
     nt::NetworkTableEntry m_leftPositionStateEntry =
-        m_inst.GetEntry("/Diagnostics/Drivetrain/States/Left position");
+        NetworkTableUtil::MakeEntry(
+            "/Diagnostics/Drivetrain/States/Left position", 0);
     nt::NetworkTableEntry m_rightPositionStateEntry =
-        m_inst.GetEntry("/Diagnostics/Drivetrain/States/Right position");
-    nt::NetworkTableEntry m_leftVoltageInputEntry =
-        m_inst.GetEntry("/Diagnostics/Drivetrain/Inputs/Left voltage");
+        NetworkTableUtil::MakeEntry(
+            "/Diagnostics/Drivetrain/States/Right position", 0);
+    nt::NetworkTableEntry m_leftVoltageInputEntry = NetworkTableUtil::MakeEntry(
+        "/Diagnostics/Drivetrain/Inputs/Left voltage", 0);
     nt::NetworkTableEntry m_rightVoltageInputEntry =
-        m_inst.GetEntry("/Diagnostics/Drivetrain/Inputs/Right voltage");
-    nt::NetworkTableEntry m_headingOutputEntry =
-        m_inst.GetEntry("/Diagnostics/Drivetrain/Outputs/Heading");
+        NetworkTableUtil::MakeEntry(
+            "/Diagnostics/Drivetrain/Inputs/Right voltage", 0);
+    nt::NetworkTableEntry m_headingOutputEntry = NetworkTableUtil::MakeEntry(
+        "/Diagnostics/Drivetrain/Outputs/Heading", 0);
     nt::NetworkTableEntry m_leftPositionOutputEntry =
-        m_inst.GetEntry("/Diagnostics/Drivetrain/Outputs/Left position");
+        NetworkTableUtil::MakeEntry(
+            "/Diagnostics/Drivetrain/Outputs/Left position", 0);
     nt::NetworkTableEntry m_rightPositionOutputEntry =
-        m_inst.GetEntry("/Diagnostics/Drivetrain/Outputs/Right position");
+        NetworkTableUtil::MakeEntry(
+            "/Diagnostics/Drivetrain/Outputs/Right position", 0);
 
     // Simulation variables
     frc::sim::DifferentialDrivetrainSim m_drivetrainSim{

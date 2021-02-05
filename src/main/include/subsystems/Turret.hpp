@@ -18,6 +18,7 @@
 
 #include "ADCInput.hpp"
 #include "Constants.hpp"
+#include "NetworkTableUtil.hpp"
 #include "controllers/TurretController.hpp"
 #include "rev/CANSparkMax.hpp"
 #include "subsystems/ControlledSubsystemBase.hpp"
@@ -160,19 +161,20 @@ private:
     Flywheel& m_flywheel;
 
     uint32_t m_poseMeasurementFaultCounter = 0;
-    nt::NetworkTableInstance m_inst = nt::NetworkTableInstance::GetDefault();
     nt::NetworkTableEntry m_angleStateEntry =
-        m_inst.GetEntry("/Diagnostics/Turret/States/Angle");
+        NetworkTableUtil::MakeEntry("/Diagnostics/Turret/States/Angle", 0);
     nt::NetworkTableEntry m_angularVelocityStateEntry =
-        m_inst.GetEntry("/Diagnostics/Turret/States/Angular velocity");
+        NetworkTableUtil::MakeEntry(
+            "/Diagnostics/Turret/States/Angular velocity", 0);
     nt::NetworkTableEntry m_inputVoltageEntry =
-        m_inst.GetEntry("/Diagnostics/Turret/Inputs/Voltage");
+        NetworkTableUtil::MakeEntry("/Diagnostics/Turret/Inputs/Voltage", 0);
     nt::NetworkTableEntry m_angleOutputEntry =
-        m_inst.GetEntry("/Diagnostics/Turret/Outputs/Angle");
+        NetworkTableUtil::MakeEntry("/Diagnostics/Turret/Outputs/Angle", "0");
     nt::NetworkTableEntry m_controlModeEntry =
-        m_inst.GetEntry("/Diagnostics/Turret/Control mode");
+        NetworkTableUtil::MakeEntry("/Diagnostics/Turret/Control mode", false);
     nt::NetworkTableEntry m_poseMeasurementFaultEntry =
-        m_inst.GetEntry("/Diagnostics/Turret/Measurement fault counter");
+        NetworkTableUtil::MakeEntry(
+            "/Diagnostics/Turret/Measurement fault counter", 0);
 
     // Simulation variables
     frc::sim::LinearSystemSim<2, 1, 1> m_turretSim{m_controller.GetPlant(),

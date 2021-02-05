@@ -11,6 +11,7 @@
 #include <units/time.h>
 
 #include "Constants.hpp"
+#include "NetworkTableUtil.hpp"
 #include "rev/CANSparkMax.hpp"
 #include "subsystems/SubsystemBase.hpp"
 
@@ -117,11 +118,10 @@ private:
     frc::DoubleSolenoid m_arm{Constants::Intake::kArmForward,
                               Constants::Intake::kArmReverse};
 
-    nt::NetworkTableInstance m_inst = nt::NetworkTableInstance::GetDefault();
-    nt::NetworkTableEntry m_upperSensorEntry =
-        m_inst.GetEntry("/Diagnostics/Intake/Upper sensor blocked");
-    nt::NetworkTableEntry m_lowerSensorEntry =
-        m_inst.GetEntry("/Diagnostics/Intake/Lower sensor blocked");
+    nt::NetworkTableEntry m_upperSensorEntry = NetworkTableUtil::MakeEntry(
+        "/Diagnostics/Intake/Upper sensor blocked", false);
+    nt::NetworkTableEntry m_lowerSensorEntry = NetworkTableUtil::MakeEntry(
+        "/Diagnostics/Intake/Lower sensor blocked", false);
 
     frc::CSVLogFile m_intakeLog{"Intake", "Deployed (bool)", "Speed (-1 .. 1)"};
     units::second_t m_startTime = frc2::Timer::GetFPGATimestamp();

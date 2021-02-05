@@ -11,6 +11,7 @@
 #include <units/voltage.h>
 
 #include "Constants.hpp"
+#include "NetworkTableUtil.hpp"
 #include "rev/CANEncoder.hpp"
 #include "rev/CANSparkMax.hpp"
 #include "subsystems/SubsystemBase.hpp"
@@ -72,9 +73,8 @@ private:
 
     Turret& m_turret;
 
-    nt::NetworkTableInstance m_inst = nt::NetworkTableInstance::GetDefault();
     nt::NetworkTableEntry m_elevatorEncoderEntry =
-        m_inst.GetEntry("/Diagnostics/Climber/Elevator encoder");
+        NetworkTableUtil::MakeEntry("/Diagnostics/Climber/Elevator encoder", 0);
 
     // Simulation variables
     frc::sim::LinearSystemSim<2, 1, 1> m_elevatorSim{
