@@ -8,8 +8,6 @@
 #include <frc/TimedRobot.h>
 #include <frc/logging/CSVLogFile.h>
 #include <frc2/Timer.h>
-#include <networktables/NetworkTableEntry.h>
-#include <networktables/NetworkTableInstance.h>
 #include <units/time.h>
 
 #if RUNNING_FRC_TESTS
