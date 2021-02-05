@@ -30,7 +30,7 @@ namespace frc3512 {
 
 class DrivetrainController : public ControllerBase<7, 2, 3> {
 public:
-    static constexpr units::meter_t kWheelRadius = 3_in;
+    static constexpr units::meter_t kWheelRadius = 3.05_in;
     static constexpr double kDriveGearRatio = 1.0 / 1.0;
     static constexpr double kDpP =
         (2.0 * wpi::math::pi * kWheelRadius.to<double>()) * kDriveGearRatio /
