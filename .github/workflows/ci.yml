@@ -17,7 +17,7 @@ jobs:
       run: |
         git fetch --prune --unshallow
         git checkout -b pr
-        git branch -f master origin/master
+        git branch -f main origin/main
 
     - name: Install clang-format
       run: |

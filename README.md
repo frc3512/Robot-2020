@@ -20,7 +20,7 @@ Install the following OS packages.
 Install the following python packages via `pip3 install --user package_name`.
 
 * wpiformat (optional)
-  * https://github.com/wpilibsuite/styleguide/blob/master/wpiformat/README.rst
+  * https://github.com/wpilibsuite/styleguide/blob/main/wpiformat/README.rst
 
 We use the latest version of clang-format with wpiformat for C++ formatting.
 
