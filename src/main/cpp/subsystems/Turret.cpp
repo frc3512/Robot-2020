@@ -100,10 +100,10 @@ void Turret::RobotPeriodic() {
     m_angleOutputEntry.SetDouble(GetAngle().to<double>());
 
     if (m_leftLimitSwitch.Get()) {
-        SetCWLimit(GetAngle());
+        SetCCWLimit(GetAngle());
     }
     if (m_rightLimitSwitch.Get()) {
-        SetCCWLimit(GetAngle());
+        SetCWLimit(GetAngle());
     }
 
     int controlMode = static_cast<int>(m_controller.GetControlMode());
