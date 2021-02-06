@@ -9,7 +9,6 @@
 #include <frc/Encoder.h>
 #include <frc/SpeedControllerGroup.h>
 #include <frc/estimator/AngleStatistics.h>
-#include <frc/estimator/ExtendedKalmanFilter.hpp>
 #include <frc/estimator/KalmanFilterLatencyCompensator.h>
 #include <frc/geometry/Pose2d.h>
 #include <frc/geometry/Translation2d.h>
@@ -27,6 +26,12 @@
 #include <units/length.h>
 #include <units/time.h>
 #include <units/velocity.h>
+
+#if defined(__FRC_ROBORIO__)
+#include <frc/estimator/ExtendedKalmanFilter.hpp>
+#else
+#include <frc/estimator/UnscentedKalmanFilter.h>
+#endif  // defined(__FRC_ROBORIO__)
 
 #include "Constants.hpp"
 #include "NetworkTableUtil.hpp"
@@ -217,16 +222,26 @@ private:
     frc::ADXRS450_Gyro m_gyro;
     units::radian_t m_headingOffset = 0_rad;
 
-    frc::ExtendedKalmanFilter<7, 2, 3> m_observer{
+#if defined(__FRC_ROBORIO__)
+    frc::ExtendedKalmanFilter<7, 2, 3> m_observer {
+#else
+    frc::UnscentedKalmanFilter<7, 2, 3> m_observer {
+#endif  // defined(__FRC_ROBORIO__)
         DrivetrainController::Dynamics,
-        DrivetrainController::LocalMeasurementModel,
-        {0.002, 0.002, 0.0001, 1.5, 1.5, 0.5, 0.5},
-        {0.0001, 0.005, 0.005},
-        frc::AngleResidual<3>(0),
-        frc::AngleAdd<7>(2),
-        Constants::kDt};
+            DrivetrainController::LocalMeasurementModel,
+            {0.002, 0.002, 0.0001, 1.5, 1.5, 0.5, 0.5}, {0.0001, 0.005, 0.005},
+#if !defined(__FRC_ROBORIO__)
+            frc::AngleMean<7, 7>(2), frc::AngleMean<3, 7>(0),
+            frc::AngleResidual<7>(2),
+#endif  // !defined(__FRC_ROBORIO__)
+            frc::AngleResidual<3>(0), frc::AngleAdd<7>(2), Constants::kDt
+    };
     frc::KalmanFilterLatencyCompensator<7, 2, 3,
+#if defined(__FRC_ROBORIO__)
                                         frc::ExtendedKalmanFilter<7, 2, 3>>
+#else
+                                        frc::UnscentedKalmanFilter<7, 2, 3>>
+#endif  // defined(__FRC_ROBORIO__)
         m_latencyComp;
     DrivetrainController m_controller;
 
