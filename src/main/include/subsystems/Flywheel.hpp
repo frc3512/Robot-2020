@@ -146,7 +146,10 @@ private:
         {700.0},
         {FlywheelController::kDpP / Constants::kDt.to<double>()},
         Constants::kDt};
+
     FlywheelController m_controller;
+    Eigen::Matrix<double, 1, 1> m_u = Eigen::Matrix<double, 1, 1>::Zero();
+
     units::radian_t m_angle;
     units::radian_t m_lastAngle;
     units::second_t m_time = frc2::Timer::GetFPGATimestamp();

@@ -244,6 +244,7 @@ private:
 #endif  // defined(__FRC_ROBORIO__)
         m_latencyComp;
     DrivetrainController m_controller;
+    Eigen::Matrix<double, 2, 1> m_u = Eigen::Matrix<double, 2, 1>::Zero();
 
     nt::NetworkTableEntry m_xStateEntry =
         NetworkTableUtil::MakeEntry("/Diagnostics/Drivetrain/States/X", 0);

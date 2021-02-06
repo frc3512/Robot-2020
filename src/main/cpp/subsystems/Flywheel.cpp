@@ -88,6 +88,7 @@ bool Flywheel::IsReady() { return GetGoal() > 0_rad_per_s && AtGoal(); }
 void Flywheel::Reset() {
     m_observer.Reset();
     m_controller.Reset();
+    m_u = Eigen::Matrix<double, 1, 1>::Zero();
     m_encoder.Reset();
     m_angle = GetAngle();
     m_lastAngle = m_angle;
@@ -128,7 +129,7 @@ void Flywheel::RobotPeriodic() {
 void Flywheel::ControllerPeriodic() {
     UpdateDt();
 
-    m_observer.Predict(m_controller.GetInputs(), GetDt());
+    m_observer.Predict(m_u, GetDt());
 
     // Adjusts the flywheel's goal while moving and shooting
     if (IsOn()) {
@@ -148,10 +149,10 @@ void Flywheel::ControllerPeriodic() {
     Eigen::Matrix<double, 1, 1> y;
     y << GetAngularVelocity().to<double>();
     m_observer.Correct(m_controller.GetInputs(), y);
-    Eigen::Matrix<double, 1, 1> u = m_controller.Calculate(m_observer.Xhat());
-    SetVoltage(units::volt_t{u(0)});
+    m_u = m_controller.Calculate(m_observer.Xhat());
+    SetVoltage(units::volt_t{m_u(0)});
 
-    Log(m_controller.GetReferences(), m_observer.Xhat(), u, y);
+    Log(m_controller.GetReferences(), m_observer.Xhat(), m_u, y);
 
     if constexpr (frc::RobotBase::IsSimulation()) {
         m_flywheelSim.SetInput(frc::MakeMatrix<1, 1>(

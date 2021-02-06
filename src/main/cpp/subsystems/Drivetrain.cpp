@@ -94,6 +94,7 @@ void Drivetrain::Reset(const frc::Pose2d& initialPose) {
 
     m_observer.Reset();
     m_controller.Reset(initialPose);
+    m_u = Eigen::Matrix<double, 2, 1>::Zero();
     m_leftEncoder.Reset();
     m_rightEncoder.Reset();
     m_gyro.Reset();
@@ -129,7 +130,7 @@ void Drivetrain::CorrectWithGlobalOutputs(units::meter_t x, units::meter_t y,
 void Drivetrain::ControllerPeriodic() {
     UpdateDt();
 
-    m_observer.Predict(m_controller.GetInputs(), GetDt());
+    m_observer.Predict(m_u, GetDt());
 
     Eigen::Matrix<double, 3, 1> y;
     y << frc::AngleModulus(GetAngle()).to<double>(),
@@ -138,27 +139,27 @@ void Drivetrain::ControllerPeriodic() {
                                    frc2::Timer::GetFPGATimestamp());
     m_observer.Correct(m_controller.GetInputs(), y);
 
-    Eigen::Matrix<double, 2, 1> u;
     if (m_controller.HaveTrajectory()) {
-        u = m_controller.Calculate(m_observer.Xhat());
+        m_u = m_controller.Calculate(m_observer.Xhat());
 
         if (!AtGoal()) {
-            m_leftGrbx.SetVoltage(units::volt_t{u(0)});
-            m_rightGrbx.SetVoltage(units::volt_t{u(1)});
+            m_leftGrbx.SetVoltage(units::volt_t{m_u(0)});
+            m_rightGrbx.SetVoltage(units::volt_t{m_u(1)});
         } else {
             m_leftGrbx.SetVoltage(0_V);
             m_rightGrbx.SetVoltage(0_V);
         }
     } else {
-        // Update previous u stored in the controller
-        u = m_controller.Calculate(m_observer.Xhat());
+        // Update previous u stored in the controller. We don't care what the
+        // return value is.
+        m_u = m_controller.Calculate(m_observer.Xhat());
 
         // Run observer predict with inputs from teleop
-        u << m_leftGrbx.Get() * frc::RobotController::GetInputVoltage(),
+        m_u << m_leftGrbx.Get() * frc::RobotController::GetInputVoltage(),
             m_rightGrbx.Get() * frc::RobotController::GetInputVoltage();
     }
 
-    Log(m_controller.GetReferences(), m_observer.Xhat(), u, y);
+    Log(m_controller.GetReferences(), m_observer.Xhat(), m_u, y);
 
     if constexpr (frc::RobotBase::IsSimulation()) {
         auto batteryVoltage = frc::RobotController::GetInputVoltage();

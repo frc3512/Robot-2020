@@ -151,7 +151,9 @@ private:
     frc::LinearSystem<2, 1, 1> m_plant{TurretController::GetPlant()};
     frc::KalmanFilter<2, 1, 1> m_observer{
         m_plant, {0.21745, 0.28726}, {0.01}, Constants::kDt};
+
     TurretController m_controller;
+    Eigen::Matrix<double, 1, 1> m_u = Eigen::Matrix<double, 1, 1>::Zero();
 
     ADCInput m_leftLimitSwitch{Constants::Turret::kLeftHallPort};
     ADCInput m_rightLimitSwitch{Constants::Turret::kRightHallPort};

@@ -57,6 +57,7 @@ void Turret::Reset(units::radian_t initialHeading) {
     m_observer.Reset();
     m_observer.SetXhat(xHat);
     m_controller.Reset(initialHeading);
+    m_u = Eigen::Matrix<double, 1, 1>::Zero();
 
     if constexpr (frc::RobotBase::IsSimulation()) {
         m_turretSim.SetState(xHat);
@@ -154,7 +155,7 @@ void Turret::TestPeriodic() {
 void Turret::ControllerPeriodic() {
     UpdateDt();
 
-    m_observer.Predict(m_controller.GetInputs(), GetDt());
+    m_observer.Predict(m_u, GetDt());
 
     m_controller.SetDrivetrainStates(m_drivetrain.GetStates());
     m_controller.SetFlywheelReferences(
@@ -193,15 +194,15 @@ void Turret::ControllerPeriodic() {
         }
     }
 
-    Eigen::Matrix<double, 1, 1> u = m_controller.Calculate(m_observer.Xhat());
+    m_u = m_controller.Calculate(m_observer.Xhat());
 
     // Set motor input
     if (m_controller.GetControlMode() !=
         TurretController::ControlMode::kManual) {
-        SetVoltage(units::volt_t{u(0)});
+        SetVoltage(units::volt_t{m_u(0)});
     }
 
-    Log(m_controller.GetReferences(), m_observer.Xhat(), u, y);
+    Log(m_controller.GetReferences(), m_observer.Xhat(), m_u, y);
 
     if constexpr (frc::RobotBase::IsSimulation()) {
         m_turretSim.SetInput(frc::MakeMatrix<1, 1>(
