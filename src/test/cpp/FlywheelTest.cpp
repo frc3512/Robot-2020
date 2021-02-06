@@ -6,14 +6,16 @@
 
 #include "RealTimeRobot.hpp"
 #include "SimulatorTest.hpp"
+#include "logging/ScheduleLogger.hpp"
 #include "subsystems/Drivetrain.hpp"
 #include "subsystems/Flywheel.hpp"
 #include "subsystems/Vision.hpp"
 
 class FlywheelTest : public frc3512::SimulatorTest {
 public:
+    frc3512::ScheduleLogger logger;
     frc3512::Vision vision;
-    frc3512::Drivetrain drivetrain;
+    frc3512::Drivetrain drivetrain{logger};
     frc3512::Flywheel flywheel{drivetrain};
     frc::Notifier controllerPeriodic{[&] {
         flywheel.TeleopPeriodic();

@@ -9,6 +9,7 @@
 #include "Constants.hpp"
 #include "RealTimeRobot.hpp"
 #include "SimulatorTest.hpp"
+#include "logging/ScheduleLogger.hpp"
 #include "subsystems/Climber.hpp"
 #include "subsystems/Drivetrain.hpp"
 #include "subsystems/Flywheel.hpp"
@@ -17,8 +18,9 @@
 
 class ClimberTest : public frc3512::SimulatorTest {
 public:
+    frc3512::ScheduleLogger logger;
     frc3512::Vision vision;
-    frc3512::Drivetrain drivetrain;
+    frc3512::Drivetrain drivetrain{logger};
     frc3512::Flywheel flywheel{drivetrain};
     frc3512::Turret turret{vision, drivetrain, flywheel};
     frc3512::Climber climber{turret};

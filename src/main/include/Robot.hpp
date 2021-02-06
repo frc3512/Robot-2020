@@ -30,6 +30,7 @@ struct NoOp {
 #include "IntakeSim.hpp"
 #include "NetworkTableUtil.hpp"
 #include "RealTimeRobot.hpp"
+#include "logging/ScheduleLogger.hpp"
 #include "subsystems/Climber.hpp"
 #include "subsystems/Drivetrain.hpp"
 #include "subsystems/Flywheel.hpp"
@@ -52,6 +53,8 @@ public:
     enum class ShootingState { kIdle, kStartFlywheel, kStartConveyor };
 
     static constexpr auto kMaxShootTimeout = 3_s;
+
+    ScheduleLogger schedLogger;
 
     // Simulation variables
     IntakeSim intakeSim;
@@ -253,7 +256,7 @@ private:
     // The order the subsystems are initialized determines the order the
     // controllers run in.
     Vision m_vision;
-    Drivetrain m_drivetrain;
+    Drivetrain m_drivetrain{schedLogger};
     Flywheel m_flywheel{m_drivetrain};
     Turret m_turret{m_vision, m_drivetrain, m_flywheel};
     Intake m_intake{m_flywheel};

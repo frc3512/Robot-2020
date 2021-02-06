@@ -9,11 +9,13 @@
 #include "Constants.hpp"
 #include "RealTimeRobot.hpp"
 #include "SimulatorTest.hpp"
+#include "logging/ScheduleLogger.hpp"
 #include "subsystems/Drivetrain.hpp"
 
 class DrivetrainTest : public frc3512::SimulatorTest {
 public:
-    frc3512::Drivetrain drivetrain;
+    frc3512::ScheduleLogger logger;
+    frc3512::Drivetrain drivetrain{logger};
     frc::Notifier controllerPeriodic{[&] {
         drivetrain.AutonomousPeriodic();
         drivetrain.ControllerPeriodic();

@@ -69,6 +69,8 @@ Robot::Robot() {
     Schedule(
         [=] {
             if (IsEnabled()) {
+                auto ctx = schedLogger.GetSchedContext(
+                    "Flywheel ControllerPeriodic()");
                 m_flywheel.ControllerPeriodic();
             }
         },
@@ -76,6 +78,8 @@ Robot::Robot() {
     Schedule(
         [=] {
             if (IsEnabled()) {
+                auto ctx =
+                    schedLogger.GetSchedContext("Turret ControllerPeriodic()");
                 m_turret.ControllerPeriodic();
             }
         },
@@ -151,7 +155,9 @@ void Robot::TestInit() {
 }
 
 void Robot::RobotPeriodic() {
+    auto ctx = schedLogger.GetSchedContext("Robot::RobotPeriodic()");
     SubsystemBase::RunAllRobotPeriodic();
+    ctx.Destroy();
 
     static frc::Joystick appendageStick2{kAppendageStick2Port};
 
@@ -210,7 +216,10 @@ void Robot::AutonomousPeriodic() {
     RunShooterSM();
 }
 
-void Robot::TeleopPeriodic() { SubsystemBase::RunAllTeleopPeriodic(); }
+void Robot::TeleopPeriodic() {
+    auto ctx = schedLogger.GetSchedContext("TeleopPeriodic()");
+    SubsystemBase::RunAllTeleopPeriodic();
+}
 
 void Robot::TestPeriodic() { SubsystemBase::RunAllTestPeriodic(); }
 

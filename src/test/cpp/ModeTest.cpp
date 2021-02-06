@@ -6,12 +6,14 @@
 
 #include "RealTimeRobot.hpp"
 #include "SimulatorTest.hpp"
+#include "logging/ScheduleLogger.hpp"
 #include "subsystems/Drivetrain.hpp"
 
 class ModeTest : public frc3512::SimulatorTest {};
 
 TEST_F(ModeTest, AutonToTeleopTest) {
-    frc3512::Drivetrain drivetrain;
+    frc3512::ScheduleLogger logger;
+    frc3512::Drivetrain drivetrain{logger};
 
     frc3512::SubsystemBase::RunAllAutonomousInit();
     frc::Notifier autonomousPeriodic{[&] { drivetrain.ControllerPeriodic(); }};

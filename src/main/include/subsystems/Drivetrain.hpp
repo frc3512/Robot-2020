@@ -40,6 +40,8 @@
 
 namespace frc3512 {
 
+class ScheduleLogger;
+
 /**
  * Drivetrain subsystem.
  */
@@ -48,7 +50,7 @@ public:
     static constexpr units::meter_t kLength = 0.9398_m;
     static constexpr units::meter_t kMiddleOfRobotToIntake = 0.656_m;
 
-    Drivetrain();
+    explicit Drivetrain(ScheduleLogger& schedLogger);
 
     Drivetrain(const Drivetrain&) = delete;
     Drivetrain& operator=(const Drivetrain&) = delete;
@@ -290,6 +292,8 @@ private:
             DrivetrainController::kAngularV, DrivetrainController::kAngularA);
     // ImplicitModelFollower<2, 2> m_imf{
     //     kPlant, m_imfRef, {0.01, 0.01}, {8.0, 8.0}, 20_ms};
+
+    ScheduleLogger* m_schedLogger;
 
     // Simulation variables
     frc::sim::DifferentialDrivetrainSim m_drivetrainSim{

@@ -15,12 +15,14 @@
 
 #include "EigenFormat.hpp"
 #include "controllers/LQR.hpp"
+#include "logging/ScheduleLogger.hpp"
 
 using namespace frc3512;
 
 const frc::LinearSystem<2, 2, 2> DrivetrainController::kPlant{GetPlant()};
 
-DrivetrainController::DrivetrainController() {
+DrivetrainController::DrivetrainController(ScheduleLogger& schedLogger)
+    : m_schedLogger{&schedLogger} {
     m_A = JacobianX(Eigen::Matrix<double, 7, 1>::Zero());
     m_B = JacobianU(Eigen::Matrix<double, 2, 1>::Zero());
     m_Q = frc::MakeCostMatrix(kControllerQ);
@@ -108,8 +110,11 @@ Eigen::Matrix<double, 2, 1> DrivetrainController::Calculate(
     m_u << 0.0, 0.0;
 
     if (HaveTrajectory()) {
+        auto ctx1 =
+            m_schedLogger->GetSchedContext("DrivetrainController Sample()");
         frc::Trajectory::State ref =
             m_trajectory.Sample(m_trajectoryTimeElapsed.Get());
+        ctx1.Destroy();
         auto [vlRef, vrRef] =
             ToWheelVelocities(ref.velocity, ref.curvature, kWidth);
 
@@ -117,9 +122,16 @@ Eigen::Matrix<double, 2, 1> DrivetrainController::Calculate(
             ref.pose.Rotation().Radians().to<double>(), vlRef.to<double>(),
             vrRef.to<double>(), 0, 0;
 
+        auto ctx2 =
+            m_schedLogger->GetSchedContext("DrivetrainController fb calculate");
         Eigen::Matrix<double, 2, 1> u_fb = Controller(x, m_r);
         u_fb = frc::NormalizeInputVector<2>(u_fb, 12.0);
+        ctx2.Destroy();
+
+        auto ctx3 =
+            m_schedLogger->GetSchedContext("DrivetrainController ff calculate");
         m_u = u_fb + m_ff.Calculate(m_nextR);
+        ctx3.Destroy();
         m_u = frc::NormalizeInputVector<2>(m_u, 12.0);
 
         Eigen::Matrix<double, 5, 1> error =
@@ -185,6 +197,8 @@ Eigen::Matrix<double, 2, 5> DrivetrainController::ControllerGainForState(
 Eigen::Matrix<double, 2, 1> DrivetrainController::Controller(
     const Eigen::Matrix<double, 7, 1>& x,
     const Eigen::Matrix<double, 7, 1>& r) {
+    auto ctx =
+        m_schedLogger->GetSchedContext("DrivetrainController Controller()");
     // This implements the linear time-varying differential drive controller in
     // theorem 8.6.4 of https://tavsys.net/controls-in-frc.
     units::meters_per_second_t velocity{

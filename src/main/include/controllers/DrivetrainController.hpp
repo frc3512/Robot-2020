@@ -29,6 +29,8 @@
 
 namespace frc3512 {
 
+class ScheduleLogger;
+
 class DrivetrainController : public ControllerBase<7, 2, 4> {
 public:
     static constexpr units::meter_t kWheelRadius = 3.05_in;
@@ -111,7 +113,7 @@ public:
     /**
      * Constructs a drivetrain controller.
      */
-    DrivetrainController();
+    explicit DrivetrainController(ScheduleLogger& schedLogger);
 
     DrivetrainController(DrivetrainController&&) = default;
     DrivetrainController& operator=(DrivetrainController&&) = default;
@@ -261,6 +263,8 @@ private:
     frc2::Timer m_trajectoryTimeElapsed;
 
     bool m_atReferences = false;
+
+    ScheduleLogger* m_schedLogger;
 
     /**
      * Update "at references" flag based on next reference and current state
