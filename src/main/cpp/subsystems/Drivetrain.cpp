@@ -129,6 +129,8 @@ void Drivetrain::CorrectWithGlobalOutputs(units::meter_t x, units::meter_t y,
 void Drivetrain::ControllerPeriodic() {
     UpdateDt();
 
+    m_observer.Predict(m_controller.GetInputs(), GetDt());
+
     Eigen::Matrix<double, 3, 1> y;
     y << frc::AngleModulus(GetAngle()).to<double>(),
         GetLeftPosition().to<double>(), GetRightPosition().to<double>();
@@ -157,8 +159,6 @@ void Drivetrain::ControllerPeriodic() {
     }
 
     Log(m_controller.GetReferences(), m_observer.Xhat(), u, y);
-
-    m_observer.Predict(u, GetDt());
 
     if constexpr (frc::RobotBase::IsSimulation()) {
         auto batteryVoltage = frc::RobotController::GetInputVoltage();

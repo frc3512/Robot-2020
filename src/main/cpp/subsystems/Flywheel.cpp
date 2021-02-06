@@ -128,6 +128,8 @@ void Flywheel::RobotPeriodic() {
 void Flywheel::ControllerPeriodic() {
     UpdateDt();
 
+    m_observer.Predict(m_controller.GetInputs(), GetDt());
+
     // Adjusts the flywheel's goal while moving and shooting
     if (IsOn()) {
         SetGoalFromPose();
@@ -150,8 +152,6 @@ void Flywheel::ControllerPeriodic() {
     SetVoltage(units::volt_t{u(0)});
 
     Log(m_controller.GetReferences(), m_observer.Xhat(), u, y);
-
-    m_observer.Predict(u, GetDt());
 
     if constexpr (frc::RobotBase::IsSimulation()) {
         m_flywheelSim.SetInput(frc::MakeMatrix<1, 1>(

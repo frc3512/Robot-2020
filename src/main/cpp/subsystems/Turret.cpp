@@ -154,6 +154,8 @@ void Turret::TestPeriodic() {
 void Turret::ControllerPeriodic() {
     UpdateDt();
 
+    m_observer.Predict(m_controller.GetInputs(), GetDt());
+
     m_controller.SetDrivetrainStates(m_drivetrain.GetStates());
     m_controller.SetFlywheelReferences(
         m_flywheel.GetReferenceForPose(m_drivetrain.GetPose()));
@@ -200,8 +202,6 @@ void Turret::ControllerPeriodic() {
     }
 
     Log(m_controller.GetReferences(), m_observer.Xhat(), u, y);
-
-    m_observer.Predict(u, GetDt());
 
     if constexpr (frc::RobotBase::IsSimulation()) {
         m_turretSim.SetInput(frc::MakeMatrix<1, 1>(
