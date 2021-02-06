@@ -7,6 +7,7 @@
 #include <frc/DutyCycleEncoder.h>
 #include <frc/estimator/KalmanFilter.h>
 #include <frc/geometry/Pose2d.h>
+#include <frc/simulation/AnalogInputSim.h>
 #include <frc/simulation/DutyCycleEncoderSim.h>
 #include <frc/simulation/LinearSystemSim.h>
 #include <frc2/Timer.h>
@@ -75,12 +76,12 @@ public:
     /**
      * Returns true if the encoder has passed the counterclockwise limit.
      */
-    bool HasPassedCCWLimit() const;
+    bool HasPassedCCWLimit();
 
     /**
      * Returns true if the encoder has passed the clockwise limit.
      */
-    bool HasPassedCWLimit() const;
+    bool HasPassedCWLimit();
 
     /**
      * Set the limit for the CCW side of the turret
@@ -155,8 +156,8 @@ private:
     TurretController m_controller;
     Eigen::Matrix<double, 1, 1> m_u = Eigen::Matrix<double, 1, 1>::Zero();
 
-    ADCInput m_leftLimitSwitch{Constants::Turret::kLeftHallPort};
-    ADCInput m_rightLimitSwitch{Constants::Turret::kRightHallPort};
+    ADCInput m_ccwLimitSwitch{Constants::Turret::kCCWHallPort};
+    ADCInput m_cwLimitSwitch{Constants::Turret::kCWHallPort};
 
     Vision& m_vision;
     Drivetrain& m_drivetrain;
@@ -177,11 +178,20 @@ private:
     nt::NetworkTableEntry m_poseMeasurementFaultEntry =
         NetworkTableUtil::MakeEntry(
             "/Diagnostics/Turret/Measurement fault counter", 0);
+    nt::NetworkTableEntry m_ccwLimitSwitchValueEntry =
+        NetworkTableUtil::MakeEntry(
+            "/Diagnostics/Turret/CCW hard limit triggered", true);
+    nt::NetworkTableEntry m_cwLimitSwitchValueEntry =
+        NetworkTableUtil::MakeEntry(
+            "/Diagnostics/Turret/CW hard limit triggered", true);
 
     // Simulation variables
     frc::sim::LinearSystemSim<2, 1, 1> m_turretSim{m_controller.GetPlant(),
                                                    {0.001}};
     frc::sim::DutyCycleEncoderSim m_encoderSim{m_encoder};
+    frc::sim::AnalogInputSim m_ccwLimitSwitchSim{
+        Constants::Turret::kCCWHallPort};
+    frc::sim::AnalogInputSim m_cwLimitSwitchSim{Constants::Turret::kCWHallPort};
 
     /**
      * Set voltage output of turret motor.

@@ -41,5 +41,4 @@ nt::NetworkTableEntry MakeEntry(const wpi::Twine& name, const T& defaultValue) {
  */
 nt::NetworkTableEntry MakeEntry(const wpi::Twine& name,
                                 std::initializer_list<double> defaultValue);
-
 }  // namespace frc3512::NetworkTableUtil
