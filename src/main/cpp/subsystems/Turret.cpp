@@ -62,6 +62,19 @@ void Turret::Reset(units::radian_t initialHeading) {
     if constexpr (frc::RobotBase::IsSimulation()) {
         m_turretSim.SetState(xHat);
         m_encoderSim.SetDistance(HeadingToEncoderDistance(initialHeading));
+
+        if (units::radian_t{m_turretSim.GetOutput(0)} >
+            TurretController::kCCWLimit) {
+            m_ccwLimitSwitchSim.SetVoltage(0.0);
+        } else {
+            m_ccwLimitSwitchSim.SetVoltage(5.0);
+        }
+        if (units::radian_t{m_turretSim.GetOutput(0)} <
+            TurretController::kCWLimit) {
+            m_cwLimitSwitchSim.SetVoltage(0.0);
+        } else {
+            m_cwLimitSwitchSim.SetVoltage(5.0);
+        }
     }
 }
 
@@ -71,9 +84,13 @@ units::radian_t Turret::GetAngle() const {
     return units::radian_t{-m_encoder.GetDistance()} + kOffset;
 }
 
-bool Turret::HasPassedCCWLimit() const { return GetAngle() > m_ccwLimit; }
+bool Turret::HasPassedCCWLimit() {
+    return GetAngle() > m_ccwLimit || !m_ccwLimitSwitch.Get();
+}
 
-bool Turret::HasPassedCWLimit() const { return GetAngle() < m_cwLimit; }
+bool Turret::HasPassedCWLimit() {
+    return GetAngle() < m_cwLimit || !m_cwLimitSwitch.Get();
+}
 
 void Turret::SetCCWLimit(units::radian_t limit) { m_ccwLimit = limit; }
 
@@ -98,13 +115,8 @@ void Turret::RobotPeriodic() {
         m_observer.Xhat()(TurretController::State::kAngularVelocity));
     m_inputVoltageEntry.SetDouble(m_controller.GetInputs()(0));
     m_angleOutputEntry.SetDouble(GetAngle().to<double>());
-
-    if (m_leftLimitSwitch.Get()) {
-        SetCCWLimit(GetAngle());
-    }
-    if (m_rightLimitSwitch.Get()) {
-        SetCWLimit(GetAngle());
-    }
+    m_ccwLimitSwitchValueEntry.SetBoolean(m_ccwLimitSwitch.Get());
+    m_cwLimitSwitchValueEntry.SetBoolean(m_cwLimitSwitch.Get());
 
     int controlMode = static_cast<int>(m_controller.GetControlMode());
     if (controlMode == 0) {
@@ -212,6 +224,19 @@ void Turret::ControllerPeriodic() {
 
         m_encoderSim.SetDistance(HeadingToEncoderDistance(
             units::radian_t{m_turretSim.GetOutput(0)}));
+
+        if (units::radian_t{m_turretSim.GetOutput(0)} >
+            TurretController::kCCWLimit) {
+            m_ccwLimitSwitchSim.SetVoltage(0.0);
+        } else {
+            m_ccwLimitSwitchSim.SetVoltage(5.0);
+        }
+        if (units::radian_t{m_turretSim.GetOutput(0)} <
+            TurretController::kCWLimit) {
+            m_cwLimitSwitchSim.SetVoltage(0.0);
+        } else {
+            m_cwLimitSwitchSim.SetVoltage(5.0);
+        }
     }
 }
 

@@ -43,6 +43,7 @@ TEST_F(ClimberTest, ConfigSpaceLimits) {
     // Verify climber can't move below bottom soft limit
     appendageStick1.SetRawButton(1, true);
     appendageStick1.SetY(1.0);
+    appendageStick1.NotifyNewData();
     frc::sim::StepTiming(20_ms);
     EXPECT_EQ(climber.GetElevatorMotorOutput(), 0_V);
 
@@ -52,6 +53,7 @@ TEST_F(ClimberTest, ConfigSpaceLimits) {
     while (!climber.HasPassedTopLimit()) {
         appendageStick1.SetRawButton(1, true);
         appendageStick1.SetY(-1.0);
+        appendageStick1.NotifyNewData();
         frc::sim::StepTiming(20_ms);
 
         ASSERT_LT(timer.Get(), 30_s)
@@ -61,6 +63,7 @@ TEST_F(ClimberTest, ConfigSpaceLimits) {
     // Don't let climber move past top limit
     appendageStick1.SetRawButton(1, true);
     appendageStick1.SetY(-1.0);
+    appendageStick1.NotifyNewData();
     frc::sim::StepTiming(20_ms);
     EXPECT_EQ(climber.GetElevatorMotorOutput(), 0_V);
 }

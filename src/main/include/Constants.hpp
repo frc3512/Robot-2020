@@ -45,8 +45,8 @@ namespace Turret {
 constexpr int kPort = 8;
 
 // Hall Sensor Ports
-constexpr int kRightHallPort = 0;
-constexpr int kLeftHallPort = 1;
+constexpr int kCCWHallPort = 0;
+constexpr int kCWHallPort = 1;
 
 // Encoder Values
 constexpr int kEncoderPort = 8;
