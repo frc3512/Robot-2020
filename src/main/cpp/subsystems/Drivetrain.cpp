@@ -71,7 +71,7 @@ frc::Pose2d Drivetrain::GetPose() const {
 }
 
 units::radian_t Drivetrain::GetAngle() const {
-    return units::degree_t{-m_imu.GetAngle()} + m_headingOffset;
+    return units::degree_t{m_imu.GetAngle()} + m_headingOffset;
 }
 
 units::meter_t Drivetrain::GetLeftPosition() const {
@@ -179,7 +179,7 @@ void Drivetrain::ControllerPeriodic() {
             m_drivetrainSim.GetLeftPosition().to<double>());
         m_rightEncoderSim.SetDistance(
             m_drivetrainSim.GetRightPosition().to<double>());
-        m_imuSim.SetAngle(-units::degree_t{
+        m_imuSim.SetAngle(units::degree_t{
             m_drivetrainSim.GetHeading().Radians() - m_headingOffset});
 
         const auto& plant = DrivetrainController::GetPlant();
