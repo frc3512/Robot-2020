@@ -22,11 +22,6 @@ using namespace frc3512::Constants;
 const frc::LinearSystem<2, 2, 2> DrivetrainController::kPlant{GetPlant()};
 
 DrivetrainController::DrivetrainController() {
-    // Reset the pose estimate to the field's bottom-left corner with the turret
-    // facing in the target's general direction. This is relatively close to the
-    // robot's testing configuration, so the turret won't hit the soft limits.
-    Reset(frc::Pose2d{0_m, 0_m, units::radian_t{wpi::math::pi}});
-
     m_A = JacobianX(Eigen::Matrix<double, 7, 1>::Zero());
     m_B = JacobianU(Eigen::Matrix<double, 2, 1>::Zero());
 

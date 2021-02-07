@@ -59,6 +59,11 @@ Drivetrain::Drivetrain()
     m_leftEncoder.SetDistancePerPulse(DrivetrainController::kDpP);
     m_rightEncoder.SetDistancePerPulse(DrivetrainController::kDpP);
 
+    // Reset the pose estimate to the field's bottom-left corner with the turret
+    // facing in the target's general direction. This is relatively close to the
+    // robot's testing configuration, so the turret won't hit the soft limits.
+    Reset(frc::Pose2d{0_m, 0_m, units::radian_t{wpi::math::pi}});
+
     frc::SmartDashboard::PutData(&m_field);
 }
 
