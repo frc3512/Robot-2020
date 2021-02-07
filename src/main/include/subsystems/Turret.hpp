@@ -172,9 +172,9 @@ private:
     nt::NetworkTableEntry m_inputVoltageEntry =
         NetworkTableUtil::MakeEntry("/Diagnostics/Turret/Inputs/Voltage", 0);
     nt::NetworkTableEntry m_angleOutputEntry =
-        NetworkTableUtil::MakeEntry("/Diagnostics/Turret/Outputs/Angle", "0");
-    nt::NetworkTableEntry m_controlModeEntry =
-        NetworkTableUtil::MakeEntry("/Diagnostics/Turret/Control mode", false);
+        NetworkTableUtil::MakeEntry("/Diagnostics/Turret/Outputs/Angle", 0);
+    nt::NetworkTableEntry m_controlModeEntry = NetworkTableUtil::MakeEntry(
+        "/Diagnostics/Turret/Control mode", "Manual");
     nt::NetworkTableEntry m_poseMeasurementFaultEntry =
         NetworkTableUtil::MakeEntry(
             "/Diagnostics/Turret/Measurement fault counter", 0);
