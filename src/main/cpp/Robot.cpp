@@ -140,11 +140,13 @@ void Robot::TeleopPeriodic() {
 void Robot::TestPeriodic() { SubsystemBase::RunAllTestPeriodic(); }
 
 void Robot::ControllerPeriodic() {
-    if (frc::DriverStation::GetInstance().IsEnabled()) {
-        drivetrain.ControllerPeriodic();
-        turret.ControllerPeriodic();
-        flywheel.ControllerPeriodic();
+    if (!frc::DriverStation::GetInstance().IsEnabled()) {
+        return;
     }
+
+    drivetrain.ControllerPeriodic();
+    turret.ControllerPeriodic();
+    flywheel.ControllerPeriodic();
 }
 
 void Robot::RunShooterSM() {
