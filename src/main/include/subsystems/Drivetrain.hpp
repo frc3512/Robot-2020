@@ -11,6 +11,7 @@
 #include <frc/SpeedControllerGroup.h>
 #include <frc/estimator/AngleStatistics.h>
 #include <frc/estimator/KalmanFilterLatencyCompensator.h>
+#include <frc/estimator/UnscentedKalmanFilter.h>
 #include <frc/geometry/Pose2d.h>
 #include <frc/geometry/Translation2d.h>
 #include <frc/simulation/DifferentialDrivetrainSim.h>
@@ -27,12 +28,6 @@
 #include <units/length.h>
 #include <units/time.h>
 #include <units/velocity.h>
-
-#if defined(__FRC_ROBORIO__)
-#include <frc/estimator/ExtendedKalmanFilter.hpp>
-#else
-#include <frc/estimator/UnscentedKalmanFilter.h>
-#endif  // defined(__FRC_ROBORIO__)
 
 #include "Constants.hpp"
 #include "NetworkTableUtil.hpp"
@@ -228,27 +223,19 @@ private:
     frc::ADIS16470_IMU m_imu;
     units::radian_t m_headingOffset = 0_rad;
 
-#if defined(__FRC_ROBORIO__)
-    frc::ExtendedKalmanFilter<7, 2, 4> m_observer {
-#else
-    frc::UnscentedKalmanFilter<7, 2, 4> m_observer {
-#endif  // defined(__FRC_ROBORIO__)
+    frc::UnscentedKalmanFilter<7, 2, 4> m_observer{
         DrivetrainController::Dynamics,
-            DrivetrainController::LocalMeasurementModel,
-            {0.002, 0.002, 0.0001, 1.5, 1.5, 0.5, 0.5},
-            {0.0001, 0.005, 0.005, 7.0},
-#if !defined(__FRC_ROBORIO__)
-            frc::AngleMean<7, 7>(2), frc::AngleMean<4, 7>(0),
-            frc::AngleResidual<7>(2),
-#endif  // !defined(__FRC_ROBORIO__)
-            frc::AngleResidual<4>(0), frc::AngleAdd<7>(2), Constants::kDt
-    };
+        DrivetrainController::LocalMeasurementModel,
+        {0.002, 0.002, 0.0001, 1.5, 1.5, 0.5, 0.5},
+        {0.0001, 0.005, 0.005, 7.0},
+        frc::AngleMean<7, 7>(2),
+        frc::AngleMean<4, 7>(0),
+        frc::AngleResidual<7>(2),
+        frc::AngleResidual<4>(0),
+        frc::AngleAdd<7>(2),
+        Constants::kDt};
     frc::KalmanFilterLatencyCompensator<7, 2, 4,
-#if defined(__FRC_ROBORIO__)
-                                        frc::ExtendedKalmanFilter<7, 2, 4>>
-#else
                                         frc::UnscentedKalmanFilter<7, 2, 4>>
-#endif  // defined(__FRC_ROBORIO__)
         m_latencyComp;
     DrivetrainController m_controller;
     Eigen::Matrix<double, 2, 1> m_u = Eigen::Matrix<double, 2, 1>::Zero();
