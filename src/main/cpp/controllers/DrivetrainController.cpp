@@ -143,15 +143,10 @@ frc::TrajectoryConfig DrivetrainController::MakeTrajectoryConfig() {
 
 Eigen::Matrix<double, 2, 5> DrivetrainController::ControllerGainForState(
     const Eigen::Matrix<double, 7, 1>& x) {
-    // Make the heading zero because the LTV controller controls forward error
-    // and cross-track error
-    Eigen::Matrix<double, 7, 1> x0 = x;
-    x0(State::kHeading) = 0.0;
-
     // The DARE is ill-conditioned if the velocity is close to zero, so don't
     // let the system stop.
     double velocity =
-        (x0(State::kLeftVelocity) + x0(State::kRightVelocity)) / 2.0;
+        (x(State::kLeftVelocity) + x(State::kRightVelocity)) / 2.0;
     if (std::abs(velocity) < 1e-4) {
         return Eigen::Matrix<double, 2, 5>::Zero();
     }
@@ -174,21 +169,11 @@ Eigen::Matrix<double, 2, 1> DrivetrainController::Controller(
     } catch (const std::runtime_error& e) {
         fmt::print(stderr, "{}\n", e.what());
 
-        Eigen::Matrix<double, 7, 1> x0 = x;
-        x0(State::kHeading) = 0.0;
-
-        // The DARE is ill-conditioned if the velocity is close to zero, so
-        // don't let the system stop.
-        double velocity =
-            (x0(State::kLeftVelocity) + x0(State::kRightVelocity)) / 2.0;
-        if (std::abs(velocity) < 1e-3) {
-            x0(State::kLeftVelocity) += 1e-3;
-            x0(State::kRightVelocity) += 1e-3;
-        }
-
         Eigen::Matrix<double, 5, 5> discA;
         Eigen::Matrix<double, 5, 2> discB;
-        frc::DiscretizeAB<5, 2>(JacobianX(x0), m_B, kDt, &discA, &discB);
+        m_A(State::kY, State::kHeading) =
+            (x(State::kLeftVelocity) + x(State::kRightVelocity)) / 2.0;
+        frc::DiscretizeAB<5, 2>(m_A, m_B, kDt, &discA, &discB);
         fmt::print(stderr, "A = {}\n", discA);
         fmt::print(stderr, "B = {}\n", discB);
     }
