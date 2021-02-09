@@ -24,6 +24,8 @@ const frc::LinearSystem<2, 2, 2> DrivetrainController::kPlant{GetPlant()};
 DrivetrainController::DrivetrainController() {
     m_A = JacobianX(Eigen::Matrix<double, 7, 1>::Zero());
     m_B = JacobianU(Eigen::Matrix<double, 2, 1>::Zero());
+    m_Q = frc::MakeCostMatrix(kControllerQ);
+    m_R = frc::MakeCostMatrix(kControllerR);
 
     m_trajectoryTimeElapsed.Start();
 }
@@ -152,9 +154,7 @@ Eigen::Matrix<double, 2, 5> DrivetrainController::ControllerGainForState(
     }
 
     m_A(State::kY, State::kHeading) = velocity;
-    return frc::LinearQuadraticRegulator<5, 2>(m_A, m_B, kControllerQ,
-                                               kControllerR, kDt)
-        .K();
+    return frc::LinearQuadraticRegulator<5, 2>(m_A, m_B, m_Q, m_R, kDt).K();
 }
 
 Eigen::Matrix<double, 2, 1> DrivetrainController::Controller(

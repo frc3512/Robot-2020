@@ -221,6 +221,8 @@ private:
 
     Eigen::Matrix<double, 5, 5> m_A;
     Eigen::Matrix<double, 5, 2> m_B;
+    Eigen::Matrix<double, 5, 5> m_Q;
+    Eigen::Matrix<double, 2, 2> m_R;
 
     wpi::static_circular_buffer<frc::Trajectory, 8> m_trajectories;
     frc::Pose2d m_goal;
