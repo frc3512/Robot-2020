@@ -219,6 +219,7 @@ private:
     frc::ControlAffinePlantInversionFeedforward<7, 2> m_ff{Dynamics,
                                                            Constants::kDt};
 
+    Eigen::Matrix<double, 5, 5> m_A;
     Eigen::Matrix<double, 5, 2> m_B;
 
     wpi::static_circular_buffer<frc::Trajectory, 8> m_trajectories;

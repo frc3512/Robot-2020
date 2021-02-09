@@ -27,6 +27,7 @@ DrivetrainController::DrivetrainController() {
     // robot's testing configuration, so the turret won't hit the soft limits.
     Reset(frc::Pose2d{0_m, 0_m, units::radian_t{wpi::math::pi}});
 
+    m_A = JacobianX(Eigen::Matrix<double, 7, 1>::Zero());
     m_B = JacobianU(Eigen::Matrix<double, 2, 1>::Zero());
 
     m_trajectoryTimeElapsed.Start();
@@ -160,7 +161,8 @@ Eigen::Matrix<double, 2, 5> DrivetrainController::ControllerGainForState(
         return Eigen::Matrix<double, 2, 5>::Zero();
     }
 
-    return frc::LinearQuadraticRegulator<5, 2>(JacobianX(x0), m_B, kControllerQ,
+    m_A(State::kY, State::kHeading) = velocity;
+    return frc::LinearQuadraticRegulator<5, 2>(m_A, m_B, kControllerQ,
                                                kControllerR, kDt)
         .K();
 }
