@@ -48,6 +48,10 @@ Robot::Robot() {
             "AutoNav Barrel Racing", [=] { AutoNavBarrelRacing(); }, false);
         m_autonChooser.AddAutonomous(
             "AutoNav Slalom", [=] { AutoNavSlalom(); }, false);
+        m_autonChooser.AddAutonomous(
+            "Galactic Search A", [=] { AutoGalacticSearchA(); }, false);
+        m_autonChooser.AddAutonomous(
+            "Galactic Search B", [=] { AutoGalacticSearchB(); }, false);
     }
 
     frc::DriverStation::GetInstance().SilenceJoystickConnectionWarning(true);
@@ -266,6 +270,7 @@ void Robot::ExpectAutonomousEndConds() {
         if (m_autonChooser.CheckSelectedAutonomousEnds()) {
             EXPECT_FALSE(m_autonChooser.IsSuspended())
                 << "Autonomous mode didn't finish within the autonomous period";
+            EXPECT_TRUE(m_turret.AtGoal());
         }
 
         EXPECT_TRUE(m_drivetrain.AtGoal());
@@ -275,7 +280,6 @@ void Robot::ExpectAutonomousEndConds() {
         EXPECT_NEAR(m_drivetrain.GetStates()(4), 0.0, 0.01);
 
         EXPECT_EQ(m_flywheel.GetGoal(), 0_rad_per_s);
-        EXPECT_TRUE(m_turret.AtGoal());
     }
 }
 

@@ -31,6 +31,9 @@ constexpr int kLeftEncoderA = 0;
 constexpr int kLeftEncoderB = 1;
 constexpr int kRightEncoderA = 2;
 constexpr int kRightEncoderB = 3;
+
+// Ultrasonic Port
+constexpr int kUltrasonicPort = 2;
 }  // namespace Drivetrain
 
 namespace Flywheel {

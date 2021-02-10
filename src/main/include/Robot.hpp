@@ -172,6 +172,20 @@ public:
     void AutoRightSideShootSix();
 
     /**
+     * Follows either the red or blue path for Path A defined in the At-Home
+     * Challenges manual depending on input given by the ultrasonic for
+     * completing the Galactic Search Challenge.
+     */
+    void AutoGalacticSearchA();
+
+    /**
+     * Follows either the red or blue path for Path B defined in the At-Home
+     * Challenges manual depending on input given by the ultrasonic for
+     * completing the Galactic Search Challenge.
+     */
+    void AutoGalacticSearchB();
+
+    /**
      * Shoot three power cells from the initiation line in front of the allied
      * trench run, intake three balls in the trench run, intake two balls under
      * shield generator, then shoot all five.
@@ -240,6 +254,9 @@ private:
     nt::NetworkTableEntry m_ballsToShootEntry =
         NetworkTableUtil::MakeDoubleEntry("/Diagnostics/Robot/ballsToShoot",
                                           0.0);
+    nt::NetworkTableEntry m_autoGalacticSearchPath =
+        NetworkTableUtil::MakeStringEntry(
+            "/Diagnostics/Drivetrain/Outputs/Galactic Search Path", "none");
 };
 
 }  // namespace frc3512
