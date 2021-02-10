@@ -160,7 +160,7 @@ Eigen::Matrix<double, 2, 5> DrivetrainController::ControllerGainForState(
     }
 
     m_A(State::kY, State::kHeading) = velocity;
-    return LQR(m_A, m_B, m_Q, m_R, kDt);
+    return LQR<5, 2>(m_A, m_B, m_Q, m_R, kDt);
 }
 
 Eigen::Matrix<double, 2, 1> DrivetrainController::Controller(
