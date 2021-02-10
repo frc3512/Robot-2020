@@ -131,6 +131,7 @@ public:
 private:
     static const frc::Pose2d kTargetPoseInGlobal;
 
+    // LUT from range to target to flywheel angular velocity
     LerpTable<units::meter_t, units::radians_per_second_t> m_table;
 
     rev::CANSparkMax m_leftGrbx{Constants::Flywheel::kLeftPort,

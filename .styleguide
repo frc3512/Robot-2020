@@ -24,6 +24,7 @@ modifiableFileExclude {
 includeOtherLibs {
   Eigen/
   adi/
+  drake/
   fmt/
   frc/
   frc2/

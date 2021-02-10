@@ -5,9 +5,7 @@
 #include <algorithm>
 #include <cmath>
 
-#include <fmt/core.h>
 #include <frc/MathUtil.h>
-#include <frc/controller/LinearQuadraticRegulator.h>
 #include <frc/kinematics/DifferentialDriveKinematics.h>
 #include <frc/system/plant/DCMotor.h>
 #include <frc/system/plant/LinearSystemId.h>
@@ -15,6 +13,7 @@
 #include <frc/trajectory/constraint/DifferentialDriveVelocitySystemConstraint.h>
 
 #include "EigenFormat.hpp"
+#include "controllers/LQR.hpp"
 
 using namespace frc3512;
 using namespace frc3512::Constants;
@@ -26,6 +25,13 @@ DrivetrainController::DrivetrainController() {
     m_B = JacobianU(Eigen::Matrix<double, 2, 1>::Zero());
     m_Q = frc::MakeCostMatrix(kControllerQ);
     m_R = frc::MakeCostMatrix(kControllerR);
+
+    Eigen::Matrix<double, 7, 1> x = Eigen::Matrix<double, 7, 1>::Zero();
+    for (auto velocity = -kMaxV; velocity < kMaxV; velocity += 0.01_mps) {
+        x(State::kLeftVelocity) = velocity.to<double>();
+        x(State::kRightVelocity) = velocity.to<double>();
+        m_table.Insert(velocity, ControllerGainForState(x));
+    }
 
     m_trajectoryTimeElapsed.Start();
 }
@@ -154,7 +160,7 @@ Eigen::Matrix<double, 2, 5> DrivetrainController::ControllerGainForState(
     }
 
     m_A(State::kY, State::kHeading) = velocity;
-    return frc::LinearQuadraticRegulator<5, 2>(m_A, m_B, m_Q, m_R, kDt).K();
+    return LQR(m_A, m_B, m_Q, m_R, kDt);
 }
 
 Eigen::Matrix<double, 2, 1> DrivetrainController::Controller(
@@ -162,21 +168,9 @@ Eigen::Matrix<double, 2, 1> DrivetrainController::Controller(
     const Eigen::Matrix<double, 7, 1>& r) {
     // This implements the linear time-varying differential drive controller in
     // theorem 8.6.4 of https://tavsys.net/controls-in-frc.
-    Eigen::Matrix<double, 2, 5> K;
-
-    try {
-        K = ControllerGainForState(x);
-    } catch (const std::runtime_error& e) {
-        fmt::print(stderr, "{}\n", e.what());
-
-        Eigen::Matrix<double, 5, 5> discA;
-        Eigen::Matrix<double, 5, 2> discB;
-        m_A(State::kY, State::kHeading) =
-            (x(State::kLeftVelocity) + x(State::kRightVelocity)) / 2.0;
-        frc::DiscretizeAB<5, 2>(m_A, m_B, kDt, &discA, &discB);
-        fmt::print(stderr, "A = {}\n", discA);
-        fmt::print(stderr, "B = {}\n", discB);
-    }
+    units::meters_per_second_t velocity{
+        (x(State::kLeftVelocity) + x(State::kRightVelocity)) / 2.0};
+    const auto& K = m_table[velocity];
 
     Eigen::Matrix<double, 5, 5> inRobotFrame =
         Eigen::Matrix<double, 5, 5>::Identity();

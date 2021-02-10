@@ -19,11 +19,13 @@
 #include <units/curvature.h>
 #include <units/length.h>
 #include <units/time.h>
+#include <units/velocity.h>
 #include <units/voltage.h>
 #include <wpi/math>
 #include <wpi/static_circular_buffer.h>
 
 #include "Constants.hpp"
+#include "LerpTable.hpp"
 #include "controllers/ControllerBase.hpp"
 
 namespace frc3512 {
@@ -223,6 +225,9 @@ private:
     Eigen::Matrix<double, 5, 2> m_B;
     Eigen::Matrix<double, 5, 5> m_Q;
     Eigen::Matrix<double, 2, 2> m_R;
+
+    // LUT from drivetrain linear velocity to LQR gain
+    LerpTable<units::meters_per_second_t, Eigen::Matrix<double, 2, 5>> m_table;
 
     wpi::static_circular_buffer<frc::Trajectory, 8> m_trajectories;
     frc::Pose2d m_goal;
