@@ -1,10 +1,11 @@
-// Copyright (c) 2020 FRC Team 3512. All Rights Reserved.
+// Copyright (c) 2020-2021 FRC Team 3512. All Rights Reserved.
 
 #include "AutonomousChooser.hpp"
 
 #include <algorithm>
 
 #include <fmt/core.h>
+#include <frc/DriverStation.h>
 #include <frc/smartdashboard/SmartDashboard.h>
 
 namespace frc3512 {
@@ -27,7 +28,7 @@ AutonomousChooser::AutonomousChooser(wpi::StringRef name,
             }
 
             {
-                std::scoped_lock lock{m_mutex};
+                std::scoped_lock lock{m_selectionMutex};
                 m_selectedChoice = event.value->GetString();
             }
 
@@ -38,7 +39,7 @@ AutonomousChooser::AutonomousChooser(wpi::StringRef name,
 }
 
 AutonomousChooser::~AutonomousChooser() {
-    EndAutonomous();
+    CancelAutonomous();
     m_selectedEntry.RemoveListener(m_selectedListenerHandle);
 }
 
@@ -55,7 +56,7 @@ void AutonomousChooser::AddAutonomous(wpi::StringRef name,
 
 void AutonomousChooser::SelectAutonomous(wpi::StringRef name) {
     {
-        std::scoped_lock lock{m_mutex};
+        std::scoped_lock lock{m_selectionMutex};
         m_selectedChoice = name;
     }
     m_selectedEntry.SetString(name);
@@ -65,53 +66,87 @@ const std::vector<std::string>& AutonomousChooser::GetAutonomousNames() const {
     return m_names;
 }
 
-void AutonomousChooser::YieldToMain() {
-    m_awaitingAuton = false;
+bool AutonomousChooser::Suspend() {
+    // Resume main thread by yielding the shared mutex to it. The main thread
+    // sets m_resumedAuton back to true when yielding.
+    m_resumedAuton = false;
     m_cond.notify_one();
-    m_cond.wait(m_autonLock, [&] { return m_awaitingAuton; });
+    m_cond.wait(m_autonLock, [&] { return m_resumedAuton; });
+
+    // Return true if the auton thread should continue, or false if it should
+    // exit. IsEnabled() isn't checked here so that if the robot loses
+    // connection to the DriverStation and is temporarily disabled, the
+    // autonomous mode will later resume without losing progress.
+    return frc::DriverStation::GetInstance().IsAutonomous() &&
+           !m_autonShouldExit;
 }
 
-void AutonomousChooser::Return() {
-    m_awaitingAuton = false;
-    m_cond.notify_one();
-}
+void AutonomousChooser::AwaitAutonomous() {
+    // Only start a new auton thread if one isn't currently suspended
+    if (IsSuspended()) {
+        return;
+    }
 
-void AutonomousChooser::AwaitStartAutonomous() {
     {
-        std::scoped_lock lock{m_mutex};
+        std::scoped_lock lock{m_selectionMutex};
         fmt::print("{} autonomous\n", m_selectedChoice);
         m_selectedAuton = &m_choices[m_selectedChoice];
     }
 
-    m_awaitingAuton = true;
+    m_resumedAuton = true;
     m_autonThread = std::thread{[=] {
+        // Wait for main thread to yield for first time
         m_autonLock.lock();
+
         m_autonRunning = true;
         (*m_selectedAuton)();
         m_autonRunning = false;
-        Return();
+
+        // Resume main thread by yielding the shared mutex to it
+        m_resumedAuton = false;
+        m_cond.notify_one();
         m_autonLock.unlock();
     }};
-    m_cond.wait(m_mainLock, [&] { return !m_awaitingAuton; });
+
+    // Yield to auton thread for first time by yielding the shared mutex to it.
+    // The auton thread sets m_resumedAuton back to false when yielding.
+    m_cond.wait(m_mainLock, [&] { return !m_resumedAuton; });
 }
 
-void AutonomousChooser::AwaitRunAutonomous() {
+void AutonomousChooser::ResumeAutonomous() {
     if (m_autonRunning) {
-        m_awaitingAuton = true;
+        // If auton thread is running, resume it by yielding the shared mutex to
+        // it. The auton thread sets m_resumedAuton back to false when yielding.
+        m_resumedAuton = true;
         m_cond.notify_one();
-        m_cond.wait(m_mainLock, [&] { return !m_awaitingAuton; });
+        m_cond.wait(m_mainLock, [&] { return !m_resumedAuton; });
     }
-}
 
-void AutonomousChooser::EndAutonomous() {
-    if (m_autonRunning) {
-        m_awaitingAuton = true;
-        m_cond.notify_one();
-        m_cond.wait(m_mainLock, [&] { return !m_awaitingAuton; });
-    }
-    if (m_autonThread.joinable()) {
+    // If auton thread just finished (that is, main thread just changed the
+    // m_autonRunning flag), join it so a future call to AwaitAutonomous() can
+    // start a new thread. Otherwise, it will be a no-op to allow resumption
+    // after disconnects that disable the robot.
+    if (m_autonThread.joinable() && !m_autonRunning) {
         m_autonThread.join();
     }
+}
+
+void AutonomousChooser::CancelAutonomous() {
+    if (m_autonThread.joinable()) {
+        // Resume the auton thread so it can exit. If the autonomous mode checks
+        // the return value of Suspend() correctly, it will exit as expected. If
+        // the autonomous mode has finished, ResumeAutonomous() is a no-op
+        // because otherwise, it would hang waiting for a Suspend() call that
+        // will never occur.
+        m_autonShouldExit = true;
+        ResumeAutonomous();
+
+        m_autonThread.join();
+    }
+}
+
+bool AutonomousChooser::IsSuspended() const {
+    return m_autonThread.joinable() && m_autonRunning;
 }
 
 void AutonomousChooser::InitSendable(frc::SendableBuilder& builder) {

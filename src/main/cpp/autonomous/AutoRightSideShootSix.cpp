@@ -26,9 +26,7 @@ void Robot::AutoRightSideShootSix() {
     intake.Deploy();
 
     while (!drivetrain.AtGoal()) {
-        m_autonChooser.YieldToMain();
-        if (!IsAutonomousEnabled()) {
-            EXPECT_TRUE(false) << "Autonomous mode didn't complete";
+        if (!m_autonChooser.Suspend()) {
             return;
         }
     }
@@ -41,9 +39,7 @@ void Robot::AutoRightSideShootSix() {
     Shoot(3);
 
     while (IsShooting()) {
-        m_autonChooser.YieldToMain();
-        if (!IsAutonomousEnabled()) {
-            EXPECT_TRUE(false) << "Autonomous mode didn't complete";
+        if (!m_autonChooser.Suspend()) {
             return;
         }
     }
@@ -69,9 +65,7 @@ void Robot::AutoRightSideShootSix() {
     intake.SetFunnel(0.4);
 
     while (!drivetrain.AtGoal()) {
-        m_autonChooser.YieldToMain();
-        if (!IsAutonomousEnabled()) {
-            EXPECT_TRUE(false) << "Autonomous mode didn't complete";
+        if (!m_autonChooser.Suspend()) {
             return;
         }
     }
@@ -87,9 +81,7 @@ void Robot::AutoRightSideShootSix() {
     }
 
     while (!drivetrain.AtGoal()) {
-        m_autonChooser.YieldToMain();
-        if (!IsAutonomousEnabled()) {
-            EXPECT_TRUE(false) << "Autonomous mode didn't complete";
+        if (!m_autonChooser.Suspend()) {
             return;
         }
     }
@@ -102,9 +94,7 @@ void Robot::AutoRightSideShootSix() {
     Shoot(3);
 
     while (IsShooting()) {
-        m_autonChooser.YieldToMain();
-        if (!IsAutonomousEnabled()) {
-            EXPECT_TRUE(false) << "Autonomous mode didn't complete";
+        if (!m_autonChooser.Suspend()) {
             return;
         }
     }

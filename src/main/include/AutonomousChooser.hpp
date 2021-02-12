@@ -1,8 +1,7 @@
-// Copyright (c) 2020 FRC Team 3512. All Rights Reserved.
+// Copyright (c) 2020-2021 FRC Team 3512. All Rights Reserved.
 
 #pragma once
 
-#include <atomic>
 #include <functional>
 #include <string>
 #include <thread>
@@ -58,52 +57,68 @@ public:
     const std::vector<std::string>& GetAutonomousNames() const;
 
     /**
-     * Yield to main robot thread and wait for next chance to run.
+     * Suspend the autonomous mode, yield to the main robot thread, and wait for
+     * the main thread to resume it.
+     *
+     * Returns true if the autonomous mode was allowed to continue by the main
+     * thread or false if the autonomous mode should exit.
      *
      * This function should only be called by the autonomous mode. A call by the
-     * main robot thread will block indefinitely.
+     * main thread will block indefinitely.
      */
-    void YieldToMain();
+    bool Suspend();
 
     /**
-     * Return to main robot thread.
+     * Starts the selected autonomous mode.
      *
-     * This function should only be called by the autonomous mode.
+     * This function should only be called by the main thread. It will block
+     * until the autonomous mode suspends itself. This ensures the main thread
+     * and autonomous mode won't race for resources.
      */
-    void Return();
+    void AwaitAutonomous();
 
     /**
-     * Runs the selected autonomous mode function.
-     */
-    void AwaitStartAutonomous();
-
-    /**
-     * Notify autonomous mode to run.
+     * Resume the autonomous mode.
      *
-     * This function should only be called by the main robot thread. It will
-     * block until the autonomous mode function waits to be run again. This
-     * ensures the main robot thread and autonomous mode won't race for
-     * resources.
+     * This function should only be called by the main thread. It will block
+     * until the autonomous mode suspends itself. This ensures the main thread
+     * and autonomous mode won't race for resources.
+     *
+     * This should also be called when switching from autonomous to other modes
+     * so the autonomous mode can exit. Once it exits, this function is a no-op
+     * until AwaitAutonomous() is called again.
      */
-    void AwaitRunAutonomous();
+    void ResumeAutonomous();
 
     /**
-     * Notify autonomous mode so it can exit.
+     * Stops the auton thread if it's running.
      */
-    void EndAutonomous();
+    void CancelAutonomous();
+
+    /**
+     * Returns true if autonomous mode was started and is currently suspended.
+     */
+    bool IsSuspended() const;
 
     void InitSendable(frc::SendableBuilder& builder) override;
 
 private:
     std::thread m_autonThread;
-    wpi::mutex m_mutex;
     wpi::mutex m_autonMutex;
-    std::unique_lock<wpi::mutex> m_mainLock{m_autonMutex};
-    std::unique_lock<wpi::mutex> m_autonLock{m_autonMutex, std::defer_lock};
-    wpi::condition_variable m_cond;
-    bool m_awaitingAuton = false;
-    bool m_autonRunning = false;
 
+    // The main thread's lock object for the auton mutex
+    std::unique_lock<wpi::mutex> m_mainLock{m_autonMutex};
+
+    // The auton thread's lock object for the auton mutex. It starts unlocked so
+    // the main thread can execute first.
+    std::unique_lock<wpi::mutex> m_autonLock{m_autonMutex, std::defer_lock};
+
+    wpi::condition_variable m_cond;
+    bool m_resumedAuton = false;
+    bool m_autonRunning = false;
+    bool m_autonShouldExit = false;
+
+    wpi::mutex m_selectionMutex;
     std::string m_defaultChoice;
     std::string m_selectedChoice;
     wpi::StringMap<std::function<void()>> m_choices;

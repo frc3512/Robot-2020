@@ -18,9 +18,7 @@ void Robot::AutoRightSideShootThree() {
     drivetrain.AddTrajectory(kInitialPose, {}, kEndPose);
 
     while (!drivetrain.AtGoal()) {
-        m_autonChooser.YieldToMain();
-        if (!IsAutonomousEnabled()) {
-            EXPECT_TRUE(false) << "Autonomous mode didn't complete";
+        if (!m_autonChooser.Suspend()) {
             return;
         }
     }
@@ -33,9 +31,7 @@ void Robot::AutoRightSideShootThree() {
     Shoot(3);
 
     while (IsShooting()) {
-        m_autonChooser.YieldToMain();
-        if (!IsAutonomousEnabled()) {
-            EXPECT_TRUE(false) << "Autonomous mode didn't complete";
+        if (!m_autonChooser.Suspend()) {
             return;
         }
     }

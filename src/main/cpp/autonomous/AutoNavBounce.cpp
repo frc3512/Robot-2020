@@ -45,9 +45,7 @@ void Robot::AutoNavBounce() {
     drivetrain.AddTrajectory(kThirdStar, {}, kEndPose, backwardConfig);
 
     while (!drivetrain.AtGoal()) {
-        m_autonChooser.YieldToMain();
-        if (!IsAutonomousEnabled()) {
-            EXPECT_TRUE(false) << "Autonomous mode didn't complete";
+        if (!m_autonChooser.Suspend()) {
             return;
         }
     }

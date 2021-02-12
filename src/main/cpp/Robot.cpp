@@ -69,7 +69,7 @@ bool Robot::IsShooting() const { return m_state != ShootingState::kIdle; }
 void Robot::SimulationInit() { SubsystemBase::RunAllSimulationInit(); }
 
 void Robot::DisabledInit() {
-    m_autonChooser.EndAutonomous();
+    m_autonChooser.ResumeAutonomous();
     SubsystemBase::RunAllDisabledInit();
 
     // Reset teleop shooting state machine when disabling robot
@@ -81,16 +81,16 @@ void Robot::DisabledInit() {
 
 void Robot::AutonomousInit() {
     SubsystemBase::RunAllAutonomousInit();
-    m_autonChooser.AwaitStartAutonomous();
+    m_autonChooser.AwaitAutonomous();
 }
 
 void Robot::TeleopInit() {
-    m_autonChooser.EndAutonomous();
+    m_autonChooser.CancelAutonomous();
     SubsystemBase::RunAllTeleopInit();
 }
 
 void Robot::TestInit() {
-    m_autonChooser.EndAutonomous();
+    m_autonChooser.ResumeAutonomous();
     SubsystemBase::RunAllTestInit();
 }
 
@@ -120,7 +120,7 @@ void Robot::DisabledPeriodic() { SubsystemBase::RunAllDisabledPeriodic(); }
 
 void Robot::AutonomousPeriodic() {
     SubsystemBase::RunAllAutonomousPeriodic();
-    m_autonChooser.AwaitRunAutonomous();
+    m_autonChooser.ResumeAutonomous();
 
     RunShooterSM();
 }
@@ -214,6 +214,9 @@ const std::vector<std::string>& Robot::GetAutonomousNames() const {
 
 void Robot::ExpectAutonomousEndConds() {
     if constexpr (IsSimulation()) {
+        EXPECT_FALSE(m_autonChooser.IsSuspended())
+            << "Autonomous mode didn't finish within the autonomous period";
+
         EXPECT_TRUE(drivetrain.AtGoal());
 
         // Verify left/right wheel velocities are zero
