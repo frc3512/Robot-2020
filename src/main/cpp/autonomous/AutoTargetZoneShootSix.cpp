@@ -56,15 +56,6 @@ void Robot::AutoTargetZoneShootSix() {
     intake.SetArmMotor(Intake::ArmMotorDirection::kIntake);
     intake.SetFunnel(0.4);
 
-    while (!drivetrain.AtGoal()) {
-        if (!m_autonChooser.Suspend()) {
-            return;
-        }
-    }
-
-    intake.SetArmMotor(Intake::ArmMotorDirection::kIdle);
-    intake.SetFunnel(0.0);
-
     // Drive back
     {
         auto config = Drivetrain::MakeTrajectoryConfig();
@@ -73,6 +64,12 @@ void Robot::AutoTargetZoneShootSix() {
     }
 
     while (!drivetrain.AtGoal()) {
+        if (drivetrain.GetReferencePose().Translation().Distance(
+                kEndPose.Translation()) < 1_cm) {
+            intake.SetArmMotor(Intake::ArmMotorDirection::kIdle);
+            intake.SetFunnel(0.0);
+        }
+
         if (!m_autonChooser.Suspend()) {
             return;
         }

@@ -51,6 +51,11 @@ public:
     Drivetrain& operator=(const Drivetrain&) = delete;
 
     /**
+     * Returns the drivetrain's reference pose.
+     */
+    frc::Pose2d GetReferencePose() const;
+
+    /**
      * Returns the drivetrain's pose estimate.
      */
     frc::Pose2d GetPose() const;

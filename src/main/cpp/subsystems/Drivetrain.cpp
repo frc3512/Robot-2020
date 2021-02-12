@@ -67,6 +67,14 @@ Drivetrain::Drivetrain()
     frc::SmartDashboard::PutData(&m_field);
 }
 
+frc::Pose2d Drivetrain::GetReferencePose() const {
+    const auto& x = m_controller.GetReferences();
+    return frc::Pose2d{
+        units::meter_t{x(DrivetrainController::State::kX)},
+        units::meter_t{x(DrivetrainController::State::kY)},
+        units::radian_t{x(DrivetrainController::State::kHeading)}};
+}
+
 frc::Pose2d Drivetrain::GetPose() const {
     const auto& x = m_observer.Xhat();
     return frc::Pose2d{
