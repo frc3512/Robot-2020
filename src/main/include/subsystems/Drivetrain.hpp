@@ -246,10 +246,10 @@ private:
     Eigen::Matrix<double, 2, 1> m_u = Eigen::Matrix<double, 2, 1>::Zero();
 
     double m_defaultValue = 0.0;
-    nt::NetworkTableEntry m_xStateEntry =
-        NetworkTableUtil::MakeEntry("/Diagnostics/Drivetrain/States/X", m_defaultValue);
-    nt::NetworkTableEntry m_yStateEntry =
-        NetworkTableUtil::MakeEntry("/Diagnostics/Drivetrain/States/Y", m_defaultValue);
+    nt::NetworkTableEntry m_xStateEntry = NetworkTableUtil::MakeEntry(
+        "/Diagnostics/Drivetrain/States/X", m_defaultValue);
+    nt::NetworkTableEntry m_yStateEntry = NetworkTableUtil::MakeEntry(
+        "/Diagnostics/Drivetrain/States/Y", m_defaultValue);
     nt::NetworkTableEntry m_headingStateEntry = NetworkTableUtil::MakeEntry(
         "/Diagnostics/Drivetrain/States/Heading", m_defaultValue);
     nt::NetworkTableEntry m_leftVelocityStateEntry =

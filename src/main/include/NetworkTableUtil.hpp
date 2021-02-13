@@ -15,7 +15,6 @@ namespace frc3512::NetworkTableUtil {
  * @param name         Path of network table entry.
  * @param defaultValue The entry's initial value.
  */
-template <typename T>
 nt::NetworkTableEntry MakeEntry(const wpi::Twine& name, double defaultValue);
 
 /**

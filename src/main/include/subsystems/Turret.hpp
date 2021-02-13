@@ -165,15 +165,15 @@ private:
 
     uint32_t m_poseMeasurementFaultCounter = 0;
     double m_defaultValue = 0.0;
-    nt::NetworkTableEntry m_angleStateEntry =
-        NetworkTableUtil::MakeEntry("/Diagnostics/Turret/States/Angle", m_defaultValue);
+    nt::NetworkTableEntry m_angleStateEntry = NetworkTableUtil::MakeEntry(
+        "/Diagnostics/Turret/States/Angle", m_defaultValue);
     nt::NetworkTableEntry m_angularVelocityStateEntry =
         NetworkTableUtil::MakeEntry(
             "/Diagnostics/Turret/States/Angular velocity", m_defaultValue);
-    nt::NetworkTableEntry m_inputVoltageEntry =
-        NetworkTableUtil::MakeEntry("/Diagnostics/Turret/Inputs/Voltage", m_defaultValue);
-    nt::NetworkTableEntry m_angleOutputEntry =
-        NetworkTableUtil::MakeEntry("/Diagnostics/Turret/Outputs/Angle", m_defaultValue);
+    nt::NetworkTableEntry m_inputVoltageEntry = NetworkTableUtil::MakeEntry(
+        "/Diagnostics/Turret/Inputs/Voltage", m_defaultValue);
+    nt::NetworkTableEntry m_angleOutputEntry = NetworkTableUtil::MakeEntry(
+        "/Diagnostics/Turret/Outputs/Angle", m_defaultValue);
     nt::NetworkTableEntry m_controlModeEntry = NetworkTableUtil::MakeEntry(
         "/Diagnostics/Turret/Control mode", "Manual");
     nt::NetworkTableEntry m_poseMeasurementFaultEntry =
