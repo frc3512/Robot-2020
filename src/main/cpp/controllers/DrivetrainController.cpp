@@ -39,18 +39,17 @@ DrivetrainController::DrivetrainController() {
 // TODO: Remove this when support is merged into frc::Trajectory upstream
 frc::Trajectory operator+(const frc::Trajectory& lhs,
                           const frc::Trajectory& rhs) {
+    if (lhs.States().empty()) {
+        return rhs;
+    }
+
     auto lhsStates = lhs.States();
     auto rhsStates = rhs.States();
     for (auto& state : rhsStates) {
         state.t += lhs.TotalTime();
     }
 
-    if (lhsStates.size() > 0) {
-        lhsStates.insert(lhsStates.end(), rhsStates.begin() + 1,
-                         rhsStates.end());
-    } else {
-        lhsStates.insert(lhsStates.end(), rhsStates.begin(), rhsStates.end());
-    }
+    lhsStates.insert(lhsStates.end(), rhsStates.begin() + 1, rhsStates.end());
     return frc::Trajectory{lhsStates};
 }
 
