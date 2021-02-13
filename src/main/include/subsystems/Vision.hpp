@@ -61,12 +61,13 @@ public:
     void ProcessNewMeasurement();
 
 private:
+    double m_defaultValue = 0.0;
     nt::NetworkTableEntry m_ledIsOn =
         NetworkTableUtil::MakeEntry("LED Ring Light/LED-State", "0");
     nt::NetworkTableEntry m_pose = NetworkTableUtil::MakeEntry(
         "chameleon-vision/RPI-Cam/target-Pose", {0.0, 0.0, 0.0});
     nt::NetworkTableEntry m_latency =
-        NetworkTableUtil::MakeEntry("chameleon-vision/RPI-Cam/latency", 0);
+        NetworkTableUtil::MakeEntry("chameleon-vision/RPI-Cam/latency", m_defaultValue);
     NT_EntryListener m_listenerHandle;
 
     frc3512::static_concurrent_queue<GlobalMeasurement, 8> m_measurements;

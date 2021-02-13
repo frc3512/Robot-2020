@@ -167,19 +167,20 @@ private:
     // measuring flywheel lookup table values.
     double m_testThrottle = 0.0;
 
+    double m_defaultValue = 0.0;
     nt::NetworkTableEntry m_angularVelocityRefEntry =
         NetworkTableUtil::MakeEntry(
-            "/Diagnostics/Flywheel/References/Angular velocity", 0);
+            "/Diagnostics/Flywheel/References/Angular velocity", m_defaultValue);
     nt::NetworkTableEntry m_angularVelocityStateEntry =
         NetworkTableUtil::MakeEntry(
-            "/Diagnostics/Flywheel/States/Angular velocity", 0);
+            "/Diagnostics/Flywheel/States/Angular velocity", m_defaultValue);
     nt::NetworkTableEntry m_isOnEntry =
         NetworkTableUtil::MakeEntry("/Diagnostics/Flywheel/IsOn", false);
     nt::NetworkTableEntry m_isReadyEntry =
         NetworkTableUtil::MakeEntry("/Diagnostics/Flywheel/IsReady", false);
     nt::NetworkTableEntry m_manualAngularVelocityReferenceEntry =
         NetworkTableUtil::MakeEntry(
-            "/Diagnostics/Flywheel/Manual angular velocity reference", 0);
+            "/Diagnostics/Flywheel/Manual angular velocity reference", m_defaultValue);
 
     // Measurement noise isn't added because the simulated encoder stores the
     // count as an integer, which already introduces quantization noise.
