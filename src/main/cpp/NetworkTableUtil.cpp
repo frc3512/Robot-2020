@@ -6,7 +6,8 @@
 
 namespace frc3512::NetworkTableUtil {
 
-nt::NetworkTableEntry MakeEntry(const wpi::Twine& name, double defaultValue) {
+nt::NetworkTableEntry MakeDoubleEntry(const wpi::Twine& name,
+                                      double defaultValue) {
     nt::NetworkTableInstance instance = nt::NetworkTableInstance::GetDefault();
     nt::NetworkTableEntry entry = instance.GetEntry(name);
     entry.SetDefaultDouble(defaultValue);
@@ -14,7 +15,7 @@ nt::NetworkTableEntry MakeEntry(const wpi::Twine& name, double defaultValue) {
     return entry;
 }
 
-nt::NetworkTableEntry MakeEntry(const wpi::Twine& name, bool defaultValue) {
+nt::NetworkTableEntry MakeBoolEntry(const wpi::Twine& name, bool defaultValue) {
     nt::NetworkTableInstance instance = nt::NetworkTableInstance::GetDefault();
     nt::NetworkTableEntry entry = instance.GetEntry(name);
     entry.SetDefaultBoolean(defaultValue);
@@ -22,8 +23,8 @@ nt::NetworkTableEntry MakeEntry(const wpi::Twine& name, bool defaultValue) {
     return entry;
 }
 
-nt::NetworkTableEntry MakeEntry(const wpi::Twine& name,
-                                const wpi::Twine& defaultValue) {
+nt::NetworkTableEntry MakeStringEntry(const wpi::Twine& name,
+                                      const wpi::Twine& defaultValue) {
     nt::NetworkTableInstance instance = nt::NetworkTableInstance::GetDefault();
     nt::NetworkTableEntry entry = instance.GetEntry(name);
     entry.SetDefaultString(defaultValue);
@@ -31,8 +32,8 @@ nt::NetworkTableEntry MakeEntry(const wpi::Twine& name,
     return entry;
 }
 
-nt::NetworkTableEntry MakeEntry(const wpi::Twine& name,
-                                std::initializer_list<double> defaultValue) {
+nt::NetworkTableEntry MakeDoubleArrayEntry(
+    const wpi::Twine& name, std::initializer_list<double> defaultValue) {
     nt::NetworkTableInstance instance = nt::NetworkTableInstance::GetDefault();
     nt::NetworkTableEntry entry = instance.GetEntry(name);
     entry.SetDefaultDoubleArray(defaultValue);

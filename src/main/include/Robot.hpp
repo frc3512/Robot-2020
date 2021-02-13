@@ -207,9 +207,11 @@ private:
     frc::CSVLogFile m_batteryLogger{"Battery", "Battery voltage (V)"};
 
     nt::NetworkTableEntry m_batteryVoltageEntry =
-        NetworkTableUtil::MakeEntry("/Diagnostics/Robot/batteryVoltage", 0);
+        NetworkTableUtil::MakeDoubleEntry("/Diagnostics/Robot/batteryVoltage",
+                                          0.0);
     nt::NetworkTableEntry m_ballsToShootEntry =
-        NetworkTableUtil::MakeEntry("/Diagnostics/Robot/ballsToShoot", 0);
+        NetworkTableUtil::MakeDoubleEntry("/Diagnostics/Robot/ballsToShoot",
+                                          0.0);
 };
 
 }  // namespace frc3512

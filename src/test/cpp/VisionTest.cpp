@@ -18,7 +18,7 @@ class VisionTest : public frc3512::SimulatorTest {};
 TEST_F(VisionTest, CalculateDrivetrainInGlobal) {
     frc3512::Vision vision;
 
-    auto pose = frc3512::NetworkTableUtil::MakeEntry(
+    auto pose = frc3512::NetworkTableUtil::MakeDoubleArrayEntry(
         "chameleon-vision/RPI-Cam/target-Pose", {0, 0, 0});
 
     auto testMeasurement = [&](units::inch_t x, units::inch_t y,
