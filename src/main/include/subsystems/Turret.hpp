@@ -164,26 +164,28 @@ private:
     Flywheel& m_flywheel;
 
     uint32_t m_poseMeasurementFaultCounter = 0;
-    double m_defaultValue = 0.0;
-    nt::NetworkTableEntry m_angleStateEntry = NetworkTableUtil::MakeEntry(
-        "/Diagnostics/Turret/States/Angle", m_defaultValue);
+    nt::NetworkTableEntry m_angleStateEntry = NetworkTableUtil::MakeDoubleEntry(
+        "/Diagnostics/Turret/States/Angle", 0.0);
     nt::NetworkTableEntry m_angularVelocityStateEntry =
-        NetworkTableUtil::MakeEntry(
-            "/Diagnostics/Turret/States/Angular velocity", m_defaultValue);
-    nt::NetworkTableEntry m_inputVoltageEntry = NetworkTableUtil::MakeEntry(
-        "/Diagnostics/Turret/Inputs/Voltage", m_defaultValue);
-    nt::NetworkTableEntry m_angleOutputEntry = NetworkTableUtil::MakeEntry(
-        "/Diagnostics/Turret/Outputs/Angle", m_defaultValue);
-    nt::NetworkTableEntry m_controlModeEntry = NetworkTableUtil::MakeEntry(
-        "/Diagnostics/Turret/Control mode", "Manual");
+        NetworkTableUtil::MakeDoubleEntry(
+            "/Diagnostics/Turret/States/Angular velocity", 0.0);
+    nt::NetworkTableEntry m_inputVoltageEntry =
+        NetworkTableUtil::MakeDoubleEntry("/Diagnostics/Turret/Inputs/Voltage",
+                                          0.0);
+    nt::NetworkTableEntry m_angleOutputEntry =
+        NetworkTableUtil::MakeDoubleEntry("/Diagnostics/Turret/Outputs/Angle",
+                                          0.0);
+    nt::NetworkTableEntry m_controlModeEntry =
+        NetworkTableUtil::MakeStringEntry("/Diagnostics/Turret/Control mode",
+                                          "Manual");
     nt::NetworkTableEntry m_poseMeasurementFaultEntry =
-        NetworkTableUtil::MakeEntry(
-            "/Diagnostics/Turret/Measurement fault counter", m_defaultValue);
+        NetworkTableUtil::MakeDoubleEntry(
+            "/Diagnostics/Turret/Measurement fault counter", 0.0);
     nt::NetworkTableEntry m_ccwLimitSwitchValueEntry =
-        NetworkTableUtil::MakeEntry(
+        NetworkTableUtil::MakeBoolEntry(
             "/Diagnostics/Turret/CCW hard limit triggered", true);
     nt::NetworkTableEntry m_cwLimitSwitchValueEntry =
-        NetworkTableUtil::MakeEntry(
+        NetworkTableUtil::MakeBoolEntry(
             "/Diagnostics/Turret/CW hard limit triggered", true);
 
     // Simulation variables

@@ -245,41 +245,43 @@ private:
     DrivetrainController m_controller;
     Eigen::Matrix<double, 2, 1> m_u = Eigen::Matrix<double, 2, 1>::Zero();
 
-    double m_defaultValue = 0.0;
-    nt::NetworkTableEntry m_xStateEntry = NetworkTableUtil::MakeEntry(
-        "/Diagnostics/Drivetrain/States/X", m_defaultValue);
-    nt::NetworkTableEntry m_yStateEntry = NetworkTableUtil::MakeEntry(
-        "/Diagnostics/Drivetrain/States/Y", m_defaultValue);
-    nt::NetworkTableEntry m_headingStateEntry = NetworkTableUtil::MakeEntry(
-        "/Diagnostics/Drivetrain/States/Heading", m_defaultValue);
+    nt::NetworkTableEntry m_xStateEntry = NetworkTableUtil::MakeDoubleEntry(
+        "/Diagnostics/Drivetrain/States/X", 0.0);
+    nt::NetworkTableEntry m_yStateEntry = NetworkTableUtil::MakeDoubleEntry(
+        "/Diagnostics/Drivetrain/States/Y", 0.0);
+    nt::NetworkTableEntry m_headingStateEntry =
+        NetworkTableUtil::MakeDoubleEntry(
+            "/Diagnostics/Drivetrain/States/Heading", 0.0);
     nt::NetworkTableEntry m_leftVelocityStateEntry =
-        NetworkTableUtil::MakeEntry(
-            "/Diagnostics/Drivetrain/States/Left velocity", m_defaultValue);
+        NetworkTableUtil::MakeDoubleEntry(
+            "/Diagnostics/Drivetrain/States/Left velocity", 0.0);
     nt::NetworkTableEntry m_rightVelocityStateEntry =
-        NetworkTableUtil::MakeEntry(
-            "/Diagnostics/Drivetrain/States/Right velocity", m_defaultValue);
+        NetworkTableUtil::MakeDoubleEntry(
+            "/Diagnostics/Drivetrain/States/Right velocity", 0.0);
     nt::NetworkTableEntry m_leftPositionStateEntry =
-        NetworkTableUtil::MakeEntry(
-            "/Diagnostics/Drivetrain/States/Left position", m_defaultValue);
+        NetworkTableUtil::MakeDoubleEntry(
+            "/Diagnostics/Drivetrain/States/Left position", 0.0);
     nt::NetworkTableEntry m_rightPositionStateEntry =
-        NetworkTableUtil::MakeEntry(
-            "/Diagnostics/Drivetrain/States/Right position", m_defaultValue);
-    nt::NetworkTableEntry m_leftVoltageInputEntry = NetworkTableUtil::MakeEntry(
-        "/Diagnostics/Drivetrain/Inputs/Left voltage", m_defaultValue);
+        NetworkTableUtil::MakeDoubleEntry(
+            "/Diagnostics/Drivetrain/States/Right position", 0.0);
+    nt::NetworkTableEntry m_leftVoltageInputEntry =
+        NetworkTableUtil::MakeDoubleEntry(
+            "/Diagnostics/Drivetrain/Inputs/Left voltage", 0.0);
     nt::NetworkTableEntry m_rightVoltageInputEntry =
-        NetworkTableUtil::MakeEntry(
-            "/Diagnostics/Drivetrain/Inputs/Right voltage", m_defaultValue);
-    nt::NetworkTableEntry m_headingOutputEntry = NetworkTableUtil::MakeEntry(
-        "/Diagnostics/Drivetrain/Outputs/Heading", m_defaultValue);
+        NetworkTableUtil::MakeDoubleEntry(
+            "/Diagnostics/Drivetrain/Inputs/Right voltage", 0.0);
+    nt::NetworkTableEntry m_headingOutputEntry =
+        NetworkTableUtil::MakeDoubleEntry(
+            "/Diagnostics/Drivetrain/Outputs/Heading", 0.0);
     nt::NetworkTableEntry m_leftPositionOutputEntry =
-        NetworkTableUtil::MakeEntry(
-            "/Diagnostics/Drivetrain/Outputs/Left position", m_defaultValue);
+        NetworkTableUtil::MakeDoubleEntry(
+            "/Diagnostics/Drivetrain/Outputs/Left position", 0.0);
     nt::NetworkTableEntry m_rightPositionOutputEntry =
-        NetworkTableUtil::MakeEntry(
-            "/Diagnostics/Drivetrain/Outputs/Right position", m_defaultValue);
+        NetworkTableUtil::MakeDoubleEntry(
+            "/Diagnostics/Drivetrain/Outputs/Right position", 0.0);
     nt::NetworkTableEntry m_accelerationOutputEntry =
-        NetworkTableUtil::MakeEntry(
-            "/Diagnostics/Drivetrain/Outputs/Acceleration", m_defaultValue);
+        NetworkTableUtil::MakeDoubleEntry(
+            "/Diagnostics/Drivetrain/Outputs/Acceleration", 0.0);
 
     // Simulation variables
     frc::sim::DifferentialDrivetrainSim m_drivetrainSim{

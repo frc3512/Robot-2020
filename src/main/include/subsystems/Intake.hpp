@@ -118,9 +118,9 @@ private:
     frc::DoubleSolenoid m_arm{Constants::Intake::kArmForward,
                               Constants::Intake::kArmReverse};
 
-    nt::NetworkTableEntry m_upperSensorEntry = NetworkTableUtil::MakeEntry(
+    nt::NetworkTableEntry m_upperSensorEntry = NetworkTableUtil::MakeBoolEntry(
         "/Diagnostics/Intake/Upper sensor blocked", false);
-    nt::NetworkTableEntry m_lowerSensorEntry = NetworkTableUtil::MakeEntry(
+    nt::NetworkTableEntry m_lowerSensorEntry = NetworkTableUtil::MakeBoolEntry(
         "/Diagnostics/Intake/Lower sensor blocked", false);
 
     frc::CSVLogFile m_intakeLog{"Intake", "Deployed (bool)", "Speed (-1 .. 1)"};
