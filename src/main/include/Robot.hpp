@@ -26,6 +26,7 @@ struct NoOp {
 #define EXPECT_TRUE(a) frc3512::testing::NoOp()
 #endif
 
+#include "FlywheelCharacterizationUtil.hpp"
 #include "AutonomousChooser.hpp"
 #include "IntakeSim.hpp"
 #include "NetworkTableUtil.hpp"
@@ -101,6 +102,10 @@ public:
     void TeleopPeriodic() override;
 
     void TestPeriodic() override;
+
+    void RunFlywheelCharacterization();
+
+    std::vector<double>& TestGetEntries();
 
     /**
      * Runs the shooter state machine.
@@ -255,6 +260,8 @@ private:
     nt::NetworkTableEntry m_autoGalacticSearchPath =
         NetworkTableUtil::MakeStringEntry(
             "/Diagnostics/Drivetrain/Outputs/Galactic Search Path", "none");
+
+    FlywheelCharacterizationUtil m_characterization;
 };
 
 }  // namespace frc3512

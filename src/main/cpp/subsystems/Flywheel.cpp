@@ -108,16 +108,6 @@ units::radians_per_second_t Flywheel::GetReferenceForPose(
         kTargetPoseInGlobal.Translation())];
 }
 
-void Flywheel::RobotPeriodic() {
-    if (frc::DriverStation::GetInstance().IsTest()) {
-        static frc::Joystick appendageStick2{kAppendageStick2Port};
-
-        m_testThrottle = appendageStick2.GetThrottle();
-        auto manualRef = ThrottleToReference(m_testThrottle);
-        fmt::print("Manual angular velocity: {}\n", manualRef);
-    }
-}
-
 void Flywheel::ControllerPeriodic() {
     UpdateDt();
 
@@ -141,8 +131,9 @@ void Flywheel::ControllerPeriodic() {
     Eigen::Matrix<double, 1, 1> y;
     y << GetAngularVelocity().to<double>();
     m_observer.Correct(m_controller.GetInputs(), y);
-    m_u = m_controller.Calculate(m_observer.Xhat());
-    SetVoltage(units::volt_t{m_u(0)});
+    if (IsEnabled()) {
+        SetVoltage(units::volt_t{m_controller.Calculate(m_observer.Xhat())(0)});
+    }
 
     Log(m_controller.GetReferences(), m_observer.Xhat(), m_u, y);
 
@@ -170,6 +161,7 @@ void Flywheel::SetSimAngularVelocity(units::radians_per_second_t velocity) {
 }
 
 void Flywheel::SetVoltage(units::volt_t voltage) {
+    m_u(0) = voltage.to<double>();
     m_leftGrbx.SetVoltage(voltage);
     m_rightGrbx.SetVoltage(-voltage);
 }

@@ -17,6 +17,7 @@
 #include <frc/livewindow/LiveWindow.h>
 #include <frc/simulation/BatterySim.h>
 #include <frc/simulation/RoboRioSim.h>
+#include <frc/smartdashboard/SmartDashboard.h>
 
 #include "Constants.hpp"
 #include "RTUtils.hpp"
@@ -153,6 +154,8 @@ void Robot::DisabledInit() {
     m_vision.TurnLEDOff();
     m_timer.Stop();
     m_state = ShootingState::kIdle;
+
+    m_characterization.SendData();
 }
 
 void Robot::AutonomousInit() {
@@ -168,6 +171,10 @@ void Robot::TeleopInit() {
 void Robot::TestInit() {
     m_autonChooser.ResumeAutonomous();
     SubsystemBase::RunAllTestInit();
+    m_drivetrain.Disable();
+    m_flywheel.Disable();
+    m_turret.Disable();
+    m_characterization.SetStartTime();
 }
 
 void Robot::RobotPeriodic() {
@@ -189,6 +196,17 @@ void Robot::RobotPeriodic() {
         batteryVoltage);
     m_batteryVoltageEntry.SetDouble(batteryVoltage);
     m_ballsToShootEntry.SetDouble(m_ballsToShoot);
+
+    frc::SmartDashboard::PutNumber("l_encoder_pos",
+                                   m_flywheel.GetAngle().to<double>());
+    frc::SmartDashboard::PutNumber(
+        "l_encoder_rate", m_flywheel.GetAngularVelocity().to<double>());
+    frc::SmartDashboard::PutNumber("r_encoder_pos",
+                                   m_flywheel.GetAngle().to<double>());
+    frc::SmartDashboard::PutNumber("r_encoder_rate",
+                                   m_flywheel.GetAngle().to<double>());
+    frc::SmartDashboard::PutNumber("curr_flywheel_volts",
+                                   m_characterization.GetAutoSpeed());
 }
 
 void Robot::SimulationPeriodic() {
@@ -214,7 +232,20 @@ void Robot::AutonomousPeriodic() {
 
 void Robot::TeleopPeriodic() { SubsystemBase::RunAllTeleopPeriodic(); }
 
-void Robot::TestPeriodic() { SubsystemBase::RunAllTestPeriodic(); }
+void Robot::TestPeriodic() {
+    SubsystemBase::RunAllTestPeriodic();
+    RunFlywheelCharacterization();
+}
+
+void Robot::RunFlywheelCharacterization() {
+    m_characterization.UpdateData(m_flywheel.GetAngle(),
+                                  m_flywheel.GetAngularVelocity());
+    m_flywheel.SetVoltage(units::volt_t{m_characterization.GetAutoSpeed()});
+}
+
+std::vector<double>& Robot::TestGetEntries() {
+    return m_characterization.TestGetEntries();
+}
 
 void Robot::RunShooterSM() {
     m_eventLogger.Log(

@@ -113,8 +113,6 @@ public:
 
     void TeleopInit() override { Enable(); }
 
-    void RobotPeriodic() override;
-
     void ControllerPeriodic() override;
 
     /**
@@ -125,6 +123,13 @@ public:
      * @param velocity The simulation's angular velocity.
      */
     void SetSimAngularVelocity(units::radians_per_second_t velocity);
+
+    /**
+     * Sets the voltage of the flywheel motor.
+     *
+     * @param voltage The capped voltage to be set
+     */
+    void SetVoltage(units::volt_t voltage);
 
 private:
     static const frc::Pose2d kTargetPoseInGlobal;
@@ -170,13 +175,6 @@ private:
     FlywheelSim m_flywheelSim{m_controller.GetPlant(), frc::DCMotor::NEO(2),
                               1.0 / 2.0};
     frc::sim::EncoderSim m_encoderSim{m_encoder};
-
-    /**
-     * Sets the voltage of the flywheel motor.
-     *
-     * @param voltage The capped voltage to be set
-     */
-    void SetVoltage(units::volt_t voltage);
 
     /**
      * Computes an angular velocity reference from the provided joystick
