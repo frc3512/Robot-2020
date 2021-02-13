@@ -34,7 +34,8 @@ Drivetrain::Drivetrain()
           {ControllerLabel{"Heading", "rad"},
            ControllerLabel{"Left position", "m"},
            ControllerLabel{"Right position", "m"},
-           ControllerLabel{"Acceleration", "m/s^2"}}) {
+           ControllerLabel{"Longitudinal Acceleration", "m/s^2"},
+           ControllerLabel{"Lateral Acceleration", "m/s^2"}}) {
     SetCANSparkMaxBusUsage(m_leftLeader, Usage::kMinimal);
     SetCANSparkMaxBusUsage(m_leftFollower, Usage::kMinimal);
     SetCANSparkMaxBusUsage(m_rightLeader, Usage::kMinimal);
@@ -103,8 +104,12 @@ units::meters_per_second_t Drivetrain::GetRightVelocity() const {
     return units::meters_per_second_t{m_rightEncoder.GetRate()};
 }
 
-units::meters_per_second_squared_t Drivetrain::GetAcceleration() const {
-    return m_imu.GetAccelInstantX() * 9.8_mps_sq;
+units::meters_per_second_squared_t Drivetrain::GetAccelerationX() const {
+    return -m_imu.GetAccelInstantX() * 9.8_mps_sq;
+}
+
+units::meters_per_second_squared_t Drivetrain::GetAccelerationY() const {
+    return -m_imu.GetAccelInstantY() * 9.8_mps_sq;
 }
 
 void Drivetrain::Reset(const frc::Pose2d& initialPose) {
@@ -150,10 +155,10 @@ void Drivetrain::ControllerPeriodic() {
 
     m_observer.Predict(m_u, GetDt());
 
-    Eigen::Matrix<double, 4, 1> y;
+    Eigen::Matrix<double, 5, 1> y;
     y << frc::AngleModulus(GetAngle()).to<double>(),
         GetLeftPosition().to<double>(), GetRightPosition().to<double>(),
-        GetAcceleration().to<double>();
+        GetAccelerationX().to<double>(), GetAccelerationY().to<double>();
     m_latencyComp.AddObserverState(m_observer, m_controller.GetInputs(), y,
                                    frc2::Timer::GetFPGATimestamp());
     m_observer.Correct(m_controller.GetInputs(), y);
@@ -204,7 +209,13 @@ void Drivetrain::ControllerPeriodic() {
             m_rightGrbx.Get() * batteryVoltage;
         Eigen::Matrix<double, 2, 1> xdot = plant.A() * x + plant.B() * u;
         m_imuSim.SetAccelInstantX(
-            units::meters_per_second_squared_t{(xdot(0) + xdot(1)) / 2.0});
+            -units::meters_per_second_squared_t{(xdot(0) + xdot(1)) / 2.0});
+
+        units::meters_per_second_t leftVelocity{x(0)};
+        units::meters_per_second_t rightVelocity{x(1)};
+        m_imuSim.SetAccelInstantY(
+            -((rightVelocity * rightVelocity) - (leftVelocity * leftVelocity)) /
+            (2.0 * DrivetrainController::kWidth));
 
         m_field.SetRobotPose(m_drivetrainSim.GetPose());
     }
@@ -278,7 +289,8 @@ void Drivetrain::RobotPeriodic() {
     m_headingOutputEntry.SetDouble(GetAngle().to<double>());
     m_leftPositionOutputEntry.SetDouble(GetLeftPosition().to<double>());
     m_rightPositionOutputEntry.SetDouble(GetRightPosition().to<double>());
-    m_accelerationOutputEntry.SetDouble(GetAcceleration().to<double>());
+    m_accelerationXOutputEntry.SetDouble(GetAccelerationX().to<double>());
+    m_accelerationYOutputEntry.SetDouble(GetAccelerationY().to<double>());
 }
 
 void Drivetrain::TeleopPeriodic() {

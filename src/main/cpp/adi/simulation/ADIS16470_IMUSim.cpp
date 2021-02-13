@@ -16,6 +16,7 @@ ADIS16470_IMUSim::ADIS16470_IMUSim(const frc::ADIS16470_IMU& imu) {
     m_simAngle = deviceSim.GetDouble("angle_x");
     m_simRate = deviceSim.GetDouble("rate_x");
     m_simAccelX = deviceSim.GetDouble("accel_x");
+    m_simAccelY = deviceSim.GetDouble("accel_y");
 }
 
 void ADIS16470_IMUSim::SetAngle(units::degree_t angle) {
@@ -29,4 +30,9 @@ void ADIS16470_IMUSim::SetRate(units::degrees_per_second_t rate) {
 void ADIS16470_IMUSim::SetAccelInstantX(
     units::meters_per_second_squared_t accel) {
     m_simAccelX.Set(accel.to<double>() / 9.8);
+}
+
+void ADIS16470_IMUSim::SetAccelInstantY(
+    units::meters_per_second_squared_t accel) {
+    m_simAccelY.Set(accel.to<double>() / 9.8);
 }

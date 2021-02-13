@@ -40,7 +40,7 @@ namespace frc3512 {
 /**
  * Drivetrain subsystem.
  */
-class Drivetrain : public ControlledSubsystemBase<7, 2, 4> {
+class Drivetrain : public ControlledSubsystemBase<7, 2, 5> {
 public:
     static constexpr units::meter_t kLength = 0.9398_m;
     static constexpr units::meter_t kMiddleOfRobotToIntake = 0.656_m;
@@ -88,7 +88,12 @@ public:
     /**
      * Returns longitudinal acceleration from IMU.
      */
-    units::meters_per_second_squared_t GetAcceleration() const;
+    units::meters_per_second_squared_t GetAccelerationX() const;
+
+    /**
+     * Returns lateral acceleration from IMU.
+     */
+    units::meters_per_second_squared_t GetAccelerationY() const;
 
     /**
      * Resets all sensors and controller.
@@ -228,19 +233,19 @@ private:
     frc::ADIS16470_IMU m_imu;
     units::radian_t m_headingOffset = 0_rad;
 
-    frc::UnscentedKalmanFilter<7, 2, 4> m_observer{
+    frc::UnscentedKalmanFilter<7, 2, 5> m_observer{
         DrivetrainController::Dynamics,
         DrivetrainController::LocalMeasurementModel,
         {0.002, 0.002, 0.0001, 1.5, 1.5, 0.5, 0.5},
-        {0.0001, 0.005, 0.005, 7.0},
+        {0.0001, 0.005, 0.005, 7.0, 7.0},
         frc::AngleMean<7, 7>(2),
-        frc::AngleMean<4, 7>(0),
+        frc::AngleMean<5, 7>(0),
         frc::AngleResidual<7>(2),
-        frc::AngleResidual<4>(0),
+        frc::AngleResidual<5>(0),
         frc::AngleAdd<7>(2),
         Constants::kDt};
-    frc::KalmanFilterLatencyCompensator<7, 2, 4,
-                                        frc::UnscentedKalmanFilter<7, 2, 4>>
+    frc::KalmanFilterLatencyCompensator<7, 2, 5,
+                                        frc::UnscentedKalmanFilter<7, 2, 5>>
         m_latencyComp;
     DrivetrainController m_controller;
     Eigen::Matrix<double, 2, 1> m_u = Eigen::Matrix<double, 2, 1>::Zero();
@@ -279,9 +284,12 @@ private:
     nt::NetworkTableEntry m_rightPositionOutputEntry =
         NetworkTableUtil::MakeDoubleEntry(
             "/Diagnostics/Drivetrain/Outputs/Right position", 0.0);
-    nt::NetworkTableEntry m_accelerationOutputEntry =
+    nt::NetworkTableEntry m_accelerationXOutputEntry =
         NetworkTableUtil::MakeDoubleEntry(
-            "/Diagnostics/Drivetrain/Outputs/Acceleration", 0.0);
+            "/Diagnostics/Drivetrain/Outputs/AccelerationX", 0.0);
+    nt::NetworkTableEntry m_accelerationYOutputEntry =
+        NetworkTableUtil::MakeDoubleEntry(
+            "/Diagnostics/Drivetrain/Outputs/AccelerationY", 0.0);
 
     // Simulation variables
     frc::sim::DifferentialDrivetrainSim m_drivetrainSim{

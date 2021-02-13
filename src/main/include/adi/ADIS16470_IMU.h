@@ -361,6 +361,7 @@ class ADIS16470_IMU : public GyroBase {
   hal::SimDouble m_sim_angle;
   hal::SimDouble m_sim_rate;
   hal::SimDouble m_sim_accel_x;
+  hal::SimDouble m_sim_accel_y;
 };
 
 } //namespace frc

@@ -53,6 +53,7 @@ ADIS16470_IMU::ADIS16470_IMU(IMUAxis yaw_axis, SPI::Port port, ADIS16470Calibrat
         m_sim_device.CreateDouble("angle_x", hal::SimDevice::kInput, 0.0);
     m_sim_rate = m_sim_device.CreateDouble("rate_x", hal::SimDevice::kInput, 0.0);
     m_sim_accel_x = m_sim_device.CreateDouble("accel_x", hal::SimDevice::kInput, 0.0);
+    m_sim_accel_y = m_sim_device.CreateDouble("accel_y", hal::SimDevice::kInput, 0.0);
   }
 
   if (!m_sim_device) {
@@ -428,6 +429,7 @@ ADIS16470_IMU::ADIS16470_IMU(ADIS16470_IMU&& rhs) : GyroBase(std::move(rhs)) {
   std::swap(m_sim_angle, rhs.m_sim_angle);
   std::swap(m_sim_rate, rhs.m_sim_rate);
   std::swap(m_sim_accel_x, rhs.m_sim_accel_x);
+  std::swap(m_sim_accel_y, rhs.m_sim_accel_y);
 }
 
 ADIS16470_IMU& ADIS16470_IMU::operator=(ADIS16470_IMU&& rhs) {
@@ -447,6 +449,7 @@ ADIS16470_IMU& ADIS16470_IMU::operator=(ADIS16470_IMU&& rhs) {
   std::swap(m_sim_angle, rhs.m_sim_angle);
   std::swap(m_sim_rate, rhs.m_sim_rate);
   std::swap(m_sim_accel_x, rhs.m_sim_accel_x);
+  std::swap(m_sim_accel_y, rhs.m_sim_accel_y);
 
   return *this;
 }
@@ -737,6 +740,9 @@ double ADIS16470_IMU::GetAccelInstantX() const {
 }
 
 double ADIS16470_IMU::GetAccelInstantY() const {
+  if (m_sim_accel_y) {
+    return m_sim_accel_y.Get();
+  }
   std::lock_guard<wpi::mutex> sync(m_mutex);
   return m_accel_y;
 }

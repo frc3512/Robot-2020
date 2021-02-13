@@ -113,7 +113,7 @@ TEST_F(DrivetrainTest, CorrectsTowardGlobalY) {
     Eigen::Matrix<double, 7, 1> x;
     x << 5.0, 5.0, 1.0, 1.0, 1.0, 1.0, 1.0;
 
-    Eigen::Matrix<double, 4, 1> localY =
+    Eigen::Matrix<double, 5, 1> localY =
         frc3512::DrivetrainController::LocalMeasurementModel(
             x, Eigen::Matrix<double, 2, 1>::Zero());
     Eigen::Matrix<double, 2, 1> globalY =
@@ -123,7 +123,7 @@ TEST_F(DrivetrainTest, CorrectsTowardGlobalY) {
 
     // Add measurement noise
     if constexpr (!kIdealModel) {
-        localY += frc::MakeWhiteNoiseVector(0.0001, 0.005, 0.005, 7.0);
+        localY += frc::MakeWhiteNoiseVector(0.0001, 0.005, 0.005, 7.0, 7.0);
         globalY += frc::MakeWhiteNoiseVector(0.05, 0.05);
     }
 

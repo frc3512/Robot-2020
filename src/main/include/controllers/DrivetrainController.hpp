@@ -73,7 +73,8 @@ public:
         static constexpr int kHeading = 0;
         static constexpr int kLeftPosition = 1;
         static constexpr int kRightPosition = 2;
-        static constexpr int kAcceleration = 3;
+        static constexpr int kAccelerationX = 3;
+        static constexpr int kAccelerationY = 4;
     };
 
     /**
@@ -196,7 +197,7 @@ public:
     static Eigen::Matrix<double, 5, 2> JacobianU(
         const Eigen::Matrix<double, 2, 1>& u);
 
-    static Eigen::Matrix<double, 4, 1> LocalMeasurementModel(
+    static Eigen::Matrix<double, 5, 1> LocalMeasurementModel(
         const Eigen::Matrix<double, 7, 1>& x,
         const Eigen::Matrix<double, 2, 1>& u);
 

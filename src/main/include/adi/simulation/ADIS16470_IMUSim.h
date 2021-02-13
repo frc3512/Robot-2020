@@ -47,10 +47,18 @@ public:
      */
     void SetAccelInstantX(units::meters_per_second_squared_t accel);
 
+    /**
+     * Sets the Y axis acceleration.
+     *
+     * @param accel The acceleration.
+     */
+    void SetAccelInstantY(units::meters_per_second_squared_t accel);
+
 private:
     hal::SimDouble m_simAngle;
     hal::SimDouble m_simRate;
     hal::SimDouble m_simAccelX;
+    hal::SimDouble m_simAccelY;
 };
 
 }  // namespace sim
