@@ -65,12 +65,12 @@ def includeDesktopSupport = true
 // Enable simulation gui support. Must check the box in vscode to enable support
 // upon debugging
 dependencies {
-    simulation wpi.deps.sim.gui(wpi.platforms.desktop, true)
-    simulation wpi.deps.sim.driverstation(wpi.platforms.desktop, true)
+    simulation wpi.deps.sim.gui(wpi.platforms.desktop, false)
+    simulation wpi.deps.sim.driverstation(wpi.platforms.desktop, false)
 
     // Websocket extensions require additional configuration.
-    // simulation wpi.deps.sim.ws_server(wpi.platforms.desktop, true)
-    // simulation wpi.deps.sim.ws_client(wpi.platforms.desktop, true)
+    // simulation wpi.deps.sim.ws_server(wpi.platforms.desktop, false)
+    // simulation wpi.deps.sim.ws_client(wpi.platforms.desktop, false)
 }
 
 nativeUtils.platformConfigs.named("linuxathena").configure {
@@ -189,14 +189,14 @@ task testRelease {
 }
 
 task simulateCpp {
-    dependsOn 'simulateFrcUserProgram' + wpi.platforms.desktop.capitalize() + 'DebugExecutable'
+    dependsOn 'simulateFrcUserProgram' + wpi.platforms.desktop.capitalize() + 'ReleaseExecutable'
 }
 
 if (!OperatingSystem.current().isWindows()) {
     simulateCpp.doLast {
         exec {
             executable 'tail'
-            args '-f', 'build/stdout/simulateFrcUserProgram' + wpi.platforms.desktop.capitalize() + 'DebugExecutable.log'
+            args '-f', 'build/stdout/simulateFrcUserProgram' + wpi.platforms.desktop.capitalize() + 'ReleaseExecutable.log'
         }
     }
 

@@ -83,12 +83,6 @@ constexpr int kTraverserPort = 13;
 constexpr int kClimberLock = 3;
 }  // namespace Climber
 
-// Use a controller period greater than 5ms for simulation because the OS can't
-// reliably schedule processes that often.
-#if defined(__FRC_ROBORIO__) || defined(RUNNING_FRC_TESTS)
 constexpr auto kDt = 5_ms;
-#else
-constexpr auto kDt = 50_ms;
-#endif
 constexpr int kControllerPrio = 40;
 }  // namespace frc3512::Constants
