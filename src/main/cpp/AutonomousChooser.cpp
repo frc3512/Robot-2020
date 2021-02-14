@@ -3,10 +3,14 @@
 #include "AutonomousChooser.hpp"
 
 #include <algorithm>
+#include <stdexcept>
 
 #include <fmt/core.h>
 #include <frc/DriverStation.h>
+#include <frc/Threads.h>
 #include <frc/smartdashboard/SmartDashboard.h>
+
+#include "Constants.hpp"
 
 namespace frc3512 {
 
@@ -107,6 +111,11 @@ void AutonomousChooser::AwaitAutonomous() {
         m_cond.notify_one();
         m_autonLock.unlock();
     }};
+    if (!frc::SetThreadPriority(m_autonThread, true,
+                                Constants::kControllerPrio)) {
+        throw std::runtime_error(fmt::format(
+            "Setting RT priority to {} failed\n", Constants::kControllerPrio));
+    }
 
     // Yield to auton thread for first time by yielding the shared mutex to it.
     // The auton thread sets m_resumedAuton back to false when yielding.

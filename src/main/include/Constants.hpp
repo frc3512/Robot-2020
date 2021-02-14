@@ -84,5 +84,5 @@ constexpr int kClimberLock = 3;
 }  // namespace Climber
 
 constexpr auto kDt = 5_ms;
-constexpr int kControllerPrio = 40;
+constexpr int kControllerPrio = 15;
 }  // namespace frc3512::Constants
