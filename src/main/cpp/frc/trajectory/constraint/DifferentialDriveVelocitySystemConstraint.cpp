@@ -17,7 +17,9 @@ DifferentialDriveVelocitySystemConstraint::
     DifferentialDriveVelocitySystemConstraint(
         LinearSystem<2, 2, 2> system, DifferentialDriveKinematics kinematics,
         units::volt_t maxVoltage)
-    : m_system(system), m_kinematics(kinematics), m_maxVoltage(maxVoltage) {
+    : m_system(std::move(system)),
+      m_kinematics(kinematics),
+      m_maxVoltage(maxVoltage) {
   Eigen::Matrix<double, 2, 1> u;
   u << m_maxVoltage.to<double>(), m_maxVoltage.to<double>();
   Eigen::Matrix<double, 2, 1> maxX =
