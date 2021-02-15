@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include <Eigen/Core>
 #include <fmt/format.h>
 
 template <int Rows, int Cols, int... Args>

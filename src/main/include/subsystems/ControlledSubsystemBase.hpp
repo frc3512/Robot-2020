@@ -12,6 +12,7 @@
 #include <wpi/StringRef.h>
 #include <wpi/Twine.h>
 
+#include "Constants.hpp"
 #include "UnitsFormat.hpp"
 #include "logging/CSVControllerLogger.hpp"
 #include "logging/LiveGrapherControllerLogger.hpp"
