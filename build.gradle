@@ -206,6 +206,11 @@ if (!OperatingSystem.current().isWindows()) {
     }
 }
 
+task intellisense(type: Exec) {
+    dependsOn 'generateCompileCommands'
+    commandLine 'python3', './buildscripts/copy_compile_commands.py'
+}
+
 doxygen {
     executables {
         doxygen version : '1.8.18',

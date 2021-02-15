@@ -15,7 +15,7 @@ Install the following OS packages.
 
 * gcc >= 7.3.0
 * python >= 3.6
-* rsync (optional, for CSV logging)
+* scp (optional, for CSV logging)
 
 Install the following python packages via `pip3 install --user package_name`.
 
@@ -23,6 +23,23 @@ Install the following python packages via `pip3 install --user package_name`.
   * https://github.com/wpilibsuite/styleguide/blob/main/wpiformat/README.rst
 
 We use the latest version of clang-format with wpiformat for C++ formatting.
+
+## C++ intellisense in Vim with clangd
+
+VSCode's intellisense is occasionally unreliable. Vim + clangd is an alternative
+that provides better intellisense because it actually invokes a C++ compiler
+frontend. It also generates linting annotations via clang-tidy. Setup is as
+follows.
+
+1. Install Node.js. You should have a `node` executable in PATH.
+2. Install clangd, which comes with the
+   [LLVM compiler](https://releases.llvm.org/download.html)
+3. Add `Plugin 'neoclide/coc.nvim'` to your `.vimrc`
+4. In vim, run `:CocInstall coc-clangd`
+5. Run `./gradlew intellisense`
+
+The clangd indexer will start when a file is opened in Vim. See
+https://github.com/clangd/coc-clangd for troubleshooting steps if needed.
 
 ## Build options
 
