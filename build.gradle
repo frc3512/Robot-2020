@@ -93,6 +93,7 @@ if (OperatingSystem.current().isWindows()) {
         it.cppCompiler.args.add('-pedantic')
         it.cppCompiler.args.add('-Werror')
         it.cppCompiler.args.add('-Wno-unused-parameter')
+        it.cppCompiler.args.remove('-Wno-psabi')
     }
 }
 
