@@ -18,6 +18,7 @@
 // that voltage is open-loop exponential convergence. The constraint's
 // optimization intent should be clarified so we can write a better test.
 TEST(DifferentialDriveVelocitySystemTest, DISABLED_Constraint) {
+  constexpr auto kDt = 20_ms;
   constexpr auto kMaxVoltage = 10_V;
 
   // Pick an unreasonably large kA to ensure the constraint has to do some work
@@ -32,12 +33,9 @@ TEST(DifferentialDriveVelocitySystemTest, DISABLED_Constraint) {
   auto trajectory = frc::TestTrajectory::GetTrajectory(config);
 
   auto time = 0_s;
-  auto dt = 20_ms;
-  auto duration = trajectory.TotalTime();
-
-  while (time < duration) {
+  while (time < trajectory.TotalTime()) {
     auto point = trajectory.Sample(time);
-    time += dt;
+    time += kDt;
 
     const frc::ChassisSpeeds chassisSpeeds{point.velocity, 0_mps,
                                            point.velocity * point.curvature};
@@ -72,7 +70,7 @@ TEST(DifferentialDriveVelocitySystemTest, HighCurvature) {
   // trackwidth
   const frc::DifferentialDriveKinematics kinematics{3_m};
 
-  auto config = frc::TrajectoryConfig(12_fps, 12_fps_sq);
+  frc::TrajectoryConfig config{12_fps, 12_fps_sq};
   config.AddConstraint(frc::DifferentialDriveVelocitySystemConstraint(
       system, kinematics, kMaxVoltage));
 
