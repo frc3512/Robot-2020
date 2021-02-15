@@ -31,7 +31,7 @@ public:
     };
 
     Vision();
-    ~Vision();
+    ~Vision() override;
 
     Vision(const Vision&) = delete;
     Vision& operator=(const Vision&) = delete;

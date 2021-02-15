@@ -33,7 +33,7 @@ public:
         ds.NotifyNewData();
     }
 
-    ~RobotTest() {
+    ~RobotTest() override {
         robot.EndCompetition();
         robotThread.join();
     }

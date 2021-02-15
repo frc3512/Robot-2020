@@ -15,7 +15,7 @@ class AutonomousTest : public frc3512::SimulatorTestWithParam<std::string> {
 public:
     frc3512::Robot robot;
 
-    ~AutonomousTest() {
+    ~AutonomousTest() override {
         robot.EndCompetition();
         robotThread.join();
     }

@@ -82,7 +82,7 @@ public:
     ControlledSubsystemBase(ControlledSubsystemBase&&) = default;
     ControlledSubsystemBase& operator=(ControlledSubsystemBase&&) = default;
 
-    virtual ~ControlledSubsystemBase() = default;
+    ~ControlledSubsystemBase() override = default;
 
     /**
      * Enables the control loop.

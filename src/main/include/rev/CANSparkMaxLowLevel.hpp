@@ -1,4 +1,4 @@
-// Copyright (c) 2020 FRC Team 3512. All Rights Reserved.
+// Copyright (c) 2020-2021 FRC Team 3512. All Rights Reserved.
 
 #pragma once
 
@@ -22,7 +22,7 @@ public:
 
     CANSparkMaxLowLevel(int deviceID, MotorType motorType) {}
 
-    virtual ~CANSparkMaxLowLevel() {}
+    ~CANSparkMaxLowLevel() override {}
 
     /**
      * Set periodic status frame period.

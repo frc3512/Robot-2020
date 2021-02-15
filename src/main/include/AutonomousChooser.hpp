@@ -34,7 +34,7 @@ public:
      */
     AutonomousChooser(wpi::StringRef name, std::function<void()> func);
 
-    ~AutonomousChooser();
+    ~AutonomousChooser() override;
 
     /**
      * Adds an autonomous mode.

@@ -34,7 +34,7 @@ protected:
 
     SimulatorTestWithParam() { frc::sim::PauseTiming(); }
 
-    virtual ~SimulatorTestWithParam() { frc::sim::ResumeTiming(); }
+    ~SimulatorTestWithParam() override { frc::sim::ResumeTiming(); }
 };
 
 }  // namespace frc3512
