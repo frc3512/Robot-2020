@@ -90,7 +90,8 @@ void TurretController::Reset(units::radian_t initialHeading) {
 
 Eigen::Matrix<double, 1, 1> TurretController::Calculate(
     const Eigen::Matrix<double, 2, 1>& x) {
-    if (m_controlMode != ControlMode::kManual) {
+    if (m_controlMode == ControlMode::kClosedLoop ||
+        m_controlMode == ControlMode::kAutoAim) {
         if (m_controlMode == ControlMode::kAutoAim) {
             // Calculate next drivetrain and turret pose in global frame
             auto turretNextPoseInGlobal =
