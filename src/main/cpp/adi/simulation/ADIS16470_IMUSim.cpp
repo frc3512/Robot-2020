@@ -29,10 +29,10 @@ void ADIS16470_IMUSim::SetRate(units::degrees_per_second_t rate) {
 
 void ADIS16470_IMUSim::SetAccelInstantX(
     units::meters_per_second_squared_t accel) {
-    m_simAccelX.Set(accel.to<double>() / 9.8);
+    m_simAccelX.Set(accel.to<double>() / 9.81);
 }
 
 void ADIS16470_IMUSim::SetAccelInstantY(
     units::meters_per_second_squared_t accel) {
-    m_simAccelY.Set(accel.to<double>() / 9.8);
+    m_simAccelY.Set(accel.to<double>() / 9.81);
 }

@@ -105,11 +105,11 @@ units::meters_per_second_t Drivetrain::GetRightVelocity() const {
 }
 
 units::meters_per_second_squared_t Drivetrain::GetAccelerationX() const {
-    return -m_imu.GetAccelInstantX() * 9.8_mps_sq;
+    return -m_imu.GetAccelInstantX() * 9.81_mps_sq;
 }
 
 units::meters_per_second_squared_t Drivetrain::GetAccelerationY() const {
-    return -m_imu.GetAccelInstantY() * 9.8_mps_sq;
+    return -m_imu.GetAccelInstantY() * 9.81_mps_sq;
 }
 
 void Drivetrain::Reset(const frc::Pose2d& initialPose) {
