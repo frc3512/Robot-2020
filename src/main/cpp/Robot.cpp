@@ -37,8 +37,8 @@ Robot::Robot() {
     m_autonChooser.AddAutonomous("Right Side Shoot Six Balls",
                                  [=] { AutoRightSideShootSix(); });
     if constexpr (Constants::Robot::kAtHomeChallenge) {
-        m_autonChooser.AddAutonomous("AutoNav Bounce",
-                                     [=] { AutoNavBounce(); });
+        m_autonChooser.AddAutonomous(
+            "AutoNav Bounce", [=] { AutoNavBounce(); }, false);
     }
 
     frc::DriverStation::GetInstance().SilenceJoystickConnectionWarning(true);
@@ -214,8 +214,10 @@ const std::vector<std::string>& Robot::GetAutonomousNames() const {
 
 void Robot::ExpectAutonomousEndConds() {
     if constexpr (IsSimulation()) {
-        EXPECT_FALSE(m_autonChooser.IsSuspended())
-            << "Autonomous mode didn't finish within the autonomous period";
+        if (m_autonChooser.CheckSelectedAutonomousEnds()) {
+            EXPECT_FALSE(m_autonChooser.IsSuspended())
+                << "Autonomous mode didn't finish within the autonomous period";
+        }
 
         EXPECT_TRUE(drivetrain.AtGoal());
 

@@ -29,20 +29,26 @@ public:
      * Adds an autonomous mode that's run by default if no other autonomous mode
      * is selected.
      *
-     * @param name Name of autonomous mode.
-     * @param func Autonomous mode function.
+     * @param name           Name of autonomous mode.
+     * @param func           Autonomous mode function.
+     * @param checkAutonEnds True if autonomous mode should end within 15
+     *                       seconds in unit tests.
      */
-    AutonomousChooser(wpi::StringRef name, std::function<void()> func);
+    AutonomousChooser(wpi::StringRef name, std::function<void()> func,
+                      bool checkAutonEnds = true);
 
     ~AutonomousChooser() override;
 
     /**
      * Adds an autonomous mode.
      *
-     * @param name Name of autonomous mode.
-     * @param func Autonomous mode function.
+     * @param name           Name of autonomous mode.
+     * @param func           Autonomous mode function.
+     * @param checkAutonEnds True if autonomous mode should end within 15
+     *                       seconds in unit tests.
      */
-    void AddAutonomous(wpi::StringRef name, std::function<void()> func);
+    void AddAutonomous(wpi::StringRef name, std::function<void()> func,
+                       bool checkAutonEnds = true);
 
     /**
      * Sets the selected autonomous mode for unit testing purposes.
@@ -50,6 +56,12 @@ public:
      * @param name Name of autonomous mode.
      */
     void SelectAutonomous(wpi::StringRef name);
+
+    /**
+     * Returns true if the selected autonomous mode should end within 15 seconds
+     * in unit tests.
+     */
+    bool CheckSelectedAutonomousEnds() const;
 
     /**
      * Returns a list of selectable autonomous modes for unit testing purposes.
@@ -103,6 +115,11 @@ public:
     void InitSendable(frc::SendableBuilder& builder) override;
 
 private:
+    struct AutonomousMode {
+        std::function<void()> func = [] {};
+        bool checkAutonEnds = true;
+    };
+
     std::thread m_autonThread;
     wpi::mutex m_autonMutex;
 
@@ -118,12 +135,12 @@ private:
     bool m_autonRunning = false;
     bool m_autonShouldExit = false;
 
-    wpi::mutex m_selectionMutex;
+    mutable wpi::mutex m_selectionMutex;
     std::string m_defaultChoice;
     std::string m_selectedChoice;
-    wpi::StringMap<std::function<void()>> m_choices;
+    wpi::StringMap<AutonomousMode> m_choices;
     std::vector<std::string> m_names;
-    std::function<void()>* m_selectedAuton;
+    AutonomousMode* m_selectedAuton;
 
     nt::NetworkTableEntry m_defaultEntry;
     nt::NetworkTableEntry m_optionsEntry;
