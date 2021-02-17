@@ -10,7 +10,6 @@
 #include <frc/RobotController.h>
 #include <frc/StateSpaceUtil.h>
 #include <frc/smartdashboard/SmartDashboard.h>
-#include <units/math.h>
 
 #include "CANSparkMaxUtil.hpp"
 #include "CurvatureDrive.hpp"
