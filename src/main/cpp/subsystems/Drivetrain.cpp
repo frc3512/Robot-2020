@@ -2,6 +2,8 @@
 
 #include "subsystems/Drivetrain.hpp"
 
+#include <algorithm>
+
 #include <frc/Joystick.h>
 #include <frc/MathUtil.h>
 #include <frc/RobotBase.h>
@@ -179,8 +181,10 @@ void Drivetrain::ControllerPeriodic() {
         m_u = m_controller.Calculate(m_observer.Xhat());
 
         // Run observer predict with inputs from teleop
-        m_u << m_leftGrbx.Get() * frc::RobotController::GetInputVoltage(),
-            m_rightGrbx.Get() * frc::RobotController::GetInputVoltage();
+        m_u << std::clamp(m_leftGrbx.Get(), -1.0, 1.0) *
+                   frc::RobotController::GetInputVoltage(),
+            std::clamp(m_rightGrbx.Get(), -1.0, 1.0) *
+                frc::RobotController::GetInputVoltage();
     }
 
     Log(m_controller.GetReferences(), m_observer.Xhat(), m_u, y);
@@ -188,8 +192,10 @@ void Drivetrain::ControllerPeriodic() {
     if constexpr (frc::RobotBase::IsSimulation()) {
         auto batteryVoltage = frc::RobotController::GetInputVoltage();
         m_drivetrainSim.SetInputs(
-            units::volt_t{m_leftGrbx.Get() * batteryVoltage},
-            units::volt_t{m_rightGrbx.Get() * batteryVoltage});
+            units::volt_t{std::clamp(m_leftGrbx.Get(), -1.0, 1.0) *
+                          batteryVoltage},
+            units::volt_t{std::clamp(m_rightGrbx.Get(), -1.0, 1.0) *
+                          batteryVoltage});
 
         m_drivetrainSim.Update(GetDt());
 
@@ -205,8 +211,8 @@ void Drivetrain::ControllerPeriodic() {
         x << m_drivetrainSim.GetLeftVelocity().to<double>(),
             m_drivetrainSim.GetRightVelocity().to<double>();
         Eigen::Matrix<double, 2, 1> u;
-        u << m_leftGrbx.Get() * batteryVoltage,
-            m_rightGrbx.Get() * batteryVoltage;
+        u << std::clamp(m_leftGrbx.Get(), -1.0, 1.0) * batteryVoltage,
+            std::clamp(m_rightGrbx.Get(), -1.0, 1.0) * batteryVoltage;
         Eigen::Matrix<double, 2, 1> xdot = plant.A() * x + plant.B() * u;
         m_imuSim.SetAccelInstantX(
             -units::meters_per_second_squared_t{(xdot(0) + xdot(1)) / 2.0});
