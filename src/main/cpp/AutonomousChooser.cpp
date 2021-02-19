@@ -150,7 +150,8 @@ void AutonomousChooser::CancelAutonomous() {
         m_autonShouldExit = true;
         ResumeAutonomous();
 
-        m_autonThread.join();
+        // Don't join the thread here because ResumeAutonomous() will do so
+        // automatically
     }
 }
 
