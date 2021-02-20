@@ -15,9 +15,10 @@
 namespace frc3512 {
 
 AutonomousChooser::AutonomousChooser(wpi::StringRef name,
-                                     std::function<void()> func) {
+                                     std::function<void()> func,
+                                     bool checkAutonEnds) {
     m_defaultChoice = name;
-    m_choices[name] = func;
+    m_choices[name] = {func, checkAutonEnds};
     m_names.emplace_back(name);
 
     m_selectedChoice = name;
@@ -48,8 +49,9 @@ AutonomousChooser::~AutonomousChooser() {
 }
 
 void AutonomousChooser::AddAutonomous(wpi::StringRef name,
-                                      std::function<void()> func) {
-    m_choices[name] = func;
+                                      std::function<void()> func,
+                                      bool checkAutonEnds) {
+    m_choices[name] = {func, checkAutonEnds};
     m_names.emplace_back(name);
 
     // Unlike std::map, wpi::StringMap elements are not sorted
@@ -64,6 +66,11 @@ void AutonomousChooser::SelectAutonomous(wpi::StringRef name) {
         m_selectedChoice = name;
     }
     m_selectedEntry.SetString(name);
+}
+
+bool AutonomousChooser::CheckSelectedAutonomousEnds() const {
+    std::scoped_lock lock{m_selectionMutex};
+    return m_selectedAuton->checkAutonEnds;
 }
 
 const std::vector<std::string>& AutonomousChooser::GetAutonomousNames() const {
@@ -103,7 +110,7 @@ void AutonomousChooser::AwaitAutonomous() {
         m_autonLock.lock();
 
         m_autonRunning = true;
-        (*m_selectedAuton)();
+        m_selectedAuton->func();
         m_autonRunning = false;
 
         // Resume main thread by yielding the shared mutex to it
