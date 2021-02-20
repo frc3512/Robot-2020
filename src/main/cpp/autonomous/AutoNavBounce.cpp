@@ -31,6 +31,7 @@ void Robot::AutoNavBounce() {
     const frc::Pose2d kEndPose{7.979_m, 2.263_m,
                                units::radian_t{wpi::math::pi}};
 
+    turret.SetControlMode(TurretController::ControlMode::kManual);
     drivetrain.Reset(kInitialPose);
 
     auto forwardConfig = Drivetrain::MakeTrajectoryConfig();

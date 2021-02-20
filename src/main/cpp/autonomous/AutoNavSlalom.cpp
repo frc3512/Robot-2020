@@ -24,6 +24,7 @@ void Robot::AutoNavSlalom() {
     // End Pose - Right inside the Finish Zone
     const frc::Pose2d kEndPose{1.08_m, 2.434_m, units::radian_t{wpi::math::pi}};
 
+    turret.SetControlMode(TurretController::ControlMode::kManual);
     drivetrain.Reset(kInitialPose);
 
     drivetrain.AddTrajectory({kInitialPose, kTopArchLeft, kTopArchRight,
