@@ -41,6 +41,8 @@ Robot::Robot() {
             "AutoNav Bounce", [=] { AutoNavBounce(); }, false);
         m_autonChooser.AddAutonomous(
             "AutoNav Barrel Racing", [=] { AutoNavBarrelRacing(); }, false);
+        m_autonChooser.AddAutonomous(
+            "AutoNav Slalom", [=] { AutoNavSlalom(); }, false);
     }
 
     frc::DriverStation::GetInstance().SilenceJoystickConnectionWarning(true);
