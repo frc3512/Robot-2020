@@ -6,8 +6,10 @@
 
 #include <Eigen/Core>
 #include <fmt/core.h>
+#include <frc/RobotBase.h>
 #include <frc/logging/CSVLogFile.h>
 #include <frc2/Timer.h>
+#include <units/math.h>
 #include <units/time.h>
 #include <wpi/StringRef.h>
 #include <wpi/Twine.h>
@@ -124,7 +126,19 @@ public:
 
         if (m_dt == 0_s) {
             m_dt = Constants::kDt;
-            fmt::print(stderr, "ERROR: dt = 0 @ t = {}\n", m_nowBegin);
+            fmt::print(stderr, "ERROR @ t = {}: dt = 0\n", m_nowBegin);
+        }
+
+        if (units::math::abs(m_dt - Constants::kDt) > 2.5_ms) {
+            // Overruns are common in simulation, so don't print errors for them
+            if constexpr (!frc::RobotBase::IsSimulation()) {
+                fmt::print(stderr,
+                           "ERROR @ t = {}: std::abs(dt - {}) > 2.5 ms where "
+                           "dt = {}\n",
+                           m_nowBegin, Constants::kDt, m_dt);
+            }
+
+            m_dt = Constants::kDt;
         }
     }
 
