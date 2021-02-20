@@ -39,6 +39,8 @@ Robot::Robot() {
     if constexpr (Constants::Robot::kAtHomeChallenge) {
         m_autonChooser.AddAutonomous(
             "AutoNav Bounce", [=] { AutoNavBounce(); }, false);
+        m_autonChooser.AddAutonomous(
+            "AutoNav Barrel Racing", [=] { AutoNavBarrelRacing(); }, false);
     }
 
     frc::DriverStation::GetInstance().SilenceJoystickConnectionWarning(true);
@@ -222,8 +224,8 @@ void Robot::ExpectAutonomousEndConds() {
         EXPECT_TRUE(drivetrain.AtGoal());
 
         // Verify left/right wheel velocities are zero
-        EXPECT_NEAR(drivetrain.GetStates()(3), 0.0, 1e-6);
-        EXPECT_NEAR(drivetrain.GetStates()(4), 0.0, 1e-6);
+        EXPECT_NEAR(drivetrain.GetStates()(3), 0.0, 0.01);
+        EXPECT_NEAR(drivetrain.GetStates()(4), 0.0, 0.01);
 
         EXPECT_EQ(flywheel.GetGoal(), 0_rad_per_s);
         EXPECT_TRUE(turret.AtGoal());
