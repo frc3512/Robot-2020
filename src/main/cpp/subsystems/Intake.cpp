@@ -14,11 +14,11 @@ using namespace frc3512::Constants::Robot;
 
 Intake::Intake(Flywheel& flywheel) : m_flywheel(flywheel) {
     SetCANSparkMaxBusUsage(m_funnelMotorLeft, Usage::kMinimal);
-    m_funnelMotorLeft.SetSmartCurrentLimit(40);
+    m_funnelMotorLeft.SetSmartCurrentLimit(80);
     SetCANSparkMaxBusUsage(m_funnelMotorRight, Usage::kMinimal);
-    m_funnelMotorRight.SetSmartCurrentLimit(40);
+    m_funnelMotorRight.SetSmartCurrentLimit(80);
     SetCANSparkMaxBusUsage(m_conveyorMotor, Usage::kMinimal);
-    m_conveyorMotor.SetSmartCurrentLimit(40);
+    m_conveyorMotor.SetSmartCurrentLimit(80);
 }
 
 void Intake::Deploy() { m_arm.Set(frc::DoubleSolenoid::kForward); }
