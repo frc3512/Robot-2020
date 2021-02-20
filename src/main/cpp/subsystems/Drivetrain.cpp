@@ -177,7 +177,7 @@ void Drivetrain::ControllerPeriodic() {
     } else {
         // Update previous u stored in the controller. We don't care what the
         // return value is.
-        m_u = m_controller.Calculate(m_observer.Xhat());
+        static_cast<void>(m_controller.Calculate(m_observer.Xhat()));
 
         // Run observer predict with inputs from teleop
         m_u << std::clamp(m_leftGrbx.Get(), -1.0, 1.0) *
@@ -287,10 +287,8 @@ void Drivetrain::RobotPeriodic() {
     m_rightVelocityStateEntry.SetDouble(xHat(State::kRightVelocity));
     m_leftPositionStateEntry.SetDouble(xHat(State::kLeftPosition));
     m_rightPositionStateEntry.SetDouble(xHat(State::kRightPosition));
-    m_leftVoltageInputEntry.SetDouble(
-        m_controller.GetInputs()(Input::kLeftVoltage));
-    m_rightVoltageInputEntry.SetDouble(
-        m_controller.GetInputs()(Input::kRightVoltage));
+    m_leftVoltageInputEntry.SetDouble(m_u(Input::kLeftVoltage));
+    m_rightVoltageInputEntry.SetDouble(m_u(Input::kRightVoltage));
     m_headingOutputEntry.SetDouble(GetAngle().to<double>());
     m_leftPositionOutputEntry.SetDouble(GetLeftPosition().to<double>());
     m_rightPositionOutputEntry.SetDouble(GetRightPosition().to<double>());
