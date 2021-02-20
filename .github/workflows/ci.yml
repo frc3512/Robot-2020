@@ -74,8 +74,5 @@ jobs:
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
 
-    - name: Install roboRIO toolchain
-      run: ./gradlew installRoboRioToolchain
-
     - name: Compile and run x86-64 unit tests
-      run: ./gradlew test ${{ matrix.build-options }}
+      run: ./gradlew test -Ptoolchain-optional-roboRio ${{ matrix.build-options }}
