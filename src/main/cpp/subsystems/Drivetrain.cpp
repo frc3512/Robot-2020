@@ -302,7 +302,7 @@ void Drivetrain::TeleopPeriodic() {
     static frc::Joystick driveStick1{kDriveStick1Port};
     static frc::Joystick driveStick2{kDriveStick2Port};
 
-    double y = ApplyDeadband(driveStick1.GetY(), kJoystickDeadband);
+    double y = ApplyDeadband(-driveStick1.GetY(), kJoystickDeadband);
     double x = ApplyDeadband(driveStick2.GetX(), kJoystickDeadband);
 
     if (driveStick1.GetRawButton(1)) {
