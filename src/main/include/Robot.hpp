@@ -121,8 +121,6 @@ public:
      */
     void AutoNoOp();
 
-    void AutoNavBounce();
-
     /**
      * Shoot three power cells from the initiation line in front of the opposing
      * trench run and intake two balls in the trench run.
@@ -176,6 +174,11 @@ public:
      * trench run, intake three balls in the trench run, then shooting them.
      */
     void AutoRightSideShootSix();
+
+    /**
+     * Follow the "bounce" path defined in the 2021 At-Home Challenges manual.
+     */
+    void AutoNavBounce();
 
     /**
      * Sets the selected autonomous mode for testing purposes.
