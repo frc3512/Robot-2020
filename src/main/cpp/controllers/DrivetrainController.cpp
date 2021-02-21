@@ -10,6 +10,7 @@
 #include <frc/system/plant/DCMotor.h>
 #include <frc/system/plant/LinearSystemId.h>
 #include <frc/trajectory/TrajectoryGenerator.h>
+#include <frc/trajectory/constraint/CentripetalAccelerationConstraint.h>
 #include <frc/trajectory/constraint/DifferentialDriveVelocitySystemConstraint.h>
 
 #include "EigenFormat.hpp"
@@ -169,6 +170,7 @@ frc::TrajectoryConfig DrivetrainController::MakeTrajectoryConfig() {
     frc::DifferentialDriveVelocitySystemConstraint systemConstraint{
         kPlant, kinematics, 8_V};
     config.AddConstraint(systemConstraint);
+    config.AddConstraint(frc::CentripetalAccelerationConstraint{3_mps_sq});
 
     return config;
 }
