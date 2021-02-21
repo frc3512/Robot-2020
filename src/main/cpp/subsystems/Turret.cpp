@@ -25,7 +25,7 @@ Turret::Turret(Vision& vision, Drivetrain& drivetrain, Flywheel& flywheel)
       m_drivetrain(drivetrain),
       m_flywheel(flywheel) {
     SetCANSparkMaxBusUsage(m_motor, Usage::kMinimal);
-    m_motor.SetSmartCurrentLimit(40);
+    m_motor.SetSmartCurrentLimit(80);
 
     // Ensures CANSparkMax::Get() returns an initialized value
     m_motor.Set(0.0);
