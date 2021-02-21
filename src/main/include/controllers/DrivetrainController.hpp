@@ -36,7 +36,22 @@ public:
     static constexpr double kDpP =
         (2.0 * wpi::math::pi * kWheelRadius.to<double>()) * kDriveGearRatio /
         2048.0;
-    static constexpr units::meter_t kWidth = 0.990405073902434_m;
+
+    static constexpr units::meter_t kWidth = [] {
+        auto absoluteValue = [](auto arg) {
+            return arg > decltype(arg){0} ? arg : -1.0 * arg;
+        };
+
+        // These values were collected by rotating the robot in place and
+        // recording the encoder position and gyro heading measurements.
+        // Difference is final measurement minus initial measurement.
+        constexpr auto kLeftPosition = 2.18274_m - 0_m;
+        constexpr auto kRightPosition = (-1.0 * 2.19665_m) - 0_m;
+        constexpr auto kHeading = (-1.0 * 3.1219_rad) - 3.1415_rad;
+
+        return (absoluteValue(kLeftPosition) + absoluteValue(kRightPosition)) /
+               absoluteValue(kHeading) * 1_rad;
+    }();
 
     static constexpr std::array<double, 5> kControllerQ{0.0625, 0.125, 2.5,
                                                         0.95, 0.95};
