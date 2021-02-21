@@ -129,7 +129,8 @@ public:
 
     void TeleopInit() override {
         Enable();
-        SetControlMode(TurretController::ControlMode::kAutoAim);
+        // TODO: Reset to kAutoAim for teleop shooting
+        SetControlMode(TurretController::ControlMode::kManual);
     }
 
     void RobotPeriodic() override;
