@@ -2,7 +2,7 @@
 # commands ran.
 
 CFLAGS := -Wall -Wextra -std=c11 -Wformat=2 -pedantic -Wno-psabi -Wno-unused-parameter -Wno-error=deprecated-declarations -fPIC -pthread -Werror -O2
-CPPFLAGS := -Wall -Wextra -std=c++17 -Wformat=2 -pedantic -Wno-psabi -Wno-unused-parameter -Wno-error=deprecated-declarations -fPIC -pthread -Werror -O2
+CPPFLAGS := -Wall -Wextra -std=c++17 -Wformat=2 -pedantic -Wno-psabi -Wno-unused-parameter -Wno-error=deprecated-declarations -fPIC -pthread -Werror -O2 -ftime-trace
 
 # Use these when running a debugger on unit tests
 # CFLAGS := -Og -g -Wall -std=c11
