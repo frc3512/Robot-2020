@@ -1,0 +1,86 @@
+# Defining VERBOSE before running make (i.e., VERBOSE=1 make) will print all
+# commands ran.
+
+CFLAGS := -Wall -Wextra -std=c11 -Wformat=2 -pedantic -Wno-psabi -Wno-unused-parameter -Wno-error=deprecated-declarations -fPIC -rdynamic -pthread -Werror -O2
+CPPFLAGS := -Wall -Wextra -std=c++17 -Wformat=2 -pedantic -Wno-psabi -Wno-unused-parameter -Wno-attributes -Wno-error=deprecated-declarations -fPIC -rdynamic -pthread -Werror -O2
+
+CC := arm-frc2021-linux-gnueabi-gcc
+CPP := arm-frc2021-linux-gnueabi-g++
+LD := arm-frc2021-linux-gnueabi-g++
+STRIP := arm-frc2021-linux-gnueabi-strip
+
+# Specify defines with -D directives here
+DEFINES :=
+
+VERSION := 2021.2.2
+OBJDIR := build/linuxathena
+
+# Specify Linux include paths with -I directives here
+IFLAGS := -Isrc/main/include -Ithirdparty/include -Ibuild/generated/include \
+	-Ibuild/wpilibc-cpp-$(VERSION)-headers \
+	-Ibuild/wpimath-cpp-$(VERSION)-headers -Ibuild/hal-cpp-$(VERSION)-headers \
+	-Ibuild/cscore-cpp-$(VERSION)-headers -Ibuild/ntcore-cpp-$(VERSION)-headers \
+	-Ibuild/wpiutil-cpp-$(VERSION)-headers -Ibuild/SparkMax-cpp-1.5.4-headers \
+	-Ibuild/SparkMax-driver-1.5.4-headers -Ibuild/PhotonLib-cpp-2021.1.2-headers
+
+# Specify Linux libs with -l directives here
+LDFLAGS := \
+	-Lbuild/wpilibc-cpp-$(VERSION)-linuxathena/linux/athena/shared \
+	-lwpilibc \
+	-Lbuild/wpimath-cpp-$(VERSION)-linuxathena/linux/athena/shared \
+	-lwpimath \
+	-Lbuild/cameraserver-cpp-$(VERSION)-linuxathena/linux/athena/shared \
+	-lcameraserver \
+	-Lbuild/cscore-cpp-$(VERSION)-linuxathena/linux/athena/shared \
+	-lcscore \
+	-Lbuild/opencv-cpp-3.4.7-5-linuxathena/linux/athena/shared \
+	-l:libopencv_imgproc.so.3.4 \
+	-l:libopencv_imgcodecs.so.3.4 \
+	-l:libopencv_core.so.3.4 \
+	-Wl,-rpath,build/opencv-cpp-3.4.7-5-linuxathena/linux/athena/shared \
+	-Lbuild/ntcore-cpp-$(VERSION)-linuxathena/linux/athena/shared \
+	-lntcore \
+	-Lbuild/wpiutil-cpp-$(VERSION)-linuxathena/linux/athena/shared \
+	-lwpiutil \
+	-Lbuild/hal-cpp-$(VERSION)-linuxathena/linux/athena/shared \
+	-lwpiHal \
+	-Lbuild/SparkMax-cpp-1.5.4-linuxathenastatic/linux/athena/static \
+	-lSparkMax \
+	-Lbuild/SparkMax-driver-1.5.4-linuxathenastatic/linux/athena/static \
+	-lSparkMaxDriver \
+	-Lbuild/PhotonLib-cpp-2021.1.2-linuxathenastatic/linux/athena/static \
+	-lPhoton \
+	-Lbuild/netcomm-2020.9.2-linuxathena/linux/athena/shared \
+	-l:libFRC_NetworkCommunication.so.20.0.0 \
+	-Lbuild/chipobject-2020.9.2-linuxathena/linux/athena/shared \
+	-l:libRoboRIO_FRC_ChipObject.so.20.0.0 \
+	-Lbuild/runtime-2020.10.1-linuxathena/linux/athena/shared \
+	-l:libNiFpga.so.19.0.0 \
+	-l:libNiFpgaLv.so.19.0.0 \
+	-l:libniriodevenum.so.19.0.0 \
+	-l:libniriosession.so.18.0.0 \
+	-l:libnirio_emb_can.so.16.0.0 \
+	-l:libni_emb.so.12.0.0 \
+	-l:libni_rtlog.so.2.8.0 \
+	-l:libNiRioSrv.so.19.0.0 \
+	-Lbuild/visa-2020.10.1-linuxathena/linux/athena/shared \
+	-l:libvisa.so \
+	-lpthread \
+	-flto
+
+include mk/Makefile-common
+
+$(OBJDIR)/frcUserProgram: $(OBJ_C) $(OBJ_CPP) $(OBJ_CC) $(OBJ_GEN_CPP) $(OBJ_THIRDPARTY_CC) $(OBJ_THIRDPARTY_CPP)
+	@mkdir -p $(@D)
+	@echo [LD] $@
+ifdef VERBOSE
+	$(LD) -o $@ $+ $(LDFLAGS)
+	$(STRIP) -g $@
+else
+	@$(LD) -o $@ $+ $(LDFLAGS)
+	@$(STRIP) -g $@
+endif
+
+.PHONY: deploy
+deploy: build
+	./tools/deploy.sh build/linuxathena

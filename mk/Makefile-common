@@ -1,0 +1,101 @@
+# Defining VERBOSE before running make (i.e., VERBOSE=1 make) will print all
+# commands ran.
+
+SRCDIR := src/main
+TESTDIR := src/test
+THIRDPARTYDIR := thirdparty
+
+# Make does not offer a recursive wildcard function, so here's one:
+rwildcard=$(wildcard $1$2) $(foreach dir,$(wildcard $1*),$(call rwildcard,$(dir)/,$2))
+
+# Recursively find all C source files
+SRC_C := $(foreach dir,$(SRCDIR),$(call rwildcard,$(dir)/,*.c))
+
+# Recursively find all C++ source files
+SRC_CPP := $(foreach dir,$(SRCDIR),$(call rwildcard,$(dir)/,*.cpp))
+SRC_CC := $(foreach dir,$(SRCDIR),$(call rwildcard,$(dir)/,*.cc))
+SRC_TEST_CPP := $(foreach dir,$(TESTDIR),$(call rwildcard,$(dir)/,*.cpp))
+SRC_TEST_CC := $(foreach dir,$(TESTDIR),$(call rwildcard,$(dir)/,*.cc))
+SRC_GEN_CPP := $(foreach dir,build/generated,$(call rwildcard,$(dir)/,*.cpp))
+SRC_THIRDPARTY_CC := $(foreach dir,$(THIRDPARTYDIR),$(call rwildcard,$(dir)/,*.cc))
+SRC_THIRDPARTY_CPP := $(foreach dir,$(THIRDPARTYDIR),$(call rwildcard,$(dir)/,*.cpp))
+
+# Create raw list of object files
+OBJ_C := $(SRC_C:.c=.o)
+OBJ_CPP := $(SRC_CPP:.cpp=.o)
+OBJ_CC := $(SRC_CC:.cc=.o)
+OBJ_TEST_CPP := $(SRC_TEST_CPP:.cpp=.o)
+OBJ_TEST_CC := $(SRC_TEST_CC:.cc=.o)
+OBJ_GEN_CPP := $(SRC_GEN_CPP:.cpp=.o)
+OBJ_THIRDPARTY_CC := $(SRC_THIRDPARTY_CC:.cc=.o)
+OBJ_THIRDPARTY_CPP := $(SRC_THIRDPARTY_CPP:.cpp=.o)
+
+# Create list of object files for build
+OBJ_C := $(addprefix $(OBJDIR)/,$(OBJ_C))
+OBJ_CPP := $(addprefix $(OBJDIR)/,$(OBJ_CPP))
+OBJ_CC := $(addprefix $(OBJDIR)/,$(OBJ_CC))
+OBJ_TEST_CPP := $(addprefix $(OBJDIR)/,$(OBJ_TEST_CPP))
+OBJ_TEST_CC := $(addprefix $(OBJDIR)/,$(OBJ_TEST_CC))
+OBJ_GEN_CPP := $(addprefix $(OBJDIR)/,$(OBJ_GEN_CPP))
+OBJ_THIRDPARTY_CC := $(addprefix $(OBJDIR)/,$(OBJ_THIRDPARTY_CC))
+OBJ_THIRDPARTY_CPP := $(addprefix $(OBJDIR)/,$(OBJ_THIRDPARTY_CPP))
+
+.PHONY: build
+build: $(OBJDIR)/frcUserProgram
+
+-include $(OBJ_C:.o=.d)
+-include $(OBJ_CPP:.o=.d)
+-include $(OBJ_CC:.o=.d)
+-include $(OBJ_TEST_CPP:.o=.d)
+-include $(OBJ_TEST_CC:.o=.d)
+-include $(OBJ_GEN_CPP:.o=.d)
+-include $(OBJ_THIRDPARTY_CC:.o=.d)
+-include $(OBJ_THIRDPARTY_CPP:.o=.d)
+
+# Pattern rule for building object file from C source
+# The -MMD flag generates .d files to track changes in header files included in
+# the source.
+$(OBJDIR)/%.o: %.c
+	@mkdir -p $(@D)
+	@echo [C] $@
+ifdef VERBOSE
+	$(CC) $(CFLAGS) $(DEFINES) $(IFLAGS) -MMD -c -o $@ $<
+else
+	@$(CC) $(CFLAGS) $(DEFINES) $(IFLAGS) -MMD -c -o $@ $<
+endif
+
+# Pattern rule for building object file from C++ source
+# The -MMD flag generates .d files to track changes in header files included in
+# the source.
+$(OBJDIR)/%.o: %.cpp
+	@mkdir -p $(@D)
+	@echo [CPP] $@
+ifdef VERBOSE
+	$(CPP) $(CPPFLAGS) $(DEFINES) $(IFLAGS) -MMD -c -o $@ $<
+else
+	@$(CPP) $(CPPFLAGS) $(DEFINES) $(IFLAGS) -MMD -c -o $@ $<
+endif
+
+# Pattern rule for building object file from C++ source
+# The -MMD flag generates .d files to track changes in header files included in
+# the source.
+$(OBJDIR)/%.o: %.cc
+	@mkdir -p $(@D)
+	@echo [CC] $@
+ifdef VERBOSE
+	$(CPP) $(CPPFLAGS) $(DEFINES) $(IFLAGS) -MMD -c -o $@ $<
+else
+	@$(CPP) $(CPPFLAGS) $(DEFINES) $(IFLAGS) -MMD -c -o $@ $<
+endif
+
+# Cleans the build directory
+.PHONY: clean
+clean:
+	@echo Removing object files
+ifdef VERBOSE
+	-$(RM) -r $(OBJDIR)
+	-$(RM) -r build/generated
+else
+	-@$(RM) -r $(OBJDIR)
+	-@$(RM) -r build/generated
+endif

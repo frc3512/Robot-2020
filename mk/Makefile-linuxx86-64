@@ -1,0 +1,79 @@
+# Defining VERBOSE before running make (i.e., VERBOSE=1 make) will print all
+# commands ran.
+
+CFLAGS := -Wall -Wextra -std=c11 -Wformat=2 -pedantic -Wno-psabi -Wno-unused-parameter -Wno-error=deprecated-declarations -fPIC -rdynamic -pthread -Werror -O2
+CPPFLAGS := -Wall -Wextra -std=c++17 -Wformat=2 -pedantic -Wno-psabi -Wno-unused-parameter -Wno-error=deprecated-declarations -fPIC -rdynamic -pthread -Werror -O2
+
+# Use these when running a debugger on unit tests
+# CFLAGS := -Og -g -Wall -std=c11
+# CPPFLAGS := -Og -g -Wall -std=c++17
+
+CC := gcc
+CPP := g++
+LD := g++
+
+# Specify defines with -D directives here
+DEFINES := -DRUNNING_FRC_TESTS
+
+VERSION := 2021.2.2
+OBJDIR := build/linuxx86-64
+
+# Specify Linux include paths with -I directives here
+IFLAGS := -Isrc/main/include -Isrc/test/include -Ithirdparty/include \
+	-Ibuild/generated/include -Ibuild/wpilibc-cpp-$(VERSION)-headers \
+	-Ibuild/wpimath-cpp-$(VERSION)-headers -Ibuild/hal-cpp-$(VERSION)-headers \
+	-Ibuild/cscore-cpp-$(VERSION)-headers -Ibuild/ntcore-cpp-$(VERSION)-headers \
+	-Ibuild/wpiutil-cpp-$(VERSION)-headers \
+	-Ibuild/googletest-1.9.0-5-437e100-1-headers \
+	-Ibuild/SparkMax-cpp-1.5.4-headers -Ibuild/SparkMax-driver-1.5.4-headers \
+	-Ibuild/PhotonLib-cpp-2021.1.2-headers
+
+# Specify Linux libs with -l directives here
+LDFLAGS := \
+	-Lbuild/wpilibc-cpp-$(VERSION)-linuxx86-64/linux/x86-64/shared \
+	-Wl,-rpath,build/wpilibc-cpp-$(VERSION)-linuxx86-64/linux/x86-64/shared \
+	-lwpilibc \
+	-Lbuild/wpimath-cpp-$(VERSION)-linuxx86-64/linux/x86-64/shared \
+	-Wl,-rpath,build/wpimath-cpp-$(VERSION)-linuxx86-64/linux/x86-64/shared \
+	-lwpimath \
+	-Lbuild/cameraserver-cpp-$(VERSION)-linuxx86-64/linux/x86-64/shared \
+	-Wl,-rpath,build/cameraserver-cpp-$(VERSION)-linuxx86-64/linux/x86-64/shared \
+	-lcameraserver \
+	-Lbuild/cscore-cpp-$(VERSION)-linuxx86-64/linux/x86-64/shared \
+	-Wl,-rpath,build/cscore-cpp-$(VERSION)-linuxx86-64/linux/x86-64/shared \
+	-lcscore \
+	-Lbuild/opencv-cpp-3.4.7-5-linuxx86-64/linux/x86-64/shared \
+	-Wl,-rpath,build/opencv-cpp-3.4.7-5-linuxx86-64/linux/x86-64/shared \
+	-l:libopencv_imgproc.so.3.4 \
+	-l:libopencv_imgcodecs.so.3.4 \
+	-l:libopencv_core.so.3.4 \
+	-Lbuild/ntcore-cpp-$(VERSION)-linuxx86-64/linux/x86-64/shared \
+	-Wl,-rpath,build/ntcore-cpp-$(VERSION)-linuxx86-64/linux/x86-64/shared \
+	-lntcore \
+	-Lbuild/wpiutil-cpp-$(VERSION)-linuxx86-64/linux/x86-64/shared \
+	-Wl,-rpath,build/wpiutil-cpp-$(VERSION)-linuxx86-64/linux/x86-64/shared \
+	-lwpiutil \
+	-Lbuild/hal-cpp-$(VERSION)-linuxx86-64/linux/x86-64/shared \
+	-Wl,-rpath,build/hal-cpp-$(VERSION)-linuxx86-64/linux/x86-64/shared \
+	-lwpiHal \
+	-Lbuild/SparkMax-cpp-1.5.4-linuxx86-64static/linux/x86-64/static \
+	-lSparkMax \
+	-Lbuild/SparkMax-driver-1.5.4-linuxx86-64static/linux/x86-64/static \
+	-lSparkMaxDriver \
+	-Lbuild/PhotonLib-cpp-2021.1.2-linuxx86-64static/linux/x86-64/static \
+	-lPhoton \
+	-lpthread \
+	-Lbuild/googletest-1.9.0-5-437e100-1-linuxx86-64static/linux/x86-64/static \
+	-lgoogletest \
+	-lstdc++fs
+
+include mk/Makefile-common
+
+$(OBJDIR)/frcUserProgram: $(OBJ_C) $(OBJ_CPP) $(OBJ_CC) $(OBJ_GEN_CPP) $(OBJ_THIRDPARTY_CC) $(OBJ_THIRDPARTY_CPP) $(OBJ_TEST_CPP) $(OBJ_TEST_CC)
+	@mkdir -p $(@D)
+	@echo [LD] $@
+ifdef VERBOSE
+	$(LD) -o $@ $+ $(LDFLAGS)
+else
+	@$(LD) -o $@ $+ $(LDFLAGS)
+endif
