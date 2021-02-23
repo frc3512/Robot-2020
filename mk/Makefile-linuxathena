@@ -1,12 +1,12 @@
 # Defining VERBOSE before running make (i.e., VERBOSE=1 make) will print all
 # commands ran.
 
-CFLAGS := -Wall -Wextra -std=c11 -Wformat=2 -pedantic -Wno-psabi -Wno-unused-parameter -Wno-error=deprecated-declarations -fPIC -rdynamic -pthread -Werror -O2
-CPPFLAGS := -Wall -Wextra -std=c++17 -Wformat=2 -pedantic -Wno-psabi -Wno-unused-parameter -Wno-attributes -Wno-error=deprecated-declarations -fPIC -rdynamic -pthread -Werror -O2
+CFLAGS := -Wall -Wextra -std=c11 -Wformat=2 -pedantic -Wno-psabi -Wno-unused-parameter -Wno-error=deprecated-declarations -fPIC -pthread -Werror -O2
+CPPFLAGS := -Wall -Wextra -std=c++17 -Wformat=2 -pedantic -Wno-psabi -Wno-unused-parameter -Wno-attributes -Wno-error=deprecated-declarations -fPIC -pthread -Werror -O2
 
-CC := arm-frc2021-linux-gnueabi-gcc
-CPP := arm-frc2021-linux-gnueabi-g++
-LD := arm-frc2021-linux-gnueabi-g++
+CC := gcc
+CPP := ~/git/wpilib/llvm-frc/frcclang++
+LD := ~/git/wpilib/llvm-frc/frcclangld++
 STRIP := arm-frc2021-linux-gnueabi-strip
 
 # Specify defines with -D directives here
@@ -65,8 +65,7 @@ LDFLAGS := \
 	-l:libNiRioSrv.so.19.0.0 \
 	-Lbuild/visa-2020.10.1-linuxathena/linux/athena/shared \
 	-l:libvisa.so \
-	-lpthread \
-	-flto
+	-lpthread
 
 include mk/Makefile-common
 

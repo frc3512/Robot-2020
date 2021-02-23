@@ -1,16 +1,16 @@
 # Defining VERBOSE before running make (i.e., VERBOSE=1 make) will print all
 # commands ran.
 
-CFLAGS := -Wall -Wextra -std=c11 -Wformat=2 -pedantic -Wno-psabi -Wno-unused-parameter -Wno-error=deprecated-declarations -fPIC -rdynamic -pthread -Werror -O2
-CPPFLAGS := -Wall -Wextra -std=c++17 -Wformat=2 -pedantic -Wno-psabi -Wno-unused-parameter -Wno-error=deprecated-declarations -fPIC -rdynamic -pthread -Werror -O2
+CFLAGS := -Wall -Wextra -std=c11 -Wformat=2 -pedantic -Wno-psabi -Wno-unused-parameter -Wno-error=deprecated-declarations -fPIC -pthread -Werror -O2
+CPPFLAGS := -Wall -Wextra -std=c++17 -Wformat=2 -pedantic -Wno-psabi -Wno-unused-parameter -Wno-error=deprecated-declarations -fPIC -pthread -Werror -O2
 
 # Use these when running a debugger on unit tests
 # CFLAGS := -Og -g -Wall -std=c11
 # CPPFLAGS := -Og -g -Wall -std=c++17
 
-CC := gcc
-CPP := g++
-LD := g++
+CC := clang
+CPP := clang++
+LD := clang++
 
 # Specify defines with -D directives here
 DEFINES := -DRUNNING_FRC_TESTS
