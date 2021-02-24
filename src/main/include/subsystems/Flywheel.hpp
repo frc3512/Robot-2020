@@ -6,6 +6,7 @@
 #include <frc/LinearFilter.h>
 #include <frc/estimator/KalmanFilter.h>
 #include <frc/geometry/Pose2d.h>
+#include <frc/logging/CSVLogFile.h>
 #include <frc/simulation/EncoderSim.h>
 #include <frc/simulation/FlywheelSim.h>
 #include <frc/simulation/LinearSystemSim.h>
@@ -170,6 +171,8 @@ private:
     FlywheelSim m_flywheelSim{m_controller.GetPlant(), frc::DCMotor::NEO(2),
                               1.0 / 2.0};
     frc::sim::EncoderSim m_encoderSim{m_encoder};
+
+    frc::CSVLogFile m_charData{"Motor voltage (V)", "Motor speed (rad/s)"};
 
     /**
      * Sets the voltage of the flywheel motor.
