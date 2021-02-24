@@ -18,6 +18,7 @@ it as the target moving and the drivetrain being stationary. Then the only
 velocities that matter are the ball and the target where the drivetrain position
 is just the starting point. Therefore, v_g = -v_r.
 
+```
        s_g t
       <----- x_g
      ^ A   B |
@@ -28,6 +29,7 @@ is just the starting point. Therefore, v_g = -v_r.
           \  |
            \C|
            x_b
+```
 
 Angle A is opposite of side a, angle B is opposite of side b, etc. x_b is the
 initial position vector of the ball. We want to find angle C, which is the
