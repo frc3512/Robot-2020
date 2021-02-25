@@ -93,7 +93,6 @@ Robot::Robot() {
 
 void Robot::Shoot(int ballsToShoot) {
     if (m_state == ShootingState::kIdle) {
-        m_vision.TurnLEDOn();
         m_flywheel.SetGoalFromPose();
         m_state = ShootingState::kStartFlywheel;
         m_ballsToShoot = ballsToShoot;
@@ -119,7 +118,6 @@ void Robot::DisabledInit() {
 
     // Reset teleop shooting state machine when disabling robot
     m_flywheel.SetGoal(0_rad_per_s);
-    m_vision.TurnLEDOff();
     m_timer.Stop();
     m_state = ShootingState::kIdle;
 }
@@ -238,7 +236,6 @@ void Robot::RunShooterSM() {
             if (m_timer.HasElapsed(m_shootTimeout) &&
                 !m_intake.IsUpperSensorBlocked()) {
                 m_flywheel.SetGoal(0_rad_per_s);
-                m_vision.TurnLEDOff();
                 m_timer.Stop();
                 m_state = ShootingState::kIdle;
             }

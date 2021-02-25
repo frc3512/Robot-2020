@@ -123,19 +123,6 @@ void Turret::RobotPeriodic() {
     m_ccwLimitSwitchValueEntry.SetBoolean(m_ccwLimitSwitch.Get());
     m_cwLimitSwitchValueEntry.SetBoolean(m_cwLimitSwitch.Get());
 
-    if (!frc::DriverStation::GetInstance().IsDisabled()) {
-        auto turretHeadingInGlobal = units::radian_t{
-            GetStates()(TurretController::State::kAngle) +
-            m_drivetrain.GetStates()(DrivetrainController::State::kHeading)};
-        if (turretHeadingInGlobal < 45_deg && turretHeadingInGlobal > -45_deg) {
-            m_vision.TurnLEDOn();
-        } else {
-            m_vision.TurnLEDOff();
-        }
-    } else {
-        m_vision.TurnLEDOff();
-    }
-
     int controlMode = static_cast<int>(m_controller.GetControlMode());
     if (controlMode == 0) {
         m_controlModeEntry.SetString("Manual");

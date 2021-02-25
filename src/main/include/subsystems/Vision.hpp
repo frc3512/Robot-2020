@@ -2,8 +2,6 @@
 
 #pragma once
 
-#include <photonlib/PhotonCamera.h>
-
 #include <frc/geometry/Pose2d.h>
 #include <frc/geometry/Transform2d.h>
 #include <frc/geometry/Translation2d.h>
@@ -37,21 +35,6 @@ public:
     Vision& operator=(const Vision&) = delete;
 
     /**
-     * Turns on power to the LED ring light.
-     */
-    void TurnLEDOn();
-
-    /**
-     * Turns off power to the LED ring light.
-     */
-    void TurnLEDOff();
-
-    /**
-     * Returns whether or not the LED ring light is on or off.
-     */
-    bool IsLEDOn() const;
-
-    /**
      * Returns the most recent global measurement
      */
     std::optional<GlobalMeasurement> GetGlobalMeasurement();
@@ -63,13 +46,11 @@ public:
     void ProcessNewMeasurement();
 
 private:
-    nt::NetworkTableEntry m_pose = NetworkTableUtil::MakeDoubleArrayEntry(
-        "photonvision/RPI-Cam/targetPose", {0.0, 0.0, 0.0});
-    nt::NetworkTableEntry m_latency = NetworkTableUtil::MakeDoubleEntry(
-        "photonvision/RPI-Cam/latencyMillis", 0.0);
+    nt::NetworkTableEntry m_pose =
+        NetworkTableUtil::MakeDoubleArrayEntry("/Vision/Pose", {0.0, 0.0, 0.0});
+    nt::NetworkTableEntry m_latency =
+        NetworkTableUtil::MakeDoubleEntry("/Vision/Timestamp", 0.0);
     NT_EntryListener m_listenerHandle;
-
-    photonlib::PhotonCamera m_rpiCam{"RPI-Cam"};
 
     frc3512::static_concurrent_queue<GlobalMeasurement, 8> m_measurements;
 };

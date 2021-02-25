@@ -25,14 +25,6 @@ Vision::Vision() {
 
 Vision::~Vision() { m_pose.RemoveListener(m_listenerHandle); }
 
-void Vision::TurnLEDOn() { m_rpiCam.SetLEDMode(photonlib::LEDMode::kOn); }
-
-void Vision::TurnLEDOff() { m_rpiCam.SetLEDMode(photonlib::LEDMode::kOff); }
-
-bool Vision::IsLEDOn() const {
-    return m_rpiCam.GetLEDMode() == photonlib::LEDMode::kOn;
-}
-
 std::optional<Vision::GlobalMeasurement> Vision::GetGlobalMeasurement() {
     return m_measurements.pop();
 }
@@ -50,17 +42,15 @@ void Vision::ProcessNewMeasurement() {
         return;
     }
 
-    frc::Pose2d targetInGlobal{TargetModel::kCenter.X(),
-                               TargetModel::kCenter.Y(), 0_rad};
-
+    frc::Pose2d markerInGlobal = {0_m, 0_m, units::radian_t{0}};
     // The transformation from PnP data to the origin is from the camera's point
     // of view
-    frc::Transform2d targetInGlobalToCameraInGlobal{
+    frc::Transform2d markerInGlobalToCameraInGlobal{
         frc::Pose2d{units::inch_t{pose[0]}, units::inch_t{pose[1]},
                     frc::Rotation2d{units::degree_t{pose[2]}}},
         frc::Pose2d{}};
     auto cameraInGlobal =
-        targetInGlobal.TransformBy(targetInGlobalToCameraInGlobal);
+        markerInGlobal.TransformBy(markerInGlobalToCameraInGlobal);
 
     auto turretInGlobal =
         cameraInGlobal.TransformBy(kCameraInGlobalToTurretInGlobal);
