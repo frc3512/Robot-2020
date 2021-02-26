@@ -44,7 +44,7 @@ Eigen::Matrix<double, 1, 1> FlywheelController::Calculate(
     m_u = frc::NormalizeInputVector<1>(m_u, 12.0);
 
     // m_nextR is used here so AtGoal() returns false after calling SetGoal()
-    UpdateAtGoal(m_nextR - x);
+    UpdateAtGoal(units::radians_per_second_t{(m_nextR - x)(0)});
     m_r = m_nextR;
 
     return m_u;
@@ -54,18 +54,14 @@ frc::LinearSystem<1, 1, 1> FlywheelController::GetPlant() {
     return frc::LinearSystemId::IdentifyVelocitySystem<units::radian>(kV, kA);
 }
 
-void FlywheelController::UpdateAtGoal(
-    const Eigen::Matrix<double, 1, 1>& error) {
-    auto absError = units::math::abs(units::radians_per_second_t{error(0)});
-
+void FlywheelController::UpdateAtGoal(units::radians_per_second_t error) {
     // Add hysteresis to AtGoal() so it won't chatter due to measurement noise
     // when the angular velocity drops. Threshold when going out of tolerance
     // (e.g., down after shooting a ball) is tolerance + 20. Threshold when
     // going into tolerance (e.g., up from recovery) is threshold.
-    if (m_atGoal &&
-        units::radians_per_second_t{error(0)} > kAngularVelocityShotTolerance) {
+    if (m_atGoal && error > kAngularVelocityShotTolerance) {
         m_atGoal = false;
-    } else if (!m_atGoal && absError < kAngularVelocityRecoveryTolerance) {
+    } else if (!m_atGoal && error < kAngularVelocityRecoveryTolerance) {
         m_atGoal = true;
     }
 }

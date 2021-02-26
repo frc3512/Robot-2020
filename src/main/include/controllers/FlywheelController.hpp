@@ -102,8 +102,8 @@ private:
      * This function applies hysteresis so AtGoal() doesn't chatter between true
      * and false.
      *
-     * @param error The error vector.
+     * @param error The angular velocity error.
      */
-    void UpdateAtGoal(const Eigen::Matrix<double, 1, 1>& error);
+    void UpdateAtGoal(units::radians_per_second_t error);
 };
 }  // namespace frc3512
