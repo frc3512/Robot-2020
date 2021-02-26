@@ -129,15 +129,8 @@ public:
             fmt::print(stderr, "ERROR @ t = {}: dt = 0\n", m_nowBegin);
         }
 
-        if (units::math::abs(m_dt - Constants::kDt) > 2.5_ms) {
-            // Overruns are common in simulation, so don't print errors for them
-            if constexpr (!frc::RobotBase::IsSimulation()) {
-                fmt::print(stderr,
-                           "ERROR @ t = {}: std::abs(dt - {}) > 2.5 ms where "
-                           "dt = {}\n",
-                           m_nowBegin, Constants::kDt, m_dt);
-            }
-
+        // Clamp spikes in scheduling latency
+        if (m_dt > 10_ms) {
             m_dt = Constants::kDt;
         }
     }
