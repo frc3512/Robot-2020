@@ -15,7 +15,7 @@ void Robot::AutoRightSideShootEight() {
     // Mid Pose - Third/Farthest ball in the Trench Run
     const frc::Pose2d kTrenchPose{8_m, 0.71_m, units::radian_t{wpi::math::pi}};
     // End Pose - Middle of two balls on right side of generator
-    const frc::Pose2d kGenPose{10.25_m, 2.55_m, 115_deg};
+    const frc::Pose2d kGenPose{10.3_m, 2.55_m, 115_deg};
 
     const units::meters_per_second_t kMaxV = 1.6_mps;
 
@@ -97,8 +97,6 @@ void Robot::AutoRightSideShootEight() {
         }
     }
 
-    intake.Stop();
-
     Shoot(5);
 
     while (IsShooting()) {
@@ -106,6 +104,8 @@ void Robot::AutoRightSideShootEight() {
             return;
         }
     }
+
+    intake.Stop();
 }
 
 }  // namespace frc3512
