@@ -144,7 +144,7 @@ private:
     frc::LinearSystem<1, 1, 1> m_plant{FlywheelController::GetPlant()};
     frc::KalmanFilter<1, 1, 1> m_observer{
         m_plant,
-        {700.0},
+        {200.0},
         {FlywheelController::kDpP / Constants::kDt.to<double>()},
         Constants::kDt};
 
