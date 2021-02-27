@@ -1,14 +1,24 @@
 #!/usr/bin/env python3
-"""Uses an Extended Kalman filter to estimate Kv and Ka for a turret position
-system with a constant voltage applied from rest.
+"""Uses an Extended Kalman filter to estimate Kv and Ka for a position system
+with a constant voltage applied from rest.
 
 Run this script on successive estimates of Kv/Ka until the initial and final
 Kv/Ka converge to each other.
 """
+from enum import Enum
 import frccontrol as fct
 import matplotlib.pyplot as plt
 import numpy as np
 import scipy as sp
+
+
+class Type(Enum):
+    LINEAR = 0
+    ANGULAR = 1
+
+
+UMAX = 4.0
+TYPE = Type.ANGULAR
 
 # Initial Kv = voltage applied / last velocity estimate (hopefully it's near
 #       steady-state velocity)
@@ -121,7 +131,10 @@ def jacobian_x(x, u):
     ])
 
 
-filename = "Turret characterization.txt"
+if TYPE == Type.LINEAR:
+    filename = "drivetrainLinearMeasurements.txt"
+elif TYPE == Type.ANGULAR:
+    filename = "turretAngularMeasurements.txt"
 
 # Get labels from first row of file
 with open(filename) as f:
@@ -131,25 +144,21 @@ with open(filename) as f:
 print(f"Plotting {filename}")
 data = np.genfromtxt(filename, delimiter=",", skip_header=1, skip_footer=1)
 ts = data[:, 0]
-us = data[:, 1]
+# us = data[:, 1]
+us = [UMAX] * len(ts)
 ys = np.zeros((len(ts), 1))
 for i in range(len(ts)):
-    ys[i, 0] = data[i, 2]
+    if TYPE == Type.LINEAR:
+        ys[i, 0] = (data[i, 2] + data[i, 3]) / 2.0
+    elif TYPE == Type.ANGULAR:
+        ys[i, 0] = data[i, 1]
 
 # First label is x axis label (time). The remainder are dataset names.
 plt.figure()
-plt.title("Turret inputs")
-plt.xlabel("Time (s)")
-plt.ylabel("Inputs")
-plt.plot(ts, us, label="Input voltage (V)")
-plt.legend()
-
-plt.figure()
-plt.title("Turret outputs")
+plt.title("Drivetrain measurements")
 plt.xlabel("Time (s)")
 plt.ylabel("Measurements")
-plt.plot(ts, ys, label="Angle (rad)")
-plt.legend()
+plt.plot(ts, ys, label="Position (m)")
 
 vels = [0]
 for i in range(1, len(ys)):
@@ -231,6 +240,10 @@ print("E[Ka]=", xhat[3, 0])
 plt.figure()
 plt.title("Kv and Ka estimate over time")
 plt.xlabel("Time (s)")
+plt.plot(ts, xhat_rec[0, 0, :], label="Position estimate")
+plt.plot(ts, ys, label="Position measurement")
+plt.plot(ts, xhat_rec[1, 0, :], label="Velocity estimate")
+plt.plot(ts, vels, label="Velocity measurement")
 plt.plot(ts, xhat_rec[2, 0, :], label="Kv estimate")
 plt.plot(ts, xhat_rec[3, 0, :], label="Ka estimate")
 plt.legend()
