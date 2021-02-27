@@ -25,6 +25,7 @@ TYPE = Type.ANGULAR
 # Initial Ka = 1 (arbitrary nonzero value to avoid numerical instability)
 KV_INIT = 4.42
 KA_INIT = 1.0
+DT_INIT = 0.005
 
 
 def discretize_aq(contA, contQ, dt):
@@ -206,10 +207,10 @@ while True:
             A = jacobian_x(xhat, u)
             if k > 0:
                 xhat = fct.runge_kutta(dynamics, xhat, u, ts[k] - ts[k - 1])
+                discA, discQ = discretize_aq(A, Q, ts[k] - ts[k - 1])
             else:
-                xhat = fct.runge_kutta(dynamics, xhat, u, ts[k])
-
-            discA, discQ = discretize_aq(A, Q, ts[k])
+                xhat = fct.runge_kutta(dynamics, xhat, u, DT_INIT)
+                discA, discQ = discretize_aq(A, Q, DT_INIT)
 
             P = discA @ P @ discA.T + discQ
 
@@ -218,6 +219,12 @@ while True:
             K = P @ C.T @ np.linalg.inv(C @ P @ C.T + discR)
             xhat += K @ (y - C @ xhat)
             P = (np.eye(4, 4) - K @ C) @ P
+
+            # Clamp Kv and Ka to positive values
+            if xhat[2, 0] < 0.0:
+                xhat[2, 0] = KV_INIT
+            if xhat[3, 0] < 0.0:
+                xhat[3, 0] = KA_INIT
 
             xhat_rec[:, :, k] = xhat
             P_rec[:, :, k] = np.array([P[0, 0], P[1, 1], P[2, 2], P[3, 3]]).T
@@ -262,7 +269,7 @@ for k in range(num_points):
         if k > 0:
             xhat = fct.runge_kutta(dynamics, xhat, u, ts[k] - ts[k - 1])
         else:
-            xhat = fct.runge_kutta(dynamics, xhat, u, ts[k])
+            xhat = fct.runge_kutta(dynamics, xhat, u, DT_INIT)
         xhat_rec[:, :, k] = xhat
 
 plt.figure()
