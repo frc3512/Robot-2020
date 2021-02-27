@@ -55,12 +55,12 @@ frc::LinearSystem<1, 1, 1> FlywheelController::GetPlant() {
 
 void FlywheelController::UpdateAtGoal(units::radians_per_second_t error) {
     // Add hysteresis to AtGoal() so it won't chatter due to measurement noise
-    // when the angular velocity drops. Threshold when going out of tolerance
-    // (e.g., down after shooting a ball) is tolerance + 20. Threshold when
-    // going into tolerance (e.g., up from recovery) is threshold.
-    if (m_atGoal && error > kAngularVelocityShotTolerance) {
+    // when the angular velocity drops. The threshold when going out of
+    // tolerance (e.g., down after shooting a ball) is lower than the threshold
+    // when going into tolerance (e.g., up from recovery).
+    if (m_atGoal && error > kAngularVelocityShotThreshold) {
         m_atGoal = false;
-    } else if (!m_atGoal && error < kAngularVelocityRecoveryTolerance) {
+    } else if (!m_atGoal && error < kAngularVelocityRecoveryThreshold) {
         m_atGoal = true;
     }
 }
