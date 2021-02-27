@@ -53,7 +53,27 @@ Robot::Robot() {
     frc::DriverStation::GetInstance().SilenceJoystickConnectionWarning(true);
     frc::LiveWindow::GetInstance()->DisableAllTelemetry();
 
-    AddPeriodic([=] { ControllerPeriodic(); }, Constants::kDt, 7.5_ms);
+    AddPeriodic(
+        [=] {
+            if (IsEnabled()) {
+                drivetrain.ControllerPeriodic();
+            }
+        },
+        Constants::kDt, 1.5_ms);
+    AddPeriodic(
+        [=] {
+            if (IsEnabled()) {
+                flywheel.ControllerPeriodic();
+            }
+        },
+        Constants::kDt, 3.5_ms);
+    AddPeriodic(
+        [=] {
+            if (IsEnabled()) {
+                turret.ControllerPeriodic();
+            }
+        },
+        Constants::kDt, 4.2_ms);
 
     if constexpr (!IsSimulation()) {
         if (!frc::Notifier::SetHALThreadPriority(
@@ -149,16 +169,6 @@ void Robot::TeleopPeriodic() {
 }
 
 void Robot::TestPeriodic() { SubsystemBase::RunAllTestPeriodic(); }
-
-void Robot::ControllerPeriodic() {
-    if (!frc::DriverStation::GetInstance().IsEnabled()) {
-        return;
-    }
-
-    drivetrain.ControllerPeriodic();
-    turret.ControllerPeriodic();
-    flywheel.ControllerPeriodic();
-}
 
 void Robot::RunShooterSM() {
     // Shooting state machine

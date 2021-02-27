@@ -107,11 +107,6 @@ public:
     void TestPeriodic() override;
 
     /**
-     * Runs all the controller update functions.
-     */
-    void ControllerPeriodic();
-
-    /**
      * Runs the shooter state machine.
      */
     void RunShooterSM();
