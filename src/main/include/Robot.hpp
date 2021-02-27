@@ -147,7 +147,7 @@ public:
 
     /**
      * Shoot three power cells from the initiation line in front of the target
-     * zone, intake two balls under the power generator, then shoot them.
+     * zone, intake three balls in the trench run, then shoot them.
      */
     void AutoTargetZoneShootSix();
 
@@ -171,7 +171,7 @@ public:
 
     /**
      * Shoot three power cells from the initiation line in front of the allied
-     * trench run, intake three balls in the trench run, then shooting them.
+     * trench run, intake three balls in the trench run, then shoot them.
      */
     void AutoRightSideShootSix();
 
