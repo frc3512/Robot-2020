@@ -226,6 +226,7 @@ private:
     AutonomousChooser m_autonChooser{"No-op", [=] { AutoNoOp(); }};
 
     frc::CSVLogFile m_batteryLogger{"Battery", "Battery voltage (V)"};
+    frc::CSVLogFile m_eventLogger{"Events", "Event"};
 
     nt::NetworkTableEntry m_batteryVoltageEntry =
         NetworkTableUtil::MakeDoubleEntry("/Diagnostics/Robot/batteryVoltage",

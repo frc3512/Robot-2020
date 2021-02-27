@@ -92,6 +92,8 @@ void Robot::Shoot(int ballsToShoot) {
         flywheel.SetGoalFromPose();
         m_state = ShootingState::kStartFlywheel;
         m_ballsToShoot = ballsToShoot;
+        m_eventLogger.Log(
+            fmt::format("Called Robot::Shoot({})", m_ballsToShoot));
     }
 }
 
@@ -171,6 +173,11 @@ void Robot::TeleopPeriodic() {
 void Robot::TestPeriodic() { SubsystemBase::RunAllTestPeriodic(); }
 
 void Robot::RunShooterSM() {
+    m_eventLogger.Log(
+        fmt::format("Flywheel error = {}",
+                    flywheel.GetGoal() - flywheel.GetAngularVelocity()),
+        fmt::format("Flywheel AtGoal = {}", flywheel.AtGoal()));
+
     // Shooting state machine
     switch (m_state) {
         // Wait until ball(s) are fully loaded in conveyor and trigger has been
@@ -207,6 +214,8 @@ void Robot::RunShooterSM() {
             if (m_ballsToShoot > 0 && !m_prevFlywheelAtGoal &&
                 flywheel.AtGoal()) {
                 --m_ballsToShoot;
+                m_eventLogger.Log(fmt::format("Shot a ball; balls left = {}",
+                                              m_ballsToShoot));
             }
 
             // If we shot the number of balls required or we were using a
