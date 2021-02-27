@@ -40,7 +40,6 @@ Eigen::Matrix<double, 1, 1> FlywheelController::Calculate(
         m_u = m_lqr.Calculate(x, m_r) + m_ff.Calculate(m_nextR);
     }
 
-    m_u *= 12.0 / frc::RobotController::GetInputVoltage();
     m_u = frc::NormalizeInputVector<1>(m_u, 12.0);
 
     // m_nextR is used here so AtGoal() returns false after calling SetGoal()
