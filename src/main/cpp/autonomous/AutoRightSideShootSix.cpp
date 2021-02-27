@@ -61,8 +61,7 @@ void Robot::AutoRightSideShootSix() {
     }
 
     // Intake Balls x3
-    intake.SetArmMotor(Intake::ArmMotorDirection::kIntake);
-    intake.SetFunnel(0.4);
+    intake.Start();
 
     while (!drivetrain.AtGoal()) {
         if (!m_autonChooser.Suspend()) {
@@ -70,8 +69,7 @@ void Robot::AutoRightSideShootSix() {
         }
     }
 
-    intake.SetArmMotor(Intake::ArmMotorDirection::kIdle);
-    intake.SetFunnel(0.0);
+    intake.Stop();
 
     // Drive back
     {

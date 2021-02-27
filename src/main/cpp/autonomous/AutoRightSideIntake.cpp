@@ -33,8 +33,7 @@ void Robot::AutoRightSideIntake() {
 
     // Intake Balls x2
     intake.Deploy();
-    intake.SetArmMotor(Intake::ArmMotorDirection::kIntake);
-    intake.SetFunnel(0.4);
+    intake.Start();
 
     while (!drivetrain.AtGoal()) {
         if (!m_autonChooser.Suspend()) {
@@ -42,8 +41,7 @@ void Robot::AutoRightSideIntake() {
         }
     }
 
-    intake.SetArmMotor(Intake::ArmMotorDirection::kIdle);
-    intake.SetFunnel(0);
+    intake.Stop();
 }
 
 }  // namespace frc3512

@@ -29,19 +29,14 @@ bool Intake::IsDeployed() const {
     return m_arm.Get() == frc::DoubleSolenoid::kForward;
 }
 
-void Intake::SetArmMotor(ArmMotorDirection direction) {
-    if (direction == ArmMotorDirection::kIntake) {
-        m_armMotor.Set(-0.5);
-    } else if (direction == ArmMotorDirection::kOuttake) {
-        m_armMotor.Set(0.5);
-    } else {
-        m_armMotor.Set(0.0);
-    }
+void Intake::Start() {
+    SetArmMotor(ArmMotorDirection::kIntake);
+    SetFunnel(0.4);
 }
 
-void Intake::SetFunnel(double speed) {
-    m_funnelMotorLeft.Set(speed);
-    m_funnelMotorRight.Set(speed);
+void Intake::Stop() {
+    SetArmMotor(ArmMotorDirection::kIdle);
+    SetFunnel(0.0);
 }
 
 void Intake::FeedBalls() {
@@ -132,4 +127,19 @@ void Intake::TeleopPeriodic() {
             Deploy();
         }
     }
+}
+
+void Intake::SetArmMotor(ArmMotorDirection direction) {
+    if (direction == ArmMotorDirection::kIntake) {
+        m_armMotor.Set(-0.5);
+    } else if (direction == ArmMotorDirection::kOuttake) {
+        m_armMotor.Set(0.5);
+    } else {
+        m_armMotor.Set(0.0);
+    }
+}
+
+void Intake::SetFunnel(double speed) {
+    m_funnelMotorLeft.Set(speed);
+    m_funnelMotorRight.Set(speed);
 }

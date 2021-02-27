@@ -50,17 +50,14 @@ public:
     bool IsDeployed() const;
 
     /**
-     * Sets the intake motor to either Intake, Idle, or Outtake balls.
-     *
-     * @param direction The intake direction.
+     * Sets funnel and arm motors to intake balls.
      */
-    void SetArmMotor(ArmMotorDirection direction);
+    void Start();
 
     /**
-     * Sets the funnel motors to either intake or outtake
-     * @param speed voltage to set motors forwards or backwards
+     * Turns off the funnel and arm motors.
      */
-    void SetFunnel(double speed);
+    void Stop();
 
     /**
      * Sets all motors pertaining to the Intake subsystem to outtake their balls
@@ -125,6 +122,20 @@ private:
 
     frc::CSVLogFile m_intakeLog{"Intake", "Deployed (bool)", "Speed (-1 .. 1)"};
     units::second_t m_startTime = frc2::Timer::GetFPGATimestamp();
+
+    /**
+     * Sets the intake motor to either Intake, Idle, or Outtake balls.
+     *
+     * @param direction The intake direction.
+     */
+    void SetArmMotor(ArmMotorDirection direction);
+
+    /**
+     * Sets the funnel motors's speed.
+     *
+     * @param speed Funnel motor speed (-1 to 1).
+     */
+    void SetFunnel(double speed);
 };
 
 }  // namespace frc3512
