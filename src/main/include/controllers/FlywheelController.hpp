@@ -86,8 +86,8 @@ public:
     static frc::LinearSystem<1, 1, 1> GetPlant();
 
 private:
-    static constexpr auto kAngularVelocityShotThreshold = 20_rad_per_s;
-    static constexpr auto kAngularVelocityRecoveryThreshold = 10_rad_per_s;
+    static constexpr auto kAngularVelocityShotThreshold = 25_rad_per_s;
+    static constexpr auto kAngularVelocityRecoveryThreshold = 5_rad_per_s;
 
     frc::LinearSystem<1, 1, 1> m_plant{GetPlant()};
     frc::LinearQuadraticRegulator<1, 1> m_lqr{
