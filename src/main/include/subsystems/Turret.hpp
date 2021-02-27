@@ -146,7 +146,7 @@ private:
     // rotating CCW. For the current gear ratio, the duty cycle encoder rolls
     // over to 0 rad at 0.707 rad. The offset is half that to provide a 20
     // degree buffer on each side for the robot starting configuration.
-    static constexpr auto kOffset = units::radian_t{0.380 + 0.062};
+    static constexpr auto kOffset = units::radian_t{0.380 + 0.03};
 
     units::radian_t m_ccwLimit{TurretController::kCCWLimit};
     units::radian_t m_cwLimit{TurretController::kCWLimit};
