@@ -10,7 +10,6 @@
 #include <frc/simulation/AnalogInputSim.h>
 #include <frc/simulation/DutyCycleEncoderSim.h>
 #include <frc/simulation/LinearSystemSim.h>
-#include <frc2/Timer.h>
 #include <networktables/NetworkTableEntry.h>
 #include <networktables/NetworkTableInstance.h>
 #include <units/angle.h>

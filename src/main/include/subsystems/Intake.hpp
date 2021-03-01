@@ -121,7 +121,6 @@ private:
         "/Diagnostics/Intake/Lower sensor blocked", false);
 
     frc::CSVLogFile m_intakeLog{"Intake", "Deployed (bool)", "Speed (-1 .. 1)"};
-    units::second_t m_startTime = frc2::Timer::GetFPGATimestamp();
 
     /**
      * Sets the intake motor to either Intake, Idle, or Outtake balls.

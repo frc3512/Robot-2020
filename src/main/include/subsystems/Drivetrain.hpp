@@ -19,7 +19,6 @@
 #include <frc/smartdashboard/Field2d.h>
 #include <frc/system/plant/LinearSystemId.h>
 #include <frc/trajectory/TrajectoryConfig.h>
-#include <frc2/Timer.h>
 #include <networktables/NetworkTableEntry.h>
 #include <networktables/NetworkTableInstance.h>
 #include <units/acceleration.h>

@@ -1,8 +1,10 @@
-// Copyright (c) 2020 FRC Team 3512. All Rights Reserved.
+// Copyright (c) 2020-2021 FRC Team 3512. All Rights Reserved.
 
 #pragma once
 
 #include <string_view>
+
+#include <units/time.h>
 
 namespace frc3512 {
 
@@ -13,5 +15,10 @@ namespace frc3512 {
  * std::filesystem support.
  */
 void DeleteCSVs();
+
+/**
+ * Returns the timestamp when the robot program started.
+ */
+units::second_t GetStartTime();
 
 }  // namespace frc3512

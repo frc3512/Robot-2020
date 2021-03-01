@@ -6,6 +6,7 @@
 #include <frc/Joystick.h>
 
 #include "CANSparkMaxUtil.hpp"
+#include "logging/CSVUtil.hpp"
 #include "subsystems/Flywheel.hpp"
 
 using namespace frc3512;
@@ -113,8 +114,8 @@ void Intake::RobotPeriodic() {
     m_upperSensorEntry.SetBoolean(IsUpperSensorBlocked());
     m_lowerSensorEntry.SetBoolean(IsLowerSensorBlocked());
 
-    m_intakeLog.Log(frc2::Timer::GetFPGATimestamp() - m_startTime, m_arm.Get(),
-                    m_armMotor.Get());
+    m_intakeLog.Log(frc2::Timer::GetFPGATimestamp() - GetStartTime(),
+                    m_arm.Get(), m_armMotor.Get());
 }
 
 void Intake::TeleopPeriodic() {

@@ -15,6 +15,8 @@ namespace filesystem = experimental::filesystem;
 #endif  // defined(__GNUC__) && __GNUC__ < 8 && !defined(__llvm__)
 #endif  // !defined(__FRC_ROBORIO__)
 
+#include <frc2/Timer.h>
+
 namespace frc3512 {
 
 constexpr bool ends_with(std::string_view str, std::string_view x) noexcept {
@@ -46,6 +48,11 @@ void DeleteCSVs() {
         }
     }
 #endif  // !defined(__FRC_ROBORIO__)
+}
+
+units::second_t GetStartTime() {
+    static units::second_t startTime = frc2::Timer::GetFPGATimestamp();
+    return startTime;
 }
 
 }  // namespace frc3512
