@@ -100,6 +100,11 @@ void Robot::Shoot(int ballsToShoot) {
         flywheel.SetGoalFromPose();
         m_state = ShootingState::kStartFlywheel;
         m_ballsToShoot = ballsToShoot;
+        if (ballsToShoot != -1) {
+            m_shootTimeout = 0.6_s * m_ballsToShoot;
+        } else {
+            m_shootTimeout = kMaxShootTimeout;
+        }
         m_eventLogger.Log(
             fmt::format("Called Robot::Shoot({})", m_ballsToShoot));
     }
@@ -228,8 +233,10 @@ void Robot::RunShooterSM() {
 
             // If we shot the number of balls required or we were using a
             // timeout instead and the timeout expired, stop shooting
-            if (m_ballsToShoot == 0 || (m_timer.HasElapsed(kShootTimeout) &&
-                                        !intake.IsUpperSensorBlocked())) {
+            // FIXME: Also stop flywheel if m_ballsToShoot == 0 when
+            // Flywheel::AtGoal() is fixed
+            if (m_timer.HasElapsed(m_shootTimeout) &&
+                !intake.IsUpperSensorBlocked()) {
                 flywheel.SetGoal(0_rad_per_s);
                 vision.TurnLEDOff();
                 m_timer.Stop();

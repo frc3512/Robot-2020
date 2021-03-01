@@ -50,7 +50,7 @@ public:
      */
     enum class ShootingState { kIdle, kStartFlywheel, kStartConveyor };
 
-    static constexpr auto kShootTimeout = 3_s;
+    static constexpr auto kMaxShootTimeout = 3_s;
 
     // The order the subsystems are initialized determines the order the
     // controllers run in.
@@ -220,6 +220,7 @@ public:
 private:
     ShootingState m_state = ShootingState::kIdle;
     int m_ballsToShoot = -1;
+    units::second_t m_shootTimeout = kMaxShootTimeout;
     bool m_prevFlywheelAtGoal = false;
     frc2::Timer m_timer;
 

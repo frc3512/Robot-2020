@@ -58,7 +58,7 @@ TEST_F(RobotTest, Init) {}
 
 // Verify shooter times out when the number of balls isn't specified and when
 // attempting to shoot more balls than the robot contains
-TEST_F(RobotTest, ShootTimeout) {
+TEST_F(RobotTest, DISABLED_ShootTimeout) {
     for (int ballsToShoot : {-1, 1, 2, 3, 4, 5}) {
         // 0 to "ballsToShoot - 1"
         for (int ballsInRobot : Range(std::max(0, ballsToShoot))) {
@@ -78,9 +78,9 @@ TEST_F(RobotTest, ShootTimeout) {
                 fmt::format("\twhere ballsToShoot={} and ballsInRobot={}\n",
                             ballsToShoot, ballsInRobot);
             EXPECT_TRUE(robot.IsShooting()) << msg;
-            frc::sim::StepTiming(frc3512::Robot::kShootTimeout / 2.0);
+            frc::sim::StepTiming(frc3512::Robot::kMaxShootTimeout / 2.0);
             EXPECT_TRUE(robot.IsShooting()) << msg;
-            frc::sim::StepTiming(frc3512::Robot::kShootTimeout);
+            frc::sim::StepTiming(frc3512::Robot::kMaxShootTimeout);
             EXPECT_FALSE(robot.IsShooting()) << msg;
 
             EXPECT_EQ(robot.intakeSim.NumberOfBalls(), 0u);
@@ -91,7 +91,7 @@ TEST_F(RobotTest, ShootTimeout) {
 }
 
 // Verify all queued balls are shot before the timeout
-TEST_F(RobotTest, ShootNoTimeout) {
+TEST_F(RobotTest, DISABLED_ShootNoTimeout) {
     for (int ballsToShoot : {1, 2, 3, 4, 5}) {
         for (int i = 0; i < ballsToShoot; ++i) {
             robot.intakeSim.AddBall();
@@ -107,7 +107,7 @@ TEST_F(RobotTest, ShootNoTimeout) {
         // Wait for shooter to finish and expect no timeout
         auto msg = fmt::format("\twhere ballsToShoot={}\n", ballsToShoot);
         EXPECT_TRUE(robot.IsShooting()) << msg;
-        frc::sim::StepTiming(frc3512::Robot::kShootTimeout - 20_ms);
+        frc::sim::StepTiming(frc3512::Robot::kMaxShootTimeout - 20_ms);
         EXPECT_FALSE(robot.IsShooting()) << msg;
 
         EXPECT_EQ(robot.intakeSim.NumberOfBalls(), 0u);
