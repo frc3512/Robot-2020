@@ -15,6 +15,23 @@ import sys
 plt.rcParams.update({'figure.max_open_warning': 0})
 
 
+class UnitGroup:
+
+    def __init__(self):
+        # List of DataSeries objects (time and data column pairs)
+        self.series = []
+
+        # List of data labels
+        self.labels = []
+
+
+class DataSeries:
+
+    def __init__(self, time, data):
+        self.time = time
+        self.data = data
+
+
 def num_lines(filename):
     with open(filename) as f:
         i = 0
@@ -137,31 +154,28 @@ for category, file_group in file_groups.items():
             unit = match.group("unit")
 
             if unit not in unit_groups.keys():
-                # Make a new unit group. Tuple entries are as follows:
-                # 1. time data column
-                # 2. list of data columns
-                # 3. list of data labels
-                unit_groups[unit] = (times, [], [])
+                unit_groups[unit] = UnitGroup()
             # "i + 1" skips the time data column
-            unit_groups[unit][1].append(data[:, i + 1:i + 2])
-            unit_groups[unit][2].append(name)
+            unit_groups[unit].series.append(
+                DataSeries(times, data[:, i + 1:i + 2]))
+            unit_groups[unit].labels.append(name)
 
             # "i + 1" skips the time data column
             name_groups[name] = data[:, i + 1:i + 2]
 
     # Plot time domain datasets
     print(f'  [vs time] {category} ({", ".join(unit_groups.keys())})')
-    for unit, data_tups in unit_groups.items():
+    for unit, unit_group in unit_groups.items():
         fig, ax = plt.subplots(1, 1)
         ax.set_title(f"{category} ({unit})")
 
-        for i in range(len(data_tups[1])):
-            ax.plot(data_tups[0], data_tups[1][i])
+        for i in range(len(unit_group.series)):
+            ax.plot(unit_group.series[i].time, unit_group.series[i].data)
 
         # First label is x axis label (time). The remainder are dataset names.
         ax.set_xlabel("Time (s)")
         ax.set_ylabel(f"Data ({unit})")
-        ax.legend(data_tups[2])
+        ax.legend(unit_group.labels)
 
     # Plot X-Y datasets. If the file doesn't have all the required keys, skip
     # it.
