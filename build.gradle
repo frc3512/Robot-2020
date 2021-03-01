@@ -8,15 +8,15 @@ plugins {
 }
 
 // For testing development versions of WPILib
-// wpi.wpilibVersion = '2021.1.2'
-// wpi.wpimathVersion = '2021.1.2'
+wpi.wpilibVersion = '2021.2.2-32-g435bbb6'
+wpi.wpimathVersion = '2021.2.2-32-g435bbb6'
 
 // For automatically using the newest development version of WPILib
 // wpi.wpilibVersion = '2021.+'
 // wpi.wpimathVersion = '2021.+'
 
 // For using remote development artifacts
-// wpi.maven.useDevelopment = true
+wpi.maven.useDevelopment = true
 
 // For using local development artifacts
 // wpi.maven.useFrcMavenLocalDevelopment = true

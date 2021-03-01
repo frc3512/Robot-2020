@@ -37,23 +37,6 @@ DrivetrainController::DrivetrainController() {
     m_trajectoryTimeElapsed.Start();
 }
 
-// TODO: Remove this when support is merged into frc::Trajectory upstream
-frc::Trajectory operator+(const frc::Trajectory& lhs,
-                          const frc::Trajectory& rhs) {
-    if (lhs.States().empty()) {
-        return rhs;
-    }
-
-    auto lhsStates = lhs.States();
-    auto rhsStates = rhs.States();
-    for (auto& state : rhsStates) {
-        state.t += lhs.TotalTime();
-    }
-
-    lhsStates.insert(lhsStates.end(), rhsStates.begin() + 1, rhsStates.end());
-    return frc::Trajectory{lhsStates};
-}
-
 void DrivetrainController::AddTrajectory(
     const frc::Pose2d& start, const std::vector<frc::Translation2d>& interior,
     const frc::Pose2d& end, const frc::TrajectoryConfig& config) {

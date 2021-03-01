@@ -6,6 +6,7 @@
 
 #include <frc/DriverStation.h>
 #include <frc/Joystick.h>
+#include <frc/Notifier.h>
 #include <frc/RobotController.h>
 #include <frc/Threads.h>
 #include <frc/livewindow/LiveWindow.h>
@@ -55,7 +56,9 @@ Robot::Robot() {
     AddPeriodic([=] { ControllerPeriodic(); }, Constants::kDt, 7.5_ms);
 
     if constexpr (!IsSimulation()) {
-        if (!frc::SetCurrentThreadPriority(true, Constants::kControllerPrio)) {
+        if (!frc::Notifier::SetHALThreadPriority(
+                true, Constants::kControllerPrio + 1) ||
+            !frc::SetCurrentThreadPriority(true, Constants::kControllerPrio)) {
             throw std::runtime_error(
                 fmt::format("Setting RT priority to {} failed\n",
                             Constants::kControllerPrio));
