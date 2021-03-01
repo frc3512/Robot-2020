@@ -17,7 +17,6 @@
 #include "Constants.hpp"
 #include "UnitsFormat.hpp"
 #include "logging/CSVControllerLogger.hpp"
-#include "logging/CSVUtil.hpp"
 #include "logging/LiveGrapherControllerLogger.hpp"
 #include "subsystems/SubsystemBase.hpp"
 
@@ -148,14 +147,16 @@ public:
              const Eigen::Matrix<double, States, 1>& x,
              const Eigen::Matrix<double, Inputs, 1>& u,
              const Eigen::Matrix<double, Outputs, 1>& y) {
-        m_csvLogger.Log(m_nowBegin - GetStartTime(), r, x, u, y);
+        m_csvLogger.Log(m_nowBegin - frc::CSVLogFile::GetStartTime(), r, x, u,
+                        y);
 #ifndef RUNNING_FRC_TESTS
-        m_liveGrapher.Log(m_nowBegin - GetStartTime(), r, x, u, y);
+        m_liveGrapher.Log(m_nowBegin - frc::CSVLogFile::GetStartTime(), r, x, u,
+                          y);
 #endif
 
         auto nowEnd = frc2::Timer::GetFPGATimestamp();
         m_timingLogger.Log(
-            m_nowBegin - GetStartTime(),
+            m_nowBegin - frc::CSVLogFile::GetStartTime(),
             units::millisecond_t{nowEnd - m_nowBegin}.to<double>(),
             units::millisecond_t{m_dt}.to<double>());
         m_lastTime = m_nowBegin;
@@ -168,8 +169,8 @@ private:
 #endif
     frc::CSVLogFile m_timingLogger;
 
-    units::second_t m_lastTime = GetStartTime();
-    units::second_t m_nowBegin = GetStartTime();
+    units::second_t m_lastTime = frc::CSVLogFile::GetStartTime();
+    units::second_t m_nowBegin = frc::CSVLogFile::GetStartTime();
     units::second_t m_dt = Constants::kDt;
     bool m_isEnabled = false;
 };

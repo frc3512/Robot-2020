@@ -50,9 +50,4 @@ void DeleteCSVs() {
 #endif  // !defined(__FRC_ROBORIO__)
 }
 
-units::second_t GetStartTime() {
-    static units::second_t startTime = frc2::Timer::GetFPGATimestamp();
-    return startTime;
-}
-
 }  // namespace frc3512

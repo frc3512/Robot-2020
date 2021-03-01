@@ -16,9 +16,4 @@ namespace frc3512 {
  */
 void DeleteCSVs();
 
-/**
- * Returns the timestamp when the robot program started.
- */
-units::second_t GetStartTime();
-
 }  // namespace frc3512

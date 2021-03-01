@@ -5,7 +5,6 @@
 #pragma once
 
 #include <algorithm>
-#include <chrono>
 #include <string>
 #include <tuple>
 #include <type_traits>
@@ -14,6 +13,7 @@
 #include <wpi/StringRef.h>
 
 #include "frc/logging/LogFile.h"
+#include "frc2/Timer.h"
 
 namespace frc {
 
@@ -89,22 +89,15 @@ class CSVLogFile {
    */
   template <typename Value, typename... Values>
   void Log(Value value, Values... values) {
-    using std::ratio;
-    using std::ratio_multiply;
-    using std::chrono::duration;
-    using std::chrono::duration_cast;
-    using std::chrono::hours;
-    using std::chrono::milliseconds;
-    using std::chrono::system_clock;
-    using days = duration<int, ratio_multiply<hours::period, ratio<24>>::type>;
+    Log(frc2::Timer::GetFPGATimestamp() - GetStartTime(), value, values...);
+  }
 
-    system_clock::time_point now = system_clock::now();
-    system_clock::duration tp = now.time_since_epoch();
-    days d = duration_cast<days>(tp);
-    tp -= d;
-    auto timestamp = duration_cast<milliseconds>(tp);
-
-    Log(units::second_t{timestamp.count() / 1000.0}, value, values...);
+  /**
+   * Returns the timestamp when the robot program started.
+   */
+  static units::second_t GetStartTime() {
+    static units::second_t startTime = frc2::Timer::GetFPGATimestamp();
+    return startTime;
   }
 
  private:
