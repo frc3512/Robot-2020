@@ -155,7 +155,7 @@ void Robot::SimulationPeriodic() {
     SubsystemBase::RunAllSimulationPeriodic();
 
     if (intakeSim.Update(intake.IsConveyorRunning(), 20_ms)) {
-        flywheel.SetSimAngularVelocity(0.98 * flywheel.GetAngularVelocity());
+        flywheel.SetSimAngularVelocity(0.96 * flywheel.GetAngularVelocity());
     }
 
     frc::sim::RoboRioSim::SetVInVoltage(frc::sim::BatterySim::Calculate(
