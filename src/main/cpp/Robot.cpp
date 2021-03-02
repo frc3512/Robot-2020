@@ -53,6 +53,14 @@ Robot::Robot() {
     frc::DriverStation::GetInstance().SilenceJoystickConnectionWarning(true);
     frc::LiveWindow::GetInstance()->DisableAllTelemetry();
 
+    // |  Subsystem | Duration (ms) | Offset (ms) | Allocation (ms) |
+    // |------------|---------------|-------------|-----------------|
+    // | **Total**  | 5.0           | N/A         | 5.0             |
+    // | TimedRobot | ?             | 0.0         | 1.5             |
+    // | Drivetrain | 1.9           | 1.5         | 2.0             |
+    // | Turret     | 0.6           | 3.5         | 0.7             |
+    // | Flywheel   | 0.6           | 4.2         | 0.7             |
+    // | **Free**   | 0.1           | 4.9         | 0.1             |
     AddPeriodic(
         [=] {
             if (IsEnabled()) {
