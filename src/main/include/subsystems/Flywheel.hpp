@@ -71,7 +71,7 @@ public:
     /**
      * Returns true if the flywheel has reached the goal angular velocity.
      */
-    bool AtGoal();
+    bool AtGoal() const;
 
     /**
      * Takes the projected distance of the flywheel to the target and sets an

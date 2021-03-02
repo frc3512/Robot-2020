@@ -71,7 +71,7 @@ units::radians_per_second_t Flywheel::GetGoal() const {
     return m_controller.GetGoal();
 }
 
-bool Flywheel::AtGoal() { return m_controller.AtGoal(); }
+bool Flywheel::AtGoal() const { return m_controller.AtGoal(); }
 
 void Flywheel::SetGoalFromPose() {
     if (frc::DriverStation::GetInstance().IsTest()) {
