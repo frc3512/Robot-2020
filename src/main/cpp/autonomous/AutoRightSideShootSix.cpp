@@ -18,14 +18,14 @@ void Robot::AutoRightSideShootSix() {
     // End Pose - Third/Farthest ball in the Trench Run
     const frc::Pose2d kEndPose{8_m, 0.71_m, units::radian_t{wpi::math::pi}};
 
-    drivetrain.Reset(kInitialPose);
+    m_drivetrain.Reset(kInitialPose);
 
     // Move back to shoot three comfortably
-    drivetrain.AddTrajectory(kInitialPose, {}, kMidPose);
+    m_drivetrain.AddTrajectory(kInitialPose, {}, kMidPose);
 
-    intake.Deploy();
+    m_intake.Deploy();
 
-    while (!drivetrain.AtGoal()) {
+    while (!m_drivetrain.AtGoal()) {
         if (!m_autonChooser.Suspend()) {
             return;
         }
@@ -57,28 +57,28 @@ void Robot::AutoRightSideShootSix() {
     {
         auto config = Drivetrain::MakeTrajectoryConfig();
         config.AddConstraint(regionConstraint);
-        drivetrain.AddTrajectory(kMidPose, {}, kEndPose, config);
+        m_drivetrain.AddTrajectory(kMidPose, {}, kEndPose, config);
     }
 
     // Intake Balls x3
-    intake.Start();
+    m_intake.Start();
 
-    while (!drivetrain.AtGoal()) {
+    while (!m_drivetrain.AtGoal()) {
         if (!m_autonChooser.Suspend()) {
             return;
         }
     }
 
-    intake.Stop();
+    m_intake.Stop();
 
     // Drive back
     {
         auto config = Drivetrain::MakeTrajectoryConfig();
         config.SetReversed(true);
-        drivetrain.AddTrajectory({kEndPose, kMidPose}, config);
+        m_drivetrain.AddTrajectory({kEndPose, kMidPose}, config);
     }
 
-    while (!drivetrain.AtGoal()) {
+    while (!m_drivetrain.AtGoal()) {
         if (!m_autonChooser.Suspend()) {
             return;
         }

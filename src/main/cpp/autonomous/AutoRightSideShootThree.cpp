@@ -14,10 +14,10 @@ void Robot::AutoRightSideShootThree() {
     const frc::Pose2d kEndPose{12.89_m - 1.5 * Drivetrain::kLength, 0.71_m,
                                units::radian_t{wpi::math::pi}};
 
-    drivetrain.Reset(kInitialPose);
-    drivetrain.AddTrajectory(kInitialPose, {}, kEndPose);
+    m_drivetrain.Reset(kInitialPose);
+    m_drivetrain.AddTrajectory(kInitialPose, {}, kEndPose);
 
-    while (!drivetrain.AtGoal()) {
+    while (!m_drivetrain.AtGoal()) {
         if (!m_autonChooser.Suspend()) {
             return;
         }

@@ -44,23 +44,23 @@ void Robot::AutoNavBounce() {
     // End Pose - right inside the Finish Zone.
     const frc::Pose2d kEndPose{7.979_m, 2.5_m, units::radian_t{wpi::math::pi}};
 
-    turret.SetControlMode(TurretController::ControlMode::kManual);
-    drivetrain.Reset(kInitialPose);
+    m_turret.SetControlMode(TurretController::ControlMode::kManual);
+    m_drivetrain.Reset(kInitialPose);
 
     auto forwardConfig = Drivetrain::MakeTrajectoryConfig();
     auto backwardConfig = Drivetrain::MakeTrajectoryConfig();
     backwardConfig.SetReversed(true);
 
-    drivetrain.AddTrajectory(kInitialPose, {}, kFirstStar, forwardConfig);
-    drivetrain.AddTrajectory(
+    m_drivetrain.AddTrajectory(kInitialPose, {}, kFirstStar, forwardConfig);
+    m_drivetrain.AddTrajectory(
         {kFirstStar, kFirstSideCurve1, kFirstBottomCurve1, kFirstBottomCurve2,
          kFirstSideCurve2, kSecondStar},
         backwardConfig);
-    drivetrain.AddTrajectory({kSecondStar, kSecondBottomCurve, kThirdStar},
-                             forwardConfig);
-    drivetrain.AddTrajectory(kThirdStar, {}, kEndPose, backwardConfig);
+    m_drivetrain.AddTrajectory({kSecondStar, kSecondBottomCurve, kThirdStar},
+                               forwardConfig);
+    m_drivetrain.AddTrajectory(kThirdStar, {}, kEndPose, backwardConfig);
 
-    while (!drivetrain.AtGoal()) {
+    while (!m_drivetrain.AtGoal()) {
         if (!m_autonChooser.Suspend()) {
             return;
         }

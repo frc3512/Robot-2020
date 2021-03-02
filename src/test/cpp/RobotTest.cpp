@@ -69,7 +69,7 @@ TEST_F(RobotTest, DISABLED_ShootTimeout) {
             robot.Shoot(ballsToShoot);
 
             // Wait for flywheel to reach initial goal before starting timeout
-            while (!robot.flywheel.AtGoal()) {
+            while (!robot.FlywheelAtGoal()) {
                 frc::sim::StepTiming(5_ms);
             }
 
@@ -100,7 +100,7 @@ TEST_F(RobotTest, DISABLED_ShootNoTimeout) {
         robot.Shoot(ballsToShoot);
 
         // Wait for flywheel to reach initial goal before starting timeout
-        while (!robot.flywheel.AtGoal()) {
+        while (!robot.FlywheelAtGoal()) {
             frc::sim::StepTiming(5_ms);
         }
 

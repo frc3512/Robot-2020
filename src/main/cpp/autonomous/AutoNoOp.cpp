@@ -5,10 +5,10 @@
 namespace frc3512 {
 
 void Robot::AutoNoOp() {
-    turret.SetControlMode(TurretController::ControlMode::kManual);
+    m_turret.SetControlMode(TurretController::ControlMode::kManual);
 
     if constexpr (IsSimulation()) {
-        EXPECT_EQ(0_V, turret.GetMotorOutput());
+        EXPECT_EQ(0_V, m_turret.GetMotorOutput());
     }
 }
 

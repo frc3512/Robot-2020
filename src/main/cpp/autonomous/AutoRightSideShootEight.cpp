@@ -19,9 +19,9 @@ void Robot::AutoRightSideShootEight() {
 
     const units::meters_per_second_t kMaxV = 1.6_mps;
 
-    drivetrain.Reset(kInitialPose);
+    m_drivetrain.Reset(kInitialPose);
 
-    intake.Deploy();
+    m_intake.Deploy();
 
     if constexpr (IsSimulation()) {
         for (int i = 0; i < 3; ++i) {
@@ -47,13 +47,13 @@ void Robot::AutoRightSideShootEight() {
             frc::MaxVelocityConstraint{kMaxV}};
         auto config = Drivetrain::MakeTrajectoryConfig();
         config.AddConstraint(regionConstraint);
-        drivetrain.AddTrajectory(kInitialPose, {}, kTrenchPose, config);
+        m_drivetrain.AddTrajectory(kInitialPose, {}, kTrenchPose, config);
     }
 
     // Intake Balls x3
-    intake.Start();
+    m_intake.Start();
 
-    while (!drivetrain.AtGoal()) {
+    while (!m_drivetrain.AtGoal()) {
         if (!m_autonChooser.Suspend()) {
             return;
         }
@@ -63,10 +63,10 @@ void Robot::AutoRightSideShootEight() {
     {
         auto config = Drivetrain::MakeTrajectoryConfig();
         config.SetReversed(true);
-        drivetrain.AddTrajectory(kTrenchPose, {}, kInitialPose, config);
+        m_drivetrain.AddTrajectory(kTrenchPose, {}, kInitialPose, config);
     }
 
-    while (!drivetrain.AtGoal()) {
+    while (!m_drivetrain.AtGoal()) {
         if (!m_autonChooser.Suspend()) {
             return;
         }
@@ -80,12 +80,12 @@ void Robot::AutoRightSideShootEight() {
             frc::Translation2d{kGenPose.X() + 0.5 * Drivetrain::kLength,
                                kGenPose.Y() + 0.5 * Drivetrain::kLength},
             frc::MaxVelocityConstraint{kMaxV}};
-        auto config = drivetrain.MakeTrajectoryConfig();
+        auto config = m_drivetrain.MakeTrajectoryConfig();
         config.AddConstraint(regionConstraint);
-        drivetrain.AddTrajectory(kInitialPose, {}, kGenPose, config);
+        m_drivetrain.AddTrajectory(kInitialPose, {}, kGenPose, config);
     }
 
-    while (!drivetrain.AtGoal()) {
+    while (!m_drivetrain.AtGoal()) {
         if (!m_autonChooser.Suspend()) {
             return;
         }
@@ -105,7 +105,7 @@ void Robot::AutoRightSideShootEight() {
         }
     }
 
-    intake.Stop();
+    m_intake.Stop();
 }
 
 }  // namespace frc3512

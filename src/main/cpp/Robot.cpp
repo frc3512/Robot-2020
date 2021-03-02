@@ -64,21 +64,21 @@ Robot::Robot() {
     AddPeriodic(
         [=] {
             if (IsEnabled()) {
-                drivetrain.ControllerPeriodic();
+                m_drivetrain.ControllerPeriodic();
             }
         },
         Constants::kDt, 1.5_ms);
     AddPeriodic(
         [=] {
             if (IsEnabled()) {
-                flywheel.ControllerPeriodic();
+                m_flywheel.ControllerPeriodic();
             }
         },
         Constants::kDt, 3.5_ms);
     AddPeriodic(
         [=] {
             if (IsEnabled()) {
-                turret.ControllerPeriodic();
+                m_turret.ControllerPeriodic();
             }
         },
         Constants::kDt, 4.2_ms);
@@ -96,8 +96,8 @@ Robot::Robot() {
 
 void Robot::Shoot(int ballsToShoot) {
     if (m_state == ShootingState::kIdle) {
-        vision.TurnLEDOn();
-        flywheel.SetGoalFromPose();
+        m_vision.TurnLEDOn();
+        m_flywheel.SetGoalFromPose();
         m_state = ShootingState::kStartFlywheel;
         m_ballsToShoot = ballsToShoot;
         if (ballsToShoot != -1) {
@@ -112,6 +112,8 @@ void Robot::Shoot(int ballsToShoot) {
 
 bool Robot::IsShooting() const { return m_state != ShootingState::kIdle; }
 
+bool Robot::FlywheelAtGoal() const { return m_flywheel.AtGoal(); }
+
 void Robot::SimulationInit() { SubsystemBase::RunAllSimulationInit(); }
 
 void Robot::DisabledInit() {
@@ -119,8 +121,8 @@ void Robot::DisabledInit() {
     SubsystemBase::RunAllDisabledInit();
 
     // Reset teleop shooting state machine when disabling robot
-    flywheel.SetGoal(0_rad_per_s);
-    vision.TurnLEDOff();
+    m_flywheel.SetGoal(0_rad_per_s);
+    m_vision.TurnLEDOff();
     m_timer.Stop();
     m_state = ShootingState::kIdle;
 }
@@ -154,12 +156,13 @@ void Robot::RobotPeriodic() {
 void Robot::SimulationPeriodic() {
     SubsystemBase::RunAllSimulationPeriodic();
 
-    if (intakeSim.Update(intake.IsConveyorRunning(), 20_ms)) {
-        flywheel.SetSimAngularVelocity(0.96 * flywheel.GetAngularVelocity());
+    if (intakeSim.Update(m_intake.IsConveyorRunning(), 20_ms)) {
+        m_flywheel.SetSimAngularVelocity(0.96 *
+                                         m_flywheel.GetAngularVelocity());
     }
 
     frc::sim::RoboRioSim::SetVInVoltage(frc::sim::BatterySim::Calculate(
-        {drivetrain.GetCurrentDraw(), flywheel.GetCurrentDraw()}));
+        {m_drivetrain.GetCurrentDraw(), m_flywheel.GetCurrentDraw()}));
 }
 
 void Robot::DisabledPeriodic() { SubsystemBase::RunAllDisabledPeriodic(); }
@@ -188,8 +191,8 @@ void Robot::TestPeriodic() { SubsystemBase::RunAllTestPeriodic(); }
 void Robot::RunShooterSM() {
     m_eventLogger.Log(
         fmt::format("Flywheel error = {}",
-                    flywheel.GetGoal() - flywheel.GetAngularVelocity()),
-        fmt::format("Flywheel AtGoal = {}", flywheel.AtGoal()));
+                    m_flywheel.GetGoal() - m_flywheel.GetAngularVelocity()),
+        fmt::format("Flywheel AtGoal = {}", m_flywheel.AtGoal()));
 
     // Shooting state machine
     switch (m_state) {
@@ -200,17 +203,17 @@ void Robot::RunShooterSM() {
         }
         // Allow the flywheel to spin up to the correct angular velocity.
         case ShootingState::kStartFlywheel: {
-            if (flywheel.AtGoal()) {
+            if (m_flywheel.AtGoal()) {
                 // AtGoal() returns true if either the flywheel is at the goal
                 // or a timeout occurred. If a timeout occurred, the flywheel
                 // may not be spinning due to flywheel motor issues. Only start
                 // the conveyor if the flywheel is moving to avoid jams.
-                if (flywheel.GetAngularVelocity() > 0_rad_per_s) {
+                if (m_flywheel.GetAngularVelocity() > 0_rad_per_s) {
                     m_timer.Reset();
                     m_timer.Start();
                     m_state = ShootingState::kStartConveyor;
                 } else {
-                    flywheel.SetGoal(0_rad_per_s);
+                    m_flywheel.SetGoal(0_rad_per_s);
                     m_state = ShootingState::kIdle;
                     frc::DriverStation::GetInstance().ReportError(
                         "Flywheel didn't start spinning. Either the motors "
@@ -225,7 +228,7 @@ void Robot::RunShooterSM() {
             // from not at the goal to at the goal, we shot a ball and have
             // recovered
             if (m_ballsToShoot > 0 && !m_prevFlywheelAtGoal &&
-                flywheel.AtGoal()) {
+                m_flywheel.AtGoal()) {
                 --m_ballsToShoot;
                 m_eventLogger.Log(fmt::format("Shot a ball; balls left = {}",
                                               m_ballsToShoot));
@@ -236,9 +239,9 @@ void Robot::RunShooterSM() {
             // FIXME: Also stop flywheel if m_ballsToShoot == 0 when
             // Flywheel::AtGoal() is fixed
             if (m_timer.HasElapsed(m_shootTimeout) &&
-                !intake.IsUpperSensorBlocked()) {
-                flywheel.SetGoal(0_rad_per_s);
-                vision.TurnLEDOff();
+                !m_intake.IsUpperSensorBlocked()) {
+                m_flywheel.SetGoal(0_rad_per_s);
+                m_vision.TurnLEDOff();
                 m_timer.Stop();
                 m_state = ShootingState::kIdle;
             }
@@ -246,7 +249,7 @@ void Robot::RunShooterSM() {
         }
     }
 
-    m_prevFlywheelAtGoal = flywheel.AtGoal();
+    m_prevFlywheelAtGoal = m_flywheel.AtGoal();
 }
 
 void Robot::SelectAutonomous(wpi::StringRef name) {
@@ -264,14 +267,14 @@ void Robot::ExpectAutonomousEndConds() {
                 << "Autonomous mode didn't finish within the autonomous period";
         }
 
-        EXPECT_TRUE(drivetrain.AtGoal());
+        EXPECT_TRUE(m_drivetrain.AtGoal());
 
         // Verify left/right wheel velocities are zero
-        EXPECT_NEAR(drivetrain.GetStates()(3), 0.0, 0.01);
-        EXPECT_NEAR(drivetrain.GetStates()(4), 0.0, 0.01);
+        EXPECT_NEAR(m_drivetrain.GetStates()(3), 0.0, 0.01);
+        EXPECT_NEAR(m_drivetrain.GetStates()(4), 0.0, 0.01);
 
-        EXPECT_EQ(flywheel.GetGoal(), 0_rad_per_s);
-        EXPECT_TRUE(turret.AtGoal());
+        EXPECT_EQ(m_flywheel.GetGoal(), 0_rad_per_s);
+        EXPECT_TRUE(m_turret.AtGoal());
     }
 }
 
