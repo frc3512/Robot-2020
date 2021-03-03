@@ -69,8 +69,6 @@ void Robot::AutoRightSideShootSix() {
         }
     }
 
-    m_intake.Stop();
-
     // Drive back
     {
         auto config = Drivetrain::MakeTrajectoryConfig();
@@ -96,6 +94,8 @@ void Robot::AutoRightSideShootSix() {
             return;
         }
     }
+
+    m_intake.Stop();
 }
 
 }  // namespace frc3512
