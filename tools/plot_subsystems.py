@@ -6,11 +6,11 @@ If provided, the first argument to this script is a filename regex that
 restricts which CSVs are plotted to those that match the regex.
 """
 
+import argparse
 import matplotlib.pyplot as plt
 import numpy as np
 import os
 import re
-import sys
 
 plt.rcParams.update({'figure.max_open_warning': 0})
 
@@ -50,8 +50,8 @@ def get_file_list():
     ]
 
     # Ignore files not matching optional pattern
-    if len(sys.argv) > 1:
-        files = [f for f in files if re.search(sys.argv[1], f)]
+    if args.regex:
+        files = [f for f in files if re.search(args.regex, f)]
 
     # Maps subsystem name to tuple of csv_group and date (group is set of files
     # with states, inputs, or outputs suffixes and the same name stub like
@@ -123,6 +123,18 @@ def make_groups(files):
     return file_groups
 
 
+parser = argparse.ArgumentParser()
+parser.add_argument("-ymin",
+                    dest="ymin",
+                    type=float,
+                    help="Y minimum for plots")
+parser.add_argument("-ymax",
+                    dest="ymax",
+                    type=float,
+                    help="Y maximum for plots")
+parser.add_argument("regex", nargs="?")
+args = parser.parse_args()
+
 file_groups = make_groups(get_file_list())
 if file_groups:
     print("Plotting...")
@@ -171,6 +183,10 @@ for category, file_group in file_groups.items():
 
         for i in range(len(unit_group.series)):
             ax.plot(unit_group.series[i].time, unit_group.series[i].data)
+            if args.ymin:
+                ax.set_ylim(bottom=args.ymin)
+            if args.ymax:
+                ax.set_ylim(top=args.ymax)
 
         # First label is x axis label (time). The remainder are dataset names.
         ax.set_xlabel("Time (s)")
