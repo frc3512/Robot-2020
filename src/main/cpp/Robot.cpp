@@ -145,6 +145,16 @@ void Robot::TestInit() {
 void Robot::RobotPeriodic() {
     SubsystemBase::RunAllRobotPeriodic();
 
+    static frc::Joystick appendageStick2{kAppendageStick2Port};
+
+    if (IsOperatorControlEnabled() || IsTest()) {
+        if (appendageStick2.GetRawButtonPressed(1)) {
+            Shoot();
+        }
+
+        RunShooterSM();
+    }
+
     auto batteryVoltage = frc::RobotController::GetInputVoltage();
     m_batteryLogger.Log(
         units::second_t{std::chrono::steady_clock::now().time_since_epoch()},
@@ -174,17 +184,7 @@ void Robot::AutonomousPeriodic() {
     RunShooterSM();
 }
 
-void Robot::TeleopPeriodic() {
-    SubsystemBase::RunAllTeleopPeriodic();
-
-    static frc::Joystick appendageStick2{kAppendageStick2Port};
-
-    if (appendageStick2.GetRawButtonPressed(1)) {
-        Shoot();
-    }
-
-    RunShooterSM();
-}
+void Robot::TeleopPeriodic() { SubsystemBase::RunAllTeleopPeriodic(); }
 
 void Robot::TestPeriodic() { SubsystemBase::RunAllTestPeriodic(); }
 
