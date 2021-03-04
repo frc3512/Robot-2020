@@ -37,7 +37,8 @@ Eigen::Matrix<double, 1, 1> FlywheelController::Calculate(
     if (m_nextR(0) == 0.0) {
         m_u << 0.0;
     } else {
-        m_u = m_lqr.Calculate(x, m_r) + m_ff.Calculate(m_nextR);
+        m_u = m_lqr.Calculate(x, m_r) + m_ff.Calculate(m_nextR) +
+              frc::MakeMatrix<1, 1>(kS.to<double>());
     }
 
     m_u = frc::NormalizeInputVector<1>(m_u, 12.0);

@@ -19,8 +19,9 @@ namespace frc3512 {
 
 class FlywheelController : public ControllerBase<1, 1, 1> {
 public:
-    static constexpr auto kV = 0.009964_V / 1_rad_per_s;
-    static constexpr auto kA = 0.00299_V / 1_rad_per_s_sq;
+    static constexpr auto kS = 0.834_V;
+    static constexpr auto kV = 0.00915_V / 1_rad_per_s;
+    static constexpr auto kA = 0.00024_V / 1_rad_per_s_sq;
 
     static constexpr double kGearRatio = 8.0;
     static constexpr double kDpP = (wpi::math::pi * 2.0) * kGearRatio / 512.0;
