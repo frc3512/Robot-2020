@@ -7,9 +7,11 @@
 /* Juan Chong - frcsupport@analog.com                                         */
 /*----------------------------------------------------------------------------*/
 
+#include <cmath>
+#include <cstdlib>
+#include <stdexcept>
 #include <string>
 #include <iostream>
-#include <cmath>
 
 #include <adi/ADIS16470_IMU.h>
 
@@ -17,9 +19,11 @@
 #include <frc/DigitalSource.h>
 #include <frc/DriverStation.h>
 #include <frc/ErrorBase.h>
-#include <frc/smartdashboard/SendableBuilder.h>
+#include <frc/RobotBase.h>
+#include <frc/Threads.h>
 #include <frc/Timer.h>
 #include <frc/WPIErrors.h>
+#include <frc/smartdashboard/SendableBuilder.h>
 #include <hal/HAL.h>
 #include <wpi/math>
 
@@ -501,6 +505,21 @@ void ADIS16470_IMU::Acquire() {
   double compAngleY = 0.0;
   double accelAngleX = 0.0;
   double accelAngleY = 0.0;
+
+  // NI's SPI driver defaults to SCHED_OTHER. Find its PID with ps and change it
+  // it to RT priority 33.
+  if constexpr (!frc::RobotBase::IsSimulation()) {
+      // TODO: Run user program as admin to make this work
+#if 0
+      if (std::system("ps -ef | grep '\\[spi0\\]' | awk '{print $1}' | xargs chrt -f -p 33") != 0) {
+          throw std::runtime_error("Setting NI SPI driver RT priority failed");
+      }
+#endif
+
+      if (!frc::SetCurrentThreadPriority(true, 33)) {
+          throw std::runtime_error("Setting ADIS16470 acquire thread RT priority failed");
+      }
+  }
 
   while (true) {
 
