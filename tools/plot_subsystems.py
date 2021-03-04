@@ -12,8 +12,6 @@ import numpy as np
 import os
 import re
 
-plt.rcParams.update({'figure.max_open_warning': 0})
-
 
 class UnitGroup:
 
@@ -40,7 +38,7 @@ def num_lines(filename):
     return i + 1
 
 
-def get_file_list():
+def get_file_list(regex):
     # Get list of files in current directory
     files = [
         os.path.join(dp, f)
@@ -50,8 +48,8 @@ def get_file_list():
     ]
 
     # Ignore files not matching optional pattern
-    if args.regex:
-        files = [f for f in files if re.search(args.regex, f)]
+    if regex:
+        files = [f for f in files if re.search(regex, f)]
 
     # Maps subsystem name to tuple of csv_group and date (group is set of files
     # with states, inputs, or outputs suffixes and the same name stub like
@@ -123,91 +121,101 @@ def make_groups(files):
     return file_groups
 
 
-parser = argparse.ArgumentParser()
-parser.add_argument("-ymin",
-                    dest="ymin",
-                    type=float,
-                    help="Y minimum for plots")
-parser.add_argument("-ymax",
-                    dest="ymax",
-                    type=float,
-                    help="Y maximum for plots")
-parser.add_argument("regex", nargs="?")
-args = parser.parse_args()
+def main():
+    plt.rcParams.update({'figure.max_open_warning': 0})
 
-file_groups = make_groups(get_file_list())
-if file_groups:
-    print("Plotting...")
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-ymin",
+                        dest="ymin",
+                        type=float,
+                        help="Y minimum for plots")
+    parser.add_argument("-ymax",
+                        dest="ymax",
+                        type=float,
+                        help="Y maximum for plots")
+    parser.add_argument("regex", nargs="?")
+    args = parser.parse_args()
 
-# Within each group, make groups of datasets keyed on their unit, then plot each
-# group on their own figure
-unit_rgx = re.compile(r"^(?P<name>[\w\- ]+) \((?P<unit>.*?)\)$")
-for category, file_group in file_groups.items():
-    unit_groups = {}
-    name_groups = {}
-    for filename in file_group:
-        # Get labels from first row of file
-        with open(filename) as f:
-            labels = [x.strip('"') for x in f.readline().rstrip().split(",")]
+    file_groups = make_groups(get_file_list(args.regex))
+    if file_groups:
+        print("Plotting...")
 
-        # Retrieve data from remaining rows of file. "skip_footer=1" skips the
-        # last line because it may be incompletely written.
-        data = np.genfromtxt(filename,
-                             delimiter=",",
-                             skip_header=1,
-                             skip_footer=1)
+    # Within each group, make groups of datasets keyed on their unit, then plot
+    # each group on their own figure
+    unit_rgx = re.compile(r"^(?P<name>[\w\- ]+) \((?P<unit>.*?)\)$")
+    for category, file_group in file_groups.items():
+        unit_groups = {}
+        name_groups = {}
+        for filename in file_group:
+            # Get labels from first row of file
+            with open(filename) as f:
+                labels = [
+                    x.strip('"') for x in f.readline().rstrip().split(",")
+                ]
 
-        times = data[:, 0:1]
+            # Retrieve data from remaining rows of file. "skip_footer=1" skips
+            # the last line because it may be incompletely written.
+            data = np.genfromtxt(filename,
+                                 delimiter=",",
+                                 skip_header=1,
+                                 skip_footer=1)
 
-        # Skips label in first column because that's always "Time (s)"
-        for i, label in enumerate(labels[1:]):
-            match = unit_rgx.search(label)
-            name = match.group("name")
-            unit = match.group("unit")
+            times = data[:, 0:1]
 
-            if unit not in unit_groups.keys():
-                unit_groups[unit] = UnitGroup()
-            # "i + 1" skips the time data column
-            unit_groups[unit].series.append(
-                DataSeries(times, data[:, i + 1:i + 2]))
-            unit_groups[unit].labels.append(name)
+            # Skips label in first column because that's always "Time (s)"
+            for i, label in enumerate(labels[1:]):
+                match = unit_rgx.search(label)
+                name = match.group("name")
+                unit = match.group("unit")
 
-            # "i + 1" skips the time data column
-            name_groups[name] = data[:, i + 1:i + 2]
+                if unit not in unit_groups.keys():
+                    unit_groups[unit] = UnitGroup()
+                # "i + 1" skips the time data column
+                unit_groups[unit].series.append(
+                    DataSeries(times, data[:, i + 1:i + 2]))
+                unit_groups[unit].labels.append(name)
 
-    # Plot time domain datasets
-    print(f'  [vs time] {category} ({", ".join(unit_groups.keys())})')
-    for unit, unit_group in unit_groups.items():
-        fig, ax = plt.subplots(1, 1)
-        ax.set_title(f"{category} ({unit})")
+                # "i + 1" skips the time data column
+                name_groups[name] = data[:, i + 1:i + 2]
 
-        for i in range(len(unit_group.series)):
-            ax.plot(unit_group.series[i].time, unit_group.series[i].data)
-            if args.ymin:
-                ax.set_ylim(bottom=args.ymin)
-            if args.ymax:
-                ax.set_ylim(top=args.ymax)
+        # Plot time domain datasets
+        print(f'  [vs time] {category} ({", ".join(unit_groups.keys())})')
+        for unit, unit_group in unit_groups.items():
+            fig, ax = plt.subplots(1, 1)
+            ax.set_title(f"{category} ({unit})")
 
-        # First label is x axis label (time). The remainder are dataset names.
-        ax.set_xlabel("Time (s)")
-        ax.set_ylabel(f"Data ({unit})")
-        ax.legend(unit_group.labels)
+            for i in range(len(unit_group.series)):
+                ax.plot(unit_group.series[i].time, unit_group.series[i].data)
+                if args.ymin:
+                    ax.set_ylim(bottom=args.ymin)
+                if args.ymax:
+                    ax.set_ylim(top=args.ymax)
 
-    # Plot X-Y datasets. If the file doesn't have all the required keys, skip
-    # it.
-    if not (set(["X reference", "Y reference", "X estimate", "Y estimate"]) -
-            set(name_groups.keys())):
-        print(f'  [y vs x] {category}')
-        fig, ax = plt.subplots(1, 1)
-        ax.set_title(f"{category} trajectory")
+            # First label is x axis label (time). The remainder are dataset
+            # names.
+            ax.set_xlabel("Time (s)")
+            ax.set_ylabel(f"Data ({unit})")
+            ax.legend(unit_group.labels)
 
-        ax.plot(name_groups["X reference"], name_groups["Y reference"])
-        ax.plot(name_groups["X estimate"], name_groups["Y estimate"])
+        # Plot X-Y datasets. If the file doesn't have all the required keys,
+        # skip it.
+        if not (set(["X reference", "Y reference", "X estimate", "Y estimate"])
+                - set(name_groups.keys())):
+            print(f'  [y vs x] {category}')
+            fig, ax = plt.subplots(1, 1)
+            ax.set_title(f"{category} trajectory")
 
-        ax.set_xlabel("X (m)")
-        ax.set_ylabel("Y (m)")
-        ax.legend(["Reference", "Estimate"])
+            ax.plot(name_groups["X reference"], name_groups["Y reference"])
+            ax.plot(name_groups["X estimate"], name_groups["Y estimate"])
 
-        # This equalizes the X and Y axes so the trajectories aren't warped
-        ax.axis("equal")
-plt.show()
+            ax.set_xlabel("X (m)")
+            ax.set_ylabel("Y (m)")
+            ax.legend(["Reference", "Estimate"])
+
+            # This equalizes the X and Y axes so the trajectories aren't warped
+            ax.axis("equal")
+    plt.show()
+
+
+if __name__ == "__main__":
+    main()
