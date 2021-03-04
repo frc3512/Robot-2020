@@ -44,12 +44,14 @@ Flywheel::Flywheel(Drivetrain& drivetrain)
     m_leftGrbx.SetInverted(false);
     m_rightGrbx.SetInverted(false);
 
+    // TODO: Update table with new values
     m_table.Insert(125_in, 450_rad_per_s);
     m_table.Insert(175_in, 463_rad_per_s);
     m_table.Insert(200_in, 472_rad_per_s);
-    m_table.Insert(268_in, 503_rad_per_s);
-    m_table.Insert(312_in, 570_rad_per_s);
-    m_table.Insert(326_in, 650_rad_per_s);
+    // The values below have been updated
+    m_table.Insert(231_in, 508_rad_per_s);
+    m_table.Insert(312_in, 598_rad_per_s);
+    m_table.Insert(360_in, 708_rad_per_s);
 
     Reset();
     SetGoal(0_rad_per_s);
