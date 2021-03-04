@@ -3,19 +3,27 @@
 #include "controllers/FlywheelController.hpp"
 
 #include <frc/RobotController.h>
+#include <frc/controller/LinearQuadraticRegulator.h>
 #include <frc/system/plant/LinearSystemId.h>
 
 using namespace frc3512;
 using namespace frc3512::Constants;
 
-FlywheelController::FlywheelController() { Reset(); }
+FlywheelController::FlywheelController() {
+    m_K.block<1, 1>(0, 0) =
+        frc::LinearQuadraticRegulator<1, 1>{
+            m_plant, {50.0}, {12.0}, Constants::kDt}
+            .K();
+    m_K(0, 1) = 1.0;
+    Reset();
+}
 
 void FlywheelController::SetGoal(units::radians_per_second_t angularVelocity) {
     if (m_nextR(0) == angularVelocity.to<double>()) {
         return;
     }
 
-    m_nextR << angularVelocity.to<double>();
+    m_nextR << angularVelocity.to<double>(), 0.0;
     m_atGoal = false;
 }
 
@@ -31,13 +39,13 @@ void FlywheelController::Reset() {
 }
 
 Eigen::Matrix<double, 1, 1> FlywheelController::Calculate(
-    const Eigen::Matrix<double, 1, 1>& x) {
+    const Eigen::Matrix<double, 2, 1>& x) {
     // To conserve battery when the flywheel doesn't have to be spinning, don't
     // apply a negative voltage to slow down.
     if (m_nextR(0) == 0.0) {
         m_u << 0.0;
     } else {
-        m_u = m_lqr.Calculate(x, m_r) + m_ff.Calculate(m_nextR) +
+        m_u = m_K * (m_r - x) + m_ff.Calculate(m_nextR.block<1, 1>(0, 0)) +
               frc::MakeMatrix<1, 1>(kS.to<double>());
     }
 

@@ -26,7 +26,8 @@ const frc::Pose2d Flywheel::kTargetPoseInGlobal{TargetModel::kCenter.X(),
 
 Flywheel::Flywheel(Drivetrain& drivetrain)
     : ControlledSubsystemBase("Flywheel",
-                              {ControllerLabel{"Angular velocity", "rad/s"}},
+                              {ControllerLabel{"Angular velocity", "rad/s"},
+                               ControllerLabel{"Input error", "V"}},
                               {ControllerLabel{"Voltage", "V"}},
                               {ControllerLabel{"Angular velocity", "rad/s"}}),
       m_drivetrain(drivetrain) {

@@ -4,6 +4,7 @@
 
 #include <frc/Encoder.h>
 #include <frc/LinearFilter.h>
+#include <frc/StateSpaceUtil.h>
 #include <frc/estimator/KalmanFilter.h>
 #include <frc/geometry/Pose2d.h>
 #include <frc/simulation/EncoderSim.h>
@@ -32,7 +33,7 @@ class Drivetrain;
 /**
  * Flywheel subsystem.
  */
-class Flywheel : public ControlledSubsystemBase<1, 1, 1> {
+class Flywheel : public ControlledSubsystemBase<2, 1, 1> {
 public:
     explicit Flywheel(Drivetrain& drivetrain);
 
@@ -147,10 +148,24 @@ private:
     frc::Encoder m_encoder{Constants::Flywheel::kEncoderA,
                            Constants::Flywheel::kEncoderB};
 
-    frc::LinearSystem<1, 1, 1> m_plant{FlywheelController::GetPlant()};
-    frc::KalmanFilter<1, 1, 1> m_observer{
+    frc::LinearSystem<2, 1, 1> m_plant = [=] {
+        auto plant = FlywheelController::GetPlant();
+
+        Eigen::Matrix<double, 2, 2> A;
+        A.block<1, 1>(0, 0) = plant.A();
+        A.block<1, 1>(0, 1) = plant.B();
+        A.block<1, 2>(1, 0).setZero();
+
+        Eigen::Matrix<double, 2, 1> B;
+        B.block<1, 1>(0, 0) = plant.B();
+        B.block<1, 1>(1, 0).setZero();
+
+        return frc::LinearSystem<2, 1, 1>{A, B, frc::MakeMatrix<1, 2>(1.0, 0.0),
+                                          plant.D()};
+    }();
+    frc::KalmanFilter<2, 1, 1> m_observer{
         m_plant,
-        {200.0},
+        {200.0, 15.0},
         {FlywheelController::kDpP / Constants::kDt.to<double>()},
         Constants::kDt};
 
