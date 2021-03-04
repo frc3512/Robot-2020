@@ -92,7 +92,7 @@ private:
 
     frc::LinearSystem<1, 1, 1> m_plant{GetPlant()};
     frc::LinearQuadraticRegulator<1, 1> m_lqr{
-        m_plant, {20.0}, {12.0}, Constants::kDt};
+        m_plant, {5.0}, {12.0}, Constants::kDt};
     frc::LinearPlantInversionFeedforward<1, 1> m_ff{m_plant, Constants::kDt};
 
     bool m_atGoal = false;
