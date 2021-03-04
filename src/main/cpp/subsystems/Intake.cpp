@@ -31,7 +31,7 @@ bool Intake::IsDeployed() const {
 
 void Intake::Start() {
     SetArmMotor(ArmMotorDirection::kIntake);
-    SetFunnel(0.4);
+    SetFunnel(0.7);
 }
 
 void Intake::Stop() {
@@ -60,11 +60,7 @@ void Intake::RobotPeriodic() {
 
     // Arm logic
     if (m_flywheel.IsOn()) {
-        if (m_flywheel.IsReady()) {
-            SetArmMotor(ArmMotorDirection::kIntake);
-        } else {
-            SetArmMotor(ArmMotorDirection::kIdle);
-        }
+        SetArmMotor(ArmMotorDirection::kIntake);
     } else {
         // Manual control
         if (frc::DriverStation::GetInstance().IsOperatorControlEnabled()) {
@@ -81,8 +77,7 @@ void Intake::RobotPeriodic() {
     // Funnel logic
     if (m_flywheel.IsOn() || IsLowerSensorBlocked()) {
         if (m_flywheel.IsReady() ||
-            (!m_flywheel.IsOn() && !IsUpperSensorBlocked() &&
-             IsLowerSensorBlocked())) {
+            (!IsUpperSensorBlocked() && IsLowerSensorBlocked())) {
             SetFunnel(0.4);
         } else {
             SetFunnel(0.0);

@@ -8,10 +8,10 @@ actuations for each input combination.
 |      false |         false |              false |               true |            Yes |              N/A |                No |             0.4 |               0.7 |
 |      false |         false |               true |              false |            Yes |              N/A |               Yes |             N/A |               0.0 |
 |      false |         false |               true |               true |            Yes |              N/A |                No |             0.0 |               0.0 |
-|       true |         false |              false |              false |             No |             Idle |                No |             0.0 |               0.0 |
-|       true |         false |              false |               true |             No |             Idle |                No |             0.0 |               0.0 |
-|       true |         false |               true |              false |             No |             Idle |                No |             0.0 |               0.0 |
-|       true |         false |               true |               true |             No |             Idle |                No |             0.0 |               0.0 |
+|       true |         false |              false |              false |             No |           Intake |                No |             0.0 |               0.0 |
+|       true |         false |              false |               true |             No |           Intake |                No |             0.4 |               0.0 |
+|       true |         false |               true |              false |             No |           Intake |                No |             0.0 |               0.0 |
+|       true |         false |               true |               true |             No |           Intake |                No |             0.0 |               0.0 |
 |       true |          true |              false |              false |             No |           Intake |                No |             0.4 |              0.85 |
 |       true |          true |              false |               true |             No |           Intake |                No |             0.4 |              0.85 |
 |       true |          true |               true |              false |             No |           Intake |                No |             0.4 |              0.85 |
@@ -28,10 +28,7 @@ Arm logic:
 ```
 # if !allowTeleopArm:
 if flywheelOn:
-    if flywheelReady:
-        armAutoDirection = Intake
-    else:
-        armAutoDirection = Idle
+    armAutoDirection = Intake
 else:
     # Do teleop arm
 ```
@@ -42,8 +39,8 @@ Funnel logic:
 # if !(!flywheelOn && !lower):
 # if !!flywheelOn || !!lower:
 if flywheelOn || lower:
-    # if (!flywheelOn && !flywheelReady && !upper && lower) || (flywheelReady):
-    if flywheelReady || (!flywheelOn && !upper && lower):
+    # if (!flywheelReady && !upper && lower) || (flywheelReady):
+    if flywheelReady || (!upper && lower):
         funnelAutoSpeed = 0.4
     else:
         funnelAutoSpeed = 0.0
