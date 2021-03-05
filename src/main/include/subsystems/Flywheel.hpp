@@ -21,6 +21,7 @@
 #include <units/voltage.h>
 
 #include "Constants.hpp"
+#include "FlywheelSim.hpp"
 #include "LerpTable.hpp"
 #include "NetworkTableUtil.hpp"
 #include "controllers/FlywheelController.hpp"
@@ -183,13 +184,8 @@ private:
 
     // Measurement noise isn't added because the simulated encoder stores the
     // count as an integer, which already introduces quantization noise.
-    frc::sim::FlywheelSim m_flywheelSim{m_controller.GetPlant(),
-                                        frc::DCMotor::NEO(2), 1.0 / 2.0};
-    frc::LinearSystem<2, 1, 1> m_flywheelPosition =
-        frc::LinearSystemId::IdentifyPositionSystem<units::radian>(
-            FlywheelController::kV, FlywheelController::kA);
-    frc::sim::LinearSystemSim<2, 1, 1> m_flywheelPositionSim{
-        m_flywheelPosition};
+    FlywheelSim m_flywheelSim{m_controller.GetPlant(), frc::DCMotor::NEO(2),
+                              1.0 / 2.0};
     frc::sim::EncoderSim m_encoderSim{m_encoder};
 
     /**

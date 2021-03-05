@@ -157,15 +157,11 @@ void Flywheel::ControllerPeriodic() {
     Log(m_controller.GetReferences(), m_observer.Xhat(), m_u, y);
 
     if constexpr (frc::RobotBase::IsSimulation()) {
-        m_flywheelSim.SetInput(frc::MakeMatrix<1, 1>(
-            m_leftGrbx.Get() * frc::RobotController::GetInputVoltage()));
-        m_flywheelPositionSim.SetInput(frc::MakeMatrix<1, 1>(
-            m_leftGrbx.Get() * frc::RobotController::GetInputVoltage()));
-
+        units::volt_t voltage{m_leftGrbx.Get() *
+                              frc::RobotController::GetInputVoltage()};
+        m_flywheelSim.SetInput(frc::MakeMatrix<1, 1>(voltage.to<double>()));
         m_flywheelSim.Update(GetDt());
-        m_flywheelPositionSim.Update(GetDt());
-
-        m_encoderSim.SetDistance(m_flywheelPositionSim.GetOutput(0));
+        m_encoderSim.SetDistance(m_flywheelSim.GetAngle().to<double>());
     }
 
     m_lastAngle = m_angle;
@@ -173,11 +169,8 @@ void Flywheel::ControllerPeriodic() {
 }
 
 void Flywheel::SetSimAngularVelocity(units::radians_per_second_t velocity) {
-    Eigen::Matrix<double, 2, 1> state;
-    state << m_flywheelPositionSim.GetOutput(0), velocity.to<double>();
-
-    m_flywheelSim.SetState(state.block<1, 1>(1, 0));
-    m_flywheelPositionSim.SetState(state);
+    m_flywheelSim.SetState(frc::MakeMatrix<2, 1>(
+        m_flywheelSim.GetAngle().to<double>(), velocity.to<double>()));
 }
 
 void Flywheel::SetVoltage(units::volt_t voltage) {
