@@ -25,7 +25,7 @@ public:
 
     static constexpr double kGearRatio = 8.0;
     static constexpr double kDpP = (wpi::math::pi * 2.0) * kGearRatio / 512.0;
-    static constexpr auto kMaxAngularVelocity = 1000.5_rad_per_s;
+    static constexpr auto kMaxAngularVelocity = 12_V / kV;
 
     /**
      * Constructs a flywheel controller.
