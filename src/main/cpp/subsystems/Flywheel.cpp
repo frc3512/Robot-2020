@@ -159,6 +159,12 @@ void Flywheel::ControllerPeriodic() {
     if constexpr (frc::RobotBase::IsSimulation()) {
         units::volt_t voltage{m_leftGrbx.Get() *
                               frc::RobotController::GetInputVoltage()};
+        if (m_flywheelSim.GetAngularVelocity() > 0_rad_per_s) {
+            voltage -= FlywheelController::kS;
+        } else if (m_flywheelSim.GetAngularVelocity() < 0_rad_per_s) {
+            voltage += FlywheelController::kS;
+        }
+
         m_flywheelSim.SetInput(frc::MakeMatrix<1, 1>(voltage.to<double>()));
         m_flywheelSim.Update(GetDt());
         m_encoderSim.SetDistance(m_flywheelSim.GetAngle().to<double>());
