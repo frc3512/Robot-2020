@@ -61,6 +61,7 @@ Robot::Robot() {
 
     frc::DriverStation::GetInstance().SilenceJoystickConnectionWarning(true);
     frc::LiveWindow::GetInstance()->DisableAllTelemetry();
+    SetNetworkTablesFlushEnabled(true);
 
     // |  Subsystem | Duration (ms) | Offset (ms) | Allocation (ms) |
     // |------------|---------------|-------------|-----------------|
