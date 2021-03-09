@@ -36,10 +36,8 @@ void Robot::AutoLeftSideIntake() {
     m_intake.Deploy();
     m_intake.Start();
 
-    while (!m_drivetrain.AtGoal()) {
-        if (!m_autonChooser.Suspend()) {
-            return;
-        }
+    if (!m_autonChooser.Suspend([=] { return m_drivetrain.AtGoal(); })) {
+        return;
     }
 
     m_intake.Stop();

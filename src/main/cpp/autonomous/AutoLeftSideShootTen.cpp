@@ -68,10 +68,8 @@ void Robot::AutoLeftSideShootTen() {
         }
     }
 
-    while (!m_drivetrain.AtGoal()) {
-        if (!m_autonChooser.Suspend()) {
-            return;
-        }
+    if (!m_autonChooser.Suspend([=] { return m_drivetrain.AtGoal(); })) {
+        return;
     }
 
     m_intake.Stop();
@@ -83,10 +81,8 @@ void Robot::AutoLeftSideShootTen() {
     // First fire
     Shoot(5);
 
-    while (!m_drivetrain.AtGoal()) {
-        if (!m_autonChooser.Suspend()) {
-            return;
-        }
+    if (!m_autonChooser.Suspend([=] { return m_drivetrain.AtGoal(); })) {
+        return;
     }
 
     m_drivetrain.AddTrajectory(kFiringZonePose, {}, kPreGenPose, reverseConfig);
@@ -106,10 +102,8 @@ void Robot::AutoLeftSideShootTen() {
     // Intake Balls x2
     m_intake.Start();
 
-    while (!m_drivetrain.AtGoal()) {
-        if (!m_autonChooser.Suspend()) {
-            return;
-        }
+    if (!m_autonChooser.Suspend([=] { return m_drivetrain.AtGoal(); })) {
+        return;
     }
 
     m_intake.Stop();
@@ -140,10 +134,8 @@ void Robot::AutoLeftSideShootTen() {
         }
     }
 
-    while (!m_drivetrain.AtGoal()) {
-        if (!m_autonChooser.Suspend()) {
-            return;
-        }
+    if (!m_autonChooser.Suspend([=] { return m_drivetrain.AtGoal(); })) {
+        return;
     }
 
     m_intake.Stop();
@@ -153,10 +145,8 @@ void Robot::AutoLeftSideShootTen() {
 
     Shoot(5);
 
-    while (!m_drivetrain.AtGoal()) {
-        if (!m_autonChooser.Suspend()) {
-            return;
-        }
+    if (!m_autonChooser.Suspend([=] { return m_drivetrain.AtGoal(); })) {
+        return;
     }
 }
 

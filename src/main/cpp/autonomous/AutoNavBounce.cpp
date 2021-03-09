@@ -60,10 +60,8 @@ void Robot::AutoNavBounce() {
                                forwardConfig);
     m_drivetrain.AddTrajectory(kThirdStar, {}, kEndPose, backwardConfig);
 
-    while (!m_drivetrain.AtGoal()) {
-        if (!m_autonChooser.Suspend()) {
-            return;
-        }
+    if (!m_autonChooser.Suspend([=] { return m_drivetrain.AtGoal(); })) {
+        return;
     }
 }
 }  // namespace frc3512

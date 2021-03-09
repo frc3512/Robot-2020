@@ -10,6 +10,7 @@
 #include <frc/smartdashboard/Sendable.h>
 #include <frc/smartdashboard/SendableBuilder.h>
 #include <networktables/NetworkTableEntry.h>
+#include <units/time.h>
 #include <wpi/StringMap.h>
 #include <wpi/StringRef.h>
 #include <wpi/condition_variable.h>
@@ -79,6 +80,38 @@ public:
      * main thread will block indefinitely.
      */
     bool Suspend();
+
+    /**
+     * Suspend the autonomous mode, yield to the main robot thread, and wait for
+     * the main thread to resume it when the given condition is true.
+     *
+     * If the condition is initially true, the autonomous mode continues without
+     * suspending.
+     *
+     * Returns true if the autonomous mode was allowed to continue by the main
+     * thread or false if the autonomous mode should exit.
+     *
+     * This function should only be called by the autonomous mode. A call by the
+     * main thread will block indefinitely.
+     *
+     * @param cond Predicate which returns false if suspending should be
+     *             continued.
+     */
+    bool Suspend(std::function<bool()> cond);
+
+    /**
+     * Suspend the autonomous mode, yield to the main robot thread, and wait for
+     * the main thread to resume it when the given time has elapsed.
+     *
+     * Returns true if the autonomous mode was allowed to continue by the main
+     * thread or false if the autonomous mode should exit.
+     *
+     * This function should only be called by the autonomous mode. A call by the
+     * main thread will block indefinitely.
+     *
+     * @param duration Length of time for which to suspend.
+     */
+    bool SuspendFor(units::second_t duration);
 
     /**
      * Starts the selected autonomous mode.

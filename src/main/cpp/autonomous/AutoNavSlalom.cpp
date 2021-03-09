@@ -31,10 +31,8 @@ void Robot::AutoNavSlalom() {
                                 kRingBottom, kRingRight, kRingTop,
                                 kBottomArchRight, kBottomArchLeft, kEndPose});
 
-    while (!m_drivetrain.AtGoal()) {
-        if (!m_autonChooser.Suspend()) {
-            return;
-        }
+    if (!m_autonChooser.Suspend([=] { return m_drivetrain.AtGoal(); })) {
+        return;
     }
 }
 

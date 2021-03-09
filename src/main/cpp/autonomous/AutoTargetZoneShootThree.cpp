@@ -16,10 +16,8 @@ void Robot::AutoTargetZoneShootThree() {
     m_drivetrain.Reset(kInitialPose);
     m_drivetrain.AddTrajectory(kInitialPose, {}, kEndPose);
 
-    while (!m_drivetrain.AtGoal()) {
-        if (!m_autonChooser.Suspend()) {
-            return;
-        }
+    if (!m_autonChooser.Suspend([=] { return m_drivetrain.AtGoal(); })) {
+        return;
     }
 
     if constexpr (IsSimulation()) {
@@ -29,10 +27,8 @@ void Robot::AutoTargetZoneShootThree() {
     }
     Shoot(3);
 
-    while (IsShooting()) {
-        if (!m_autonChooser.Suspend()) {
-            return;
-        }
+    if (!m_autonChooser.Suspend([=] { return !IsShooting(); })) {
+        return;
     }
 }
 

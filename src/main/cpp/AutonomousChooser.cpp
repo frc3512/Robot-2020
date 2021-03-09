@@ -9,6 +9,7 @@
 #include <frc/DriverStation.h>
 #include <frc/Threads.h>
 #include <frc/smartdashboard/SmartDashboard.h>
+#include <frc2/Timer.h>
 
 #include "Constants.hpp"
 
@@ -90,6 +91,22 @@ bool AutonomousChooser::Suspend() {
     // autonomous mode will later resume without losing progress.
     return frc::DriverStation::GetInstance().IsAutonomous() &&
            !m_autonShouldExit;
+}
+
+bool AutonomousChooser::Suspend(std::function<bool()> cond) {
+    while (!cond()) {
+        if (!Suspend()) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+bool AutonomousChooser::SuspendFor(units::second_t duration) {
+    frc2::Timer timer;
+    timer.Start();
+    return Suspend([=] { return timer.HasElapsed(duration); });
 }
 
 void AutonomousChooser::AwaitAutonomous() {

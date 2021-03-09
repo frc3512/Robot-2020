@@ -29,10 +29,8 @@ void Robot::AutoTargetZoneShootSix() {
     }
     Shoot(3);
 
-    while (IsShooting()) {
-        if (!m_autonChooser.Suspend()) {
-            return;
-        }
+    if (!m_autonChooser.Suspend([=] { return !IsShooting(); })) {
+        return;
     }
 
     frc::RectangularRegionConstraint regionConstraint{
@@ -62,15 +60,14 @@ void Robot::AutoTargetZoneShootSix() {
         m_drivetrain.AddTrajectory(kEndPose, {}, kMidPose, config);
     }
 
-    while (!m_drivetrain.AtGoal()) {
-        if (m_drivetrain.GetReferencePose().Translation().Distance(
-                kEndPose.Translation()) < 1_cm) {
-            m_intake.Stop();
-        }
-
-        if (!m_autonChooser.Suspend()) {
-            return;
-        }
+    if (!m_autonChooser.Suspend([=] {
+            if (m_drivetrain.GetReferencePose().Translation().Distance(
+                    kEndPose.Translation()) < 1_cm) {
+                m_intake.Stop();
+            }
+            return m_drivetrain.AtGoal();
+        })) {
+        return;
     }
 
     if constexpr (IsSimulation()) {
@@ -80,10 +77,8 @@ void Robot::AutoTargetZoneShootSix() {
     }
     Shoot(3);
 
-    while (IsShooting()) {
-        if (!m_autonChooser.Suspend()) {
-            return;
-        }
+    if (!m_autonChooser.Suspend([=] { return !IsShooting(); })) {
+        return;
     }
 }
 

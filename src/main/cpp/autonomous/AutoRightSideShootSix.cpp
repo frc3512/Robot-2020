@@ -25,10 +25,8 @@ void Robot::AutoRightSideShootSix() {
 
     m_intake.Deploy();
 
-    while (!m_drivetrain.AtGoal()) {
-        if (!m_autonChooser.Suspend()) {
-            return;
-        }
+    if (!m_autonChooser.Suspend([=] { return m_drivetrain.AtGoal(); })) {
+        return;
     }
 
     if constexpr (IsSimulation()) {
@@ -38,10 +36,8 @@ void Robot::AutoRightSideShootSix() {
     }
     Shoot(3);
 
-    while (IsShooting()) {
-        if (!m_autonChooser.Suspend()) {
-            return;
-        }
+    if (!m_autonChooser.Suspend([=] { return !IsShooting(); })) {
+        return;
     }
 
     // Add a constraint to slow down the drivetrain while it's
@@ -63,10 +59,8 @@ void Robot::AutoRightSideShootSix() {
     // Intake Balls x3
     m_intake.Start();
 
-    while (!m_drivetrain.AtGoal()) {
-        if (!m_autonChooser.Suspend()) {
-            return;
-        }
+    if (!m_autonChooser.Suspend([=] { return m_drivetrain.AtGoal(); })) {
+        return;
     }
 
     // Drive back
@@ -76,10 +70,8 @@ void Robot::AutoRightSideShootSix() {
         m_drivetrain.AddTrajectory({kEndPose, kMidPose}, config);
     }
 
-    while (!m_drivetrain.AtGoal()) {
-        if (!m_autonChooser.Suspend()) {
-            return;
-        }
+    if (!m_autonChooser.Suspend([=] { return m_drivetrain.AtGoal(); })) {
+        return;
     }
 
     if constexpr (IsSimulation()) {
@@ -89,10 +81,8 @@ void Robot::AutoRightSideShootSix() {
     }
     Shoot(3);
 
-    while (IsShooting()) {
-        if (!m_autonChooser.Suspend()) {
-            return;
-        }
+    if (!m_autonChooser.Suspend([=] { return !IsShooting(); })) {
+        return;
     }
 
     m_intake.Stop();

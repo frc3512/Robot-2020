@@ -18,10 +18,8 @@ void Robot::AutoLoadingZoneDriveForward() {
     m_drivetrain.Reset(kInitialPose);
     m_drivetrain.AddTrajectory(kInitialPose, {}, kEndPose);
 
-    while (!m_drivetrain.AtGoal()) {
-        if (!m_autonChooser.Suspend()) {
-            return;
-        }
+    if (!m_autonChooser.Suspend([=] { return m_drivetrain.AtGoal(); })) {
+        return;
     }
 }
 

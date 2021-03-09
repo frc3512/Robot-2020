@@ -31,10 +31,8 @@ void Robot::AutoRightSideShootEight() {
 
     Shoot(3);
 
-    while (IsShooting()) {
-        if (!m_autonChooser.Suspend()) {
-            return;
-        }
+    if (!m_autonChooser.Suspend([=] { return !IsShooting(); })) {
+        return;
     }
 
     {
@@ -53,10 +51,8 @@ void Robot::AutoRightSideShootEight() {
     // Intake Balls x3
     m_intake.Start();
 
-    while (!m_drivetrain.AtGoal()) {
-        if (!m_autonChooser.Suspend()) {
-            return;
-        }
+    if (!m_autonChooser.Suspend([=] { return m_drivetrain.AtGoal(); })) {
+        return;
     }
 
     // Drive back
@@ -66,10 +62,8 @@ void Robot::AutoRightSideShootEight() {
         m_drivetrain.AddTrajectory(kTrenchPose, {}, kInitialPose, config);
     }
 
-    while (!m_drivetrain.AtGoal()) {
-        if (!m_autonChooser.Suspend()) {
-            return;
-        }
+    if (!m_autonChooser.Suspend([=] { return m_drivetrain.AtGoal(); })) {
+        return;
     }
 
     // Intake Balls x2
@@ -85,10 +79,8 @@ void Robot::AutoRightSideShootEight() {
         m_drivetrain.AddTrajectory(kInitialPose, {}, kGenPose, config);
     }
 
-    while (!m_drivetrain.AtGoal()) {
-        if (!m_autonChooser.Suspend()) {
-            return;
-        }
+    if (!m_autonChooser.Suspend([=] { return m_drivetrain.AtGoal(); })) {
+        return;
     }
 
     if constexpr (IsSimulation()) {
@@ -99,10 +91,8 @@ void Robot::AutoRightSideShootEight() {
 
     Shoot(5);
 
-    while (IsShooting()) {
-        if (!m_autonChooser.Suspend()) {
-            return;
-        }
+    if (!m_autonChooser.Suspend([=] { return !IsShooting(); })) {
+        return;
     }
 
     m_intake.Stop();

@@ -59,10 +59,8 @@ void Robot::AutoNavBarrelRacing() {
                                 kD10Loop1, kD10Loop2, kD10Loop3,
                                 kFinishApproach, kEndPose});
 
-    while (!m_drivetrain.AtGoal()) {
-        if (!m_autonChooser.Suspend()) {
-            return;
-        }
+    if (!m_autonChooser.Suspend([=] { return m_drivetrain.AtGoal(); })) {
+        return;
     }
 }
 }  // namespace frc3512
