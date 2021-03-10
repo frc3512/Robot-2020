@@ -192,6 +192,20 @@ task simulateCpp {
     dependsOn 'simulateFrcUserProgram' + wpi.platforms.desktop.capitalize() + 'ReleaseExecutable'
 }
 
+if (!project.hasProperty("-PallowImaging")) {
+    tasks.deploy.doLast {
+        exec {
+            executable './buildscripts/update_robotcommand.py'
+        }
+    }
+}
+
+tasks.deploy.doLast {
+    exec {
+        executable './buildscripts/rt_spi.py'
+    }
+}
+
 if (!OperatingSystem.current().isWindows()) {
     simulateCpp.doLast {
         exec {

@@ -63,6 +63,13 @@ This runs a roboRIO build.
 This runs a roboRIO build if needed, copies the resulting binary to a roboRIO at
 10.35.12.2, and restarts it.
 
+### roboRIO imaging
+
+By default, our deploy process overwrites robotCommand on the roboRIO to disable
+the NI web server. This is required for imaging, so to reenable it, run
+
+* `./gradlew deploy -PallowImaging`
+
 ### Test
 
 Unit tests are useful for ensuring parts of the robot code continue to work
