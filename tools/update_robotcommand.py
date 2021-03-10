@@ -5,7 +5,9 @@ import subprocess
 
 
 def main():
-    # Stops crond and systemWebServer before starting robot program
+    # Stops unnecessary services before starting robot program
+    # 1. crond because it uses 50% CPU and there's no cronjobs to run
+    # 2. NI web server because it leaks memory badly
     with open("robotCommand", "w") as output:
         output.write(
             """sh -c '/etc/init.d/crond stop && /usr/local/natinst/etc/init.d/systemWebServer stop && /home/lvuser/frcUserProgram'
