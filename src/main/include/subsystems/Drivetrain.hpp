@@ -32,7 +32,6 @@
 #include "Constants.hpp"
 #include "NetworkTableUtil.hpp"
 #include "controllers/DrivetrainController.hpp"
-#include "controllers/ImplicitModelFollower.hpp"
 #include "rev/CANSparkMax.hpp"
 #include "subsystems/ControlledSubsystemBase.hpp"
 
@@ -255,11 +254,10 @@ private:
     frc::LinearSystem<2, 2, 2> m_imfRef =
         frc::LinearSystemId::IdentifyDrivetrainSystem(
             DrivetrainController::kLinearV,
-            DrivetrainController::kLinearA * 2.0,
-            DrivetrainController::kAngularV,
-            DrivetrainController::kAngularA * 2.0);
-    ImplicitModelFollower<2, 2> m_imf{
-        kPlant, m_imfRef, {0.01, 0.01}, {12.0, 12.0}, 20_ms};
+            DrivetrainController::kLinearA * 1.25,
+            DrivetrainController::kAngularV, DrivetrainController::kAngularA);
+    // ImplicitModelFollower<2, 2> m_imf{
+    //     kPlant, m_imfRef, {0.01, 0.01}, {8.0, 8.0}, 20_ms};
 
     nt::NetworkTableEntry m_xStateEntry = NetworkTableUtil::MakeDoubleEntry(
         "/Diagnostics/Drivetrain/States/X", 0.0);
