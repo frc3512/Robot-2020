@@ -147,6 +147,12 @@ frc::LinearSystem<2, 2, 2> DrivetrainController::GetPlant() {
 }
 
 frc::TrajectoryConfig DrivetrainController::MakeTrajectoryConfig() {
+    return MakeTrajectoryConfig(0_mps, 0_mps);
+}
+
+frc::TrajectoryConfig DrivetrainController::MakeTrajectoryConfig(
+    units::meters_per_second_t startVelocity,
+    units::meters_per_second_t endVelocity) {
     frc::TrajectoryConfig config{kMaxV, kMaxA - 14.5_mps_sq};
 
     config.AddConstraint(frc::DifferentialDriveVelocitySystemConstraint{
@@ -155,6 +161,9 @@ frc::TrajectoryConfig DrivetrainController::MakeTrajectoryConfig() {
     // Slows drivetrain down on curves to avoid understeer that introduces
     // odometry errors
     config.AddConstraint(frc::CentripetalAccelerationConstraint{3_mps_sq});
+
+    config.SetStartVelocity(startVelocity);
+    config.SetEndVelocity(endVelocity);
 
     return config;
 }

@@ -185,9 +185,20 @@ public:
 
     /**
      * Returns a TrajectoryConfig containing a differential drive dynamics
-     * constraint.
+     * constraint with the start and end velocities set to zero.
      */
     static frc::TrajectoryConfig MakeTrajectoryConfig();
+
+    /**
+     * Returns a TrajectoryConfig containing a differential drive dynamics
+     * constraint and the specified start and end velocities.
+     *
+     * @param startVelocity The start velocity of the trajectory config.
+     * @param endVelocity The end velocity of the trajectory config.
+     */
+    static frc::TrajectoryConfig MakeTrajectoryConfig(
+        units::meters_per_second_t startVelocity,
+        units::meters_per_second_t endVelocity);
 
     /**
      * Returns the linear time-varying controller gain for the given state.

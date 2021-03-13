@@ -255,6 +255,13 @@ frc::TrajectoryConfig Drivetrain::MakeTrajectoryConfig() {
     return DrivetrainController::MakeTrajectoryConfig();
 }
 
+frc::TrajectoryConfig Drivetrain::MakeTrajectoryConfig(
+    units::meters_per_second_t startVelocity,
+    units::meters_per_second_t endVelocity) {
+    return DrivetrainController::MakeTrajectoryConfig(startVelocity,
+                                                      endVelocity);
+}
+
 bool Drivetrain::AtGoal() const { return m_controller.AtGoal(); }
 
 const Eigen::Matrix<double, 7, 1>& Drivetrain::GetStates() const {
