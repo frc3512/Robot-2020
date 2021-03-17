@@ -17,7 +17,6 @@
 #include "Constants.hpp"
 #include "UnitsFormat.hpp"
 #include "logging/CSVControllerLogger.hpp"
-#include "logging/LiveGrapherControllerLogger.hpp"
 #include "subsystems/SubsystemBase.hpp"
 
 namespace frc3512 {
@@ -51,36 +50,9 @@ public:
         const std::array<ControllerLabel, States>& stateLabels,
         const std::array<ControllerLabel, Inputs>& inputLabels,
         const std::array<ControllerLabel, Outputs>& outputLabels)
-#ifndef RUNNING_FRC_TESTS
-        : m_csvLogger{controllerName, stateLabels, inputLabels, outputLabels},
-          m_liveGrapher{controllerName, stateLabels, inputLabels, outputLabels},
-          m_timingLogger{(controllerName + " timing").str(),
-                         "Loop duration (ms)", "Scheduling period (ms)"} {
-        // Write at least one data point to LiveGrapher for each dataset so they
-        // are available when the robot is disabled.
-        //
-        // Graphs are only created when data has been logged for them,
-        // ControllerPeriodic() is the only logger, and ControllerPeriodic()
-        // only runs when the robot is enabled. Without the Log() call below,
-        // the robot would need to be enabled at least once for any datasets to
-        // be selectable.
-        auto now = frc2::Timer::GetFPGATimestamp();
-        Eigen::Matrix<double, States, 1> r;
-        r.setZero();
-        Eigen::Matrix<double, States, 1> x;
-        x.setZero();
-        Eigen::Matrix<double, Inputs, 1> u;
-        u.setZero();
-        Eigen::Matrix<double, Outputs, 1> y;
-        y.setZero();
-        m_liveGrapher.Log(now, r, x, u, y);
-    }
-#else
         : m_csvLogger{controllerName, stateLabels, inputLabels, outputLabels},
           m_timingLogger{(controllerName + " timing").str(),
-                         "Loop duration (ms)", "Scheduling period (ms)"} {
-    }
-#endif
+                         "Loop duration (ms)", "Scheduling period (ms)"} {}
 
     ControlledSubsystemBase(ControlledSubsystemBase&&) = default;
     ControlledSubsystemBase& operator=(ControlledSubsystemBase&&) = default;
@@ -149,10 +121,6 @@ public:
              const Eigen::Matrix<double, Outputs, 1>& y) {
         m_csvLogger.Log(m_nowBegin - frc::CSVLogFile::GetStartTime(), r, x, u,
                         y);
-#ifndef RUNNING_FRC_TESTS
-        m_liveGrapher.Log(m_nowBegin - frc::CSVLogFile::GetStartTime(), r, x, u,
-                          y);
-#endif
 
         auto nowEnd = frc2::Timer::GetFPGATimestamp();
         m_timingLogger.Log(
@@ -164,9 +132,6 @@ public:
 
 private:
     CSVControllerLogger<States, Inputs, Outputs> m_csvLogger;
-#ifndef RUNNING_FRC_TESTS
-    LiveGrapherControllerLogger<States, Inputs, Outputs> m_liveGrapher;
-#endif
     frc::CSVLogFile m_timingLogger;
 
     units::second_t m_lastTime = frc::CSVLogFile::GetStartTime();
