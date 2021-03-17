@@ -3,14 +3,19 @@
 #pragma once
 
 #include <array>
+#include <atomic>
+#include <stdexcept>
+#include <thread>
 
 #include <Eigen/Core>
 #include <fmt/core.h>
 #include <frc/RobotBase.h>
+#include <frc/Threads.h>
 #include <frc/logging/CSVLogFile.h>
 #include <frc2/Timer.h>
 #include <units/math.h>
 #include <units/time.h>
+#include <wpi/ConcurrentQueue.h>
 #include <wpi/StringRef.h>
 #include <wpi/Twine.h>
 
@@ -54,12 +59,19 @@ public:
         : m_csvLogger{controllerName, stateLabels, inputLabels, outputLabels},
           m_ntLogger{controllerName, stateLabels, inputLabels, outputLabels},
           m_timingLogger{(controllerName + " timing").str(),
-                         "Loop duration (ms)", "Scheduling period (ms)"} {}
+                         "Loop duration (ms)", "Scheduling period (ms)"} {
+        m_entryThreadRunning = true;
+        m_entryThread = std::thread{[=] { EntryThreadMain(); }};
+    }
 
     ControlledSubsystemBase(ControlledSubsystemBase&&) = default;
     ControlledSubsystemBase& operator=(ControlledSubsystemBase&&) = default;
 
-    ~ControlledSubsystemBase() override = default;
+    ~ControlledSubsystemBase() override {
+        m_entryThreadRunning = false;
+        m_entryQueue.emplace();
+        m_entryThread.join();
+    }
 
     /**
      * Enables the control loop.
@@ -121,19 +133,41 @@ public:
              const Eigen::Matrix<double, States, 1>& x,
              const Eigen::Matrix<double, Inputs, 1>& u,
              const Eigen::Matrix<double, Outputs, 1>& y) {
-        m_csvLogger.Log(m_nowBegin - frc::CSVLogFile::GetStartTime(), r, x, u,
-                        y);
-        m_ntLogger.Log(r, x, u, y);
-
-        auto nowEnd = frc2::Timer::GetFPGATimestamp();
-        m_timingLogger.Log(
-            m_nowBegin - frc::CSVLogFile::GetStartTime(),
-            units::millisecond_t{nowEnd - m_nowBegin}.to<double>(),
-            units::millisecond_t{m_dt}.to<double>());
+        m_entryQueue.emplace(m_nowBegin, frc2::Timer::GetFPGATimestamp(), r, x,
+                             u, y);
         m_lastTime = m_nowBegin;
     }
 
 private:
+    struct LogEntry {
+        bool valid = false;
+        units::second_t nowBegin = 0_s;
+        units::second_t nowEnd = 0_s;
+        Eigen::Matrix<double, States, 1> r =
+            Eigen::Matrix<double, States, 1>::Zero();
+        Eigen::Matrix<double, States, 1> x =
+            Eigen::Matrix<double, States, 1>::Zero();
+        Eigen::Matrix<double, Inputs, 1> u =
+            Eigen::Matrix<double, Inputs, 1>::Zero();
+        Eigen::Matrix<double, Outputs, 1> y =
+            Eigen::Matrix<double, Outputs, 1>::Zero();
+
+        LogEntry() = default;
+
+        LogEntry(units::second_t nowBegin, units::second_t nowEnd,
+                 const Eigen::Matrix<double, States, 1>& r,
+                 const Eigen::Matrix<double, States, 1>& x,
+                 const Eigen::Matrix<double, Inputs, 1>& u,
+                 const Eigen::Matrix<double, Outputs, 1>& y)
+            : valid{true},
+              nowBegin{nowBegin},
+              nowEnd{nowEnd},
+              r{r},
+              x{x},
+              u{u},
+              y{y} {}
+    };
+
     CSVControllerLogger<States, Inputs, Outputs> m_csvLogger;
     NTControllerLogger<States, Inputs, Outputs> m_ntLogger;
     frc::CSVLogFile m_timingLogger;
@@ -142,6 +176,39 @@ private:
     units::second_t m_nowBegin = frc::CSVLogFile::GetStartTime();
     units::second_t m_dt = Constants::kDt;
     bool m_isEnabled = false;
+
+    wpi::ConcurrentQueue<LogEntry> m_entryQueue;
+    std::atomic<bool> m_entryThreadRunning{false};
+    std::thread m_entryThread;
+
+    void EntryThreadMain() {
+        if (!frc::SetCurrentThreadPriority(true,
+                                           Constants::kControllerPrio - 1)) {
+            throw std::runtime_error(
+                fmt::format("Setting logging thread RT priority to {} failed\n",
+                            Constants::kControllerPrio - 1));
+        }
+
+        // Loops until the thread is told to exit and all remaining queue items
+        // have been written to the logs
+        while (m_entryThreadRunning || !m_entryQueue.empty()) {
+            auto entry = m_entryQueue.pop();
+            if (!entry.valid) {
+                continue;
+            }
+
+            m_csvLogger.Log(entry.nowBegin - frc::CSVLogFile::GetStartTime(),
+                            entry.r, entry.x, entry.u, entry.y);
+            m_ntLogger.Log(entry.r, entry.x, entry.u, entry.y);
+
+            m_timingLogger.Log(
+                entry.nowBegin - frc::CSVLogFile::GetStartTime(),
+                units::millisecond_t{entry.nowEnd - entry.nowBegin}
+                    .to<double>(),
+                units::millisecond_t{m_dt}.to<double>());
+            m_lastTime = m_nowBegin;
+        }
+    }
 };
 
 }  // namespace frc3512
