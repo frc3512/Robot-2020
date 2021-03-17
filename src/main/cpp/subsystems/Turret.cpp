@@ -114,12 +114,6 @@ const Eigen::Matrix<double, 2, 1>& Turret::GetStates() const {
 }
 
 void Turret::RobotPeriodic() {
-    m_angleStateEntry.SetDouble(
-        m_observer.Xhat()(TurretController::State::kAngle));
-    m_angularVelocityStateEntry.SetDouble(
-        m_observer.Xhat()(TurretController::State::kAngularVelocity));
-    m_inputVoltageEntry.SetDouble(m_controller.GetInputs()(0));
-    m_angleOutputEntry.SetDouble(GetAngle().to<double>());
     m_ccwLimitSwitchValueEntry.SetBoolean(m_ccwLimitSwitch.Get());
     m_cwLimitSwitchValueEntry.SetBoolean(m_cwLimitSwitch.Get());
 

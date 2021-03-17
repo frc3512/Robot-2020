@@ -109,12 +109,6 @@ units::radians_per_second_t Flywheel::GetReferenceForPose(
 }
 
 void Flywheel::RobotPeriodic() {
-    using State = FlywheelController::State;
-
-    m_angularVelocityRefEntry.SetDouble(
-        m_controller.GetReferences()(State::kAngularVelocity));
-    m_angularVelocityStateEntry.SetDouble(
-        m_observer.Xhat()(State::kAngularVelocity));
     m_isOnEntry.SetBoolean(IsOn());
     m_isReadyEntry.SetBoolean(IsReady());
 

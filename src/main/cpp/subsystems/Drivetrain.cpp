@@ -285,27 +285,6 @@ void Drivetrain::TeleopInit() {
     Enable();
 }
 
-void Drivetrain::RobotPeriodic() {
-    using State = DrivetrainController::State;
-    using Input = DrivetrainController::Input;
-
-    const auto& xHat = m_observer.Xhat();
-    m_xStateEntry.SetDouble(xHat(State::kX));
-    m_yStateEntry.SetDouble(xHat(State::kY));
-    m_headingStateEntry.SetDouble(xHat(State::kHeading));
-    m_leftVelocityStateEntry.SetDouble(xHat(State::kLeftVelocity));
-    m_rightVelocityStateEntry.SetDouble(xHat(State::kRightVelocity));
-    m_leftPositionStateEntry.SetDouble(xHat(State::kLeftPosition));
-    m_rightPositionStateEntry.SetDouble(xHat(State::kRightPosition));
-    m_leftVoltageInputEntry.SetDouble(m_u(Input::kLeftVoltage));
-    m_rightVoltageInputEntry.SetDouble(m_u(Input::kRightVoltage));
-    m_headingOutputEntry.SetDouble(GetAngle().to<double>());
-    m_leftPositionOutputEntry.SetDouble(GetLeftPosition().to<double>());
-    m_rightPositionOutputEntry.SetDouble(GetRightPosition().to<double>());
-    m_accelerationXOutputEntry.SetDouble(GetAccelerationX().to<double>());
-    m_accelerationYOutputEntry.SetDouble(GetAccelerationY().to<double>());
-}
-
 void Drivetrain::TeleopPeriodic() {
     static frc::Joystick driveStick1{kDriveStick1Port};
     static frc::Joystick driveStick2{kDriveStick2Port};

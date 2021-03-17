@@ -17,6 +17,7 @@
 #include "Constants.hpp"
 #include "UnitsFormat.hpp"
 #include "logging/CSVControllerLogger.hpp"
+#include "logging/NTControllerLogger.hpp"
 #include "subsystems/SubsystemBase.hpp"
 
 namespace frc3512 {
@@ -51,6 +52,7 @@ public:
         const std::array<ControllerLabel, Inputs>& inputLabels,
         const std::array<ControllerLabel, Outputs>& outputLabels)
         : m_csvLogger{controllerName, stateLabels, inputLabels, outputLabels},
+          m_ntLogger{controllerName, stateLabels, inputLabels, outputLabels},
           m_timingLogger{(controllerName + " timing").str(),
                          "Loop duration (ms)", "Scheduling period (ms)"} {}
 
@@ -121,6 +123,7 @@ public:
              const Eigen::Matrix<double, Outputs, 1>& y) {
         m_csvLogger.Log(m_nowBegin - frc::CSVLogFile::GetStartTime(), r, x, u,
                         y);
+        m_ntLogger.Log(r, x, u, y);
 
         auto nowEnd = frc2::Timer::GetFPGATimestamp();
         m_timingLogger.Log(
@@ -132,6 +135,7 @@ public:
 
 private:
     CSVControllerLogger<States, Inputs, Outputs> m_csvLogger;
+    NTControllerLogger<States, Inputs, Outputs> m_ntLogger;
     frc::CSVLogFile m_timingLogger;
 
     units::second_t m_lastTime = frc::CSVLogFile::GetStartTime();

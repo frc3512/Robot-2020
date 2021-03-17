@@ -19,8 +19,6 @@
 #include <frc/smartdashboard/Field2d.h>
 #include <frc/system/plant/LinearSystemId.h>
 #include <frc/trajectory/TrajectoryConfig.h>
-#include <networktables/NetworkTableEntry.h>
-#include <networktables/NetworkTableInstance.h>
 #include <units/acceleration.h>
 #include <units/angle.h>
 #include <units/angular_velocity.h>
@@ -213,8 +211,6 @@ public:
 
     void TeleopInit() override;
 
-    void RobotPeriodic() override;
-
     void TeleopPeriodic() override;
 
     void ControllerPeriodic() override;
@@ -269,47 +265,6 @@ private:
             DrivetrainController::kAngularV, DrivetrainController::kAngularA);
     // ImplicitModelFollower<2, 2> m_imf{
     //     kPlant, m_imfRef, {0.01, 0.01}, {8.0, 8.0}, 20_ms};
-
-    nt::NetworkTableEntry m_xStateEntry = NetworkTableUtil::MakeDoubleEntry(
-        "/Diagnostics/Drivetrain/States/X", 0.0);
-    nt::NetworkTableEntry m_yStateEntry = NetworkTableUtil::MakeDoubleEntry(
-        "/Diagnostics/Drivetrain/States/Y", 0.0);
-    nt::NetworkTableEntry m_headingStateEntry =
-        NetworkTableUtil::MakeDoubleEntry(
-            "/Diagnostics/Drivetrain/States/Heading", 0.0);
-    nt::NetworkTableEntry m_leftVelocityStateEntry =
-        NetworkTableUtil::MakeDoubleEntry(
-            "/Diagnostics/Drivetrain/States/Left velocity", 0.0);
-    nt::NetworkTableEntry m_rightVelocityStateEntry =
-        NetworkTableUtil::MakeDoubleEntry(
-            "/Diagnostics/Drivetrain/States/Right velocity", 0.0);
-    nt::NetworkTableEntry m_leftPositionStateEntry =
-        NetworkTableUtil::MakeDoubleEntry(
-            "/Diagnostics/Drivetrain/States/Left position", 0.0);
-    nt::NetworkTableEntry m_rightPositionStateEntry =
-        NetworkTableUtil::MakeDoubleEntry(
-            "/Diagnostics/Drivetrain/States/Right position", 0.0);
-    nt::NetworkTableEntry m_leftVoltageInputEntry =
-        NetworkTableUtil::MakeDoubleEntry(
-            "/Diagnostics/Drivetrain/Inputs/Left voltage", 0.0);
-    nt::NetworkTableEntry m_rightVoltageInputEntry =
-        NetworkTableUtil::MakeDoubleEntry(
-            "/Diagnostics/Drivetrain/Inputs/Right voltage", 0.0);
-    nt::NetworkTableEntry m_headingOutputEntry =
-        NetworkTableUtil::MakeDoubleEntry(
-            "/Diagnostics/Drivetrain/Outputs/Heading", 0.0);
-    nt::NetworkTableEntry m_leftPositionOutputEntry =
-        NetworkTableUtil::MakeDoubleEntry(
-            "/Diagnostics/Drivetrain/Outputs/Left position", 0.0);
-    nt::NetworkTableEntry m_rightPositionOutputEntry =
-        NetworkTableUtil::MakeDoubleEntry(
-            "/Diagnostics/Drivetrain/Outputs/Right position", 0.0);
-    nt::NetworkTableEntry m_accelerationXOutputEntry =
-        NetworkTableUtil::MakeDoubleEntry(
-            "/Diagnostics/Drivetrain/Outputs/AccelerationX", 0.0);
-    nt::NetworkTableEntry m_accelerationYOutputEntry =
-        NetworkTableUtil::MakeDoubleEntry(
-            "/Diagnostics/Drivetrain/Outputs/AccelerationY", 0.0);
 
     // Simulation variables
     frc::sim::DifferentialDrivetrainSim m_drivetrainSim{

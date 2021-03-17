@@ -168,12 +168,6 @@ private:
     // measuring flywheel lookup table values.
     double m_testThrottle = 0.0;
 
-    nt::NetworkTableEntry m_angularVelocityRefEntry =
-        NetworkTableUtil::MakeDoubleEntry(
-            "/Diagnostics/Flywheel/References/Angular velocity", 0.0);
-    nt::NetworkTableEntry m_angularVelocityStateEntry =
-        NetworkTableUtil::MakeDoubleEntry(
-            "/Diagnostics/Flywheel/States/Angular velocity", 0.0);
     nt::NetworkTableEntry m_isOnEntry =
         NetworkTableUtil::MakeBoolEntry("/Diagnostics/Flywheel/IsOn", false);
     nt::NetworkTableEntry m_isReadyEntry =
