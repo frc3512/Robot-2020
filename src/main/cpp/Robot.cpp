@@ -83,11 +83,15 @@ Robot::Robot() {
         },
         Constants::kDt, 4.1_ms);
 
-    if (!frc::Notifier::SetHALThreadPriority(true,
-                                             Constants::kControllerPrio + 1) ||
-        !frc::SetCurrentThreadPriority(true, Constants::kControllerPrio)) {
-        throw std::runtime_error(fmt::format(
-            "Setting RT priority to {} failed\n", Constants::kControllerPrio));
+    if (!frc::Notifier::SetHALThreadPriority(true, 40)) {
+        throw std::runtime_error(
+            "Setting HAL Notifier RT priority to 40 failed\n");
+    }
+
+    if (!frc::SetCurrentThreadPriority(true, Constants::kControllerPrio)) {
+        throw std::runtime_error(
+            fmt::format("Setting TimedRobot RT priority to {} failed\n",
+                        Constants::kControllerPrio));
     }
 }
 
