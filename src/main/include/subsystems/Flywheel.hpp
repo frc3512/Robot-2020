@@ -12,8 +12,6 @@
 #include <frc/system/LinearSystem.h>
 #include <frc/system/plant/LinearSystemId.h>
 #include <frc2/Timer.h>
-#include <networktables/NetworkTableEntry.h>
-#include <networktables/NetworkTableInstance.h>
 #include <units/angle.h>
 #include <units/angular_velocity.h>
 #include <units/current.h>
@@ -23,7 +21,6 @@
 #include "Constants.hpp"
 #include "FlywheelSim.hpp"
 #include "LerpTable.hpp"
-#include "NetworkTableUtil.hpp"
 #include "controllers/FlywheelController.hpp"
 #include "rev/CANSparkMax.hpp"
 #include "subsystems/ControlledSubsystemBase.hpp"
@@ -167,14 +164,6 @@ private:
     // Used in test mode for manually setting flywheel goal. This is helpful for
     // measuring flywheel lookup table values.
     double m_testThrottle = 0.0;
-
-    nt::NetworkTableEntry m_isOnEntry =
-        NetworkTableUtil::MakeBoolEntry("/Diagnostics/Flywheel/IsOn", false);
-    nt::NetworkTableEntry m_isReadyEntry =
-        NetworkTableUtil::MakeBoolEntry("/Diagnostics/Flywheel/IsReady", false);
-    nt::NetworkTableEntry m_manualAngularVelocityReferenceEntry =
-        NetworkTableUtil::MakeDoubleEntry(
-            "/Diagnostics/Flywheel/Manual angular velocity reference", 0.0);
 
     // Measurement noise isn't added because the simulated encoder stores the
     // count as an integer, which already introduces quantization noise.

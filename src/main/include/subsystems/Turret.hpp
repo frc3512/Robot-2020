@@ -10,15 +10,12 @@
 #include <frc/simulation/AnalogInputSim.h>
 #include <frc/simulation/DutyCycleEncoderSim.h>
 #include <frc/simulation/LinearSystemSim.h>
-#include <networktables/NetworkTableEntry.h>
-#include <networktables/NetworkTableInstance.h>
 #include <units/angle.h>
 #include <units/current.h>
 #include <units/voltage.h>
 
 #include "ADCInput.hpp"
 #include "Constants.hpp"
-#include "NetworkTableUtil.hpp"
 #include "controllers/TurretController.hpp"
 #include "rev/CANSparkMax.hpp"
 #include "subsystems/ControlledSubsystemBase.hpp"
@@ -169,18 +166,6 @@ private:
     Flywheel& m_flywheel;
 
     uint32_t m_poseMeasurementFaultCounter = 0;
-    nt::NetworkTableEntry m_controlModeEntry =
-        NetworkTableUtil::MakeStringEntry("/Diagnostics/Turret/Control mode",
-                                          "Manual");
-    nt::NetworkTableEntry m_poseMeasurementFaultEntry =
-        NetworkTableUtil::MakeDoubleEntry(
-            "/Diagnostics/Turret/Measurement fault counter", 0.0);
-    nt::NetworkTableEntry m_ccwLimitSwitchValueEntry =
-        NetworkTableUtil::MakeBoolEntry(
-            "/Diagnostics/Turret/CCW hard limit triggered", true);
-    nt::NetworkTableEntry m_cwLimitSwitchValueEntry =
-        NetworkTableUtil::MakeBoolEntry(
-            "/Diagnostics/Turret/CW hard limit triggered", true);
 
     // Simulation variables
     frc::sim::LinearSystemSim<2, 1, 1> m_turretSim{m_controller.GetPlant(),

@@ -114,9 +114,6 @@ const Eigen::Matrix<double, 2, 1>& Turret::GetStates() const {
 }
 
 void Turret::RobotPeriodic() {
-    m_ccwLimitSwitchValueEntry.SetBoolean(m_ccwLimitSwitch.Get());
-    m_cwLimitSwitchValueEntry.SetBoolean(m_cwLimitSwitch.Get());
-
     if (!frc::DriverStation::GetInstance().IsDisabled()) {
         auto turretHeadingInGlobal = units::radian_t{
             GetStates()(TurretController::State::kAngle) +
@@ -128,15 +125,6 @@ void Turret::RobotPeriodic() {
         }
     } else {
         m_vision.TurnLEDOff();
-    }
-
-    int controlMode = static_cast<int>(m_controller.GetControlMode());
-    if (controlMode == 0) {
-        m_controlModeEntry.SetString("Manual");
-    } else if (controlMode == 1) {
-        m_controlModeEntry.SetString("ClosedLoop");
-    } else if (controlMode == 2) {
-        m_controlModeEntry.SetString("AutoAim");
     }
 }
 
@@ -212,8 +200,6 @@ void Turret::ControllerPeriodic() {
                 globalMeasurement.value().timestamp);
         } else {
             m_poseMeasurementFaultCounter++;
-            m_poseMeasurementFaultEntry.SetDouble(
-                m_poseMeasurementFaultCounter);
         }
     }
 

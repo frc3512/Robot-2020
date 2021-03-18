@@ -109,15 +109,11 @@ units::radians_per_second_t Flywheel::GetReferenceForPose(
 }
 
 void Flywheel::RobotPeriodic() {
-    m_isOnEntry.SetBoolean(IsOn());
-    m_isReadyEntry.SetBoolean(IsReady());
-
     if (frc::DriverStation::GetInstance().IsTest()) {
         static frc::Joystick appendageStick2{kAppendageStick2Port};
 
         m_testThrottle = appendageStick2.GetThrottle();
         auto manualRef = ThrottleToReference(m_testThrottle);
-        m_manualAngularVelocityReferenceEntry.SetDouble(manualRef.to<double>());
         fmt::print("Manual angular velocity: {}\n", manualRef);
     }
 }
