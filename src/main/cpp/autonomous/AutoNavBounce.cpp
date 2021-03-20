@@ -44,8 +44,8 @@ void Robot::AutoNavBounce() {
     // End Pose - right inside the Finish Zone.
     const frc::Pose2d kEndPose{7.979_m, 2.5_m, units::radian_t{wpi::math::pi}};
 
-    m_turret.SetControlMode(TurretController::ControlMode::kManual);
     m_drivetrain.Reset(kInitialPose);
+    m_turret.SetTarget(TurretController::Target::kAruco);
 
     auto forwardConfig = Drivetrain::MakeTrajectoryConfig();
     auto backwardConfig = Drivetrain::MakeTrajectoryConfig();

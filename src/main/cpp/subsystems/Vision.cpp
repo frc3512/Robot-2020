@@ -10,6 +10,7 @@
 #include <frc2/Timer.h>
 #include <units/angle.h>
 
+#include "ArucoModel.hpp"
 #include "TargetModel.hpp"
 
 using namespace frc3512;
@@ -37,12 +38,16 @@ void Vision::ProcessNewMeasurement() {
     // coordinate frame
     std::vector<double> pose = m_pose.GetDoubleArray({0.0, 0.0, 0.0});
 
+    // int arucoID = m_arucoID.GetDouble(-1);
+
     // If we don't see the target, don't push data into the queue
     if (pose == std::vector{0.0, 0.0, 0.0}) {
         return;
     }
 
-    frc::Pose2d markerInGlobal = {0_m, 0_m, units::radian_t{0}};
+    frc::Pose2d markerInGlobal = {ArucoModel::kCenter.X(),
+                                  ArucoModel::kCenter.Y(),
+                                  units::radian_t{wpi::math::pi / 2}};
     // The transformation from PnP data to the origin is from the camera's point
     // of view
     frc::Transform2d markerInGlobalToCameraInGlobal{

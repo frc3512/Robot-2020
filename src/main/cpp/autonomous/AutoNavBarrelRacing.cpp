@@ -51,8 +51,8 @@ void Robot::AutoNavBarrelRacing() {
     // End Pose - Robot positioned near the B1 marker in the Start & Finish Zone
     const frc::Pose2d kEndPose{0.35_m, 2.614_m, units::radian_t{wpi::math::pi}};
 
-    m_turret.SetControlMode(TurretController::ControlMode::kManual);
     m_drivetrain.Reset(kInitialPose);
+    m_turret.SetTarget(TurretController::Target::kAruco);
 
     m_drivetrain.AddTrajectory({kInitialPose, kD5Entrance, kD5Loop1, kD5Loop2,
                                 kB8Entrance, kB8Loop1, kB8Loop2, kD10Entrance,

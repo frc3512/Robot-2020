@@ -46,10 +46,12 @@ public:
     void ProcessNewMeasurement();
 
 private:
-    nt::NetworkTableEntry m_pose =
-        NetworkTableUtil::MakeDoubleArrayEntry("/Vision/Pose", {0.0, 0.0, 0.0});
+    nt::NetworkTableEntry m_pose = NetworkTableUtil::MakeDoubleArrayEntry(
+        "/Vision/Aruco pose", {0.0, 0.0, 0.0});
     nt::NetworkTableEntry m_latency =
-        NetworkTableUtil::MakeDoubleEntry("/Vision/Timestamp", 0.0);
+        NetworkTableUtil::MakeDoubleEntry("/Vision/Latency", -1);
+    nt::NetworkTableEntry m_arucoID =
+        NetworkTableUtil::MakeDoubleEntry("/Vision/Aruco ID", -1);
     NT_EntryListener m_listenerHandle;
 
     frc3512::static_concurrent_queue<GlobalMeasurement, 8> m_measurements;

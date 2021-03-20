@@ -5,9 +5,9 @@
 #include <networktables/NetworkTableInstance.h>
 #include <units/math.h>
 
+#include "ArucoModel.hpp"
 #include "NetworkTableUtil.hpp"
 #include "SimulatorTest.hpp"
-#include "TargetModel.hpp"
 #include "subsystems/Vision.hpp"
 
 #define EXPECT_NEAR_UNITS(val1, val2, eps) \
@@ -19,7 +19,7 @@ TEST_F(VisionTest, CalculateDrivetrainInGlobal) {
     frc3512::Vision vision;
 
     auto pose = frc3512::NetworkTableUtil::MakeDoubleArrayEntry(
-        "photonvision/RPI-Cam/targetPose", {0, 0, 0});
+        "/Vision/Aruco pose", {0, 0, 0});
 
     auto testMeasurement = [&](units::inch_t x, units::inch_t y,
                                units::degree_t theta, units::inch_t globalX,
@@ -37,12 +37,12 @@ TEST_F(VisionTest, CalculateDrivetrainInGlobal) {
         EXPECT_NEAR_UNITS(globalMeasurement.value().pose.Y(), globalY, 0.05_m);
     };
 
-    frc::Translation2d kTargetCenter{TargetModel::kCenter.X(),
-                                     TargetModel::kCenter.Y()};
+    frc::Translation2d kMarkerCenter{ArucoModel::kCenter.X(),
+                                     ArucoModel::kCenter.Y()};
     testMeasurement(5_m, 0_m, 0_deg,
-                    kTargetCenter.X() - 5_m +
+                    kMarkerCenter.X() - 5_m +
                         frc3512::Vision::kCameraInGlobalToTurretInGlobal.X(),
-                    kTargetCenter.Y() - 0_m +
+                    kMarkerCenter.Y() - 0_m +
                         frc3512::Vision::kCameraInGlobalToTurretInGlobal.Y());
     testMeasurement(5_m, 0_m, 45_deg, 12.3935_m, 5.73816_m);
     testMeasurement(5_m, -2_m, -45_deg, 11.0871_m, 0.0813087_m);

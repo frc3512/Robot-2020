@@ -82,6 +82,7 @@ public:
      */
     bool HasPassedCWLimit();
 
+
     /**
      * Set the limit for the CCW side of the turret
      */
@@ -91,6 +92,16 @@ public:
      * Set the limit for CW side of the turret
      */
     void SetCWLimit(units::radian_t limit);
+
+    /**
+     * Returns what target the turret is set to
+     */
+    TurretController::Target GetTarget() const;
+
+    /**
+     * Set what target the turret points at
+     */
+    void SetTarget(TurretController::Target);
 
     /**
      * Sets the end goal of the controller profile.
@@ -183,6 +194,8 @@ private:
     nt::NetworkTableEntry m_controlModeEntry =
         NetworkTableUtil::MakeStringEntry("/Diagnostics/Turret/Control mode",
                                           "Manual");
+    nt::NetworkTableEntry m_targetEntry = NetworkTableUtil::MakeStringEntry(
+        "/Diagnostics/Turret/Target", "Aruco");
     nt::NetworkTableEntry m_poseMeasurementFaultEntry =
         NetworkTableUtil::MakeDoubleEntry(
             "/Diagnostics/Turret/Measurement fault counter", 0.0);

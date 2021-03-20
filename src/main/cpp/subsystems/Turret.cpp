@@ -97,6 +97,14 @@ void Turret::SetCCWLimit(units::radian_t limit) { m_ccwLimit = limit; }
 
 void Turret::SetCWLimit(units::radian_t limit) { m_cwLimit = limit; }
 
+TurretController::Target Turret::GetTarget() const {
+    return m_controller.GetTarget();
+}
+
+void Turret::SetTarget(TurretController::Target target) {
+    m_controller.SetTarget(target);
+}
+
 void Turret::SetGoal(units::radian_t angleGoal,
                      units::radians_per_second_t angularVelocityGoal) {
     m_controller.SetGoal(angleGoal, angularVelocityGoal);
@@ -130,6 +138,13 @@ void Turret::RobotPeriodic() {
         m_controlModeEntry.SetString("ClosedLoop");
     } else if (controlMode == 2) {
         m_controlModeEntry.SetString("AutoAim");
+    }
+    
+    TurretController::Target target = GetTarget();
+    if (target == TurretController::Target::kAruco) {
+        m_targetEntry.SetString("Aruco Marker");
+    } else if (target == TurretController::Target::kPowerPort) {
+        m_targetEntry.SetString("Power Port");
     }
 }
 

@@ -6,6 +6,7 @@
 #include <frc/RobotController.h>
 #include <frc/system/plant/LinearSystemId.h>
 
+#include "ArucoModel.hpp"
 #include "TargetModel.hpp"
 #include "controllers/DrivetrainController.hpp"
 
@@ -17,6 +18,9 @@ const frc::Pose2d TurretController::kDrivetrainToTurretFrame{
 const frc::Pose2d TurretController::kTargetPoseInGlobal{
     TargetModel::kCenter.X(), TargetModel::kCenter.Y(),
     units::radian_t{wpi::math::pi}};
+const frc::Pose2d TurretController::kArucoPoseInGlobal{
+    ArucoModel::kCenter.X(), ArucoModel::kCenter.Y(),
+    units::radian_t{wpi::math::pi / 2}};
 
 template <typename Vector1, typename Vector2>
 auto Dot(const Vector1& a, const Vector2& b) -> decltype(auto) {
@@ -77,6 +81,12 @@ TurretController::ControlMode TurretController::GetControlMode() const {
     return m_controlMode;
 }
 
+void TurretController::SetTarget(Target target) { m_target = target; }
+
+TurretController::Target TurretController::GetTarget() const {
+    return m_target;
+}
+
 void TurretController::Reset(units::radian_t initialHeading) {
     Eigen::Matrix<double, 2, 1> xHat;
     xHat << initialHeading.to<double>(), 0.0;
@@ -97,10 +107,18 @@ Eigen::Matrix<double, 1, 1> TurretController::Calculate(
             auto turretNextPoseInGlobal =
                 DrivetrainToTurretInGlobal(m_drivetrainNextPoseInGlobal);
 
+            units::radian_t turretHeadingForTargetInGlobal;
             // Find angle reference for this timestep
-            auto turretHeadingForTargetInGlobal = CalculateHeading(
-                kTargetPoseInGlobal.Translation() + TargetModel::kOffset,
-                turretNextPoseInGlobal.Translation());
+            if (m_target == Target::kPowerPort) {
+                turretHeadingForTargetInGlobal = CalculateHeading(
+                    kTargetPoseInGlobal.Translation() + TargetModel::kOffset,
+                    turretNextPoseInGlobal.Translation());
+            } else if (m_target == Target::kAruco) {
+                turretHeadingForTargetInGlobal =
+                    CalculateHeading(kArucoPoseInGlobal.Translation(),
+                                     turretNextPoseInGlobal.Translation());
+            }
+
             auto turretDesiredHeadingInDrivetrain =
                 turretHeadingForTargetInGlobal -
                 m_drivetrainNextPoseInGlobal.Rotation().Radians();
@@ -120,13 +138,23 @@ Eigen::Matrix<double, 1, 1> TurretController::Calculate(
             // The desired turret angular velocity is the turret's angular
             // velocity relative to the target minus the drivetrain's angular
             // velocity relative to the field.
-            auto turretDesiredAngularVelocity =
-                CalculateAngularVelocity(
-                    drivetrainVelocityInGlobal,
-                    turretNextPoseInGlobal.Translation() -
-                        (kTargetPoseInGlobal.Translation() +
-                         TargetModel::kOffset)) -
-                drivetrainW;
+            units::radians_per_second_t turretDesiredAngularVelocity;
+            if (m_target == Target::kPowerPort) {
+                turretDesiredAngularVelocity =
+                    CalculateAngularVelocity(
+                        drivetrainVelocityInGlobal,
+                        turretNextPoseInGlobal.Translation() -
+                            (kTargetPoseInGlobal.Translation() +
+                             TargetModel::kOffset)) -
+                    drivetrainW;
+            } else if (m_target == Target::kAruco) {
+                turretDesiredAngularVelocity =
+                    CalculateAngularVelocity(
+                        drivetrainVelocityInGlobal,
+                        turretNextPoseInGlobal.Translation() -
+                            (kArucoPoseInGlobal.Translation())) -
+                    drivetrainW;
+            }
 
             // Auto-aiming doesn't need a trapezoid profile because the
             // drivetrain pose already profiles the heading. We still set the

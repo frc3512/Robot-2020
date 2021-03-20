@@ -29,6 +29,10 @@ public:
         kClosedLoop,  // Closed loop without auto-aiming
         kAutoAim      // Closed loop with auto-aiming
     };
+    enum class Target {
+        kAruco,     // Point turret to the aruco marker
+        kPowerPort  // Point turret to the power port
+    };
 
     static constexpr double kGearRatio = 18.0 / 160.0;
     static constexpr double kDpR = kGearRatio * 2.0 * wpi::math::pi;
@@ -126,6 +130,18 @@ public:
     ControlMode GetControlMode() const;
 
     /**
+     * Sets turrets target.
+     *
+     * @param mode Target.
+     */
+    void SetTarget(Target target);
+
+    /**
+     * Returns current target.
+     */
+    Target GetTarget() const;
+
+    /**
      * Resets any internal state.
      *
      * @param initialHeading The initial turret heading in the drivetrain frame.
@@ -192,6 +208,7 @@ private:
     static constexpr auto kMaxA = 10_V / kA;
 
     static const frc::Pose2d kTargetPoseInGlobal;
+    static const frc::Pose2d kArucoPoseInGlobal;
 
     frc::TrapezoidProfile<units::radian>::State m_goal;
     frc::TrapezoidProfile<units::radian>::Constraints m_constraints{kMaxV,
@@ -204,6 +221,7 @@ private:
     frc::LinearPlantInversionFeedforward<2, 1> m_ff{m_plant, Constants::kDt};
 
     ControlMode m_controlMode = ControlMode::kManual;
+    Target m_target = Target::kPowerPort;
 
     bool m_atReferences = false;
 
