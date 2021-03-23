@@ -4,6 +4,8 @@
 
 #include <stdint.h>
 
+#include <optional>
+
 #include <frc/DutyCycleEncoder.h>
 #include <frc/estimator/KalmanFilter.h>
 #include <frc/geometry/Pose2d.h>
@@ -17,13 +19,15 @@
 #include "ADCInput.hpp"
 #include "Constants.hpp"
 #include "HWConfig.hpp"
+#include "NetworkTableUtil.hpp"
 #include "controllers/TurretController.hpp"
 #include "rev/CANSparkMax.hpp"
+#include "static_concurrent_queue.hpp"
 #include "subsystems/ControlledSubsystemBase.hpp"
+#include "subsystems/Vision.hpp"
 
 namespace frc3512 {
 
-class Vision;
 class Drivetrain;
 class Flywheel;
 
@@ -111,6 +115,11 @@ public:
     units::volt_t GetMotorOutput() const;
 
     /**
+     * Returns the pose measurement of the drivetrain in the global frame.
+     */
+    const frc::Pose2d& GetDrivetrainInGlobalMeasurement() const;
+
+    /**
      * Returns the turret state estimate.
      */
     const Eigen::Matrix<double, 2, 1>& GetStates() const;
@@ -127,15 +136,14 @@ public:
 
     void TeleopInit() override {
         Enable();
-        // TODO: Reset to kAutoAim for teleop shooting
-        SetControlMode(TurretController::ControlMode::kManual);
+        SetControlMode(TurretController::ControlMode::kClosedLoop);
     }
-
-    void RobotPeriodic() override;
 
     void TeleopPeriodic() override;
 
     void TestPeriodic() override;
+
+    void RobotPeriodic() override;
 
     void ControllerPeriodic() override;
 
@@ -167,7 +175,16 @@ private:
     Drivetrain& m_drivetrain;
     Flywheel& m_flywheel;
 
-    uint32_t m_poseMeasurementFaultCounter = 0;
+    static_concurrent_queue<Vision::GlobalMeasurement, 8> m_visionQueue;
+    int m_poseMeasurementFaultCounter = 0;
+
+    nt::NetworkTableEntry m_poseMeasurementFaultEntry =
+        NetworkTableUtil::MakeDoubleEntry("/Diagnostics/Vision/Vision faults");
+    nt::NetworkTableEntry m_LEDEntry =
+        NetworkTableUtil::MakeBoolEntry("/photonvision/ledMode");
+
+    frc::Transform2d cameraInGlobalToDrivetrainInGlobal;
+    frc::Pose2d m_drivetrainInGlobal;
 
     // Simulation variables
     frc::sim::LinearSystemSim<2, 1, 1> m_turretSim{m_controller.GetPlant(),

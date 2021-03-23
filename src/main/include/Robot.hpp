@@ -255,6 +255,8 @@ private:
     bool m_prevFlywheelAtGoal = false;
     frc2::Timer m_timer;
 
+    static_concurrent_queue<Vision::GlobalMeasurement, 8> m_visionMeasurements;
+
     AutonomousChooser m_autonChooser{"No-op", [=] { AutoNoOp(); }};
 
     frc::CSVLogFile m_batteryLogger{"Battery", "Battery voltage (V)"};

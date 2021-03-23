@@ -24,7 +24,9 @@
 #include "LerpTable.hpp"
 #include "controllers/FlywheelController.hpp"
 #include "rev/CANSparkMax.hpp"
+#include "static_concurrent_queue.hpp"
 #include "subsystems/ControlledSubsystemBase.hpp"
+#include "subsystems/Flywheel.hpp"
 
 namespace frc3512 {
 
@@ -110,8 +112,6 @@ public:
     /**
      * Returns angular velocity reference that will hit the target at a given
      * drivetrain pose.
-     *
-     * @param drivetrainPose Drivetrain pose.
      */
     units::radians_per_second_t GetReferenceForPose(
         const frc::Pose2d& drivetrainPose) const;
@@ -136,8 +136,6 @@ public:
     void SetSimAngularVelocity(units::radians_per_second_t velocity);
 
 private:
-    static const frc::Pose2d kTargetPoseInGlobal;
-
     // LUT from range to target to flywheel angular velocity
     LerpTable<units::meter_t, units::radians_per_second_t> m_table;
 
@@ -164,6 +162,8 @@ private:
     units::radian_t m_lastAngle;
     units::second_t m_time = frc2::Timer::GetFPGATimestamp();
     units::second_t m_lastTime = m_time - Constants::kControllerPeriod;
+
+    units::meter_t m_distanceToTarget = 0_m;
 
     // Filters out encoder quantization noise
     units::radians_per_second_t m_angularVelocity = 0_rad_per_s;

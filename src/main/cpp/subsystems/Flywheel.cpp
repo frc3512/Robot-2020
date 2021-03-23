@@ -19,10 +19,6 @@
 
 using namespace frc3512;
 
-const frc::Pose2d Flywheel::kTargetPoseInGlobal{
-    TargetModel::kCenter.X(), TargetModel::kCenter.Y(),
-    units::radian_t{wpi::numbers::pi}};
-
 Flywheel::Flywheel(Drivetrain& drivetrain)
     : ControlledSubsystemBase("Flywheel",
                               {ControllerLabel{"Angular velocity", "rad/s"}},
@@ -106,7 +102,7 @@ units::radians_per_second_t Flywheel::GetReferenceForPose(
     auto turretPose =
         TurretController::DrivetrainToTurretInGlobal(drivetrainPose);
     return m_table[turretPose.Translation().Distance(
-        kTargetPoseInGlobal.Translation())];
+        TargetModel::kTargetPoseInGlobal.Translation())];
 }
 
 void Flywheel::RobotPeriodic() {

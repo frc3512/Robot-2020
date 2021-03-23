@@ -4,11 +4,15 @@
 #include <vector>
 
 #include <fmt/format.h>
+#include <frc/Notifier.h>
 #include <frc/simulation/DriverStationSim.h>
 #include <gtest/gtest.h>
 
 #include "Robot.hpp"
 #include "SimulatorTest.hpp"
+
+#define EXPECT_NEAR_UNITS(val1, val2, eps) \
+    EXPECT_LE(units::math::abs(val1 - val2), eps)
 
 // Simulate conservation of angular momentum when a ball goes through the
 // shooter.
@@ -114,4 +118,41 @@ TEST_F(RobotTest, DISABLED_ShootNoTimeout) {
 
         robot.intakeSim.RemoveAllBalls();
     }
+}
+
+TEST_F(RobotTest, CalculateDrivetrainInGlobal) {
+    // Test that vision calculates the same pose that the drivetrain is reset to
+    auto testMeasurement = [&](units::meter_t x, units::meter_t y,
+                               units::radian_t theta) {
+        robot.drivetrain.Reset(frc::Pose2d{x, y, theta});
+
+        // The vision subsystem only processes data when the robot is enabled
+        frc::sim::DriverStationSim::SetEnabled(true);
+        frc::sim::DriverStationSim::NotifyNewData();
+        frc::sim::StepTiming(0_ms);  // Wait for Notifiers
+
+        // Flush and delay to ensure value propagates to tables and controller
+        // updates
+        nt::NetworkTableInstance::GetDefault().Flush();
+        std::this_thread::sleep_for(std::chrono::milliseconds(50));
+
+        frc::sim::StepTiming(40_ms);
+
+        auto drivetrainInGlobal =
+            robot.turret.GetDrivetrainInGlobalMeasurement();
+
+        fmt::print("drivetrainInGlobal ({}, {}, {})\n",
+                   drivetrainInGlobal.X().to<double>(),
+                   drivetrainInGlobal.Y().to<double>(),
+                   drivetrainInGlobal.Rotation().Radians().to<double>());
+        fmt::print("initialPose ({}, {}, {})\n", x.to<double>(), y.to<double>(),
+                   theta.to<double>());
+
+        ASSERT_GT(robot.drivetrain.GetPose().X(), 0_m);
+        ASSERT_GT(robot.drivetrain.GetPose().Y(), 0_m);
+        EXPECT_NEAR_UNITS(drivetrainInGlobal.X(), x, 0.2_m);
+        EXPECT_NEAR_UNITS(drivetrainInGlobal.Y(), y, 0.2_m);
+    };
+
+    testMeasurement(12.89_m, 2.41_m, units::radian_t{wpi::numbers::pi});
 }

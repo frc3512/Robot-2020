@@ -8,9 +8,9 @@
 #include <frc/RobotController.h>
 
 #include "CANSparkMaxUtil.hpp"
+#include "TargetModel.hpp"
 #include "subsystems/Drivetrain.hpp"
 #include "subsystems/Flywheel.hpp"
-#include "subsystems/Vision.hpp"
 
 using namespace frc3512;
 
@@ -31,6 +31,8 @@ Turret::Turret(Vision& vision, Drivetrain& drivetrain, Flywheel& flywheel)
 
     m_encoder.SetDistancePerRotation(TurretController::kDpR);
     Reset(0_rad);
+
+    m_vision.SubscribeToVisionData(m_visionQueue);
 }
 
 void Turret::SetControlMode(TurretController::ControlMode mode) {
@@ -103,6 +105,10 @@ void Turret::SetGoal(units::radian_t angleGoal,
 
 bool Turret::AtGoal() const { return m_controller.AtGoal(); }
 
+const frc::Pose2d& Turret::GetDrivetrainInGlobalMeasurement() const {
+    return m_drivetrainInGlobal;
+}
+
 units::volt_t Turret::GetMotorOutput() const {
     return m_motor.Get() *
            units::volt_t{frc::RobotController::GetInputVoltage()};
@@ -110,21 +116,6 @@ units::volt_t Turret::GetMotorOutput() const {
 
 const Eigen::Matrix<double, 2, 1>& Turret::GetStates() const {
     return m_observer.Xhat();
-}
-
-void Turret::RobotPeriodic() {
-    if (!frc::DriverStation::GetInstance().IsDisabled()) {
-        auto turretHeadingInGlobal = units::radian_t{
-            GetStates()(TurretController::State::kAngle) +
-            m_drivetrain.GetStates()(DrivetrainController::State::kHeading)};
-        if (turretHeadingInGlobal < 45_deg && turretHeadingInGlobal > -45_deg) {
-            m_vision.TurnLEDOn();
-        } else {
-            m_vision.TurnLEDOff();
-        }
-    } else {
-        m_vision.TurnLEDOff();
-    }
 }
 
 void Turret::TeleopPeriodic() {
@@ -163,6 +154,25 @@ void Turret::TestPeriodic() {
     }
 }
 
+void Turret::RobotPeriodic() {
+    m_poseMeasurementFaultEntry.SetDouble(m_poseMeasurementFaultCounter);
+
+    if (!frc::DriverStation::GetInstance().IsDisabled()) {
+        auto turretHeadingInGlobal = units::radian_t{
+            GetStates()(TurretController::State::kAngle) +
+            m_drivetrain.GetStates()(DrivetrainController::State::kHeading)};
+        if ((turretHeadingInGlobal < 45_deg &&
+             turretHeadingInGlobal > -45_deg) ||
+            m_LEDEntry.GetBoolean(0)) {
+            m_vision.TurnLEDOn();
+        } else {
+            m_vision.TurnLEDOff();
+        }
+    } else {
+        m_vision.TurnLEDOff();
+    }
+}
+
 void Turret::ControllerPeriodic() {
     UpdateDt();
 
@@ -176,33 +186,33 @@ void Turret::ControllerPeriodic() {
     y << GetAngle().to<double>();
     m_observer.Correct(m_controller.GetInputs(), y);
 
-    auto globalMeasurement = m_vision.GetGlobalMeasurement();
-    if (globalMeasurement.has_value()) {
-        auto turretInGlobal = globalMeasurement.value();
+    m_u = m_controller.Calculate(m_observer.Xhat());
 
-        frc::Transform2d turretInGlobalToDrivetrainInGlobal{
-            frc::Pose2d{
-                TurretController::kDrivetrainToTurretFrame.Translation(),
-                TurretController::kDrivetrainToTurretFrame.Rotation()
-                        .Radians() +
-                    GetAngle()},
-            frc::Pose2d{}};
-        auto drivetrainInGlobal =
-            turretInGlobal.pose.TransformBy(turretInGlobalToDrivetrainInGlobal);
+    frc::Transform2d turretInGlobalToDrivetrainInGlobal{
+        frc::Pose2d{
+            TurretController::kDrivetrainToTurretFrame.Translation(),
+            TurretController::kDrivetrainToTurretFrame.Rotation().Radians() +
+                GetAngle()},
+        frc::Pose2d{}};
+
+    auto visionData = m_visionQueue.pop();
+    if (visionData.has_value()) {
+        auto turretInGlobal = visionData.value().turretInGlobal;
+
+        m_drivetrainInGlobal =
+            turretInGlobal.TransformBy(turretInGlobalToDrivetrainInGlobal);
 
         // If pose measurement is too far away from the state estimate, discard
         // it and increment the fault counter
         if (m_drivetrain.GetPose().Translation().Distance(
-                drivetrainInGlobal.Translation()) < 1_m) {
-            m_drivetrain.CorrectWithGlobalOutputs(
-                drivetrainInGlobal.X(), drivetrainInGlobal.Y(),
-                globalMeasurement.value().timestamp);
+                m_drivetrainInGlobal.Translation()) < 1_m) {
+            m_drivetrain.CorrectWithGlobalOutputs(m_drivetrainInGlobal.X(),
+                                                  m_drivetrainInGlobal.Y(),
+                                                  visionData.value().timestamp);
         } else {
             m_poseMeasurementFaultCounter++;
         }
     }
-
-    m_u = m_controller.Calculate(m_observer.Xhat());
 
     // Set motor input
     if (m_controller.GetControlMode() !=
@@ -233,6 +243,9 @@ void Turret::ControllerPeriodic() {
         } else {
             m_cwLimitSwitchSim.SetVoltage(5.0);
         }
+
+        m_vision.UpdateVisionMeasurementsSim(
+            m_drivetrain.GetPose(), turretInGlobalToDrivetrainInGlobal);
     }
 }
 
