@@ -2,9 +2,12 @@
 """Deletes all but newest versions of CSV log files."""
 
 import argparse
+import json
 import os
 import re
 import subprocess
+
+import frcutils
 
 parser = argparse.ArgumentParser(description="Deletes CSVs from the roboRIO")
 parser.add_argument(
@@ -15,8 +18,10 @@ parser.add_argument(
 )
 args = parser.parse_args()
 
+ip = frcutils.get_roborio_ip()
+
 # Get list of files in current directory
-files = (subprocess.check_output(["ssh", "lvuser@10.35.12.2", "ls"],
+files = (subprocess.check_output(["ssh", f"lvuser@{ip}", "ls"],
                                  encoding="utf-8").rstrip().split("\n"))
 
 # Maps subsystem name to tuple of csv_group and date and filters for CSV files
@@ -51,5 +56,4 @@ for i in range(len(csvs_to_delete)):
     csvs_to_delete[i] = f"'{csvs_to_delete[i]}'"
 
 # Delete list of files from roboRIO
-subprocess.run(
-    ["ssh", "lvuser@10.35.12.2", "rm", "-f", " ".join(csvs_to_delete)])
+subprocess.run(["ssh", f"lvuser@{ip}", "rm", "-f", " ".join(csvs_to_delete)])

@@ -40,12 +40,9 @@ deploy {
             // Debug can be overridden by command line, for use with VSCode
             debug = frc.getDebugOrDefault(false)
 
-            predeploy << {
-                // Disable crond because it uses 50% CPU and there's no cronjobs to run
-                it.execute('/etc/init.d/crond stop')
-
-                // Disable NI web server because it leaks memory badly
-                it.execute('/usr/local/natinst/etc/init.d/systemWebServer stop')
+            postdeploy << { ctx ->
+                ctx.execute('chown admin /home/lvuser/frcUserProgram')
+                ctx.execute('chmod u+s /home/lvuser/frcUserProgram')
             }
         }
         // Built in artifact to deploy arbitrary files to the roboRIO.
@@ -190,20 +187,6 @@ task testRelease {
 
 task simulateCpp {
     dependsOn 'simulateFrcUserProgram' + wpi.platforms.desktop.capitalize() + 'ReleaseExecutable'
-}
-
-if (!project.hasProperty("-PallowImaging")) {
-    tasks.deploy.doLast {
-        exec {
-            executable './buildscripts/update_robotcommand.py'
-        }
-    }
-}
-
-tasks.deploy.doLast {
-    exec {
-        executable './buildscripts/rt_spi.py'
-    }
 }
 
 if (!OperatingSystem.current().isWindows()) {

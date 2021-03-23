@@ -7,6 +7,10 @@
 /* Juan Chong - frcsupport@analog.com                                         */
 /*----------------------------------------------------------------------------*/
 
+#if !defined(_MSC_VER)
+#include <unistd.h>
+#endif  // !defined(_MSC_VER)
+
 #include <cmath>
 #include <cstdlib>
 #include <stdexcept>
@@ -52,6 +56,17 @@ ADIS16470_IMU::ADIS16470_IMU(IMUAxis yaw_axis, SPI::Port port, ADIS16470Calibrat
                 m_spi_port(port),
                 m_calibration_time((uint16_t)cal_time),
                 m_sim_device("Gyro:ADIS16470", port) {
+  // NI's SPI driver defaults to SCHED_OTHER. Find its PID with ps and change it
+  // it to RT priority 33.
+  if constexpr (!frc::RobotBase::IsSimulation()) {
+#if !defined(_MSC_VER)
+      setuid(0);
+#endif  // !defined(_MSC_VER)
+      if (std::system("ps -ef | grep '\\[spi0\\]' | awk '{print $1}' | xargs chrt -f -p 33") != 0) {
+          throw std::runtime_error("Setting NI SPI driver RT priority failed");
+      }
+  }
+
   if (m_sim_device) {
     m_sim_angle =
         m_sim_device.CreateDouble("angle_x", hal::SimDevice::kInput, 0.0);
@@ -506,19 +521,8 @@ void ADIS16470_IMU::Acquire() {
   double accelAngleX = 0.0;
   double accelAngleY = 0.0;
 
-  // NI's SPI driver defaults to SCHED_OTHER. Find its PID with ps and change it
-  // it to RT priority 33.
-  if constexpr (!frc::RobotBase::IsSimulation()) {
-      // TODO: Run user program as admin to make this work
-#if 0
-      if (std::system("ps -ef | grep '\\[spi0\\]' | awk '{print $1}' | xargs chrt -f -p 33") != 0) {
-          throw std::runtime_error("Setting NI SPI driver RT priority failed");
-      }
-#endif
-
-      if (!frc::SetCurrentThreadPriority(true, 33)) {
-          throw std::runtime_error("Setting ADIS16470 acquire thread RT priority failed");
-      }
+  if (!frc::SetCurrentThreadPriority(true, 33)) {
+      throw std::runtime_error("Setting ADIS16470 acquire thread RT priority failed");
   }
 
   while (true) {

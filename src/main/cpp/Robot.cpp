@@ -2,6 +2,11 @@
 
 #include "Robot.hpp"
 
+#if !defined(_MSC_VER)
+#include <unistd.h>
+#endif  // !defined(_MSC_VER)
+
+#include <cstdlib>
 #include <stdexcept>
 
 #include <frc/DriverStation.h>
@@ -86,6 +91,18 @@ Robot::Robot() {
             }
         },
         Constants::kDt, 4.1_ms);
+
+    if constexpr (!IsSimulation()) {
+        // crond occasionally uses 50% CPU and there's no cronjobs to run
+#if !defined(_MSC_VER)
+        setuid(0);
+#endif  // !defined(_MSC_VER)
+        int status = std::system("/etc/init.d/crond stop");
+        if (status != 0) {
+            throw std::runtime_error(
+                fmt::format("Failed to stop crond ({})", status));
+        }
+    }
 
     if (!frc::Notifier::SetHALThreadPriority(true, 40)) {
         throw std::runtime_error(
