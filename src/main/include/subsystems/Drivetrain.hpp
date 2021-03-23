@@ -5,7 +5,6 @@
 #include <vector>
 
 #include <Eigen/Core>
-#include <NetworkTableUtil.hpp>
 #include <adi/ADIS16470_IMU.h>
 #include <adi/simulation/ADIS16470_IMUSim.h>
 #include <frc/AnalogInput.h>
@@ -33,6 +32,7 @@
 #include <units/velocity.h>
 
 #include "Constants.hpp"
+#include "NetworkTableUtil.hpp"
 #include "controllers/DrivetrainController.hpp"
 #include "rev/CANSparkMax.hpp"
 #include "subsystems/ControlledSubsystemBase.hpp"
