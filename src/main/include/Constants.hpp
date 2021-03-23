@@ -2,6 +2,16 @@
 
 #pragma once
 
+<<<<<<< HEAD
+||||||| constructed merge base
+#include <units/time.h>
+
+=======
+#include <units/angle.h>
+#include <units/length.h>
+#include <units/time.h>
+
+>>>>>>> Rework vision to work with new photonvision libraries
 namespace frc3512::Constants {
 
 namespace Robot {
@@ -84,4 +94,15 @@ constexpr int kTraverserPort = 13;
 constexpr int kClimberLock = 3;
 }  // namespace Climber
 
+namespace Vision {
+// Camera height
+constexpr units::meter_t cameraHeight = 23_in;
+// Camera pitch
+constexpr units::radian_t cameraPitch = 22_deg;
+// Diagonal pi camera V1 FOV
+constexpr units::radian_t cameraDiagonalFOV = 75_deg;
+}  // namespace Vision
+
+constexpr auto kDt = 5_ms;
+constexpr int kControllerPrio = 15;
 }  // namespace frc3512::Constants

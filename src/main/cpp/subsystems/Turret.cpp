@@ -2,12 +2,15 @@
 
 #include "subsystems/Turret.hpp"
 
+#include <photonlib/PhotonUtils.h>
+
 #include <frc/DriverStation.h>
 #include <frc/Joystick.h>
 #include <frc/RobotBase.h>
 #include <frc/RobotController.h>
 
 #include "CANSparkMaxUtil.hpp"
+#include "TargetModel.hpp"
 #include "subsystems/Drivetrain.hpp"
 #include "subsystems/Flywheel.hpp"
 #include "subsystems/Vision.hpp"
@@ -179,8 +182,6 @@ void Turret::ControllerPeriodic() {
 
     auto globalMeasurement = m_vision.GetGlobalMeasurement();
     if (globalMeasurement.has_value()) {
-        auto turretInGlobal = globalMeasurement.value();
-
         frc::Transform2d turretInGlobalToDrivetrainInGlobal{
             frc::Pose2d{
                 TurretController::kDrivetrainToTurretFrame.Translation(),
@@ -188,8 +189,20 @@ void Turret::ControllerPeriodic() {
                         .Radians() +
                     GetAngle()},
             frc::Pose2d{}};
-        auto drivetrainInGlobal =
-            turretInGlobal.pose.TransformBy(turretInGlobalToDrivetrainInGlobal);
+
+        frc::Transform2d cameraInGlobalToDrivetrainInGlobal{
+            Vision::kCameraInGlobalToTurretInGlobal.Translation() +
+                (turretInGlobalToDrivetrainInGlobal.Translation().RotateBy(
+                    Vision::kCameraInGlobalToTurretInGlobal.Rotation())),
+            Vision::kCameraInGlobalToTurretInGlobal.Rotation() +
+                turretInGlobalToDrivetrainInGlobal.Rotation()};
+
+        auto drivetrainInGlobal = photonlib::PhotonUtils::EstimateFieldToRobot(
+            Constants::Vision::cameraHeight, TargetModel::kCenter.Z(),
+            Constants::Vision::cameraPitch, globalMeasurement.value().pitch,
+            globalMeasurement.value().yaw, m_drivetrain.GetAngle(),
+            TurretController::kTargetPoseInGlobal,
+            cameraInGlobalToDrivetrainInGlobal);
 
         // If pose measurement is too far away from the state estimate, discard
         // it and increment the fault counter

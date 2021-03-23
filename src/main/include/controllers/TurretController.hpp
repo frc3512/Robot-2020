@@ -36,6 +36,9 @@ public:
     // Transformation from drivetrain to turret
     static const frc::Pose2d kDrivetrainToTurretFrame;
 
+    // Power port's global pose
+    static const frc::Pose2d kTargetPoseInGlobal;
+
     // State tolerances
     static constexpr auto kAngleTolerance = 0.05_rad;
     static constexpr auto kAngularVelocityTolerance = 2.0_rad_per_s;
@@ -190,8 +193,6 @@ private:
     static constexpr auto kA = 0.14_V / 1_rad_per_s_sq;
     static constexpr auto kMaxV = 12_V / kV;
     static constexpr auto kMaxA = 10_V / kA;
-
-    static const frc::Pose2d kTargetPoseInGlobal;
 
     frc::TrapezoidProfile<units::radian>::State m_goal;
     frc::TrapezoidProfile<units::radian>::Constraints m_constraints{kMaxV,

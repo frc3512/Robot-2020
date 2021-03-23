@@ -17,14 +17,6 @@ using namespace frc3512;
 const frc::Transform2d Vision::kCameraInGlobalToTurretInGlobal{
     frc::Pose2d{}, frc::Pose2d{0_in, -3_in, 0_rad}};
 
-Vision::Vision() {
-    m_listenerHandle =
-        m_pose.AddListener([=](const auto&) { ProcessNewMeasurement(); },
-                           NT_NOTIFY_NEW | NT_NOTIFY_UPDATE | NT_NOTIFY_LOCAL);
-}
-
-Vision::~Vision() { m_pose.RemoveListener(m_listenerHandle); }
-
 void Vision::TurnLEDOn() { m_rpiCam.SetLEDMode(photonlib::LEDMode::kOn); }
 
 void Vision::TurnLEDOff() { m_rpiCam.SetLEDMode(photonlib::LEDMode::kOff); }
@@ -38,35 +30,26 @@ std::optional<Vision::GlobalMeasurement> Vision::GetGlobalMeasurement() {
 }
 
 void Vision::ProcessNewMeasurement() {
-    units::microsecond_t latency(
-        static_cast<int64_t>(m_latency.GetDouble(-1) * 1000));
+    units::second_t latency = m_result.GetLatency();
 
     // PnP data is transformation from camera's coordinate frame to target's
     // coordinate frame
-    std::vector<double> pose = m_pose.GetDoubleArray({0.0, 0.0, 0.0});
+    photonlib::PhotonTrackedTarget target = m_result.GetBestTarget();
 
-    // If we don't see the target, don't push data into the queue
-    if (pose == std::vector{0.0, 0.0, 0.0}) {
-        return;
+    // If the target is empty then everything will be zero
+    if (target.GetPitch() != 0) {
+        auto timestamp = frc2::Timer::GetFPGATimestamp();
+        timestamp -= latency;
+
+        m_measurements.push({timestamp, units::degree_t{target.GetPitch()},
+                             units::degree_t{target.GetYaw()}});
     }
+}
 
-    frc::Pose2d targetInGlobal{TargetModel::kCenter.X(),
-                               TargetModel::kCenter.Y(), 0_rad};
+void Vision::RobotPeriodic() {
+    photonlib::PhotonPipelineResult m_result = m_rpiCam.GetLatestResult();
 
-    // The transformation from PnP data to the origin is from the camera's point
-    // of view
-    frc::Transform2d targetInGlobalToCameraInGlobal{
-        frc::Pose2d{units::inch_t{pose[0]}, units::inch_t{pose[1]},
-                    frc::Rotation2d{units::degree_t{pose[2]}}},
-        frc::Pose2d{}};
-    auto cameraInGlobal =
-        targetInGlobal.TransformBy(targetInGlobalToCameraInGlobal);
-
-    auto turretInGlobal =
-        cameraInGlobal.TransformBy(kCameraInGlobalToTurretInGlobal);
-
-    auto timestamp = frc2::Timer::GetFPGATimestamp();
-    timestamp -= latency;
-
-    m_measurements.push({timestamp, turretInGlobal});
+    if (m_result.HasTargets()) {
+        ProcessNewMeasurement();
+    }
 }

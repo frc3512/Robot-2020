@@ -3,6 +3,7 @@
 #pragma once
 
 #include <photonlib/PhotonCamera.h>
+#include <photonlib/SimVisionSystem.h>
 
 #include <frc/geometry/Pose2d.h>
 #include <frc/geometry/Transform2d.h>
@@ -27,14 +28,9 @@ public:
 
     struct GlobalMeasurement {
         units::second_t timestamp;
-        frc::Pose2d pose;
+        units::radian_t pitch;
+        units::radian_t yaw;
     };
-
-    Vision();
-    ~Vision() override;
-
-    Vision(const Vision&) = delete;
-    Vision& operator=(const Vision&) = delete;
 
     /**
      * Turns on power to the LED ring light.
@@ -62,14 +58,11 @@ public:
      */
     void ProcessNewMeasurement();
 
-private:
-    nt::NetworkTableEntry m_pose = NetworkTableUtil::MakeDoubleArrayEntry(
-        "photonvision/RPI-Cam/targetPose", {0.0, 0.0, 0.0});
-    nt::NetworkTableEntry m_latency =
-        NetworkTableUtil::MakeDoubleEntry("photonvision/RPI-Cam/latencyMillis");
-    NT_EntryListener m_listenerHandle;
+    void RobotPeriodic() override;
 
+private:
     photonlib::PhotonCamera m_rpiCam{"RPI-Cam"};
+    photonlib::PhotonPipelineResult m_result;
 
     frc3512::static_concurrent_queue<GlobalMeasurement, 8> m_measurements;
 };
