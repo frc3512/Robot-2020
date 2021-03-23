@@ -65,32 +65,32 @@ Robot::Robot() {
     // |  Subsystem | Duration (ms) | Offset (ms) | Allocation (ms) |
     // |------------|---------------|-------------|-----------------|
     // | **Total**  | 5.0           | N/A         | 5.0             |
-    // | TimedRobot | 0.6           | 0.0         | 0.8             |
-    // | Drivetrain | 1.9           | 0.8         | 2.5             |
-    // | Turret     | 0.6           | 3.3         | 0.8             |
-    // | Flywheel   | 0.6           | 4.1         | 0.8             |
-    // | **Free**   | 0.1           | 4.9         | 0.1             |
+    // | TimedRobot | ?             | 0.0         | 1.9             |
+    // | Drivetrain | 1.32          | 1.9         | 1.5             |
+    // | Turret     | 0.6           | 3.4         | 0.8             |
+    // | Flywheel   | 0.6           | 4.2         | 0.8             |
+    // | **Free**   | 0.0           | 5.0         | N/A             |
     AddPeriodic(
         [=] {
             if (IsEnabled()) {
                 m_drivetrain.ControllerPeriodic();
             }
         },
-        Constants::kDt, 0.8_ms);
+        Constants::kDt, 1.9_ms);
     AddPeriodic(
         [=] {
             if (IsEnabled()) {
                 m_flywheel.ControllerPeriodic();
             }
         },
-        Constants::kDt, 3.3_ms);
+        Constants::kDt, 3.4_ms);
     AddPeriodic(
         [=] {
             if (IsEnabled()) {
                 m_turret.ControllerPeriodic();
             }
         },
-        Constants::kDt, 4.1_ms);
+        Constants::kDt, 4.2_ms);
 
     if constexpr (!IsSimulation()) {
         // crond occasionally uses 50% CPU and there's no cronjobs to run
