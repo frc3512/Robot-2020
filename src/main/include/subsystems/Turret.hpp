@@ -114,6 +114,8 @@ public:
      */
     const Eigen::Matrix<double, 2, 1>& GetStates() const;
 
+    int GetVisionFaultEntry() const;
+
     void DisabledInit() override {
         Disable();
         SetControlMode(TurretController::ControlMode::kManual);
@@ -126,8 +128,7 @@ public:
 
     void TeleopInit() override {
         Enable();
-        // TODO: Reset to kAutoAim for teleop shooting
-        SetControlMode(TurretController::ControlMode::kManual);
+        SetControlMode(TurretController::ControlMode::kAutoAim);
     }
 
     void RobotPeriodic() override;
@@ -170,6 +171,8 @@ private:
     Flywheel& m_flywheel;
 
     uint32_t m_poseMeasurementFaultCounter = 0;
+
+    frc::Transform2d cameraInGlobalToDrivetrainInGlobal;
 
     // Simulation variables
     frc::sim::LinearSystemSim<2, 1, 1> m_turretSim{m_controller.GetPlant(),

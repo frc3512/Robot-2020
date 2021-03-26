@@ -5,12 +5,11 @@
 #include <chrono>
 #include <vector>
 
+#include <frc/RobotBase.h>
 #include <frc/geometry/Pose2d.h>
 #include <frc/geometry/Transform2d.h>
 #include <frc2/Timer.h>
 #include <units/angle.h>
-
-#include "TargetModel.hpp"
 
 using namespace frc3512;
 
@@ -37,19 +36,37 @@ void Vision::ProcessNewMeasurement() {
     photonlib::PhotonTrackedTarget target = m_result.GetBestTarget();
 
     // If the target is empty then everything will be zero
-    if (target.GetPitch() != 0) {
-        auto timestamp = frc2::Timer::GetFPGATimestamp();
-        timestamp -= latency;
+    auto timestamp = frc2::Timer::GetFPGATimestamp();
+    timestamp -= latency;
 
-        m_measurements.push({timestamp, units::degree_t{target.GetPitch()},
-                             units::degree_t{target.GetYaw()}});
-    }
+    m_measurements.push({timestamp, units::degree_t{target.GetPitch()},
+                            units::degree_t{target.GetYaw()}});
+}
+
+void Vision::UpdateVisionMeasurementsSim(const frc::Transform2d& cameraToRobot,
+                                         const frc::Pose2d& drivetrainPose) {
+    m_simVision.MoveCamera(cameraToRobot, Constants::Vision::kCameraHeight,
+                           Constants::Vision::kCameraPitch);
+    m_simVision.ProcessFrame(drivetrainPose);
+}
+
+void Vision::SimulationInit() {
+    frc::Pose2d kTargetPose{
+        frc::Translation2d{TargetModel::kCenter.X(), TargetModel::kCenter.Y()} +
+            TargetModel::kOffset,
+        units::radian_t{wpi::math::pi}};
+    photonlib::SimVisionTarget newTgt{
+        kTargetPose, TargetModel::kC.Z(),
+        TargetModel::kG.Y() - TargetModel::kA.Y(),
+        TargetModel::kCenter.Z() - TargetModel::kC.Z()};
+    m_simVision.AddSimVisionTarget(newTgt);
 }
 
 void Vision::RobotPeriodic() {
     photonlib::PhotonPipelineResult m_result = m_rpiCam.GetLatestResult();
 
-    if (m_result.HasTargets()) {
+    if (m_result.HasTargets() &&
+        !frc::DriverStation::GetInstance().IsDisabled()) {
         ProcessNewMeasurement();
     }
 }

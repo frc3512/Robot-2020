@@ -116,6 +116,10 @@ const Eigen::Matrix<double, 2, 1>& Turret::GetStates() const {
     return m_observer.Xhat();
 }
 
+int Turret::GetVisionFaultEntry() const {
+    return m_poseMeasurementFaultCounter;
+}
+
 void Turret::RobotPeriodic() {
     if (!frc::DriverStation::GetInstance().IsDisabled()) {
         auto turretHeadingInGlobal = units::radian_t{
@@ -182,6 +186,7 @@ void Turret::ControllerPeriodic() {
 
     auto globalMeasurement = m_vision.GetGlobalMeasurement();
     if (globalMeasurement.has_value()) {
+        fmt::print(stderr, "Vision measurements are being run");
         frc::Transform2d turretInGlobalToDrivetrainInGlobal{
             frc::Pose2d{
                 TurretController::kDrivetrainToTurretFrame.Translation(),
@@ -190,7 +195,7 @@ void Turret::ControllerPeriodic() {
                     GetAngle()},
             frc::Pose2d{}};
 
-        frc::Transform2d cameraInGlobalToDrivetrainInGlobal{
+        cameraInGlobalToDrivetrainInGlobal = {
             Vision::kCameraInGlobalToTurretInGlobal.Translation() +
                 (turretInGlobalToDrivetrainInGlobal.Translation().RotateBy(
                     Vision::kCameraInGlobalToTurretInGlobal.Rotation())),
@@ -198,8 +203,8 @@ void Turret::ControllerPeriodic() {
                 turretInGlobalToDrivetrainInGlobal.Rotation()};
 
         auto drivetrainInGlobal = photonlib::PhotonUtils::EstimateFieldToRobot(
-            Constants::Vision::cameraHeight, TargetModel::kCenter.Z(),
-            Constants::Vision::cameraPitch, globalMeasurement.value().pitch,
+            Constants::Vision::kCameraHeight, TargetModel::kCenter.Z(),
+            Constants::Vision::kCameraPitch, globalMeasurement.value().pitch,
             globalMeasurement.value().yaw, m_drivetrain.GetAngle(),
             TurretController::kTargetPoseInGlobal,
             cameraInGlobalToDrivetrainInGlobal);
@@ -247,6 +252,10 @@ void Turret::ControllerPeriodic() {
         } else {
             m_cwLimitSwitchSim.SetVoltage(5.0);
         }
+
+        // Update vision with drivetrain pose and camera transformation
+        m_vision.UpdateVisionMeasurementsSim(cameraInGlobalToDrivetrainInGlobal,
+                                             m_drivetrain.GetPose());
     }
 }
 

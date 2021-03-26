@@ -12,7 +12,9 @@
 #include <networktables/NetworkTableInstance.h>
 #include <units/time.h>
 
+#include "Constants.hpp"
 #include "NetworkTableUtil.hpp"
+#include "TargetModel.hpp"
 #include "static_concurrent_queue.hpp"
 #include "subsystems/SubsystemBase.hpp"
 
@@ -58,13 +60,36 @@ public:
      */
     void ProcessNewMeasurement();
 
+    /**
+     * Updates vision sim data with new pose and camera transformation
+     *
+     * @param cameraToRobot new camera to robot transform as turret moves
+     * @param drivetrainPose drivetrain pose to see if target is in range
+     */
+    void UpdateVisionMeasurementsSim(const frc::Transform2d& cameraToRobot,
+                                     const frc::Pose2d& drivetrainPose);
+
+    void SimulationInit() override;
+
     void RobotPeriodic() override;
 
 private:
-    photonlib::PhotonCamera m_rpiCam{"RPI-Cam"};
+    photonlib::PhotonCamera m_rpiCam{"Gloworm"};
     photonlib::PhotonPipelineResult m_result;
 
     frc3512::static_concurrent_queue<GlobalMeasurement, 8> m_measurements;
+
+    // Simulation variables
+    photonlib::SimVisionSystem m_simVision{
+        "Glowworm",
+        Constants::Vision::kCameraDiagonalFOV,
+        Constants::Vision::kCameraPitch,
+        kCameraInGlobalToTurretInGlobal,
+        Constants::Vision::kCameraHeight,
+        20_m,
+        640,
+        480,
+        10};
 };
 
 }  // namespace frc3512

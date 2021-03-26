@@ -96,11 +96,11 @@ constexpr int kClimberLock = 3;
 
 namespace Vision {
 // Camera height
-constexpr units::meter_t cameraHeight = 23_in;
+constexpr units::meter_t kCameraHeight = 23_in;
 // Camera pitch
-constexpr units::radian_t cameraPitch = 22_deg;
+constexpr units::degree_t kCameraPitch = 22_deg;
 // Diagonal pi camera V1 FOV
-constexpr units::radian_t cameraDiagonalFOV = 75_deg;
+constexpr units::degree_t kCameraDiagonalFOV = 67_deg;
 }  // namespace Vision
 
 constexpr auto kDt = 5_ms;

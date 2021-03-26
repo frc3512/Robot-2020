@@ -299,6 +299,11 @@ void Robot::ExpectAutonomousEndConds() {
         EXPECT_NEAR(m_drivetrain.GetStates()(4), 0.0, 0.01);
 
         EXPECT_EQ(m_flywheel.GetGoal(), 0_rad_per_s);
+        EXPECT_TRUE(m_turret.AtGoal());
+
+        // Verify vision data is there and correct
+        EXPECT_TRUE(m_vision.GetGlobalMeasurement().has_value());
+        EXPECT_EQ(m_turret.GetVisionFaultEntry(), 0);
     }
 }
 
