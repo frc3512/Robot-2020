@@ -53,7 +53,7 @@ else:
 
 # Add quotes around filenames so rm doesn't split them apart
 for i in range(len(csvs_to_delete)):
-    csvs_to_delete[i] = f"'{csvs_to_delete[i]}'"
+    csvs_to_delete[i] = f"'/media/sda/{csvs_to_delete[i]}'"
 
 # Delete list of files from roboRIO
 subprocess.run(["ssh", f"lvuser@{ip}", "rm", "-f", " ".join(csvs_to_delete)])
