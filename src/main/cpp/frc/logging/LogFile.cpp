@@ -10,6 +10,7 @@
 #include <wpi/SmallString.h>
 
 #include "frc/Filesystem.h"
+#include "frc/RobotBase.h"
 
 using namespace frc;
 
@@ -45,12 +46,17 @@ void LogFile::UpdateFilename() {
 }
 
 std::string LogFile::CreateFilename(std::time_t time) const {
-  wpi::SmallString<64> path;
-  frc::filesystem::GetOperatingDirectory(path);
-
-  return fmt::format("{}/{}-{:%Y-%m-%d-%H_%M_%S}.{}",
-                     std::string_view{path.str().data(), path.str().size()},
-                     m_filePrefix, fmt::localtime(time), m_fileExtension);
+  // Write to USB storage when running on the roboRIO
+  if constexpr (RobotBase::IsSimulation()) {
+    wpi::SmallString<64> path;
+    frc::filesystem::GetOperatingDirectory(path);
+    return fmt::format("{}/{}-{:%Y-%m-%d-%H_%M_%S}.{}",
+                       std::string_view{path.str().data(), path.str().size()},
+                       m_filePrefix, fmt::localtime(time), m_fileExtension);
+  } else {
+    return fmt::format("/media/sda/{}-{:%Y-%m-%d-%H_%M_%S}.{}", m_filePrefix,
+                       fmt::localtime(time), m_fileExtension);
+  }
 }
 
 void LogFile::Flush() { m_file.flush(); }
