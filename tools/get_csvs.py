@@ -9,4 +9,4 @@ import frcutils
 if not os.path.exists("csvs"):
     os.makedirs("csvs")
 subprocess.run(
-    ["scp", f"lvuser@{frcutils.get_roborio_ip()}:/home/lvuser/*.csv", "csvs/"])
+    ["scp", f"lvuser@{frcutils.get_roborio_ip()}:/media/sda/*.csv", "csvs/"])
