@@ -75,7 +75,7 @@ private:
 
     nt::NetworkTableEntry m_elevatorEncoderEntry =
         NetworkTableUtil::MakeDoubleEntry(
-            "/Diagnostics/Climber/Elevator encoder", 0.0);
+            "/Diagnostics/Climber/Elevator encoder");
 
     // Simulation variables
     frc::sim::LinearSystemSim<2, 1, 1> m_elevatorSim{

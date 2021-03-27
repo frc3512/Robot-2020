@@ -116,9 +116,9 @@ private:
                               Constants::Intake::kArmReverse};
 
     nt::NetworkTableEntry m_upperSensorEntry = NetworkTableUtil::MakeBoolEntry(
-        "/Diagnostics/Intake/Upper sensor blocked", false);
+        "/Diagnostics/Intake/Upper sensor blocked");
     nt::NetworkTableEntry m_lowerSensorEntry = NetworkTableUtil::MakeBoolEntry(
-        "/Diagnostics/Intake/Lower sensor blocked", false);
+        "/Diagnostics/Intake/Lower sensor blocked");
 
     frc::CSVLogFile m_intakeLog{"Intake", "Deployed (bool)", "Speed (-1 .. 1)"};
 
