@@ -21,7 +21,7 @@ args = parser.parse_args()
 ip = frcutils.get_roborio_ip()
 
 # Get list of files in current directory
-files = (subprocess.check_output(["ssh", f"lvuser@{ip}", "ls"],
+files = (subprocess.check_output(["ssh", f"lvuser@{ip}", "ls", "/media/sda"],
                                  encoding="utf-8").rstrip().split("\n"))
 
 # Maps subsystem name to tuple of csv_group and date and filters for CSV files
