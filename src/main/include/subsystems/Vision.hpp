@@ -65,8 +65,8 @@ public:
 private:
     nt::NetworkTableEntry m_pose = NetworkTableUtil::MakeDoubleArrayEntry(
         "photonvision/RPI-Cam/targetPose", {0.0, 0.0, 0.0});
-    nt::NetworkTableEntry m_latency = NetworkTableUtil::MakeDoubleEntry(
-        "photonvision/RPI-Cam/latencyMillis", 0.0);
+    nt::NetworkTableEntry m_latency =
+        NetworkTableUtil::MakeDoubleEntry("photonvision/RPI-Cam/latencyMillis");
     NT_EntryListener m_listenerHandle;
 
     photonlib::PhotonCamera m_rpiCam{"RPI-Cam"};

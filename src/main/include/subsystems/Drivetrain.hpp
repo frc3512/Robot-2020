@@ -276,7 +276,7 @@ private:
 
     nt::NetworkTableEntry m_ultrasonicOutputEntry =
         NetworkTableUtil::MakeDoubleEntry(
-            "/Diagnostics/Drivetrain/Outputs/Ultrasonic Output", 0.0);
+            "/Diagnostics/Drivetrain/Outputs/Ultrasonic Output");
 
     frc::LinearSystem<2, 2, 2> m_imfRef =
         frc::LinearSystemId::IdentifyDrivetrainSystem(

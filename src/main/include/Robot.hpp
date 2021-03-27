@@ -249,11 +249,9 @@ private:
     frc::CSVLogFile m_eventLogger{"Events", "Event"};
 
     nt::NetworkTableEntry m_batteryVoltageEntry =
-        NetworkTableUtil::MakeDoubleEntry("/Diagnostics/Robot/batteryVoltage",
-                                          0.0);
+        NetworkTableUtil::MakeDoubleEntry("/Diagnostics/Robot/batteryVoltage");
     nt::NetworkTableEntry m_ballsToShootEntry =
-        NetworkTableUtil::MakeDoubleEntry("/Diagnostics/Robot/ballsToShoot",
-                                          0.0);
+        NetworkTableUtil::MakeDoubleEntry("/Diagnostics/Robot/ballsToShoot");
     nt::NetworkTableEntry m_autoGalacticSearchPath =
         NetworkTableUtil::MakeStringEntry(
             "/Diagnostics/Drivetrain/Outputs/Galactic Search Path", "none");
