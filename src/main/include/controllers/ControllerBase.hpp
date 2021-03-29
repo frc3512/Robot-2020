@@ -31,7 +31,7 @@ public:
      * See the State class in the derived class for what each element
      * corresponds to.
      */
-    virtual const Eigen::Matrix<double, States, 1>& GetReferences() const {
+    const Eigen::Matrix<double, States, 1>& GetReferences() const {
         return m_r;
     }
 
