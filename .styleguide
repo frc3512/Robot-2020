@@ -19,6 +19,7 @@ modifiableFileExclude {
   ADIS16470_IMU\.cpp$
   ADIS16470_IMU\.h$
   Win32PipeImpl\.
+  \.png$
 }
 
 includeOtherLibs {

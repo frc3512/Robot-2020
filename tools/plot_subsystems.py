@@ -23,6 +23,13 @@ class UnitGroup:
         self.labels = []
 
 
+class NameGroup:
+
+    def __init__(self, filename, series):
+        self.filename = filename
+        self.series = series
+
+
 class DataSeries:
 
     def __init__(self, time, data):
@@ -176,7 +183,7 @@ def main():
                 unit_groups[unit].labels.append(name)
 
                 # "i + 1" skips the time data column
-                name_groups[name] = data[:, i + 1:i + 2]
+                name_groups[name] = NameGroup(filename, data[:, i + 1:i + 2])
 
         # Plot time domain datasets
         print(f'  [vs time] {category} ({", ".join(unit_groups.keys())})')
@@ -205,8 +212,10 @@ def main():
             fig, ax = plt.subplots(1, 1)
             ax.set_title(f"{category} trajectory")
 
-            ax.plot(name_groups["X reference"], name_groups["Y reference"])
-            ax.plot(name_groups["X estimate"], name_groups["Y estimate"])
+            ax.plot(name_groups["X reference"].series,
+                    name_groups["Y reference"].series)
+            ax.plot(name_groups["X estimate"].series,
+                    name_groups["Y estimate"].series)
 
             ax.set_xlabel("X (m)")
             ax.set_ylabel("Y (m)")
@@ -214,6 +223,18 @@ def main():
 
             # This equalizes the X and Y axes so the trajectories aren't warped
             ax.axis("equal")
+
+            if any([
+                    "AutoNav" in group.filename or
+                    "Galactic Search" in group.filename
+                    for group in name_groups.values()
+            ]):
+                img = plt.imread("tools/images/2021-challenge-space.png")
+                ax.imshow(img, extent=[0, 9.144, 0, 4.572])
+            else:
+                img = plt.imread("tools/images/2020-field-top.png")
+                ax.imshow(img, extent=[0, 15.98295, 0, 8.21055])
+
     plt.show()
 
 
