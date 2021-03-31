@@ -19,6 +19,7 @@
 #include <frc/simulation/RoboRioSim.h>
 
 #include "Constants.hpp"
+#include "RTUtils.hpp"
 #include "logging/CSVUtil.hpp"
 
 namespace frc3512 {
@@ -115,6 +116,10 @@ Robot::Robot() {
             fmt::format("Setting TimedRobot RT priority to {} failed\n",
                         Constants::kControllerPrio));
     }
+
+    // Give FRC_NetCommDaemon RT priority 35 so it's not preempted by robot code
+    // during high CPU utilization.
+    SetProcessRTPriority("/usr/local/frc/bin/FRC_NetCommDaemon", 35);
 }
 
 void Robot::Shoot(int ballsToShoot) {
