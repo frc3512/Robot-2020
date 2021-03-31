@@ -20,9 +20,17 @@ args = parser.parse_args()
 
 ip = frcutils.get_roborio_ip()
 
-# Get list of files in current directory
-files = (subprocess.check_output(["ssh", f"lvuser@{ip}", "ls", "/media/sda"],
-                                 encoding="utf-8").rstrip().split("\n"))
+# Get list of files in log directory. If storage is mounted in /media, assume
+# the logs are there.
+dirs = (subprocess.check_output(["ssh", f"lvuser@{ip}", "ls", "/media"],
+                                encoding="utf-8").rstrip().split("\n"))
+if len(dirs) > 0:
+    files = (subprocess.check_output(
+        ["ssh", f"lvuser@{ip}", "ls", f"/media/{dirs[0]}"],
+        encoding="utf-8").rstrip().split("\n"))
+else:
+    files = (subprocess.check_output(["ssh", f"lvuser@{ip}", "ls"],
+                                     encoding="utf-8").rstrip().split("\n"))
 
 # Maps subsystem name to tuple of csv_group and date and filters for CSV files
 filtered = {}
@@ -53,7 +61,11 @@ else:
 
 # Add quotes around filenames so rm doesn't split them apart
 for i in range(len(csvs_to_delete)):
-    csvs_to_delete[i] = f"'/media/sda/{csvs_to_delete[i]}'"
+    # If storage is mounted in /media, delete the files there
+    if len(dirs) > 0:
+        csvs_to_delete[i] = f"'/media/{dirs[0]}/{csvs_to_delete[i]}'"
+    else:
+        csvs_to_delete[i] = f"'{csvs_to_delete[i]}'"
 
 # Delete list of files from roboRIO
 subprocess.run(["ssh", f"lvuser@{ip}", "rm", "-f", " ".join(csvs_to_delete)])

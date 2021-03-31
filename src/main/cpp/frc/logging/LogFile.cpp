@@ -4,6 +4,8 @@
 
 #include "frc/logging/LogFile.h"
 
+#include <vector>
+
 #include <fmt/chrono.h>
 #include <fmt/format.h>
 #include <wpi/FileSystem.h>
@@ -54,8 +56,30 @@ std::string LogFile::CreateFilename(std::time_t time) const {
                        std::string_view{path.str().data(), path.str().size()},
                        m_filePrefix, fmt::localtime(time), m_fileExtension);
   } else {
-    return fmt::format("/media/sda/{}-{:%Y-%m-%d-%H_%M_%S}.{}", m_filePrefix,
-                       fmt::localtime(time), m_fileExtension);
+    using wpi::sys::fs::directory_iterator;
+
+    std::vector<std::string> files;
+    std::error_code ec;
+    for (auto p = directory_iterator("/media", ec, false);
+         p != directory_iterator(); p.increment(ec)) {
+      if (ec) {
+        break;
+      }
+      files.emplace_back(p->path());
+    }
+
+    // If there's storage mounted in /media, put log files in the first
+    // directory found
+    if (files.size() > 0) {
+      return fmt::format("{}/{}-{:%Y-%m-%d-%H_%M_%S}.{}", files[0],
+                         m_filePrefix, fmt::localtime(time), m_fileExtension);
+    } else {
+      wpi::SmallString<64> path;
+      frc::filesystem::GetOperatingDirectory(path);
+      return fmt::format("{}/{}-{:%Y-%m-%d-%H_%M_%S}.{}",
+                         std::string_view{path.str().data(), path.str().size()},
+                         m_filePrefix, fmt::localtime(time), m_fileExtension);
+    }
   }
 }
 
