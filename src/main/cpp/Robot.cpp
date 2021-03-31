@@ -26,25 +26,25 @@ namespace frc3512 {
 Robot::Robot() {
     m_autonChooser.AddAutonomous("Left Side Intake",
                                  [=] { AutoLeftSideIntake(); });
-    m_autonChooser.AddAutonomous("Left Side Shoot Ten Balls",
+    m_autonChooser.AddAutonomous("Left Side Shoot Ten",
                                  [=] { AutoLeftSideShootTen(); });
     m_autonChooser.AddAutonomous("Loading Zone Drive Forward",
                                  [=] { AutoLoadingZoneDriveForward(); });
-    m_autonChooser.AddAutonomous("Loading Zone Shoot Three Balls",
+    m_autonChooser.AddAutonomous("Loading Zone Shoot Three",
                                  [=] { AutoLoadingZoneShootThree(); });
-    m_autonChooser.AddAutonomous("Target Zone Shoot Three Balls",
+    m_autonChooser.AddAutonomous("Target Zone Shoot Three",
                                  [=] { AutoTargetZoneShootThree(); });
-    m_autonChooser.AddAutonomous("Target Zone Shoot Six Balls",
+    m_autonChooser.AddAutonomous("Target Zone Shoot Six",
                                  [=] { AutoTargetZoneShootSix(); });
     m_autonChooser.AddAutonomous("Right Side Drive Forward",
                                  [=] { AutoRightSideDriveForward(); });
     m_autonChooser.AddAutonomous("Right Side Intake",
                                  [=] { AutoRightSideIntake(); });
-    m_autonChooser.AddAutonomous("Right Side Shoot Three Balls",
+    m_autonChooser.AddAutonomous("Right Side Shoot Three",
                                  [=] { AutoRightSideShootThree(); });
-    m_autonChooser.AddAutonomous("Right Side Shoot Six Balls",
+    m_autonChooser.AddAutonomous("Right Side Shoot Six",
                                  [=] { AutoRightSideShootSix(); });
-    m_autonChooser.AddAutonomous("Right Side Shoot Eight Balls",
+    m_autonChooser.AddAutonomous("Right Side Shoot Eight",
                                  [=] { AutoRightSideShootEight(); });
     if constexpr (Constants::Robot::kAtHomeChallenge) {
         m_autonChooser.AddAutonomous(
