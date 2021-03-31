@@ -8,10 +8,9 @@ namespace frc3512::Constants {
 
 namespace Robot {
 // Joystick Ports
-constexpr int kDriveStick1Port = 0;
-constexpr int kDriveStick2Port = 1;
-constexpr int kAppendageStick1Port = 2;
-constexpr int kAppendageStick2Port = 3;
+constexpr int kXboxControllerPort = 0;
+constexpr int kAppendageStick1Port = 1;
+constexpr int kAppendageStick2Port = 2;
 
 // Joystick axis deadband range
 constexpr double kJoystickDeadband = 0.05;
