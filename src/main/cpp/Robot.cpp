@@ -49,15 +49,15 @@ Robot::Robot() {
                                  [=] { AutoRightSideShootEight(); });
     if constexpr (Constants::Robot::kAtHomeChallenge) {
         m_autonChooser.AddAutonomous(
-            "AutoNav Bounce", [=] { AutoNavBounce(); }, false);
+            "AutoNav Bounce", [=] { AutoNavBounce(); }, 30_s);
         m_autonChooser.AddAutonomous(
-            "AutoNav Barrel Racing", [=] { AutoNavBarrelRacing(); }, false);
+            "AutoNav Barrel Racing", [=] { AutoNavBarrelRacing(); }, 30_s);
         m_autonChooser.AddAutonomous(
-            "AutoNav Slalom", [=] { AutoNavSlalom(); }, false);
+            "AutoNav Slalom", [=] { AutoNavSlalom(); }, 30_s);
         m_autonChooser.AddAutonomous(
-            "Galactic Search A", [=] { AutoGalacticSearchA(); }, false);
+            "Galactic Search A", [=] { AutoGalacticSearchA(); }, 30_s);
         m_autonChooser.AddAutonomous(
-            "Galactic Search B", [=] { AutoGalacticSearchB(); }, false);
+            "Galactic Search B", [=] { AutoGalacticSearchB(); }, 30_s);
     }
 
     frc::DriverStation::GetInstance().SilenceJoystickConnectionWarning(true);
@@ -141,6 +141,10 @@ void Robot::Shoot(int ballsToShoot) {
 bool Robot::IsShooting() const { return m_state != ShootingState::kIdle; }
 
 bool Robot::FlywheelAtGoal() const { return m_flywheel.AtGoal(); }
+
+units::second_t Robot::SelectedAutonomousDuration() const {
+    return m_autonChooser.SelectedAutonomousDuration();
+}
 
 void Robot::SimulationInit() { SubsystemBase::RunAllSimulationInit(); }
 
@@ -290,11 +294,9 @@ const std::vector<std::string>& Robot::GetAutonomousNames() const {
 
 void Robot::ExpectAutonomousEndConds() {
     if constexpr (IsSimulation()) {
-        if (m_autonChooser.CheckSelectedAutonomousEnds()) {
-            EXPECT_FALSE(m_autonChooser.IsSuspended())
-                << "Autonomous mode didn't finish within the autonomous period";
-            EXPECT_TRUE(m_turret.AtGoal());
-        }
+        EXPECT_FALSE(m_autonChooser.IsSuspended())
+            << "Autonomous mode didn't finish within the autonomous period";
+        EXPECT_TRUE(m_turret.AtGoal());
 
         EXPECT_TRUE(m_drivetrain.AtGoal());
 

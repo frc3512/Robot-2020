@@ -30,26 +30,24 @@ public:
      * Adds an autonomous mode that's run by default if no other autonomous mode
      * is selected.
      *
-     * @param name           Name of autonomous mode.
-     * @param func           Autonomous mode function.
-     * @param checkAutonEnds True if autonomous mode should end within 15
-     *                       seconds in unit tests.
+     * @param name     Name of autonomous mode.
+     * @param func     Autonomous mode function.
+     * @param duration Duration of the autonomous mode to enforce in unit tests.
      */
     AutonomousChooser(wpi::StringRef name, std::function<void()> func,
-                      bool checkAutonEnds = true);
+                      units::second_t duration = 15_s);
 
     ~AutonomousChooser() override;
 
     /**
      * Adds an autonomous mode.
      *
-     * @param name           Name of autonomous mode.
-     * @param func           Autonomous mode function.
-     * @param checkAutonEnds True if autonomous mode should end within 15
-     *                       seconds in unit tests.
+     * @param name     Name of autonomous mode.
+     * @param func     Autonomous mode function.
+     * @param duration Duration of the autonomous mode to enforce in unit tests.
      */
     void AddAutonomous(wpi::StringRef name, std::function<void()> func,
-                       bool checkAutonEnds = true);
+                       units::second_t duration = 15_s);
 
     /**
      * Sets the selected autonomous mode for unit testing purposes.
@@ -59,10 +57,9 @@ public:
     void SelectAutonomous(wpi::StringRef name);
 
     /**
-     * Returns true if the selected autonomous mode should end within 15 seconds
-     * in unit tests.
+     * Returns the selected autonomous mode's expected duration.
      */
-    bool CheckSelectedAutonomousEnds() const;
+    units::second_t SelectedAutonomousDuration() const;
 
     /**
      * Returns a list of selectable autonomous modes for unit testing purposes.
@@ -150,7 +147,7 @@ public:
 private:
     struct AutonomousMode {
         std::function<void()> func = [] {};
-        bool checkAutonEnds = true;
+        units::second_t duration = 15_s;
     };
 
     std::thread m_autonThread;

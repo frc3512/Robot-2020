@@ -17,9 +17,9 @@ namespace frc3512 {
 
 AutonomousChooser::AutonomousChooser(wpi::StringRef name,
                                      std::function<void()> func,
-                                     bool checkAutonEnds) {
+                                     units::second_t duration) {
     m_defaultChoice = name;
-    m_choices[name] = {func, checkAutonEnds};
+    m_choices[name] = {func, duration};
     m_names.emplace_back(name);
 
     m_selectedChoice = name;
@@ -51,8 +51,8 @@ AutonomousChooser::~AutonomousChooser() {
 
 void AutonomousChooser::AddAutonomous(wpi::StringRef name,
                                       std::function<void()> func,
-                                      bool checkAutonEnds) {
-    m_choices[name] = {func, checkAutonEnds};
+                                      units::second_t duration) {
+    m_choices[name] = {func, duration};
     m_names.emplace_back(name);
 
     // Unlike std::map, wpi::StringMap elements are not sorted
@@ -69,9 +69,9 @@ void AutonomousChooser::SelectAutonomous(wpi::StringRef name) {
     m_selectedEntry.SetString(name);
 }
 
-bool AutonomousChooser::CheckSelectedAutonomousEnds() const {
+units::second_t AutonomousChooser::SelectedAutonomousDuration() const {
     std::scoped_lock lock{m_selectionMutex};
-    return m_selectedAuton->checkAutonEnds;
+    return m_selectedAuton->duration;
 }
 
 const std::vector<std::string>& AutonomousChooser::GetAutonomousNames() const {

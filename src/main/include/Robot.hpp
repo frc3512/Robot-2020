@@ -80,6 +80,11 @@ public:
      */
     bool FlywheelAtGoal() const;
 
+    /**
+     * Returns the selected autonomous mode's expected duration.
+     */
+    units::second_t SelectedAutonomousDuration() const;
+
     void SimulationInit() override;
 
     void DisabledInit() override;
