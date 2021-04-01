@@ -65,6 +65,7 @@ void AutonomousChooser::SelectAutonomous(wpi::StringRef name) {
     {
         std::scoped_lock lock{m_selectionMutex};
         m_selectedChoice = name;
+        m_selectedAuton = &m_choices[m_selectedChoice];
     }
     m_selectedEntry.SetString(name);
 }
