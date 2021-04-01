@@ -186,7 +186,6 @@ void Turret::ControllerPeriodic() {
 
     auto globalMeasurement = m_vision.GetGlobalMeasurement();
     if (globalMeasurement.has_value()) {
-        fmt::print(stderr, "Vision measurements are being run");
         frc::Transform2d turretInGlobalToDrivetrainInGlobal{
             frc::Pose2d{
                 TurretController::kDrivetrainToTurretFrame.Translation(),
@@ -211,14 +210,14 @@ void Turret::ControllerPeriodic() {
 
         // If pose measurement is too far away from the state estimate, discard
         // it and increment the fault counter
-        if (m_drivetrain.GetPose().Translation().Distance(
-                drivetrainInGlobal.Translation()) < 1_m) {
+        // if (m_drivetrain.GetPose().Translation().Distance(
+        //         drivetrainInGlobal.Translation()) < 1_m) {
             m_drivetrain.CorrectWithGlobalOutputs(
                 drivetrainInGlobal.X(), drivetrainInGlobal.Y(),
                 globalMeasurement.value().timestamp);
-        } else {
-            m_poseMeasurementFaultCounter++;
-        }
+        // } else {
+        //     m_poseMeasurementFaultCounter++;
+        // }
     }
 
     m_u = m_controller.Calculate(m_observer.Xhat());

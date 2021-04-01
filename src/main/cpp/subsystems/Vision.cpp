@@ -31,11 +31,8 @@ std::optional<Vision::GlobalMeasurement> Vision::GetGlobalMeasurement() {
 void Vision::ProcessNewMeasurement() {
     units::second_t latency = m_result.GetLatency();
 
-    // PnP data is transformation from camera's coordinate frame to target's
-    // coordinate frame
     photonlib::PhotonTrackedTarget target = m_result.GetBestTarget();
 
-    // If the target is empty then everything will be zero
     auto timestamp = frc2::Timer::GetFPGATimestamp();
     timestamp -= latency;
 

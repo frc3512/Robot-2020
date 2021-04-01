@@ -81,14 +81,14 @@ private:
 
     // Simulation variables
     photonlib::SimVisionSystem m_simVision{
-        "Glowworm",
+        "Gloworm",
         Constants::Vision::kCameraDiagonalFOV,
         Constants::Vision::kCameraPitch,
         kCameraInGlobalToTurretInGlobal,
         Constants::Vision::kCameraHeight,
         20_m,
-        640,
-        480,
+        1280,
+        720,
         10};
 };
 
