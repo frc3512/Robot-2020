@@ -186,7 +186,7 @@ void Turret::ControllerPeriodic() {
 
     auto globalMeasurement = m_vision.GetGlobalMeasurement();
     if (globalMeasurement.has_value()) {
-        frc::Transform2d turretInGlobalToDrivetrainInGlobal{
+        /* frc::Transform2d turretInGlobalToDrivetrainInGlobal{
             frc::Pose2d{
                 TurretController::kDrivetrainToTurretFrame.Translation(),
                 TurretController::kDrivetrainToTurretFrame.Rotation()
@@ -199,22 +199,36 @@ void Turret::ControllerPeriodic() {
                 (turretInGlobalToDrivetrainInGlobal.Translation().RotateBy(
                     Vision::kCameraInGlobalToTurretInGlobal.Rotation())),
             Vision::kCameraInGlobalToTurretInGlobal.Rotation() +
-                turretInGlobalToDrivetrainInGlobal.Rotation()};
+                turretInGlobalToDrivetrainInGlobal.Rotation()}; */
 
-        auto drivetrainInGlobal = photonlib::PhotonUtils::EstimateFieldToRobot(
-            Constants::Vision::kCameraHeight, TargetModel::kCenter.Z(),
-            Constants::Vision::kCameraPitch, globalMeasurement.value().pitch,
-            globalMeasurement.value().yaw, m_drivetrain.GetAngle(),
-            TurretController::kTargetPoseInGlobal,
-            cameraInGlobalToDrivetrainInGlobal);
+        // Target height is where photon vision defines the center, which is the center of the target's bounding box
+        // Center of target Z coordiante = center
+        // Center of target C coordinate = C
+        // 
+        // C + (center - C) / 2
+        // C + center / 2 - C / 2
+        // center / 2 + C - C / 2
+        // center / 2 + C / 2
+        // (center + C) / 2
+        auto distanceToTarget = photonlib::PhotonUtils::CalculateDistanceToTarget(Constants::Vision::kCameraHeight, (TargetModel::kCenter.Z() + TargetModel::kC.Z()) / 2.0, Constants::Vision::kCameraPitch, globalMeasurement.value().pitch);
+
+
+        // auto drivetrainInGlobal = photonlib::PhotonUtils::EstimateFieldToRobot(
+        //     Constants::Vision::kCameraHeight, (TargetModel::kCenter.Z() + TargetModel::kC.Z()) / 2.0, 
+        //     Constants::Vision::kCameraPitch, globalMeasurement.value().pitch,
+        //     -globalMeasurement.value().yaw, m_drivetrain.GetAngle(),
+        //     TurretController::kTargetPoseInGlobal,
+        //     {});
+        
+        m_visionPoseEntry.SetDouble(distanceToTarget.to<double>());
 
         // If pose measurement is too far away from the state estimate, discard
         // it and increment the fault counter
         // if (m_drivetrain.GetPose().Translation().Distance(
         //         drivetrainInGlobal.Translation()) < 1_m) {
-            m_drivetrain.CorrectWithGlobalOutputs(
-                drivetrainInGlobal.X(), drivetrainInGlobal.Y(),
-                globalMeasurement.value().timestamp);
+            // m_drivetrain.CorrectWithGlobalOutputs(
+            //     drivetrainInGlobal.X(), drivetrainInGlobal.Y(),
+            //     globalMeasurement.value().timestamp);
         // } else {
         //     m_poseMeasurementFaultCounter++;
         // }

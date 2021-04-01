@@ -17,6 +17,7 @@
 #include "ADCInput.hpp"
 #include "Constants.hpp"
 #include "RealTimeRobot.hpp"
+#include "NetworkTableUtil.hpp"
 #include "controllers/TurretController.hpp"
 #include "rev/CANSparkMax.hpp"
 #include "subsystems/ControlledSubsystemBase.hpp"
@@ -162,6 +163,8 @@ private:
 
     TurretController m_controller;
     Eigen::Matrix<double, 1, 1> m_u = Eigen::Matrix<double, 1, 1>::Zero();
+
+    nt::NetworkTableEntry m_visionPoseEntry = NetworkTableUtil::MakeDoubleEntry("/Diagnostics/Drivetrain/Distance from target");
 
     ADCInput m_ccwLimitSwitch{Constants::Turret::kCCWHallPort};
     ADCInput m_cwLimitSwitch{Constants::Turret::kCWHallPort};
