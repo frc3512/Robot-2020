@@ -44,11 +44,9 @@ Flywheel::Flywheel(Drivetrain& drivetrain)
     m_leftGrbx.SetInverted(false);
     m_rightGrbx.SetInverted(false);
 
-    // TODO: Update table with new values
-    m_table.Insert(125_in, 450_rad_per_s);
-    m_table.Insert(175_in, 463_rad_per_s);
-    m_table.Insert(200_in, 472_rad_per_s);
-    // The values below have been updated
+    m_table.Insert(125_in, 468_rad_per_s);
+    m_table.Insert(175_in, 480_rad_per_s);
+    m_table.Insert(200_in, 505_rad_per_s);
     m_table.Insert(231_in, 508_rad_per_s);
     m_table.Insert(312_in, 598_rad_per_s);
     m_table.Insert(360_in, 708_rad_per_s);
