@@ -26,7 +26,7 @@ bool Vision::IsLEDOn() const {
 
 void Vision::SubscribeToVisionData(
     frc3512::static_concurrent_queue<GlobalMeasurement, 8>& queue) {
-    m_queues.push_back(&queue);
+    m_subsystemQueues.push_back(&queue);
 }
 
 void Vision::ProcessNewMeasurement() {
@@ -34,13 +34,24 @@ void Vision::ProcessNewMeasurement() {
 
     photonlib::PhotonTrackedTarget target = m_result.GetBestTarget();
 
-    frc::Pose2d targetInGlobalToCameraInGlobal{target.GetCameraRelativePose().Translation(), target.GetCameraRelativePose().Rotation()};
-    frc::Pose2d targetInGlobalToTurretInGlobal = targetInGlobalToCameraInGlobal.TransformBy(kCameraInGlobalToTurretInGlobal);
+    frc::Pose2d targetInGlobalToCameraInGlobal{
+        target.GetCameraRelativePose().Translation(),
+        target.GetCameraRelativePose().Rotation()};
+    frc::Pose2d targetInGlobalToTurretInGlobal =
+        targetInGlobalToCameraInGlobal.TransformBy(
+            kCameraInGlobalToTurretInGlobal);
+
+    std::array<double, 3> pose{
+        targetInGlobalToTurretInGlobal.X().to<double>(),
+        targetInGlobalToTurretInGlobal.Y().to<double>(),
+        targetInGlobalToTurretInGlobal.Rotation().Radians().to<double>()};
+    m_hasPoseEntry.SetDoubleArray(pose);
+    m_hasYawEntry.SetDouble(target.GetYaw());
 
     auto timestamp = frc2::Timer::GetFPGATimestamp();
     timestamp -= latency;
 
-    for (auto& queue : m_queues) {
+    for (auto& queue : m_subsystemQueues) {
         queue->push({targetInGlobalToTurretInGlobal,
                      units::degree_t{target.GetYaw()}, timestamp});
     }
@@ -63,10 +74,13 @@ void Vision::SimulationInit() {
 }
 
 void Vision::RobotPeriodic() {
-    photonlib::PhotonPipelineResult m_result = m_rpiCam.GetLatestResult();
+    m_result = m_rpiCam.GetLatestResult();
 
     if (m_result.HasTargets() &&
         !frc::DriverStation::GetInstance().IsDisabled()) {
         ProcessNewMeasurement();
+        m_hasTargetEntry.SetBoolean(true);
+    } else {
+        m_hasTargetEntry.SetBoolean(false);
     }
 }

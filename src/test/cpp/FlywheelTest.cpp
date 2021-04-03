@@ -14,7 +14,7 @@ class FlywheelTest : public frc3512::SimulatorTest {
 public:
     frc3512::Vision vision;
     frc3512::Drivetrain drivetrain;
-    frc3512::Flywheel flywheel{drivetrain};
+    frc3512::Flywheel flywheel{vision};
     frc::Notifier controllerPeriodic{[&] {
         flywheel.TeleopPeriodic();
         flywheel.ControllerPeriodic();

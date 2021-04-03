@@ -76,21 +76,28 @@ public:
     void RobotPeriodic() override;
 
 private:
-    photonlib::PhotonCamera m_rpiCam{"Gloworm"};
+    photonlib::PhotonCamera m_rpiCam{"gloworm"};
     photonlib::PhotonPipelineResult m_result;
 
     std::vector<frc3512::static_concurrent_queue<GlobalMeasurement, 8>*>
-        m_queues;
+        m_subsystemQueues;
+
+    nt::NetworkTableEntry m_hasTargetEntry =
+        NetworkTableUtil::MakeBoolEntry("/Diagnostics/Vision/Has target");
+    nt::NetworkTableEntry m_hasPoseEntry =
+        NetworkTableUtil::MakeDoubleArrayEntry("/Diagnostics/Vision/Pose");
+    nt::NetworkTableEntry m_hasYawEntry =
+        NetworkTableUtil::MakeDoubleEntry("/Diagnostics/Vision/Yaw");
 
     // Simulation variables
     photonlib::SimVisionSystem m_simVision{
-        "Gloworm",
+        "gloworm",
         Constants::Vision::kCameraDiagonalFOV,
         Constants::Vision::kCameraPitch,
         kCameraInGlobalToTurretInGlobal,
         Constants::Vision::kCameraHeight,
         20_m,
-        1280,
+        960,
         720,
         10};
 };

@@ -118,7 +118,7 @@ public:
 
     void DisabledInit() override {
         Disable();
-        SetControlMode(TurretController::ControlMode::kManual);
+        SetControlMode(TurretController::ControlMode::kAutoAim);
     }
 
     void AutonomousInit() override {
@@ -168,7 +168,7 @@ private:
     Drivetrain& m_drivetrain;
     Flywheel& m_flywheel;
 
-    static_concurrent_queue<Vision::GlobalMeasurement, 8> m_visionMeasurements;
+    static_concurrent_queue<Vision::GlobalMeasurement, 8> m_visionQueue;
 
     frc::Transform2d cameraInGlobalToDrivetrainInGlobal;
 

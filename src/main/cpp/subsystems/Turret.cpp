@@ -31,8 +31,9 @@ Turret::Turret(Vision& vision, Drivetrain& drivetrain, Flywheel& flywheel)
     // Ensures CANSparkMax::Get() returns an initialized value
     m_motor.Set(0.0);
 
-    m_vision.SubscribeToVisionData(m_visionMeasurements);
-    
+    m_vision.SubscribeToVisionData(m_visionQueue);
+    m_vision.TurnLEDOn();
+
     m_encoder.SetDistancePerRotation(TurretController::kDpR);
     Reset(0_rad);
 }
@@ -164,9 +165,9 @@ void Turret::ControllerPeriodic() {
     y << GetAngle().to<double>();
     m_observer.Correct(m_controller.GetInputs(), y);
 
-    if (!m_visionMeasurements.empty()) {
-        auto vision = m_visionMeasurements.pop();
-        m_controller.SetYaw(vision.value().yaw);
+    auto visionData = m_visionQueue.pop();
+    if (visionData.has_value()) {
+        m_controller.SetYaw(visionData.value().yaw);
     }
 
     m_u = m_controller.Calculate(m_observer.Xhat());

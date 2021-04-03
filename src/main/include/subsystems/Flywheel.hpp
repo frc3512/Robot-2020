@@ -161,10 +161,6 @@ private:
 
     bool m_moveAndShoot = true;
 
-    nt::NetworkTableEntry m_distanceToTargetEntry =
-        NetworkTableUtil::MakeDoubleEntry(
-            "/Diagnostics/Drivetrain/Distance to target");
-
     units::radian_t m_angle;
     units::radian_t m_lastAngle;
     units::second_t m_time = frc2::Timer::GetFPGATimestamp();
@@ -180,7 +176,7 @@ private:
 
     Vision& m_vision;
 
-    static_concurrent_queue<Vision::GlobalMeasurement, 8> m_visionMeasurements;
+    static_concurrent_queue<Vision::GlobalMeasurement, 8> m_visionQueue;
 
     // Used in test mode for manually setting flywheel goal. This is helpful for
     // measuring flywheel lookup table values.

@@ -51,7 +51,7 @@ Flywheel::Flywheel(Vision& vision)
     m_table.Insert(312_in, 598_rad_per_s);
     m_table.Insert(360_in, 708_rad_per_s);
 
-    m_vision.SubscribeToVisionData(m_visionMeasurements);
+    m_vision.SubscribeToVisionData(m_visionQueue);
 
     Reset();
     SetGoal(0_rad_per_s);
@@ -128,8 +128,6 @@ void Flywheel::RobotPeriodic() {
         fmt::print("Manual angular velocity: {}\n", manualRef);
     }
 
-    m_distanceToTargetEntry.SetDouble(m_distanceToTarget.to<double>());
-
     /* if (!frc::DriverStation::GetInstance().IsDisabled()) {
        auto turretHeadingInGlobal = units::radian_t{
            GetStates()(TurretController::State::kAngle) +
@@ -158,12 +156,11 @@ void Flywheel::ControllerPeriodic() {
     m_time = frc2::Timer::GetFPGATimestamp();
 
     // Use vision measurements to find distance to target
-    if (!m_visionMeasurements.empty()) {
-        auto measurements = m_visionMeasurements.pop();
-        auto transform = measurements.value().transformCameraToTarget;
-        m_distanceToTarget = units::math::hypot(transform.X(), transform.Y());
-    } else {
-        m_distanceToTarget = 0_m;
+    auto visionData = m_visionQueue.pop();
+    if (visionData.has_value()) {
+        auto transform = visionData.value().transformCameraToTarget;
+        m_distanceToTarget =
+            units::math::hypot(transform.X(), transform.Y());
     }
 
     // WPILib uses the time between pulses in GetRate() to calculate velocity,
