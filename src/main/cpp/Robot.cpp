@@ -49,6 +49,8 @@ Robot::Robot() {
             "Galactic Search B", [=] { AutoGalacticSearchB(); }, 30_s);
     }
 
+    m_vision.SubscribeToVisionData(m_visionMeasurements);
+
     // TIMESLICE ALLOCATION TABLE
     //
     // |  Subsystem | Duration (ms) | Allocation (ms) |
@@ -85,7 +87,7 @@ Robot::Robot() {
 void Robot::Shoot(int ballsToShoot) {
     if (m_state == ShootingState::kIdle) {
         m_vision.TurnLEDOn();
-        m_flywheel.SetGoalFromPose();
+        m_flywheel.SetGoalFromVision();
         m_state = ShootingState::kStartFlywheel;
         m_ballsToShoot = ballsToShoot;
         if (ballsToShoot != -1) {
@@ -301,9 +303,8 @@ void Robot::ExpectAutonomousEndConds() {
         EXPECT_EQ(m_flywheel.GetGoal(), 0_rad_per_s);
         EXPECT_TRUE(m_turret.AtGoal());
 
-        // Verify vision data is there and correct
-        EXPECT_TRUE(m_vision.GetGlobalMeasurement().has_value());
-        EXPECT_EQ(m_turret.GetVisionFaultEntry(), 0);
+        // Verify vision data is there
+        EXPECT_TRUE(m_visionMeasurements.pop().has_value());
     }
 }
 

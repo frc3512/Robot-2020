@@ -2,14 +2,15 @@
 
 #pragma once
 
-#include <photonlib/PhotonCamera.h>
-#include <photonlib/SimVisionSystem.h>
+#include <vector>
 
 #include <frc/geometry/Pose2d.h>
 #include <frc/geometry/Transform2d.h>
 #include <frc/geometry/Translation2d.h>
 #include <networktables/NetworkTableEntry.h>
 #include <networktables/NetworkTableInstance.h>
+#include <photonlib/PhotonCamera.h>
+#include <photonlib/SimVisionSystem.h>
 #include <units/time.h>
 
 #include "Constants.hpp"
@@ -29,9 +30,9 @@ public:
     static const frc::Transform2d kCameraInGlobalToTurretInGlobal;
 
     struct GlobalMeasurement {
+        frc::Pose2d transformCameraToTarget;
+        units::degree_t yaw;
         units::second_t timestamp;
-        units::radian_t pitch;
-        units::radian_t yaw;
     };
 
     /**
@@ -50,9 +51,12 @@ public:
     bool IsLEDOn() const;
 
     /**
-     * Returns the most recent global measurement
+     * Allows subsystems to subscribe to vision data
+     *
+     * @param queue Queue to use to subscribe to vision data
      */
-    std::optional<GlobalMeasurement> GetGlobalMeasurement();
+    void SubscribeToVisionData(
+        frc3512::static_concurrent_queue<GlobalMeasurement, 8>& queue);
 
     /**
      * Converts solvePnP data from the networktables into a global turret pose
@@ -63,11 +67,9 @@ public:
     /**
      * Updates vision sim data with new pose and camera transformation
      *
-     * @param cameraToRobot new camera to robot transform as turret moves
      * @param drivetrainPose drivetrain pose to see if target is in range
      */
-    void UpdateVisionMeasurementsSim(const frc::Transform2d& cameraToRobot,
-                                     const frc::Pose2d& drivetrainPose);
+    void UpdateVisionMeasurementsSim(const frc::Pose2d& drivetrainPose);
 
     void SimulationInit() override;
 
@@ -77,7 +79,8 @@ private:
     photonlib::PhotonCamera m_rpiCam{"Gloworm"};
     photonlib::PhotonPipelineResult m_result;
 
-    frc3512::static_concurrent_queue<GlobalMeasurement, 8> m_measurements;
+    std::vector<frc3512::static_concurrent_queue<GlobalMeasurement, 8>*>
+        m_queues;
 
     // Simulation variables
     photonlib::SimVisionSystem m_simVision{

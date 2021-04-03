@@ -20,11 +20,12 @@
 #include "NetworkTableUtil.hpp"
 #include "controllers/TurretController.hpp"
 #include "rev/CANSparkMax.hpp"
+#include "static_concurrent_queue.hpp"
 #include "subsystems/ControlledSubsystemBase.hpp"
+#include "subsystems/Vision.hpp"
 
 namespace frc3512 {
 
-class Vision;
 class Drivetrain;
 class Flywheel;
 
@@ -115,8 +116,6 @@ public:
      */
     const Eigen::Matrix<double, 2, 1>& GetStates() const;
 
-    int GetVisionFaultEntry() const;
-
     void DisabledInit() override {
         Disable();
         SetControlMode(TurretController::ControlMode::kManual);
@@ -131,8 +130,6 @@ public:
         Enable();
         SetControlMode(TurretController::ControlMode::kAutoAim);
     }
-
-    void RobotPeriodic() override;
 
     void TeleopPeriodic() override;
 
@@ -164,8 +161,6 @@ private:
     TurretController m_controller;
     Eigen::Matrix<double, 1, 1> m_u = Eigen::Matrix<double, 1, 1>::Zero();
 
-    nt::NetworkTableEntry m_visionPoseEntry = NetworkTableUtil::MakeDoubleEntry("/Diagnostics/Drivetrain/Distance from target");
-
     ADCInput m_ccwLimitSwitch{Constants::Turret::kCCWHallPort};
     ADCInput m_cwLimitSwitch{Constants::Turret::kCWHallPort};
 
@@ -173,7 +168,7 @@ private:
     Drivetrain& m_drivetrain;
     Flywheel& m_flywheel;
 
-    uint32_t m_poseMeasurementFaultCounter = 0;
+    static_concurrent_queue<Vision::GlobalMeasurement, 8> m_visionMeasurements;
 
     frc::Transform2d cameraInGlobalToDrivetrainInGlobal;
 

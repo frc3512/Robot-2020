@@ -68,6 +68,8 @@ void TurretController::SetFlywheelReferences(units::radians_per_second_t r) {
     m_flywheelAngularVelocityRef = r;
 }
 
+void TurretController::SetYaw(units::radian_t yaw) { m_yaw = yaw; }
+
 void TurretController::SetControlMode(ControlMode mode) {
     m_controlMode = mode;
 }
@@ -96,16 +98,8 @@ Eigen::Matrix<double, 1, 1> TurretController::Calculate(
             auto turretNextPoseInGlobal =
                 DrivetrainToTurretInGlobal(m_drivetrainNextPoseInGlobal);
 
-            // Find angle reference for this timestep
-            auto turretHeadingForTargetInGlobal = CalculateHeading(
-                kTargetPoseInGlobal.Translation() + TargetModel::kOffset,
-                turretNextPoseInGlobal.Translation());
-            auto turretDesiredHeadingInDrivetrain =
-                turretHeadingForTargetInGlobal -
-                m_drivetrainNextPoseInGlobal.Rotation().Radians();
-            auto turretDesiredHeadingInTurret =
-                turretDesiredHeadingInDrivetrain -
-                kDrivetrainToTurretFrame.Rotation().Radians();
+            units::radian_t turretRef =
+                units::radian_t{x(State::kAngle)} + m_yaw;
 
             // Find angular velocity reference for this timestep
             units::meters_per_second_t drivetrainV =
@@ -131,7 +125,7 @@ Eigen::Matrix<double, 1, 1> TurretController::Calculate(
             // drivetrain pose already profiles the heading. We still set the
             // trapezoid profile goal to the reference so AtGoal() works with
             // auto-aiming.
-            SetGoal(turretDesiredHeadingInTurret, turretDesiredAngularVelocity);
+            SetGoal(turretRef, turretDesiredAngularVelocity);
             SetReferences(m_goal.position, m_goal.velocity);
         } else if (m_controlMode == ControlMode::kClosedLoop) {
             // Calculate profiled references to the goal

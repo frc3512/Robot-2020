@@ -117,6 +117,11 @@ public:
     void SetFlywheelReferences(units::radians_per_second_t r);
 
     /**
+     * Update vision yaw measurement
+     */
+    void SetYaw(units::radian_t yaw);
+
+    /**
      * Sets turret control mode.
      *
      * @param mode Control mode.
@@ -209,6 +214,8 @@ private:
         m_plant, RealTimeRobot::kDefaultControllerPeriod};
 
     ControlMode m_controlMode = ControlMode::kManual;
+
+    units::radian_t m_yaw;
 
     bool m_atReferences = false;
 

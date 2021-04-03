@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 
+#include <frc/PowerDistributionPanel.h>
 #include <frc/TimedRobot.h>
 #include <frc/logging/CSVLogFile.h>
 #include <frc2/Timer.h>
@@ -254,8 +255,8 @@ private:
     // controllers run in.
     Vision m_vision;
     Drivetrain m_drivetrain;
-    Flywheel m_flywheel{m_drivetrain};
     Turret m_turret{m_vision, m_drivetrain, m_flywheel};
+    Flywheel m_flywheel{m_vision};
     Intake m_intake{m_flywheel};
     Climber m_climber{m_turret};
 
@@ -264,6 +265,10 @@ private:
     units::second_t m_shootTimeout = kMaxShootTimeout;
     bool m_prevFlywheelAtGoal = false;
     frc2::Timer m_timer;
+
+    static_concurrent_queue<Vision::GlobalMeasurement, 8> m_visionMeasurements;
+
+    frc::PowerDistributionPanel m_pdp{0};
 
     AutonomousChooser m_autonChooser{"No-op", [=] { AutoNoOp(); }};
 

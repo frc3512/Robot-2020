@@ -2,18 +2,16 @@
 
 #include "subsystems/Turret.hpp"
 
-#include <photonlib/PhotonUtils.h>
-
 #include <frc/DriverStation.h>
 #include <frc/Joystick.h>
 #include <frc/RobotBase.h>
 #include <frc/RobotController.h>
+#include <photonlib/PhotonUtils.h>
 
 #include "CANSparkMaxUtil.hpp"
 #include "TargetModel.hpp"
 #include "subsystems/Drivetrain.hpp"
 #include "subsystems/Flywheel.hpp"
-#include "subsystems/Vision.hpp"
 
 using namespace frc3512;
 using namespace frc3512::Constants::Robot;
@@ -33,6 +31,8 @@ Turret::Turret(Vision& vision, Drivetrain& drivetrain, Flywheel& flywheel)
     // Ensures CANSparkMax::Get() returns an initialized value
     m_motor.Set(0.0);
 
+    m_vision.SubscribeToVisionData(m_visionMeasurements);
+    
     m_encoder.SetDistancePerRotation(TurretController::kDpR);
     Reset(0_rad);
 }
@@ -116,25 +116,6 @@ const Eigen::Matrix<double, 2, 1>& Turret::GetStates() const {
     return m_observer.Xhat();
 }
 
-int Turret::GetVisionFaultEntry() const {
-    return m_poseMeasurementFaultCounter;
-}
-
-void Turret::RobotPeriodic() {
-    if (!frc::DriverStation::GetInstance().IsDisabled()) {
-        auto turretHeadingInGlobal = units::radian_t{
-            GetStates()(TurretController::State::kAngle) +
-            m_drivetrain.GetStates()(DrivetrainController::State::kHeading)};
-        if (turretHeadingInGlobal < 45_deg && turretHeadingInGlobal > -45_deg) {
-            m_vision.TurnLEDOn();
-        } else {
-            m_vision.TurnLEDOff();
-        }
-    } else {
-        m_vision.TurnLEDOff();
-    }
-}
-
 void Turret::TeleopPeriodic() {
     static frc::Joystick appendageStick1{kAppendageStick1Port};
 
@@ -177,61 +158,15 @@ void Turret::ControllerPeriodic() {
     m_observer.Predict(m_u, GetDt());
 
     m_controller.SetDrivetrainStates(m_drivetrain.GetStates());
-    m_controller.SetFlywheelReferences(
-        m_flywheel.GetReferenceForPose(m_drivetrain.GetPose()));
+    m_controller.SetFlywheelReferences(m_flywheel.GetReferenceForVision());
 
     Eigen::Matrix<double, 1, 1> y;
     y << GetAngle().to<double>();
     m_observer.Correct(m_controller.GetInputs(), y);
 
-    auto globalMeasurement = m_vision.GetGlobalMeasurement();
-    if (globalMeasurement.has_value()) {
-        /* frc::Transform2d turretInGlobalToDrivetrainInGlobal{
-            frc::Pose2d{
-                TurretController::kDrivetrainToTurretFrame.Translation(),
-                TurretController::kDrivetrainToTurretFrame.Rotation()
-                        .Radians() +
-                    GetAngle()},
-            frc::Pose2d{}};
-
-        cameraInGlobalToDrivetrainInGlobal = {
-            Vision::kCameraInGlobalToTurretInGlobal.Translation() +
-                (turretInGlobalToDrivetrainInGlobal.Translation().RotateBy(
-                    Vision::kCameraInGlobalToTurretInGlobal.Rotation())),
-            Vision::kCameraInGlobalToTurretInGlobal.Rotation() +
-                turretInGlobalToDrivetrainInGlobal.Rotation()}; */
-
-        // Target height is where photon vision defines the center, which is the center of the target's bounding box
-        // Center of target Z coordiante = center
-        // Center of target C coordinate = C
-        // 
-        // C + (center - C) / 2
-        // C + center / 2 - C / 2
-        // center / 2 + C - C / 2
-        // center / 2 + C / 2
-        // (center + C) / 2
-        auto distanceToTarget = photonlib::PhotonUtils::CalculateDistanceToTarget(Constants::Vision::kCameraHeight, (TargetModel::kCenter.Z() + TargetModel::kC.Z()) / 2.0, Constants::Vision::kCameraPitch, globalMeasurement.value().pitch);
-
-
-        // auto drivetrainInGlobal = photonlib::PhotonUtils::EstimateFieldToRobot(
-        //     Constants::Vision::kCameraHeight, (TargetModel::kCenter.Z() + TargetModel::kC.Z()) / 2.0, 
-        //     Constants::Vision::kCameraPitch, globalMeasurement.value().pitch,
-        //     -globalMeasurement.value().yaw, m_drivetrain.GetAngle(),
-        //     TurretController::kTargetPoseInGlobal,
-        //     {});
-        
-        m_visionPoseEntry.SetDouble(distanceToTarget.to<double>());
-
-        // If pose measurement is too far away from the state estimate, discard
-        // it and increment the fault counter
-        // if (m_drivetrain.GetPose().Translation().Distance(
-        //         drivetrainInGlobal.Translation()) < 1_m) {
-            // m_drivetrain.CorrectWithGlobalOutputs(
-            //     drivetrainInGlobal.X(), drivetrainInGlobal.Y(),
-            //     globalMeasurement.value().timestamp);
-        // } else {
-        //     m_poseMeasurementFaultCounter++;
-        // }
+    if (!m_visionMeasurements.empty()) {
+        auto vision = m_visionMeasurements.pop();
+        m_controller.SetYaw(vision.value().yaw);
     }
 
     m_u = m_controller.Calculate(m_observer.Xhat());
@@ -253,6 +188,8 @@ void Turret::ControllerPeriodic() {
         m_encoderSim.SetDistance(HeadingToEncoderDistance(
             units::radian_t{m_turretSim.GetOutput(0)}));
 
+        m_vision.UpdateVisionMeasurementsSim(m_drivetrain.GetPose());
+
         if (units::radian_t{m_turretSim.GetOutput(0)} >
             TurretController::kCCWLimit) {
             m_ccwLimitSwitchSim.SetVoltage(0.0);
@@ -265,10 +202,6 @@ void Turret::ControllerPeriodic() {
         } else {
             m_cwLimitSwitchSim.SetVoltage(5.0);
         }
-
-        // Update vision with drivetrain pose and camera transformation
-        m_vision.UpdateVisionMeasurementsSim(cameraInGlobalToDrivetrainInGlobal,
-                                             m_drivetrain.GetPose());
     }
 }
 

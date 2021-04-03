@@ -98,9 +98,9 @@ namespace Vision {
 // Camera height
 constexpr units::meter_t kCameraHeight = 39_in;
 // Camera pitch
-constexpr units::degree_t kCameraPitch = 22_deg;
+constexpr units::degree_t kCameraPitch = 22.8_deg;
 // Diagonal pi camera V1 FOV
-constexpr units::degree_t kCameraDiagonalFOV = 67_deg;
+constexpr units::degree_t kCameraDiagonalFOV = 74.8_deg;
 }  // namespace Vision
 
 constexpr auto kDt = 5_ms;

@@ -24,18 +24,18 @@
 #include "RealTimeRobot.hpp"
 #include "controllers/FlywheelController.hpp"
 #include "rev/CANSparkMax.hpp"
+#include "static_concurrent_queue.hpp"
 #include "subsystems/ControlledSubsystemBase.hpp"
+#include "subsystems/Vision.hpp"
 
 namespace frc3512 {
-
-class Drivetrain;
 
 /**
  * Flywheel subsystem.
  */
 class Flywheel : public ControlledSubsystemBase<1, 1, 1> {
 public:
-    explicit Flywheel(Drivetrain& drivetrain);
+    explicit Flywheel(Vision& vision);
 
     Flywheel(const Flywheel&) = delete;
     Flywheel& operator=(const Flywheel&) = delete;
@@ -84,7 +84,7 @@ public:
      * Takes the projected distance of the flywheel to the target and sets an
      * angular velocity goal determined by the lookup table
      */
-    void SetGoalFromPose();
+    void SetGoalFromVision();
 
     /**
      * Returns true if the flywheel has been set to a nonzero goal.
@@ -110,11 +110,11 @@ public:
     /**
      * Returns angular velocity reference that will hit the target at a given
      * drivetrain pose.
-     *
-     * @param drivetrainPose Drivetrain pose.
      */
     units::radians_per_second_t GetReferenceForPose(
         const frc::Pose2d& drivetrainPose) const;
+
+    units::radians_per_second_t GetReferenceForVision();
 
     void DisabledInit() override { Disable(); }
 
@@ -161,18 +161,26 @@ private:
 
     bool m_moveAndShoot = true;
 
+    nt::NetworkTableEntry m_distanceToTargetEntry =
+        NetworkTableUtil::MakeDoubleEntry(
+            "/Diagnostics/Drivetrain/Distance to target");
+
     units::radian_t m_angle;
     units::radian_t m_lastAngle;
     units::second_t m_time = frc2::Timer::GetFPGATimestamp();
     units::second_t m_lastTime =
         m_time - RealTimeRobot::kDefaultControllerPeriod;
 
+    units::meter_t m_distanceToTarget = 0_m;
+
     // Filters out encoder quantization noise
     units::radians_per_second_t m_angularVelocity = 0_rad_per_s;
     frc::LinearFilter<units::radians_per_second_t> m_velocityFilter =
         frc::LinearFilter<units::radians_per_second_t>::MovingAverage(4);
 
-    Drivetrain& m_drivetrain;
+    Vision& m_vision;
+
+    static_concurrent_queue<Vision::GlobalMeasurement, 8> m_visionMeasurements;
 
     // Used in test mode for manually setting flywheel goal. This is helpful for
     // measuring flywheel lookup table values.

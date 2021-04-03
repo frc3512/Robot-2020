@@ -24,8 +24,9 @@ bool Vision::IsLEDOn() const {
     return m_rpiCam.GetLEDMode() == photonlib::LEDMode::kOn;
 }
 
-std::optional<Vision::GlobalMeasurement> Vision::GetGlobalMeasurement() {
-    return m_measurements.pop();
+void Vision::SubscribeToVisionData(
+    frc3512::static_concurrent_queue<GlobalMeasurement, 8>& queue) {
+    m_queues.push_back(&queue);
 }
 
 void Vision::ProcessNewMeasurement() {
@@ -33,17 +34,19 @@ void Vision::ProcessNewMeasurement() {
 
     photonlib::PhotonTrackedTarget target = m_result.GetBestTarget();
 
+    frc::Pose2d targetInGlobalToCameraInGlobal{target.GetCameraRelativePose().Translation(), target.GetCameraRelativePose().Rotation()};
+    frc::Pose2d targetInGlobalToTurretInGlobal = targetInGlobalToCameraInGlobal.TransformBy(kCameraInGlobalToTurretInGlobal);
+
     auto timestamp = frc2::Timer::GetFPGATimestamp();
     timestamp -= latency;
 
-    m_measurements.push({timestamp, units::degree_t{target.GetPitch()},
-                            units::degree_t{target.GetYaw()}});
+    for (auto& queue : m_queues) {
+        queue->push({targetInGlobalToTurretInGlobal,
+                     units::degree_t{target.GetYaw()}, timestamp});
+    }
 }
 
-void Vision::UpdateVisionMeasurementsSim(const frc::Transform2d& cameraToRobot,
-                                         const frc::Pose2d& drivetrainPose) {
-    m_simVision.MoveCamera(cameraToRobot, Constants::Vision::kCameraHeight,
-                           Constants::Vision::kCameraPitch);
+void Vision::UpdateVisionMeasurementsSim(const frc::Pose2d& drivetrainPose) {
     m_simVision.ProcessFrame(drivetrainPose);
 }
 

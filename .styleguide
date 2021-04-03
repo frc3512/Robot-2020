@@ -33,6 +33,7 @@ includeOtherLibs {
   hal/
   mockdata/
   networktables/
+  photonlib/
   rev/.*?\.h$
   simulation/
   units/
