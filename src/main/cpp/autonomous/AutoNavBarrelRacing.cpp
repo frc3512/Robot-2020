@@ -1,6 +1,7 @@
 // Copyright (c) 2021 FRC Team 3512. All Rights Reserved.
 
 #include <units/math.h>
+#include <wpi/math>
 
 #include "Robot.hpp"
 
@@ -86,12 +87,22 @@ void Robot::AutoNavBarrelRacing() {
     fmt::print(stderr, "endPose={},{}\n", kEndPose.X().to<double>(),
                kEndPose.Y().to<double>());
 
-    m_drivetrain.AddTrajectory(kInitialPose, path, kEndPose);
+    // m_drivetrain.AddTrajectory(kInitialPose, path, kEndPose);
     // m_drivetrain.AddTrajectory({kInitialPose, kD5Entrance, kD5Loop1,
     // kD5Loop2,
     //                             kB8Entrance, kB8Loop1, kB8Loop2,
     //                             kD10Entrance, kD10Loop1, kD10Loop2,
     //                             kD10Loop3, kFinishApproach, kEndPose});
+    std::vector<frc::Translation2d> interiors;
+    for (int i = 1; i < 16; ++i) {
+        double initialHeading = kInitialPose.Rotation().Radians().to<double>();
+        interiors.emplace_back(
+            kInitialPose.X() +
+                std::cos(initialHeading + i * wpi::math::pi / 8) * 1_m,
+            kInitialPose.Y() + 1_m +
+                std::sin(initialHeading + i * wpi::math::pi / 8) * 1_m);
+    }
+    m_drivetrain.AddTrajectory(kInitialPose, interiors, kInitialPose);
 
     if (!m_autonChooser.Suspend([=] { return m_drivetrain.AtGoal(); })) {
         return;
