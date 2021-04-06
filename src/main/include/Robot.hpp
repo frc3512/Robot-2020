@@ -191,18 +191,11 @@ public:
     void AutoRightSideShootSix();
 
     /**
-     * Follows either the red or blue path for Path A defined in the At-Home
-     * Challenges manual depending on input given by the ultrasonic for
-     * completing the Galactic Search Challenge.
+     * Follows either the red or blue path for Path A and B defined in the
+     * At-Home Challenges manual depending on input given by the ultrasonic
+     * sensors for completing the Galactic Search Challenge.
      */
-    void AutoGalacticSearchA();
-
-    /**
-     * Follows either the red or blue path for Path B defined in the At-Home
-     * Challenges manual depending on input given by the ultrasonic for
-     * completing the Galactic Search Challenge.
-     */
-    void AutoGalacticSearchB();
+    void AutoGalacticSearch();
 
     /**
      * Shoot three power cells from the initiation line in front of the allied
@@ -274,6 +267,9 @@ private:
     nt::NetworkTableEntry m_autoGalacticSearchPath =
         NetworkTableUtil::MakeStringEntry(
             "/Diagnostics/Drivetrain/Outputs/Galactic Search Path", "none");
+    nt::NetworkTableEntry m_autoGalacticSearchLayout =
+        NetworkTableUtil::MakeStringEntry(
+            "/Diagnostics/Drivetrain/Outputs/Galactic Search Layout", "none");
 };
 
 }  // namespace frc3512

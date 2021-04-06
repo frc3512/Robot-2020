@@ -64,9 +64,14 @@ public:
     frc::Pose2d GetPose() const;
 
     /**
-     * Returns distance from the ultrasonic sensor.
+     * Returns distance from the left ultrasonic sensor.
      */
-    units::meter_t GetUltrasonicDistance() const;
+    units::meter_t GetLeftUltrasonicDistance() const;
+
+    /**
+     * Returns distance from the right ultrasonic sensor.
+     */
+    units::meter_t GetRightUltrasonicDistance() const;
 
     /**
      * Returns gyro's heading measurement in the global coordinate frame.
@@ -236,9 +241,16 @@ private:
 
     static const frc::LinearSystem<2, 2, 2> kPlant;
 
-    frc::AnalogInput m_ultrasonic{HWConfig::Drivetrain::kUltrasonicPort};
-    units::meter_t m_ultrasonicDistance;
-    frc::LinearFilter<units::meter_t> m_distanceFilter =
+    frc::AnalogInput m_leftUltrasonic{
+        HWConfig::Drivetrain::kLeftUltrasonicPort};
+    units::meter_t m_leftUltrasonicDistance;
+    frc::AnalogInput m_rightUltrasonic{
+        HWConfig::Drivetrain::kRightUltrasonicPort};
+    units::meter_t m_rightUltrasonicDistance;
+    frc::LinearFilter<units::meter_t> m_leftDistanceFilter =
+        frc::LinearFilter<units::meter_t>::SinglePoleIIR(0.1, 0.02_s);
+
+    frc::LinearFilter<units::meter_t> m_rightDistanceFilter =
         frc::LinearFilter<units::meter_t>::SinglePoleIIR(0.1, 0.02_s);
 
     rev::CANSparkMax m_leftLeader{HWConfig::Drivetrain::kLeftLeaderPort,
@@ -279,9 +291,13 @@ private:
     DrivetrainController m_controller;
     Eigen::Matrix<double, 2, 1> m_u = Eigen::Matrix<double, 2, 1>::Zero();
 
-    nt::NetworkTableEntry m_ultrasonicOutputEntry =
+    nt::NetworkTableEntry m_leftUltrasonicOutputEntry =
         NetworkTableUtil::MakeDoubleEntry(
-            "/Diagnostics/Drivetrain/Outputs/Ultrasonic Output");
+            "/Diagnostics/Drivetrain/Outputs/Left Ultrasonic Output");
+
+    nt::NetworkTableEntry m_rightUltrasonicOutputEntry =
+        NetworkTableUtil::MakeDoubleEntry(
+            "/Diagnostics/Drivetrain/Outputs/Right Ultrasonic Output");
 
     frc::LinearSystem<2, 2, 2> m_imfRef =
         frc::LinearSystemId::IdentifyDrivetrainSystem(
@@ -299,7 +315,8 @@ private:
     frc::sim::EncoderSim m_leftEncoderSim{m_leftEncoder};
     frc::sim::EncoderSim m_rightEncoderSim{m_rightEncoder};
     frc::sim::ADIS16470_IMUSim m_imuSim{m_imu};
-    frc::sim::AnalogInputSim m_ultrasonicSim{m_ultrasonic};
+    frc::sim::AnalogInputSim m_leftUltrasonicSim{m_leftUltrasonic};
+    frc::sim::AnalogInputSim m_rightUltrasonicSim{m_rightUltrasonic};
     frc::Field2d m_field;
 };
 

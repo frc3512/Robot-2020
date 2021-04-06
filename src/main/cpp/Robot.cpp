@@ -87,9 +87,7 @@ Robot::Robot() : frc::TimesliceRobot{2_ms, Constants::kControllerPeriod} {
         m_autonChooser.AddAutonomous(
             "AutoNav Slalom", [=] { AutoNavSlalom(); }, 30_s);
         m_autonChooser.AddAutonomous(
-            "Galactic Search A", [=] { AutoGalacticSearchA(); }, 30_s);
-        m_autonChooser.AddAutonomous(
-            "Galactic Search B", [=] { AutoGalacticSearchB(); }, 30_s);
+            "Galactic Search", [=] { AutoGalacticSearch(); }, 30_s);
     }
 
     // TIMESLICE ALLOCATION TABLE
