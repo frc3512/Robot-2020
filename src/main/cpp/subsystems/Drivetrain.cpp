@@ -299,7 +299,38 @@ void Drivetrain::TeleopInit() {
     Enable();
 }
 
+void Drivetrain::TestInit() {
+    m_controller.AbortTrajectories();
+    Enable();
+}
+
 void Drivetrain::TeleopPeriodic() {
+    static frc::Joystick driveStick1{kDriveStick1Port};
+    static frc::Joystick driveStick2{kDriveStick2Port};
+
+    double y = ApplyDeadband(-driveStick1.GetY(), kJoystickDeadband);
+    double x = ApplyDeadband(driveStick2.GetX(), kJoystickDeadband);
+
+    if (driveStick1.GetRawButton(1)) {
+        y *= 0.5;
+        x *= 0.5;
+    }
+    auto [left, right] = CurvatureDrive(y, x, driveStick2.GetRawButton(2));
+
+    // Implicit model following
+    // TODO: Velocities need filtering
+    // Eigen::Matrix<double, 2, 1> u =
+    //     m_imf.Calculate(frc::MakeMatrix<2, 1>(GetLeftVelocity().to<double>(),
+    //                                           GetRightVelocity().to<double>()),
+    //                     frc::MakeMatrix<2, 1>(left * 12.0, right * 12.0));
+    Eigen::Matrix<double, 2, 1> u =
+        frc::MakeMatrix<2, 1>(left * 12.0, right * 12.0);
+
+    m_leftGrbx.SetVoltage(units::volt_t{u(0)});
+    m_rightGrbx.SetVoltage(units::volt_t{u(1)});
+}
+
+void Drivetrain::TestPeriodic() {
     static frc::Joystick driveStick1{kDriveStick1Port};
     static frc::Joystick driveStick2{kDriveStick2Port};
 

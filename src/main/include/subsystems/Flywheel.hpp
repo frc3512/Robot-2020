@@ -40,6 +40,14 @@ public:
     Flywheel& operator=(const Flywheel&) = delete;
 
     /**
+     * Sets whether the robot will adjust the flywheel's
+     * radians while the robot is moving
+     *
+     * @param moveAndShoot Whether or not to move and shoot.
+     */
+    void SetMoveAndShoot(bool moveAndShoot);
+
+    /**
      * Returns angular displacement of the flywheel
      *
      * @return angular displacement in radians
@@ -148,6 +156,8 @@ private:
 
     FlywheelController m_controller;
     Eigen::Matrix<double, 1, 1> m_u = Eigen::Matrix<double, 1, 1>::Zero();
+
+    bool m_moveAndShoot = true;
 
     units::radian_t m_angle;
     units::radian_t m_lastAngle;

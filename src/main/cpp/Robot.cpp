@@ -138,6 +138,22 @@ void Robot::Shoot(int ballsToShoot) {
     }
 }
 
+void Robot::Shoot(units::radians_per_second_t radsToShoot, int ballsToShoot) {
+    if (m_state == ShootingState::kIdle) {
+        m_flywheel.SetMoveAndShoot(false);
+        m_flywheel.SetGoal(radsToShoot);
+        m_state = ShootingState::kStartFlywheel;
+        m_ballsToShoot = ballsToShoot;
+        if (ballsToShoot != -1) {
+            m_shootTimeout = 0.6_s * m_ballsToShoot;
+        } else {
+            m_shootTimeout = kMaxShootTimeout;
+        }
+        m_eventLogger.Log(
+            fmt::format("Called Robot::Shoot({})", m_ballsToShoot));
+    }
+}
+
 bool Robot::IsShooting() const { return m_state != ShootingState::kIdle; }
 
 bool Robot::FlywheelAtGoal() const { return m_flywheel.AtGoal(); }
@@ -182,6 +198,24 @@ void Robot::RobotPeriodic() {
     if (IsOperatorControlEnabled() || IsTest()) {
         if (appendageStick2.GetRawButtonPressed(1)) {
             Shoot();
+        }
+        if (Constants::Robot::kAtHomeChallenge) {
+            if (appendageStick2.GetRawButtonPressed(7)) {
+                // Shoot from 5.91667 feet away
+                Shoot(764_rad_per_s);
+            }
+            if (appendageStick2.GetRawButtonPressed(8)) {
+                // Shoot from 10 feet away
+                Shoot(436_rad_per_s);
+            }
+            if (appendageStick2.GetRawButtonPressed(10)) {
+                // Shoot from 15 feet away
+                Shoot(474_rad_per_s);
+            }
+            if (appendageStick2.GetRawButtonPressed(12)) {
+                // Shoot from 20 feet away
+                Shoot(498_rad_per_s);
+            }
         }
 
         RunShooterSM();

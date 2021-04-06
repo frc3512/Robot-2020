@@ -220,9 +220,13 @@ public:
 
     void TeleopInit() override;
 
+    void TestInit() override;
+
     void RobotPeriodic() override;
 
     void TeleopPeriodic() override;
+
+    void TestPeriodic() override;
 
     void ControllerPeriodic() override;
 
