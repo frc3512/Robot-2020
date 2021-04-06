@@ -63,13 +63,21 @@ void Intake::RobotPeriodic() {
         SetArmMotor(ArmMotorDirection::kIntake);
     } else {
         // Manual control
-        if (frc::DriverStation::GetInstance().IsOperatorControlEnabled()) {
+        if (frc::DriverStation::GetInstance().IsOperatorControlEnabled() ||
+            frc::DriverStation::GetInstance().IsTest()) {
             if (appendageStick2.GetRawButton(4)) {
                 SetArmMotor(ArmMotorDirection::kIntake);
             } else if (appendageStick2.GetRawButton(6)) {
                 SetArmMotor(ArmMotorDirection::kOuttake);
             } else {
                 SetArmMotor(ArmMotorDirection::kIdle);
+            }
+            if (appendageStick2.GetRawButtonPressed(3)) {
+                if (IsDeployed()) {
+                    Stow();
+                } else {
+                    Deploy();
+                }
             }
         }
     }
@@ -84,7 +92,8 @@ void Intake::RobotPeriodic() {
         }
     } else {
         // Manual control
-        if (frc::DriverStation::GetInstance().IsOperatorControlEnabled()) {
+        if (frc::DriverStation::GetInstance().IsOperatorControlEnabled() ||
+            frc::DriverStation::GetInstance().IsTest()) {
             if (appendageStick2.GetRawButton(4)) {
                 SetFunnel(0.4);
             } else if (appendageStick2.GetRawButton(6)) {
@@ -109,18 +118,6 @@ void Intake::RobotPeriodic() {
     m_lowerSensorEntry.SetBoolean(IsLowerSensorBlocked());
 
     m_intakeLog.Log(m_arm.Get(), m_armMotor.Get());
-}
-
-void Intake::TeleopPeriodic() {
-    static frc::Joystick appendageStick2{kAppendageStick2Port};
-
-    if (appendageStick2.GetRawButtonPressed(3)) {
-        if (IsDeployed()) {
-            Stow();
-        } else {
-            Deploy();
-        }
-    }
 }
 
 void Intake::SetArmMotor(ArmMotorDirection direction) {

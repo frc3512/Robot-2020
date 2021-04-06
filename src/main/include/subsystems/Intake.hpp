@@ -90,8 +90,6 @@ public:
 
     void RobotPeriodic() override;
 
-    void TeleopPeriodic() override;
-
 private:
     frc2::Timer m_conveyorTimer;
 

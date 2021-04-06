@@ -71,6 +71,22 @@ public:
     void Shoot(int ballsToShoot = -1);
 
     /**
+     * Start shooting.
+     *
+     * If the user provides a number of balls to shoot, the shooter will run
+     * until it detects that many dips and recoveries after initially reaching
+     * the angular velocity goal. After that point, the flywheel and intake will
+     * turn off. If no number is given, a timeout will be used to stop the
+     * flywheel instead. This time the number of radians the flywheel will speed
+     * up to will also be set by the user instead of being picked by the lookup
+     * table.
+     *
+     * @param radsToShoot radians the flywheel will shoot at.
+     * @param ballsToShoot Number of balls to shoot.
+     */
+    void Shoot(units::radians_per_second_t radsToShoot, int ballsToShoot = -1);
+
+    /**
      * Returns true if currently shooting.
      */
     bool IsShooting() const;

@@ -57,6 +57,10 @@ Flywheel::Flywheel(Drivetrain& drivetrain)
     SetGoal(0_rad_per_s);
 }
 
+void Flywheel::SetMoveAndShoot(bool moveAndShoot) {
+    m_moveAndShoot = moveAndShoot;
+}
+
 units::radian_t Flywheel::GetAngle() {
     return units::radian_t{m_encoder.GetDistance()};
 }
@@ -124,7 +128,7 @@ void Flywheel::ControllerPeriodic() {
     m_observer.Predict(m_u, GetDt());
 
     // Adjusts the flywheel's goal while moving and shooting
-    if (IsOn()) {
+    if (IsOn() && m_moveAndShoot) {
         SetGoalFromPose();
     }
 
@@ -176,8 +180,11 @@ void Flywheel::SetVoltage(units::volt_t voltage) {
 
 units::radians_per_second_t Flywheel::ThrottleToReference(double throttle) {
     // 1. Remap input from [1..-1] to [0..1]
-    // 2. Rescale that to [0..kMaxAngularVelocity]
+    auto remap = (1.0 - throttle) / 2.0;
+    // 2. Rescale that to [400.0...800.0]
+    constexpr auto kLow = 400_rad_per_s;
+    constexpr auto kHigh = 800_rad_per_s;
+    auto rescale = kLow + (kHigh - kLow) * remap;
     // 3. Round to the nearest radian per second
-    return units::math::round((1.0 - throttle) / 2.0 *
-                              FlywheelController::kMaxAngularVelocity);
+    return units::math::round(rescale);
 }
