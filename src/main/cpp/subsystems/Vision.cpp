@@ -26,6 +26,7 @@ bool Vision::IsLEDOn() const {
 
 void Vision::SubscribeToVisionData(
     frc3512::static_concurrent_queue<GlobalMeasurement, 8>& queue) {
+    std::scoped_lock lock{m_mutex};
     m_subsystemQueues.push_back(&queue);
 }
 
@@ -51,6 +52,7 @@ void Vision::ProcessNewMeasurement() {
     auto timestamp = frc2::Timer::GetFPGATimestamp();
     timestamp -= latency;
 
+    std::scoped_lock lock{m_mutex};
     for (auto& queue : m_subsystemQueues) {
         queue->push({targetInGlobalToTurretInGlobal,
                      units::degree_t{target.GetYaw()}, timestamp});

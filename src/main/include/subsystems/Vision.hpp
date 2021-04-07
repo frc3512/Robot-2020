@@ -79,6 +79,8 @@ private:
     photonlib::PhotonCamera m_rpiCam{"gloworm"};
     photonlib::PhotonPipelineResult m_result;
 
+    std::mutex m_mutex;
+
     std::vector<frc3512::static_concurrent_queue<GlobalMeasurement, 8>*>
         m_subsystemQueues;
 
