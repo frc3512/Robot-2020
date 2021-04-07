@@ -7,6 +7,7 @@
 #include <frc/system/plant/LinearSystemId.h>
 #include <networktables/NetworkTableEntry.h>
 #include <networktables/NetworkTableInstance.h>
+#include <rev/ColorSensorV3.h>
 #include <units/length.h>
 #include <units/voltage.h>
 
@@ -30,6 +31,8 @@ class Turret;
  */
 class Climber : public SubsystemBase {
 public:
+    enum class ControlPanelState { kInit, kRotateWheel, kStopOnColor };
+
     explicit Climber(Turret& turret);
     Climber(const Climber&) = delete;
     Climber& operator=(const Climber&) = delete;
@@ -73,6 +76,11 @@ private:
 
     Turret& m_turret;
 
+    // Control panel variables
+    ControlPanelState m_state = ControlPanelState::kInit;
+    frc::Solenoid m_controlPanelArm{Constants::Climber::kControlPanelArmPort};
+    rev::ColorSensorV3 m_colorSensor{frc::I2C::Port::kMXP};
+
     nt::NetworkTableEntry m_elevatorEncoderEntry =
         NetworkTableUtil::MakeDoubleEntry(
             "/Diagnostics/Climber/Elevator encoder");
@@ -85,6 +93,8 @@ private:
     /**
      * Sets the traverser speed.
      *
+     * The traverser is also used to spin the control panel.
+     *
      * @param speed The speed of the traverser [-1..1].
      */
     void SetTraverser(double speed);
@@ -95,6 +105,18 @@ private:
      * @param speed The speed of the elevator [-1..1].
      */
     void SetElevator(double speed);
+
+    /**
+     * Runs the control panel state machine.
+     *
+     * This state machine will either rotate the control panel or stop the
+     * control panel on a certain color based on button press. The control panel
+     * will be stopped so the field color sensor reads the required color which
+     * we get from the Field Management System. A 90 degree offset is applied to
+     * the color we receive from the FMS because the robot's color sensor will
+     * not be directly under the same color as the field color sensor.
+     */
+    void RunControlPanelSM();
 };
 
 }  // namespace frc3512

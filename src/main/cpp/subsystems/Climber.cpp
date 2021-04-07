@@ -4,6 +4,7 @@
 
 #include <cmath>
 
+#include <frc/DriverStation.h>
 #include <frc/Joystick.h>
 #include <frc/RobotBase.h>
 #include <frc/RobotController.h>
@@ -66,7 +67,9 @@ void Climber::TeleopPeriodic() {
     static frc::Joystick appendageStick2{kAppendageStick2Port};
 
     // Climber traverser
-    SetTraverser(appendageStick2.GetX());
+    if (m_state == ControlPanelState::kInit) {
+        SetTraverser(appendageStick2.GetX());
+    }
 
     if (appendageStick1.GetRawButton(1) &&
         std::abs(appendageStick1.GetY()) > 0.02) {
@@ -87,6 +90,13 @@ void Climber::TeleopPeriodic() {
     } else {
         SetElevator(0.0);
     }
+
+    // Control panel
+    if (appendageStick2.GetRawButtonPressed(7)) {
+        m_controlPanelArm.Toggle();
+    }
+
+    RunControlPanelSM();
 }
 
 void Climber::TestPeriodic() {
@@ -141,5 +151,77 @@ void Climber::SetElevator(double speed) {
     } else {
         m_pancake.Set(false);
         m_elevator.Set(0.0);
+    }
+}
+
+void Climber::RunControlPanelSM() {
+    static constexpr frc::Color kRedTarget{0.561, 0.232, 0.114};
+    static constexpr frc::Color kGreenTarget{0.197, 0.561, 0.240};
+    static constexpr frc::Color kBlueTarget{0.143, 0.427, 0.429};
+    static constexpr frc::Color kYellowTarget{0.361, 0.524, 0.113};
+
+    static frc::Joystick appendageStick2{kAppendageStick2Port};
+    static frc::Color prevColor;
+    static int changedColorCount = 0;
+
+    // If climbing, stop control panel mechanism if the process never completed
+    if (m_state != ControlPanelState::kInit && GetElevatorPosition() > 1.5_in) {
+        m_traverser.Set(0.0);
+        m_state = ControlPanelState::kInit;
+    }
+
+    switch (m_state) {
+        case ControlPanelState::kInit: {
+            if (appendageStick2.GetRawButtonPressed(8)) {
+                changedColorCount = 0;
+                m_traverser.Set(1.0);
+                m_state = ControlPanelState::kRotateWheel;
+            } else if (appendageStick2.GetRawButtonPressed(9)) {
+                prevColor = m_colorSensor.GetColor();
+                m_traverser.Set(1.0);
+                m_state = ControlPanelState::kStopOnColor;
+            }
+            break;
+        }
+        case ControlPanelState::kRotateWheel: {
+            auto detectedColor = m_colorSensor.GetColor();
+
+            if (prevColor != detectedColor) {
+                prevColor = detectedColor;
+                changedColorCount++;
+            }
+
+            // There are 8 color changes per control panel revolution
+            if (changedColorCount == 32) {
+                m_traverser.Set(0.0);
+                m_state = ControlPanelState::kInit;
+            }
+            break;
+        }
+        case ControlPanelState::kStopOnColor: {
+            auto gameData =
+                frc::DriverStation::GetInstance().GetGameSpecificMessage();
+            if (gameData[0] == 'Y') {
+                if (m_colorSensor.GetColor() == kGreenTarget) {
+                    m_traverser.Set(0.0);
+                    m_state = ControlPanelState::kInit;
+                }
+            } else if (gameData[0] == 'R') {
+                if (m_colorSensor.GetColor() == kBlueTarget) {
+                    m_traverser.Set(0.0);
+                    m_state = ControlPanelState::kInit;
+                }
+            } else if (gameData[0] == 'B') {
+                if (m_colorSensor.GetColor() == kRedTarget) {
+                    m_traverser.Set(0.0);
+                    m_state = ControlPanelState::kInit;
+                }
+            } else if (gameData[0] == 'G') {
+                if (m_colorSensor.GetColor() == kYellowTarget) {
+                    m_traverser.Set(0.0);
+                    m_state = ControlPanelState::kInit;
+                }
+            }
+        }
     }
 }
