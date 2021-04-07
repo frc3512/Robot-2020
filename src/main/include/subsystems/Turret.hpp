@@ -118,7 +118,7 @@ public:
 
     void DisabledInit() override {
         Disable();
-        SetControlMode(TurretController::ControlMode::kAutoAim);
+        SetControlMode(TurretController::ControlMode::kClosedLoop);
     }
 
     void AutonomousInit() override {
@@ -128,7 +128,7 @@ public:
 
     void TeleopInit() override {
         Enable();
-        SetControlMode(TurretController::ControlMode::kAutoAim);
+        SetControlMode(TurretController::ControlMode::kClosedLoop);
     }
 
     void TeleopPeriodic() override;

@@ -98,8 +98,9 @@ Eigen::Matrix<double, 1, 1> TurretController::Calculate(
             auto turretNextPoseInGlobal =
                 DrivetrainToTurretInGlobal(m_drivetrainNextPoseInGlobal);
 
+            // Find angle turret needs to move for this timestep
             units::radian_t turretRef =
-                units::radian_t{x(State::kAngle)} + m_yaw;
+                units::radian_t{x(State::kAngle)} - m_yaw;
 
             // Find angular velocity reference for this timestep
             units::meters_per_second_t drivetrainV =

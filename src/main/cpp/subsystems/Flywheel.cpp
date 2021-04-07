@@ -159,8 +159,7 @@ void Flywheel::ControllerPeriodic() {
     auto visionData = m_visionQueue.pop();
     if (visionData.has_value()) {
         auto transform = visionData.value().transformCameraToTarget;
-        m_distanceToTarget =
-            units::math::hypot(transform.X(), transform.Y());
+        m_distanceToTarget = units::math::hypot(transform.X(), transform.Y());
     }
 
     // WPILib uses the time between pulses in GetRate() to calculate velocity,
