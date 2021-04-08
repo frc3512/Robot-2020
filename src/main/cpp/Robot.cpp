@@ -64,14 +64,16 @@ Robot::Robot() {
     frc::LiveWindow::GetInstance()->DisableAllTelemetry();
     SetNetworkTablesFlushEnabled(true);
 
-    // |  Subsystem | Duration (ms) | Offset (ms) | Allocation (ms) |
-    // |------------|---------------|-------------|-----------------|
-    // | **Total**  | 5.0           | N/A         | 5.0             |
-    // | TimedRobot | ?             | 0.0         | 1.9             |
-    // | Drivetrain | 1.32          | 1.9         | 1.5             |
-    // | Turret     | 0.6           | 3.4         | 0.8             |
-    // | Flywheel   | 0.6           | 4.2         | 0.8             |
-    // | **Free**   | 0.0           | 5.0         | N/A             |
+    // TIMESLICE ALLOCATION TABLE
+    //
+    // |  Subsystem | Offset (ms) | Duration (ms) | Allocation (ms) |
+    // |------------|-------------|---------------|-----------------|
+    // | **Total**  | N/A         | 5.0           | 5.0             |
+    // | TimedRobot | 0.0         | ?             | 1.9             |
+    // | Drivetrain | 1.9         | 1.32          | 1.5             |
+    // | Turret     | 3.4         | 0.6           | 0.8             |
+    // | Flywheel   | 4.2         | 0.6           | 0.8             |
+    // | **Free**   | 5.0         | 0.0           | N/A             |
     AddPeriodic(
         [=] {
             if (IsEnabled()) {
