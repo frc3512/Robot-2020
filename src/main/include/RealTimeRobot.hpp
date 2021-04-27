@@ -21,7 +21,7 @@ namespace frc3512 {
  */
 class RealTimeRobot : public frc::TimedRobot {
 public:
-    static constexpr auto kDefaultControllerPrio = 15;
+    static constexpr auto kDefaultPriority = 15;
     static constexpr auto kDefaultControllerPeriod = 5_ms;
 
     /**
@@ -38,7 +38,7 @@ public:
     explicit RealTimeRobot(
         units::second_t robotPeriodicAllocation = 2_ms,
         units::second_t controllerPeriod = kDefaultControllerPeriod,
-        int priority = kDefaultControllerPrio);
+        int priority = kDefaultPriority);
 
     /**
      * Schedule a periodic function with the constructor's controller period and

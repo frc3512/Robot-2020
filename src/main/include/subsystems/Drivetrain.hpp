@@ -33,6 +33,7 @@
 
 #include "Constants.hpp"
 #include "NetworkTableUtil.hpp"
+#include "RealTimeRobot.hpp"
 #include "controllers/DrivetrainController.hpp"
 #include "rev/CANSparkMax.hpp"
 #include "subsystems/ControlledSubsystemBase.hpp"
@@ -271,7 +272,7 @@ private:
         frc::AngleResidual<7>(2),
         frc::AngleResidual<5>(0),
         frc::AngleAdd<7>(2),
-        Constants::kDt};
+        RealTimeRobot::kDefaultControllerPeriod};
     frc::KalmanFilterLatencyCompensator<7, 2, 5,
                                         frc::UnscentedKalmanFilter<7, 2, 5>>
         m_latencyComp;

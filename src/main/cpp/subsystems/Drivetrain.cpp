@@ -14,6 +14,7 @@
 #include "CANSparkMaxUtil.hpp"
 #include "CurvatureDrive.hpp"
 #include "EigenFormat.hpp"
+#include "RealTimeRobot.hpp"
 
 using namespace frc3512;
 using namespace frc3512::Constants::Robot;
@@ -149,7 +150,7 @@ void Drivetrain::CorrectWithGlobalOutputs(units::meter_t x, units::meter_t y,
     Eigen::Matrix<double, 2, 1> globalY;
     globalY << x.to<double>(), y.to<double>();
     m_latencyComp.ApplyPastMeasurement<2>(
-        &m_observer, Constants::kDt, globalY,
+        &m_observer, RealTimeRobot::kDefaultControllerPeriod, globalY,
         [&](const Eigen::Matrix<double, 2, 1>& u,
             const Eigen::Matrix<double, 2, 1>& y) {
             m_observer.Correct<2>(

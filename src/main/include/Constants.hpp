@@ -2,8 +2,6 @@
 
 #pragma once
 
-#include <units/time.h>
-
 namespace frc3512::Constants {
 
 namespace Robot {
@@ -86,6 +84,4 @@ constexpr int kTraverserPort = 13;
 constexpr int kClimberLock = 3;
 }  // namespace Climber
 
-constexpr auto kDt = 5_ms;
-constexpr int kControllerPrio = 15;
 }  // namespace frc3512::Constants

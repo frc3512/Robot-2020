@@ -4,6 +4,7 @@
 #include <frc/simulation/SimHooks.h>
 #include <gtest/gtest.h>
 
+#include "RealTimeRobot.hpp"
 #include "SimulatorTest.hpp"
 #include "subsystems/Drivetrain.hpp"
 #include "subsystems/Flywheel.hpp"
@@ -18,7 +19,8 @@ TEST_F(IntakeTest, DeployTest) {
 
     frc3512::SubsystemBase::RunAllTeleopInit();
     frc::Notifier controllerPeriodic{[&] { intake.TeleopPeriodic(); }};
-    controllerPeriodic.StartPeriodic(frc3512::Constants::kDt);
+    controllerPeriodic.StartPeriodic(
+        frc3512::RealTimeRobot::kDefaultControllerPeriod);
 
     intake.Deploy();
 

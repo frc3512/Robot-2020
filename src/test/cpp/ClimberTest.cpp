@@ -7,6 +7,7 @@
 #include <gtest/gtest.h>
 
 #include "Constants.hpp"
+#include "RealTimeRobot.hpp"
 #include "SimulatorTest.hpp"
 #include "subsystems/Climber.hpp"
 #include "subsystems/Drivetrain.hpp"
@@ -38,7 +39,8 @@ TEST_F(ClimberTest, ConfigSpaceLimits) {
         climber.RobotPeriodic();
         climber.TeleopPeriodic();
     }};
-    controllerPeriodic.StartPeriodic(frc3512::Constants::kDt);
+    controllerPeriodic.StartPeriodic(
+        frc3512::RealTimeRobot::kDefaultControllerPeriod);
 
     // Verify climber can't move below bottom soft limit
     appendageStick1.SetRawButton(1, true);

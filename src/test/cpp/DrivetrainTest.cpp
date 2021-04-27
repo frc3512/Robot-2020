@@ -7,6 +7,7 @@
 #include <wpi/math>
 
 #include "Constants.hpp"
+#include "RealTimeRobot.hpp"
 #include "SimulatorTest.hpp"
 #include "subsystems/Drivetrain.hpp"
 
@@ -20,7 +21,8 @@ public:
 
     DrivetrainTest() {
         frc3512::SubsystemBase::RunAllAutonomousInit();
-        controllerPeriodic.StartPeriodic(frc3512::Constants::kDt);
+        controllerPeriodic.StartPeriodic(
+            frc3512::RealTimeRobot::kDefaultControllerPeriod);
     }
 };
 

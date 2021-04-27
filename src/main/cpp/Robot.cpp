@@ -13,8 +13,7 @@
 
 namespace frc3512 {
 
-Robot::Robot()
-    : RealTimeRobot(1.9_ms, Constants::kDt, Constants::kControllerPrio) {
+Robot::Robot() {
     m_autonChooser.AddAutonomous("Left Side Intake",
                                  [=] { AutoLeftSideIntake(); });
     m_autonChooser.AddAutonomous("Left Side Shoot Ten",
@@ -55,9 +54,9 @@ Robot::Robot()
     // |  Subsystem | Duration (ms) | Allocation (ms) |
     // |------------|---------------|-----------------|
     // | **Total**  | 5.0           | 5.0             |
-    // | TimedRobot | ?             | 1.9             |
+    // | TimedRobot | ?             | 2.0             |
     // | Drivetrain | 1.32          | 1.5             |
-    // | Flywheel   | 0.6           | 0.8             |
+    // | Flywheel   | 0.6           | 0.7             |
     // | Turret     | 0.6           | 0.8             |
     // | **Free**   | 0.0           | N/A             |
     Schedule(
@@ -73,7 +72,7 @@ Robot::Robot()
                 m_flywheel.ControllerPeriodic();
             }
         },
-        0.8_ms);
+        0.7_ms);
     Schedule(
         [=] {
             if (IsEnabled()) {

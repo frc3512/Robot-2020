@@ -4,6 +4,7 @@
 #include <frc/simulation/SimHooks.h>
 #include <gtest/gtest.h>
 
+#include "RealTimeRobot.hpp"
 #include "SimulatorTest.hpp"
 #include "subsystems/Drivetrain.hpp"
 #include "subsystems/Flywheel.hpp"
@@ -21,7 +22,8 @@ public:
 
     FlywheelTest() {
         frc3512::SubsystemBase::RunAllTeleopInit();
-        controllerPeriodic.StartPeriodic(frc3512::Constants::kDt);
+        controllerPeriodic.StartPeriodic(
+            frc3512::RealTimeRobot::kDefaultControllerPeriod);
     }
 };
 

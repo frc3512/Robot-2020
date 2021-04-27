@@ -10,7 +10,6 @@
 #include "controllers/DrivetrainController.hpp"
 
 using namespace frc3512;
-using namespace frc3512::Constants::Turret;
 
 const frc::Pose2d TurretController::kDrivetrainToTurretFrame{
     2_in, 0_m, wpi::math::pi * 1_rad};
@@ -141,7 +140,8 @@ Eigen::Matrix<double, 1, 1> TurretController::Calculate(
                 units::radians_per_second_t{m_nextR(State::kAngularVelocity)}};
             frc::TrapezoidProfile<units::radian> profile{m_constraints, m_goal,
                                                          references};
-            auto profiledReference = profile.Calculate(Constants::kDt);
+            auto profiledReference =
+                profile.Calculate(RealTimeRobot::kDefaultControllerPeriod);
             SetReferences(profiledReference.position,
                           profiledReference.velocity);
         }

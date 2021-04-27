@@ -19,7 +19,7 @@
 #include <wpi/StringRef.h>
 #include <wpi/Twine.h>
 
-#include "Constants.hpp"
+#include "RealTimeRobot.hpp"
 #include "UnitsFormat.hpp"
 #include "logging/CSVControllerLogger.hpp"
 #include "logging/NTControllerLogger.hpp"
@@ -79,7 +79,8 @@ public:
     void Enable() {
         // m_lastTime is reset so that a large time delta isn't generated from
         // Update() not being called in a while.
-        m_lastTime = frc2::Timer::GetFPGATimestamp() - Constants::kDt;
+        m_lastTime = frc2::Timer::GetFPGATimestamp() -
+                     RealTimeRobot::kDefaultControllerPeriod;
         m_isEnabled = true;
     }
 
@@ -111,13 +112,13 @@ public:
         m_dt = m_nowBegin - m_lastTime;
 
         if (m_dt == 0_s) {
-            m_dt = Constants::kDt;
+            m_dt = RealTimeRobot::kDefaultControllerPeriod;
             fmt::print(stderr, "ERROR @ t = {}: dt = 0\n", m_nowBegin);
         }
 
         // Clamp spikes in scheduling latency
         if (m_dt > 10_ms) {
-            m_dt = Constants::kDt;
+            m_dt = RealTimeRobot::kDefaultControllerPeriod;
         }
     }
 
@@ -174,7 +175,7 @@ private:
 
     units::second_t m_lastTime = frc::CSVLogFile::GetStartTime();
     units::second_t m_nowBegin = frc::CSVLogFile::GetStartTime();
-    units::second_t m_dt = Constants::kDt;
+    units::second_t m_dt = RealTimeRobot::kDefaultControllerPeriod;
     bool m_isEnabled = false;
 
     wpi::ConcurrentQueue<LogEntry> m_entryQueue;
@@ -182,11 +183,11 @@ private:
     std::thread m_entryThread;
 
     void EntryThreadMain() {
-        if (!frc::SetCurrentThreadPriority(true,
-                                           Constants::kControllerPrio - 1)) {
+        if (!frc::SetCurrentThreadPriority(
+                true, RealTimeRobot::kDefaultPriority - 1)) {
             throw std::runtime_error(
                 fmt::format("Setting logging thread RT priority to {} failed\n",
-                            Constants::kControllerPrio - 1));
+                            RealTimeRobot::kDefaultPriority - 1));
         }
 
         // Loops until the thread is told to exit and all remaining queue items

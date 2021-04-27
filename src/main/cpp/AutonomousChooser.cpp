@@ -11,7 +11,7 @@
 #include <frc/smartdashboard/SmartDashboard.h>
 #include <frc2/Timer.h>
 
-#include "Constants.hpp"
+#include "RealTimeRobot.hpp"
 
 namespace frc3512 {
 
@@ -137,9 +137,10 @@ void AutonomousChooser::AwaitAutonomous() {
         m_autonLock.unlock();
     }};
     if (!frc::SetThreadPriority(m_autonThread, true,
-                                Constants::kControllerPrio)) {
-        throw std::runtime_error(fmt::format(
-            "Setting RT priority to {} failed\n", Constants::kControllerPrio));
+                                RealTimeRobot::kDefaultPriority)) {
+        throw std::runtime_error(
+            fmt::format("Setting RT priority to {} failed\n",
+                        RealTimeRobot::kDefaultPriority));
     }
 
     // Yield to auton thread for first time by yielding the shared mutex to it.

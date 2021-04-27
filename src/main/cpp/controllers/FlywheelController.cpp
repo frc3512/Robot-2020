@@ -6,7 +6,6 @@
 #include <frc/system/plant/LinearSystemId.h>
 
 using namespace frc3512;
-using namespace frc3512::Constants;
 
 FlywheelController::FlywheelController() { Reset(); }
 

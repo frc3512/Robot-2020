@@ -23,8 +23,8 @@
 #include <units/voltage.h>
 #include <wpi/math>
 
-#include "Constants.hpp"
 #include "LerpTable.hpp"
+#include "RealTimeRobot.hpp"
 #include "controllers/ControllerBase.hpp"
 
 namespace frc3512 {
@@ -245,8 +245,8 @@ private:
 
     static const frc::LinearSystem<2, 2, 2> kPlant;
 
-    frc::ControlAffinePlantInversionFeedforward<7, 2> m_ff{Dynamics,
-                                                           Constants::kDt};
+    frc::ControlAffinePlantInversionFeedforward<7, 2> m_ff{
+        Dynamics, RealTimeRobot::kDefaultControllerPeriod};
 
     Eigen::Matrix<double, 5, 5> m_A;
     Eigen::Matrix<double, 5, 2> m_B;

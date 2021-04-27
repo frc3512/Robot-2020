@@ -4,7 +4,7 @@
 #include <frc/simulation/SimHooks.h>
 #include <gtest/gtest.h>
 
-#include "Constants.hpp"
+#include "RealTimeRobot.hpp"
 #include "SimulatorTest.hpp"
 #include "subsystems/Drivetrain.hpp"
 
@@ -15,7 +15,8 @@ TEST_F(ModeTest, AutonToTeleopTest) {
 
     frc3512::SubsystemBase::RunAllAutonomousInit();
     frc::Notifier autonomousPeriodic{[&] { drivetrain.ControllerPeriodic(); }};
-    autonomousPeriodic.StartPeriodic(frc3512::Constants::kDt);
+    autonomousPeriodic.StartPeriodic(
+        frc3512::RealTimeRobot::kDefaultControllerPeriod);
 
     const frc::Pose2d kInitialPose{5_m, 0_m, 0_rad};
     drivetrain.Reset(kInitialPose);
@@ -33,7 +34,8 @@ TEST_F(ModeTest, AutonToTeleopTest) {
         drivetrain.TeleopPeriodic();
         drivetrain.ControllerPeriodic();
     }};
-    teleopPeriodic.StartPeriodic(frc3512::Constants::kDt);
+    teleopPeriodic.StartPeriodic(
+        frc3512::RealTimeRobot::kDefaultControllerPeriod);
 
     frc::sim::StepTiming(20_ms);
 

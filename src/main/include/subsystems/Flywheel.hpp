@@ -21,6 +21,7 @@
 #include "Constants.hpp"
 #include "FlywheelSim.hpp"
 #include "LerpTable.hpp"
+#include "RealTimeRobot.hpp"
 #include "controllers/FlywheelController.hpp"
 #include "rev/CANSparkMax.hpp"
 #include "subsystems/ControlledSubsystemBase.hpp"
@@ -151,8 +152,9 @@ private:
     frc::KalmanFilter<1, 1, 1> m_observer{
         m_plant,
         {200.0},
-        {FlywheelController::kDpP / Constants::kDt.to<double>()},
-        Constants::kDt};
+        {FlywheelController::kDpP /
+         RealTimeRobot::kDefaultControllerPeriod.to<double>()},
+        RealTimeRobot::kDefaultControllerPeriod};
 
     FlywheelController m_controller;
     Eigen::Matrix<double, 1, 1> m_u = Eigen::Matrix<double, 1, 1>::Zero();
@@ -162,7 +164,8 @@ private:
     units::radian_t m_angle;
     units::radian_t m_lastAngle;
     units::second_t m_time = frc2::Timer::GetFPGATimestamp();
-    units::second_t m_lastTime = m_time - Constants::kDt;
+    units::second_t m_lastTime =
+        m_time - RealTimeRobot::kDefaultControllerPeriod;
 
     // Filters out encoder quantization noise
     units::radians_per_second_t m_angularVelocity = 0_rad_per_s;

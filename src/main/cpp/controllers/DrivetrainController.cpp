@@ -17,7 +17,6 @@
 #include "controllers/LQR.hpp"
 
 using namespace frc3512;
-using namespace frc3512::Constants;
 
 const frc::LinearSystem<2, 2, 2> DrivetrainController::kPlant{GetPlant()};
 
@@ -179,7 +178,8 @@ Eigen::Matrix<double, 2, 5> DrivetrainController::ControllerGainForState(
     }
 
     m_A(State::kY, State::kHeading) = velocity;
-    return LQR<5, 2>(m_A, m_B, m_Q, m_R, kDt);
+    return LQR<5, 2>(m_A, m_B, m_Q, m_R,
+                     RealTimeRobot::kDefaultControllerPeriod);
 }
 
 Eigen::Matrix<double, 2, 1> DrivetrainController::Controller(
