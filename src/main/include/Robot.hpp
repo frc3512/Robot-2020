@@ -29,6 +29,7 @@ struct NoOp {
 #include "AutonomousChooser.hpp"
 #include "IntakeSim.hpp"
 #include "NetworkTableUtil.hpp"
+#include "RealTimeRobot.hpp"
 #include "subsystems/Climber.hpp"
 #include "subsystems/Drivetrain.hpp"
 #include "subsystems/Flywheel.hpp"
@@ -43,7 +44,7 @@ using namespace frc3512::Constants::Robot;
 /**
  * The main robot class.
  */
-class Robot : public frc::TimedRobot {
+class Robot : public RealTimeRobot {
 public:
     /**
      * States used for the multi-subsystem shooting procedure

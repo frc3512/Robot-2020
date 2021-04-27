@@ -2,29 +2,19 @@
 
 #include "Robot.hpp"
 
-#if !defined(_MSC_VER)
-#include <unistd.h>
-#endif  // !defined(_MSC_VER)
-
-#include <cstdlib>
-#include <stdexcept>
-
 #include <frc/DriverStation.h>
 #include <frc/Joystick.h>
-#include <frc/Notifier.h>
 #include <frc/RobotController.h>
-#include <frc/Threads.h>
-#include <frc/livewindow/LiveWindow.h>
 #include <frc/simulation/BatterySim.h>
 #include <frc/simulation/RoboRioSim.h>
 
 #include "Constants.hpp"
-#include "RTUtils.hpp"
 #include "logging/CSVUtil.hpp"
 
 namespace frc3512 {
 
-Robot::Robot() {
+Robot::Robot()
+    : RealTimeRobot(1.9_ms, Constants::kDt, Constants::kControllerPrio) {
     m_autonChooser.AddAutonomous("Left Side Intake",
                                  [=] { AutoLeftSideIntake(); });
     m_autonChooser.AddAutonomous("Left Side Shoot Ten",
@@ -60,68 +50,37 @@ Robot::Robot() {
             "Galactic Search B", [=] { AutoGalacticSearchB(); }, 30_s);
     }
 
-    frc::DriverStation::GetInstance().SilenceJoystickConnectionWarning(true);
-    frc::LiveWindow::GetInstance()->DisableAllTelemetry();
-    SetNetworkTablesFlushEnabled(true);
-
     // TIMESLICE ALLOCATION TABLE
     //
-    // |  Subsystem | Offset (ms) | Duration (ms) | Allocation (ms) |
-    // |------------|-------------|---------------|-----------------|
-    // | **Total**  | N/A         | 5.0           | 5.0             |
-    // | TimedRobot | 0.0         | ?             | 1.9             |
-    // | Drivetrain | 1.9         | 1.32          | 1.5             |
-    // | Turret     | 3.4         | 0.6           | 0.8             |
-    // | Flywheel   | 4.2         | 0.6           | 0.8             |
-    // | **Free**   | 5.0         | 0.0           | N/A             |
-    AddPeriodic(
+    // |  Subsystem | Duration (ms) | Allocation (ms) |
+    // |------------|---------------|-----------------|
+    // | **Total**  | 5.0           | 5.0             |
+    // | TimedRobot | ?             | 1.9             |
+    // | Drivetrain | 1.32          | 1.5             |
+    // | Flywheel   | 0.6           | 0.8             |
+    // | Turret     | 0.6           | 0.8             |
+    // | **Free**   | 0.0           | N/A             |
+    Schedule(
         [=] {
             if (IsEnabled()) {
                 m_drivetrain.ControllerPeriodic();
             }
         },
-        Constants::kDt, 1.9_ms);
-    AddPeriodic(
+        1.5_ms);
+    Schedule(
         [=] {
             if (IsEnabled()) {
                 m_flywheel.ControllerPeriodic();
             }
         },
-        Constants::kDt, 3.4_ms);
-    AddPeriodic(
+        0.8_ms);
+    Schedule(
         [=] {
             if (IsEnabled()) {
                 m_turret.ControllerPeriodic();
             }
         },
-        Constants::kDt, 4.2_ms);
-
-    if constexpr (!IsSimulation()) {
-        // crond occasionally uses 50% CPU and there's no cronjobs to run
-#if !defined(_MSC_VER)
-        setuid(0);
-#endif  // !defined(_MSC_VER)
-        int status = std::system("/etc/init.d/crond stop");
-        if (status != 0) {
-            throw std::runtime_error(
-                fmt::format("Failed to stop crond ({})", status));
-        }
-    }
-
-    if (!frc::Notifier::SetHALThreadPriority(true, 40)) {
-        throw std::runtime_error(
-            "Setting HAL Notifier RT priority to 40 failed\n");
-    }
-
-    if (!frc::SetCurrentThreadPriority(true, Constants::kControllerPrio)) {
-        throw std::runtime_error(
-            fmt::format("Setting TimedRobot RT priority to {} failed\n",
-                        Constants::kControllerPrio));
-    }
-
-    // Give FRC_NetCommDaemon RT priority 35 so it's not preempted by robot code
-    // during high CPU utilization.
-    SetProcessRTPriority("/usr/local/frc/bin/FRC_NetCommDaemon", 35);
+        0.8_ms);
 }
 
 void Robot::Shoot(int ballsToShoot) {
