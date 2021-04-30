@@ -1,7 +1,8 @@
-// Copyright (c) 2020 FRC Team 3512. All Rights Reserved.
+// Copyright (c) 2020-2021 FRC Team 3512. All Rights Reserved.
 
 #pragma once
 
+#include <frc/geometry/Pose2d.h>
 #include <frc/geometry/Translation2d.h>
 #include <frc/geometry/Translation3d.h>
 
@@ -21,4 +22,5 @@ static constexpr frc::Translation3d kF{629.25_in, 82.214_in, 100.25_in};
 static constexpr frc::Translation3d kG{629.25_in, 69.214_in, 115.25_in};
 static constexpr frc::Translation3d kH{629.25_in, 71.214_in, 115.25_in};
 static constexpr frc::Translation3d kCenter = (kA + kG) / 2.0;
+extern const frc::Pose2d kTargetPoseInGlobal;
 }  // namespace TargetModel

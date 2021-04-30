@@ -86,9 +86,8 @@ Robot::Robot() {
 
 void Robot::Shoot(int ballsToShoot) {
     if (m_state == ShootingState::kIdle) {
-        m_vision.TurnLEDOn();
         m_turret.SetControlMode(TurretController::ControlMode::kAutoAim);
-        m_flywheel.SetGoalFromVision();
+        m_flywheel.SetGoalFromPose();
         m_state = ShootingState::kStartFlywheel;
         m_ballsToShoot = ballsToShoot;
         if (ballsToShoot != -1) {
@@ -133,7 +132,6 @@ void Robot::DisabledInit() {
 
     // Reset teleop shooting state machine when disabling robot
     m_flywheel.SetGoal(0_rad_per_s);
-    m_vision.TurnLEDOff();
     m_timer.Stop();
     m_state = ShootingState::kIdle;
 }
@@ -272,7 +270,6 @@ void Robot::RunShooterSM() {
                 m_flywheel.SetGoal(0_rad_per_s);
                 m_turret.SetControlMode(
                     TurretController::ControlMode::kClosedLoop);
-                m_vision.TurnLEDOff();
                 m_timer.Stop();
                 m_state = ShootingState::kIdle;
             }

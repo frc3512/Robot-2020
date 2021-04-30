@@ -13,9 +13,8 @@
 class IntakeTest : public frc3512::SimulatorTest {};
 
 TEST_F(IntakeTest, DeployTest) {
-    frc3512::Vision vision;
     frc3512::Drivetrain drivetrain;
-    frc3512::Flywheel flywheel{vision};
+    frc3512::Flywheel flywheel{drivetrain};
     frc3512::Intake intake{flywheel};
 
     frc3512::SubsystemBase::RunAllTeleopInit();

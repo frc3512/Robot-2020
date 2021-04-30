@@ -24,12 +24,12 @@ const frc::Pose2d Flywheel::kTargetPoseInGlobal{TargetModel::kCenter.X(),
                                                 TargetModel::kCenter.Y(),
                                                 units::radian_t{wpi::math::pi}};
 
-Flywheel::Flywheel(Vision& vision)
+Flywheel::Flywheel(Drivetrain& drivetrain)
     : ControlledSubsystemBase("Flywheel",
                               {ControllerLabel{"Angular velocity", "rad/s"}},
                               {ControllerLabel{"Voltage", "V"}},
                               {ControllerLabel{"Angular velocity", "rad/s"}}),
-      m_vision(vision) {
+      m_drivetrain(drivetrain) {
     SetCANSparkMaxBusUsage(m_leftGrbx, Usage::kMinimal);
     m_leftGrbx.SetSmartCurrentLimit(40);
     SetCANSparkMaxBusUsage(m_rightGrbx, Usage::kMinimal);
@@ -50,8 +50,6 @@ Flywheel::Flywheel(Vision& vision)
     m_table.Insert(231_in, 508_rad_per_s);
     m_table.Insert(312_in, 598_rad_per_s);
     m_table.Insert(360_in, 708_rad_per_s);
-
-    m_vision.SubscribeToVisionData(m_visionQueue);
 
     Reset();
     SetGoal(0_rad_per_s);
@@ -79,14 +77,11 @@ units::radians_per_second_t Flywheel::GetGoal() const {
 
 bool Flywheel::AtGoal() const { return m_controller.AtGoal(); }
 
-void Flywheel::SetGoalFromVision() {
+void Flywheel::SetGoalFromPose() {
     if (frc::DriverStation::GetInstance().IsTest()) {
         SetGoal(ThrottleToReference(m_testThrottle));
     } else {
-        // Only set goal if we see target
-        if (m_distanceToTarget != 0_m) {
-            SetGoal(GetReferenceForVision());
-        }
+        SetGoal(GetReferenceForPose(m_drivetrain.GetPose()));
     }
 }
 
@@ -115,10 +110,6 @@ units::radians_per_second_t Flywheel::GetReferenceForPose(
         kTargetPoseInGlobal.Translation())];
 }
 
-units::radians_per_second_t Flywheel::GetReferenceForVision() {
-    return m_table[m_distanceToTarget];
-}
-
 void Flywheel::RobotPeriodic() {
     if (frc::DriverStation::GetInstance().IsTest()) {
         static frc::Joystick appendageStick2{kAppendageStick2Port};
@@ -127,19 +118,6 @@ void Flywheel::RobotPeriodic() {
         auto manualRef = ThrottleToReference(m_testThrottle);
         fmt::print("Manual angular velocity: {}\n", manualRef);
     }
-
-    /* if (!frc::DriverStation::GetInstance().IsDisabled()) {
-       auto turretHeadingInGlobal = units::radian_t{
-           GetStates()(TurretController::State::kAngle) +
-           m_drivetrain.GetStates()(DrivetrainController::State::kHeading)};
-       if (turretHeadingInGlobal < 45_deg && turretHeadingInGlobal > -45_deg) {
-           m_vision.TurnLEDOn();
-       } else {
-           m_vision.TurnLEDOff();
-       }
-   } else {
-       m_vision.TurnLEDOff();
-   } */
 }
 
 void Flywheel::ControllerPeriodic() {
@@ -149,18 +127,11 @@ void Flywheel::ControllerPeriodic() {
 
     // Adjusts the flywheel's goal while moving and shooting
     if (IsOn() && m_moveAndShoot) {
-        SetGoalFromVision();
+        SetGoalFromPose();
     }
 
     m_angle = GetAngle();
     m_time = frc2::Timer::GetFPGATimestamp();
-
-    // Use vision measurements to find distance to target
-    auto visionData = m_visionQueue.pop();
-    if (visionData.has_value()) {
-        auto transform = visionData.value().transformCameraToTarget;
-        m_distanceToTarget = units::math::hypot(transform.X(), transform.Y());
-    }
 
     // WPILib uses the time between pulses in GetRate() to calculate velocity,
     // but this is very noisy for high-resolution encoders. Instead, we

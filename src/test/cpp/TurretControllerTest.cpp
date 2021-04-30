@@ -7,6 +7,7 @@
 #include <units/math.h>
 #include <wpi/math>
 
+#include "Constants.hpp"
 #include "RealTimeRobot.hpp"
 #include "SimulatorTest.hpp"
 #include "TargetModel.hpp"
@@ -119,6 +120,6 @@ TEST_F(TurretControllerTest, ProperDistanceFromTarget) {
     EXPECT_NEAR_UNITS(
         distance,
         TargetModel::kCenter.X() - kDrivetrainX +
-            frc3512::TurretController::kDrivetrainToTurretFrame.X(),
+            frc3512::Constants::Vision::kDrivetrainToTurretFrame.X(),
         1e-6_m);
 }

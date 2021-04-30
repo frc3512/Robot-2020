@@ -2,16 +2,11 @@
 
 #pragma once
 
-<<<<<<< HEAD
-||||||| constructed merge base
-#include <units/time.h>
-
-=======
+#include <frc/geometry/Pose2d.h>
 #include <units/angle.h>
 #include <units/length.h>
 #include <units/time.h>
 
->>>>>>> Rework vision to work with new photonvision libraries
 namespace frc3512::Constants {
 
 namespace Robot {
@@ -95,12 +90,16 @@ constexpr int kClimberLock = 3;
 }  // namespace Climber
 
 namespace Vision {
+// Camera name
+extern const char kCameraName[];
 // Camera height
-constexpr units::meter_t kCameraHeight = 39_in;
+extern const units::meter_t kCameraHeight;
 // Camera pitch
-constexpr units::degree_t kCameraPitch = 22.8_deg;
+extern const units::degree_t kCameraPitch;
 // Diagonal pi camera V1 FOV
-constexpr units::degree_t kCameraDiagonalFOV = 74.8_deg;
+extern const units::degree_t kCameraDiagonalFOV;
+// Drivetrain To Turret pose
+extern const frc::Pose2d kDrivetrainToTurretFrame;
 }  // namespace Vision
 
 constexpr auto kDt = 5_ms;

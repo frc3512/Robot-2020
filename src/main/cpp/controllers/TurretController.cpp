@@ -6,16 +6,11 @@
 #include <frc/RobotController.h>
 #include <frc/system/plant/LinearSystemId.h>
 
+#include "Constants.hpp"
 #include "TargetModel.hpp"
 #include "controllers/DrivetrainController.hpp"
 
 using namespace frc3512;
-
-const frc::Pose2d TurretController::kDrivetrainToTurretFrame{
-    2_in, 0_m, wpi::math::pi * 1_rad};
-const frc::Pose2d TurretController::kTargetPoseInGlobal{
-    TargetModel::kCenter.X(), TargetModel::kCenter.Y(),
-    units::radian_t{wpi::math::pi}};
 
 template <typename Vector1, typename Vector2>
 auto Dot(const Vector1& a, const Vector2& b) -> decltype(auto) {
@@ -68,8 +63,6 @@ void TurretController::SetFlywheelReferences(units::radians_per_second_t r) {
     m_flywheelAngularVelocityRef = r;
 }
 
-void TurretController::SetYaw(units::radian_t yaw) { m_yaw = yaw; }
-
 void TurretController::SetControlMode(ControlMode mode) {
     m_controlMode = mode;
 }
@@ -98,9 +91,18 @@ Eigen::Matrix<double, 1, 1> TurretController::Calculate(
             auto turretNextPoseInGlobal =
                 DrivetrainToTurretInGlobal(m_drivetrainNextPoseInGlobal);
 
-            // Find angle turret needs to move for this timestep
-            units::radian_t turretRef =
-                units::radian_t{x(State::kAngle)} - m_yaw;
+            // Find angle reference for this timestep
+            auto turretHeadingForTargetInGlobal = CalculateHeading(
+                TargetModel::kTargetPoseInGlobal.Translation() +
+                    TargetModel::kOffset,
+                turretNextPoseInGlobal.Translation());
+            auto turretDesiredHeadingInDrivetrain =
+                turretHeadingForTargetInGlobal -
+                m_drivetrainNextPoseInGlobal.Rotation().Radians();
+            auto turretDesiredHeadingInTurret =
+                turretDesiredHeadingInDrivetrain -
+                Constants::Vision::kDrivetrainToTurretFrame.Rotation()
+                    .Radians();
 
             // Find angular velocity reference for this timestep
             units::meters_per_second_t drivetrainV =
@@ -118,7 +120,7 @@ Eigen::Matrix<double, 1, 1> TurretController::Calculate(
                 CalculateAngularVelocity(
                     drivetrainVelocityInGlobal,
                     turretNextPoseInGlobal.Translation() -
-                        (kTargetPoseInGlobal.Translation() +
+                        (TargetModel::kTargetPoseInGlobal.Translation() +
                          TargetModel::kOffset)) -
                 drivetrainW;
 
@@ -126,7 +128,7 @@ Eigen::Matrix<double, 1, 1> TurretController::Calculate(
             // drivetrain pose already profiles the heading. We still set the
             // trapezoid profile goal to the reference so AtGoal() works with
             // auto-aiming.
-            SetGoal(turretRef, turretDesiredAngularVelocity);
+            SetGoal(turretDesiredHeadingInTurret, turretDesiredAngularVelocity);
             SetReferences(m_goal.position, m_goal.velocity);
         } else if (m_controlMode == ControlMode::kClosedLoop) {
             // Calculate profiled references to the goal
@@ -290,8 +292,9 @@ frc::Pose2d TurretController::DrivetrainToTurretInGlobal(
     const frc::Pose2d& drivetrainInGlobal) {
     // Calculate next drivetrain and turret pose in global frame
     frc::Transform2d drivetrainToTurretFrame{
-        frc::Pose2d{}, frc::Pose2d{kDrivetrainToTurretFrame.Translation(),
-                                   drivetrainInGlobal.Rotation()}};
+        frc::Pose2d{},
+        frc::Pose2d{Constants::Vision::kDrivetrainToTurretFrame.Translation(),
+                    drivetrainInGlobal.Rotation()}};
     return drivetrainInGlobal.TransformBy(drivetrainToTurretFrame);
 }
 

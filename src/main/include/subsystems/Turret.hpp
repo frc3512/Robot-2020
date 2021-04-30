@@ -16,8 +16,8 @@
 
 #include "ADCInput.hpp"
 #include "Constants.hpp"
-#include "RealTimeRobot.hpp"
 #include "NetworkTableUtil.hpp"
+#include "RealTimeRobot.hpp"
 #include "controllers/TurretController.hpp"
 #include "rev/CANSparkMax.hpp"
 #include "static_concurrent_queue.hpp"
@@ -129,11 +129,16 @@ public:
     void TeleopInit() override {
         Enable();
         SetControlMode(TurretController::ControlMode::kClosedLoop);
+        if (!m_turnOnLEDWhenLookingAtTarget) {
+            m_vision.TurnLEDOn();
+        }
     }
 
     void TeleopPeriodic() override;
 
     void TestPeriodic() override;
+
+    void RobotPeriodic() override;
 
     void ControllerPeriodic() override;
 
@@ -169,6 +174,12 @@ private:
     Flywheel& m_flywheel;
 
     static_concurrent_queue<Vision::GlobalMeasurement, 8> m_visionQueue;
+    bool m_turnOnLEDWhenLookingAtTarget = false;
+    int m_poseMeasurementFaultCounter = 0;
+
+    nt::NetworkTableEntry m_poseMeasurementFaultEntry =
+        NetworkTableUtil::MakeDoubleEntry(
+            "/Diagnostics/Drivetrain/Vision faults");
 
     frc::Transform2d cameraInGlobalToDrivetrainInGlobal;
 

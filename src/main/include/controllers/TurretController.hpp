@@ -33,12 +33,6 @@ public:
     static constexpr double kGearRatio = 18.0 / 160.0;
     static constexpr double kDpR = kGearRatio * 2.0 * wpi::math::pi;
 
-    // Transformation from drivetrain to turret
-    static const frc::Pose2d kDrivetrainToTurretFrame;
-
-    // Power port's global pose
-    static const frc::Pose2d kTargetPoseInGlobal;
-
     // State tolerances
     static constexpr auto kAngleTolerance = 0.05_rad;
     static constexpr auto kAngularVelocityTolerance = 2.0_rad_per_s;
@@ -115,11 +109,6 @@ public:
      * Sets the current flywheel angular velocity reference.
      */
     void SetFlywheelReferences(units::radians_per_second_t r);
-
-    /**
-     * Update vision yaw measurement
-     */
-    void SetYaw(units::radian_t yaw);
 
     /**
      * Sets turret control mode.
@@ -214,8 +203,6 @@ private:
         m_plant, RealTimeRobot::kDefaultControllerPeriod};
 
     ControlMode m_controlMode = ControlMode::kManual;
-
-    units::radian_t m_yaw;
 
     bool m_atReferences = false;
 

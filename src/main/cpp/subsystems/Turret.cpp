@@ -31,11 +31,10 @@ Turret::Turret(Vision& vision, Drivetrain& drivetrain, Flywheel& flywheel)
     // Ensures CANSparkMax::Get() returns an initialized value
     m_motor.Set(0.0);
 
-    m_vision.SubscribeToVisionData(m_visionQueue);
-    m_vision.TurnLEDOn();
-
     m_encoder.SetDistancePerRotation(TurretController::kDpR);
     Reset(0_rad);
+
+    m_vision.SubscribeToVisionData(m_visionQueue);
 }
 
 void Turret::SetControlMode(TurretController::ControlMode mode) {
@@ -153,24 +152,64 @@ void Turret::TestPeriodic() {
     }
 }
 
+void Turret::RobotPeriodic() {
+    m_poseMeasurementFaultEntry.SetDouble(m_poseMeasurementFaultCounter);
+
+    if (frc::DriverStation::GetInstance().IsAutonomousEnabled() || m_turnOnLEDWhenLookingAtTarget) {
+       auto turretHeadingInGlobal = units::radian_t{
+           GetStates()(TurretController::State::kAngle) +
+           m_drivetrain.GetStates()(DrivetrainController::State::kHeading)};
+       if (turretHeadingInGlobal < 45_deg && turretHeadingInGlobal > -45_deg) {
+           m_vision.TurnLEDOn();
+       } else {
+           m_vision.TurnLEDOff();
+       }
+   }
+}
+
 void Turret::ControllerPeriodic() {
     UpdateDt();
 
     m_observer.Predict(m_u, GetDt());
 
     m_controller.SetDrivetrainStates(m_drivetrain.GetStates());
-    m_controller.SetFlywheelReferences(m_flywheel.GetReferenceForVision());
+    m_controller.SetFlywheelReferences(
+        m_flywheel.GetReferenceForPose(m_drivetrain.GetPose()));
 
     Eigen::Matrix<double, 1, 1> y;
     y << GetAngle().to<double>();
     m_observer.Correct(m_controller.GetInputs(), y);
 
+    m_u = m_controller.Calculate(m_observer.Xhat());
+
     auto visionData = m_visionQueue.pop();
     if (visionData.has_value()) {
-        m_controller.SetYaw(visionData.value().yaw);
-    }
+        auto turretInGlobal = visionData.value().targetToTurretInGlobal;
 
-    m_u = m_controller.Calculate(m_observer.Xhat());
+        frc::Transform2d turretInGlobalToDrivetrainInGlobal{
+            frc::Pose2d{
+                Constants::Vision::kDrivetrainToTurretFrame.Translation(),
+                Constants::Vision::kDrivetrainToTurretFrame.Rotation()
+                        .Radians() +
+                    GetAngle()},
+            frc::Pose2d{}};
+
+        auto drivetrainInGlobal =
+            turretInGlobal.TransformBy(turretInGlobalToDrivetrainInGlobal);
+
+        // If pose measurement is too far away from the state estimate, discard
+        // it and increment the fault counter
+        if (m_drivetrain.GetPose().Translation().Distance(
+                drivetrainInGlobal.Translation()) < 1_m) {
+            m_drivetrain.CorrectWithGlobalOutputs(drivetrainInGlobal.X(),
+                                                  drivetrainInGlobal.Y(),
+                                                  visionData.value().timestamp);
+        } else {
+            m_poseMeasurementFaultCounter++;
+        }
+
+        m_turnOnLEDWhenLookingAtTarget = true;
+    }
 
     // Set motor input
     if (m_controller.GetControlMode() !=
@@ -189,8 +228,6 @@ void Turret::ControllerPeriodic() {
         m_encoderSim.SetDistance(HeadingToEncoderDistance(
             units::radian_t{m_turretSim.GetOutput(0)}));
 
-        m_vision.UpdateVisionMeasurementsSim(m_drivetrain.GetPose());
-
         if (units::radian_t{m_turretSim.GetOutput(0)} >
             TurretController::kCCWLimit) {
             m_ccwLimitSwitchSim.SetVoltage(0.0);
@@ -203,6 +240,10 @@ void Turret::ControllerPeriodic() {
         } else {
             m_cwLimitSwitchSim.SetVoltage(5.0);
         }
+
+        frc::Rotation2d turretToCameraHeading{units::radian_t{wpi::math::pi} + GetAngle()};
+        m_vision.UpdateVisionMeasurementsSim(m_drivetrain.GetPose(),
+                                                turretToCameraHeading);
     }
 }
 

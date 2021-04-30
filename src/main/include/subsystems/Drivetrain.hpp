@@ -12,6 +12,7 @@
 #include <frc/LinearFilter.h>
 #include <frc/SpeedControllerGroup.h>
 #include <frc/estimator/AngleStatistics.h>
+#include <frc/estimator/DifferentialDrivePoseEstimator.h>
 #include <frc/estimator/KalmanFilterLatencyCompensator.h>
 #include <frc/estimator/UnscentedKalmanFilter.h>
 #include <frc/geometry/Pose2d.h>

@@ -30,8 +30,7 @@ public:
     static const frc::Transform2d kCameraInGlobalToTurretInGlobal;
 
     struct GlobalMeasurement {
-        frc::Pose2d transformCameraToTarget;
-        units::degree_t yaw;
+        frc::Pose2d targetToTurretInGlobal;
         units::second_t timestamp;
     };
 
@@ -67,16 +66,19 @@ public:
     /**
      * Updates vision sim data with new pose and camera transformation
      *
-     * @param drivetrainPose drivetrain pose to see if target is in range
+     * @param drivetrainPose Drivetrain pose to see if target is in range
+     * @param cameraHeading Camera position relative to the drivetrain and turret heading
      */
-    void UpdateVisionMeasurementsSim(const frc::Pose2d& drivetrainPose);
+    void UpdateVisionMeasurementsSim(
+        const frc::Pose2d& drivetrainPose,
+        const frc::Rotation2d& cameraHeading);
 
     void SimulationInit() override;
 
     void RobotPeriodic() override;
 
 private:
-    photonlib::PhotonCamera m_rpiCam{"gloworm"};
+    photonlib::PhotonCamera m_rpiCam{Constants::Vision::kCameraName};
     photonlib::PhotonPipelineResult m_result;
 
     std::mutex m_mutex;
@@ -93,10 +95,10 @@ private:
 
     // Simulation variables
     photonlib::SimVisionSystem m_simVision{
-        "gloworm",
+        Constants::Vision::kCameraName,
         Constants::Vision::kCameraDiagonalFOV,
         Constants::Vision::kCameraPitch,
-        kCameraInGlobalToTurretInGlobal,
+        frc::Transform2d{},
         Constants::Vision::kCameraHeight,
         20_m,
         960,

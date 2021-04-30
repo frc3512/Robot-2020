@@ -35,17 +35,17 @@ void Vision::ProcessNewMeasurement() {
 
     photonlib::PhotonTrackedTarget target = m_result.GetBestTarget();
 
-    frc::Pose2d targetInGlobalToCameraInGlobal{
-        target.GetCameraRelativePose().Translation(),
-        target.GetCameraRelativePose().Rotation()};
-    frc::Pose2d targetInGlobalToTurretInGlobal =
-        targetInGlobalToCameraInGlobal.TransformBy(
-            kCameraInGlobalToTurretInGlobal);
+    auto cameraToTargetInGlobal = target.GetCameraRelativePose();
+
+    auto targetToCameraInGlobal =
+        TargetModel::kTargetPoseInGlobal.TransformBy(cameraToTargetInGlobal);
+
+    auto turretInGlobal =
+        targetToCameraInGlobal.TransformBy(kCameraInGlobalToTurretInGlobal);
 
     std::array<double, 3> pose{
-        targetInGlobalToTurretInGlobal.X().to<double>(),
-        targetInGlobalToTurretInGlobal.Y().to<double>(),
-        targetInGlobalToTurretInGlobal.Rotation().Radians().to<double>()};
+        turretInGlobal.X().to<double>(), turretInGlobal.Y().to<double>(),
+        turretInGlobal.Rotation().Radians().to<double>()};
     m_hasPoseEntry.SetDoubleArray(pose);
     m_hasYawEntry.SetDouble(target.GetYaw());
 
@@ -54,13 +54,18 @@ void Vision::ProcessNewMeasurement() {
 
     std::scoped_lock lock{m_mutex};
     for (auto& queue : m_subsystemQueues) {
-        queue->push({targetInGlobalToTurretInGlobal,
-                     units::degree_t{target.GetYaw()}, timestamp});
+        queue->push({turretInGlobal, timestamp});
     }
 }
 
-void Vision::UpdateVisionMeasurementsSim(const frc::Pose2d& drivetrainPose) {
+void Vision::UpdateVisionMeasurementsSim(
+    const frc::Pose2d& drivetrainPose,
+    const frc::Rotation2d& cameraHeading) {
     m_simVision.ProcessFrame(drivetrainPose);
+
+    using namespace Constants::Vision;
+    m_simVision.MoveCamera(frc::Transform2d{frc::Translation2d{}, cameraHeading}, kCameraHeight,
+                           kCameraPitch);
 }
 
 void Vision::SimulationInit() {

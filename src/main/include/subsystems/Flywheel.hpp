@@ -26,16 +26,18 @@
 #include "rev/CANSparkMax.hpp"
 #include "static_concurrent_queue.hpp"
 #include "subsystems/ControlledSubsystemBase.hpp"
-#include "subsystems/Vision.hpp"
+#include "subsystems/Flywheel.hpp"
 
 namespace frc3512 {
+
+class Drivetrain;
 
 /**
  * Flywheel subsystem.
  */
 class Flywheel : public ControlledSubsystemBase<1, 1, 1> {
 public:
-    explicit Flywheel(Vision& vision);
+    explicit Flywheel(Drivetrain& drivetrain);
 
     Flywheel(const Flywheel&) = delete;
     Flywheel& operator=(const Flywheel&) = delete;
@@ -84,7 +86,7 @@ public:
      * Takes the projected distance of the flywheel to the target and sets an
      * angular velocity goal determined by the lookup table
      */
-    void SetGoalFromVision();
+    void SetGoalFromPose();
 
     /**
      * Returns true if the flywheel has been set to a nonzero goal.
@@ -113,8 +115,6 @@ public:
      */
     units::radians_per_second_t GetReferenceForPose(
         const frc::Pose2d& drivetrainPose) const;
-
-    units::radians_per_second_t GetReferenceForVision();
 
     void DisabledInit() override { Disable(); }
 
@@ -174,9 +174,7 @@ private:
     frc::LinearFilter<units::radians_per_second_t> m_velocityFilter =
         frc::LinearFilter<units::radians_per_second_t>::MovingAverage(4);
 
-    Vision& m_vision;
-
-    static_concurrent_queue<Vision::GlobalMeasurement, 8> m_visionQueue;
+    Drivetrain& m_drivetrain;
 
     // Used in test mode for manually setting flywheel goal. This is helpful for
     // measuring flywheel lookup table values.
