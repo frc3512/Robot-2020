@@ -65,6 +65,9 @@ jobs:
           - os: macos-latest
             name: macos
             build-options: "-Ponlymacosx86-64"
+          - os: ubuntu-latest
+            name: ubsan
+            build-options: "-Ponlylinuxx86-64 -Pubsan"
     name: "test-${{ matrix.name }}"
     runs-on: ${{ matrix.os }}
 

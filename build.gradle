@@ -108,6 +108,14 @@ if (project.hasProperty("asan")) {
     }
 }
 
+if (project.hasProperty("ubsan")) {
+    nativeUtils.platformConfigs.named("linuxx86-64").configure {
+        it.cppCompiler.args.add('-g3')
+        it.cppCompiler.args.add('-fsanitize=undefined')
+        it.linker.args.add('-fsanitize=undefined')
+    }
+}
+
 model {
     components {
         frcUserProgram(NativeExecutableSpec) {
