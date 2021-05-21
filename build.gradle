@@ -97,6 +97,9 @@ if (OperatingSystem.current().isWindows()) {
 }
 
 nativeUtils.platformConfigs.named("linuxx86-64").configure {
+    // GCC 11 gives false positives
+    it.cppCompiler.args.add('-Wno-error=maybe-uninitialized')
+
     it.linker.args.add('-lstdc++fs')
 }
 
