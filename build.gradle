@@ -221,7 +221,7 @@ task intellisense(type: Exec) {
 
 doxygen {
     executables {
-        doxygen version : '1.8.18',
+        doxygen version : '1.8.20',
             baseURI : 'https://frcmaven.wpi.edu/artifactory/generic-release-mirror/doxygen'
     }
 
