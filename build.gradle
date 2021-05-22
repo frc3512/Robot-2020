@@ -4,7 +4,7 @@ plugins {
     id "cpp"
     id "google-test-test-suite"
     id "edu.wpi.first.GradleRIO" version "2021.3.1"
-    id "org.ysb33r.doxygen" version "0.5"
+    id "org.ysb33r.doxygen" version "0.6"
 }
 
 // For testing development versions of WPILib
@@ -220,11 +220,6 @@ task intellisense(type: Exec) {
 }
 
 doxygen {
-    executables {
-        doxygen version : '1.8.20',
-            baseURI : 'https://frcmaven.wpi.edu/artifactory/generic-release-mirror/doxygen'
-    }
-
     exclude 'fmt/*'
 
     generate_html true
