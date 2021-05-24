@@ -60,8 +60,8 @@ void Intake::RobotPeriodic() {
         SetArmMotor(ArmMotorDirection::kIntake);
     } else {
         // Manual control
-        if (frc::DriverStation::GetInstance().IsOperatorControlEnabled() ||
-            frc::DriverStation::GetInstance().IsTest()) {
+        if (frc::DriverStation::IsTeleopEnabled() ||
+            frc::DriverStation::IsTest()) {
             if (appendageStick2.GetRawButton(4)) {
                 SetArmMotor(ArmMotorDirection::kIntake);
             } else if (appendageStick2.GetRawButton(6)) {
@@ -89,8 +89,8 @@ void Intake::RobotPeriodic() {
         }
     } else {
         // Manual control
-        if (frc::DriverStation::GetInstance().IsOperatorControlEnabled() ||
-            frc::DriverStation::GetInstance().IsTest()) {
+        if (frc::DriverStation::IsTeleopEnabled() ||
+            frc::DriverStation::IsTest()) {
             if (appendageStick2.GetRawButton(4)) {
                 SetFunnel(0.8);
             } else if (appendageStick2.GetRawButton(6)) {

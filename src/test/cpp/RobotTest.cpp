@@ -4,9 +4,9 @@
 #include <vector>
 
 #include <fmt/format.h>
+#include <frc/Timer.h>
 #include <frc/simulation/DriverStationSim.h>
 #include <frc/simulation/JoystickSim.h>
-#include <frc2/Timer.h>
 #include <gtest/gtest.h>
 
 #include "HWConfig.hpp"
@@ -156,7 +156,7 @@ TEST_F(RobotTest, CalculateDrivetrainInGlobal) {
 }
 
 TEST_F(RobotTest, ClimberTurretCollisionAvoidance) {
-    frc2::Timer timer;
+    frc::Timer timer;
     timer.Start();
 
     frc::sim::JoystickSim appendageStick1{

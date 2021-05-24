@@ -3,15 +3,16 @@
 #pragma once
 
 #include <frc/Encoder.h>
-#include <frc/LinearFilter.h>
+#include <frc/Timer.h>
 #include <frc/estimator/KalmanFilter.h>
+#include <frc/filter/LinearFilter.h>
 #include <frc/geometry/Pose2d.h>
 #include <frc/simulation/EncoderSim.h>
 #include <frc/simulation/FlywheelSim.h>
 #include <frc/simulation/LinearSystemSim.h>
 #include <frc/system/LinearSystem.h>
 #include <frc/system/plant/LinearSystemId.h>
-#include <frc2/Timer.h>
+#include <rev/CANSparkMax.h>
 #include <units/angle.h>
 #include <units/angular_velocity.h>
 #include <units/current.h>
@@ -23,7 +24,6 @@
 #include "HWConfig.hpp"
 #include "LerpTable.hpp"
 #include "controllers/FlywheelController.hpp"
-#include "rev/CANSparkMax.hpp"
 #include "subsystems/ControlledSubsystemBase.hpp"
 #include "subsystems/Flywheel.hpp"
 #include "subsystems/Vision.hpp"
@@ -187,7 +187,7 @@ private:
 
     units::radian_t m_angle;
     units::radian_t m_lastAngle;
-    units::second_t m_time = frc2::Timer::GetFPGATimestamp();
+    units::second_t m_time = frc::Timer::GetFPGATimestamp();
     units::second_t m_lastTime = m_time - Constants::kControllerPeriod;
 
     units::meter_t m_distanceToTarget = 0_m;

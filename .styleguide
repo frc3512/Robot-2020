@@ -9,35 +9,21 @@ cppSrcFileInclude {
   \.cpp$
 }
 
-generatedFileExclude {
-  src/main/cpp/fmt/
-  src/main/include/fmt/
-}
-
 modifiableFileExclude {
   gradle/
-  ADIS16470_IMU\.cpp$
-  ADIS16470_IMU\.h$
-  Win32PipeImpl\.
   \.png$
 }
 
 includeOtherLibs {
   Eigen/
-  adi/
   drake/
   fmt/
   frc/
-  frc2/
   gtest/
   hal/
-  mockdata/
   networktables/
   photonlib/
   rev/.*?\.h$
-  simulation/
   units/
-  unsupported/
   wpi/
-  cscore\.h$
 }

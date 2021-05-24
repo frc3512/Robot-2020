@@ -5,7 +5,7 @@
 #include <stdexcept>
 
 #include <fmt/format.h>
-#include <frc/DriverStation.h>
+#include <frc/Errors.h>
 #include <frc/Joystick.h>
 #include <frc/Notifier.h>
 #include <frc/Processes.h>
@@ -56,10 +56,10 @@ Robot::Robot() : frc::TimesliceRobot{2_ms, Constants::kControllerPeriod} {
     StopCrond();
 
     // These warnings generate console prints that cause scheduling jitter
-    frc::DriverStation::GetInstance().SilenceJoystickConnectionWarning(true);
+    frc::DriverStation::SilenceJoystickConnectionWarning(true);
 
     // This telemetry regularly causes loop overruns
-    frc::LiveWindow::GetInstance()->DisableAllTelemetry();
+    frc::LiveWindow::DisableAllTelemetry();
 
     // Log NT data every 20ms instead of every 100ms for higher resolution
     // dashboard plots
@@ -226,9 +226,7 @@ void Robot::RobotPeriodic() {
 
     static frc::Joystick appendageStick2{HWConfig::kAppendageStick2Port};
 
-    auto& ds = frc::DriverStation::GetInstance();
-
-    if (IsOperatorControlEnabled() || IsTest()) {
+    if (IsTeleopEnabled() || IsTest()) {
         if (appendageStick2.GetRawButtonPressed(1)) {
             ShootWithVision();
         }
@@ -242,7 +240,7 @@ void Robot::RobotPeriodic() {
     units::radian_t turretHeadingInGlobal{
         turret.GetStates()(TurretController::State::kAngle) +
         drivetrain.GetStates()(DrivetrainController::State::kHeading)};
-    if (!ds.IsDisabled() &&
+    if (!frc::DriverStation::IsDisabled() &&
         ((turretHeadingInGlobal < 45_deg && turretHeadingInGlobal > -45_deg) ||
          m_LEDEntry.GetBoolean(false))) {
         vision.TurnLEDOn();
@@ -256,7 +254,8 @@ void Robot::RobotPeriodic() {
         units::second_t{std::chrono::steady_clock::now().time_since_epoch()},
         batteryVoltage);
 
-    if (ds.IsDisabled() || !ds.IsFMSAttached()) {
+    if (frc::DriverStation::IsDisabled() ||
+        !frc::DriverStation::IsFMSAttached()) {
         m_batteryVoltageEntry.SetDouble(batteryVoltage);
         m_ballsToShootEntry.SetDouble(m_ballsToShoot);
     }
@@ -308,7 +307,7 @@ void Robot::RunShooterSM() {
                 turret.SetControlMode(
                     TurretController::ControlMode::kVisionAim);
                 m_visionTimer.Stop();
-                if (frc::DriverStation::GetInstance().IsTest()) {
+                if (frc::DriverStation::IsTest()) {
                     flywheel.SetGoalFromPose();
                 } else {
                     flywheel.SetGoalFromVision();
@@ -337,7 +336,8 @@ void Robot::RunShooterSM() {
                 } else {
                     flywheel.SetGoal(0_rad_per_s);
                     m_state = ShootingState::kIdle;
-                    frc::DriverStation::GetInstance().ReportError(
+                    FRC_ReportError(
+                        frc::warn::Warning, "{}",
                         "Flywheel didn't start spinning. Either the motors "
                         "aren't responding or the encoder isn't plugged in.");
                 }

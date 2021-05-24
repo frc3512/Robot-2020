@@ -10,11 +10,11 @@
 #include <frc/RobotBase.h>
 #include <frc/RobotController.h>
 #include <frc/StateSpaceUtil.h>
+#include <frc/drive/DifferentialDrive.h>
 #include <frc/fmt/Eigen.h>
 #include <frc/smartdashboard/SmartDashboard.h>
 
 #include "CANSparkMaxUtil.hpp"
-#include "CurvatureDrive.hpp"
 
 using namespace frc3512;
 
@@ -117,11 +117,11 @@ units::meters_per_second_t Drivetrain::GetRightVelocity() const {
 }
 
 units::meters_per_second_squared_t Drivetrain::GetAccelerationX() const {
-    return -m_imu.GetAccelInstantX() * 9.81_mps_sq;
+    return -m_imu.GetAccelX();
 }
 
 units::meters_per_second_squared_t Drivetrain::GetAccelerationY() const {
-    return -m_imu.GetAccelInstantY() * 9.81_mps_sq;
+    return -m_imu.GetAccelY();
 }
 
 void Drivetrain::Reset(const frc::Pose2d& initialPose) {
@@ -152,7 +152,7 @@ void Drivetrain::CorrectWithGlobalOutputs(units::meter_t x, units::meter_t y,
                                           units::second_t timestamp) {
     Eigen::Matrix<double, 2, 1> globalY;
     globalY << x.value(), y.value();
-    m_latencyComp.ApplyPastMeasurement<2>(
+    m_latencyComp.ApplyPastGlobalMeasurement<2>(
         &m_observer, Constants::kControllerPeriod, globalY,
         [&](const Eigen::Matrix<double, 2, 1>& u,
             const Eigen::Matrix<double, 2, 1>& y) {
@@ -174,7 +174,7 @@ void Drivetrain::ControllerPeriodic() {
         GetRightPosition().value(), GetAccelerationX().value(),
         GetAccelerationY().value();
     m_latencyComp.AddObserverState(m_observer, m_controller.GetInputs(), y,
-                                   frc2::Timer::GetFPGATimestamp());
+                                   frc::Timer::GetFPGATimestamp());
     m_observer.Correct(m_controller.GetInputs(), y);
 
     auto visionData = visionQueue.pop();
@@ -232,7 +232,7 @@ void Drivetrain::ControllerPeriodic() {
         m_leftEncoderSim.SetDistance(m_drivetrainSim.GetLeftPosition().value());
         m_rightEncoderSim.SetDistance(
             m_drivetrainSim.GetRightPosition().value());
-        m_imuSim.SetAngle(units::degree_t{
+        m_imuSim.SetGyroAngleZ(units::degree_t{
             m_drivetrainSim.GetHeading().Radians() - m_headingOffset});
 
         const auto& plant = DrivetrainController::GetPlant();
@@ -243,12 +243,12 @@ void Drivetrain::ControllerPeriodic() {
         u << std::clamp(m_leftGrbx.Get(), -1.0, 1.0) * batteryVoltage,
             std::clamp(m_rightGrbx.Get(), -1.0, 1.0) * batteryVoltage;
         Eigen::Matrix<double, 2, 1> xdot = plant.A() * x + plant.B() * u;
-        m_imuSim.SetAccelInstantX(
+        m_imuSim.SetAccelX(
             -units::meters_per_second_squared_t{(xdot(0) + xdot(1)) / 2.0});
 
         units::meters_per_second_t leftVelocity{x(0)};
         units::meters_per_second_t rightVelocity{x(1)};
-        m_imuSim.SetAccelInstantY(
+        m_imuSim.SetAccelY(
             -((rightVelocity * rightVelocity) - (leftVelocity * leftVelocity)) /
             (2.0 * DrivetrainController::kWidth));
 
@@ -263,8 +263,8 @@ void Drivetrain::RobotPeriodic() {
         units::volt_t{m_rightUltrasonic.GetVoltage()} * 1_m / 1_V);
     m_poseMeasurementFaultEntry.SetDouble(m_poseMeasurementFaultCounter);
 
-    auto& ds = frc::DriverStation::GetInstance();
-    if (ds.IsDisabled() || !ds.IsFMSAttached()) {
+    if (frc::DriverStation::IsDisabled() ||
+        !frc::DriverStation::IsFMSAttached()) {
         m_leftUltrasonicOutputEntry.SetDouble(m_leftUltrasonicDistance.value());
         m_rightUltrasonicOutputEntry.SetDouble(
             m_rightUltrasonicDistance.value());
@@ -369,14 +369,17 @@ void Drivetrain::TeleopPeriodic() {
     static frc::Joystick driveStick1{HWConfig::kDriveStick1Port};
     static frc::Joystick driveStick2{HWConfig::kDriveStick2Port};
 
-    double y = ApplyDeadband(-driveStick1.GetY(), Constants::kJoystickDeadband);
-    double x = ApplyDeadband(driveStick2.GetX(), Constants::kJoystickDeadband);
+    double y =
+        frc::ApplyDeadband(-driveStick1.GetY(), Constants::kJoystickDeadband);
+    double x =
+        frc::ApplyDeadband(driveStick2.GetX(), Constants::kJoystickDeadband);
 
     if (driveStick1.GetRawButton(1)) {
         y *= 0.5;
         x *= 0.5;
     }
-    auto [left, right] = CurvatureDrive(y, x, driveStick2.GetRawButton(2));
+    auto [left, right] = frc::DifferentialDrive::CurvatureDriveIK(
+        y, x, driveStick2.GetRawButton(2));
 
     // Implicit model following
     // TODO: Velocities need filtering
@@ -395,14 +398,17 @@ void Drivetrain::TestPeriodic() {
     static frc::Joystick driveStick1{HWConfig::kDriveStick1Port};
     static frc::Joystick driveStick2{HWConfig::kDriveStick2Port};
 
-    double y = ApplyDeadband(-driveStick1.GetY(), Constants::kJoystickDeadband);
-    double x = ApplyDeadband(driveStick2.GetX(), Constants::kJoystickDeadband);
+    double y =
+        frc::ApplyDeadband(-driveStick1.GetY(), Constants::kJoystickDeadband);
+    double x =
+        frc::ApplyDeadband(driveStick2.GetX(), Constants::kJoystickDeadband);
 
     if (driveStick1.GetRawButton(1)) {
         y *= 0.5;
         x *= 0.5;
     }
-    auto [left, right] = CurvatureDrive(y, x, driveStick2.GetRawButton(2));
+    auto [left, right] = frc::DifferentialDrive::CurvatureDriveIK(
+        y, x, driveStick2.GetRawButton(2));
 
     // Implicit model following
     // TODO: Velocities need filtering

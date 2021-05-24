@@ -7,15 +7,13 @@
 #include <Eigen/Cholesky>
 #include <Eigen/Core>
 #include <Eigen/Eigenvalues>
-#include <Eigen/QR>
 #include <drake/math/discrete_algebraic_riccati_equation.h>
 #include <frc/StateSpaceUtil.h>
+#include <frc/controller/LinearQuadraticRegulator.h>
 #include <frc/system/Discretization.h>
 #include <frc/system/LinearSystem.h>
 #include <units/time.h>
 #include <wpi/array.h>
-
-#include "controllers/LQR.hpp"
 
 namespace frc3512 {
 
@@ -103,7 +101,14 @@ public:
             Qimf += decltype(Qimf)::Identity() * 1e-10;
         }
 
-        m_K = LQR<States, Inputs>(discA, discB, Qimf, Rimf, Nimf);
+        Eigen::Matrix<double, States, States> S =
+            drake::math::DiscreteAlgebraicRiccatiEquation(discA, discB, Qimf,
+                                                          Rimf, Nimf);
+
+        // K = (BᵀSB + R)⁻¹(BᵀSA + Nᵀ)
+        m_K = (discB.transpose() * S * discB + Rimf)
+                  .llt()
+                  .solve(discB.transpose() * S * discA + Nimf.transpose());
 
         // Find u_imf that makes real model match reference model.
         //

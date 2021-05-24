@@ -7,8 +7,9 @@
 #include <fmt/core.h>
 #include <frc/DriverStation.h>
 #include <frc/Threads.h>
+#include <frc/Timer.h>
 #include <frc/smartdashboard/SmartDashboard.h>
-#include <frc2/Timer.h>
+#include <networktables/NTSendableBuilder.h>
 
 #include "RealTimePriorities.hpp"
 
@@ -66,7 +67,7 @@ void AutonomousChooser::SelectAutonomous(std::string_view name) {
             m_selectedAuton = &it->second;
         }
     }
-    m_selectedEntry.SetString(std::string{name});
+    m_selectedEntry.SetString(name);
 }
 
 units::second_t AutonomousChooser::SelectedAutonomousDuration() const {
@@ -89,8 +90,7 @@ bool AutonomousChooser::Suspend() {
     // exit. IsEnabled() isn't checked here so that if the robot loses
     // connection to the DriverStation and is temporarily disabled, the
     // autonomous mode will later resume without losing progress.
-    return frc::DriverStation::GetInstance().IsAutonomous() &&
-           !m_autonShouldExit;
+    return frc::DriverStation::IsAutonomous() && !m_autonShouldExit;
 }
 
 bool AutonomousChooser::Suspend(std::function<bool()> cond) {
@@ -104,7 +104,7 @@ bool AutonomousChooser::Suspend(std::function<bool()> cond) {
 }
 
 bool AutonomousChooser::SuspendFor(units::second_t duration) {
-    frc2::Timer timer;
+    frc::Timer timer;
     timer.Start();
     return Suspend([=] { return timer.HasElapsed(duration); });
 }
@@ -185,7 +185,7 @@ bool AutonomousChooser::IsSuspended() const {
     return m_autonThread.joinable() && m_autonRunning;
 }
 
-void AutonomousChooser::InitSendable(frc::SendableBuilder& builder) {
+void AutonomousChooser::InitSendable(nt::NTSendableBuilder& builder) {
     builder.SetSmartDashboardType("String Chooser");
 
     builder.GetEntry("default").SetString(m_defaultChoice);

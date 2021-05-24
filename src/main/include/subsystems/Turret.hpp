@@ -14,6 +14,7 @@
 #include <frc/simulation/DutyCycleEncoderSim.h>
 #include <frc/simulation/LinearSystemSim.h>
 #include <networktables/NetworkTableEntry.h>
+#include <rev/CANSparkMax.h>
 #include <units/angle.h>
 #include <units/current.h>
 #include <units/voltage.h>
@@ -23,7 +24,6 @@
 #include "HWConfig.hpp"
 #include "NetworkTableUtil.hpp"
 #include "controllers/TurretController.hpp"
-#include "rev/CANSparkMax.hpp"
 #include "subsystems/ControlledSubsystemBase.hpp"
 #include "subsystems/Vision.hpp"
 

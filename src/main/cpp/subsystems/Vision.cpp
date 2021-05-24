@@ -8,9 +8,9 @@
 #include <frc/DriverStation.h>
 #include <frc/Joystick.h>
 #include <frc/RobotBase.h>
+#include <frc/Timer.h>
 #include <frc/geometry/Pose2d.h>
 #include <frc/geometry/Transform2d.h>
-#include <frc2/Timer.h>
 #include <photonlib/PhotonUtils.h>
 #include <units/angle.h>
 
@@ -21,12 +21,6 @@ using namespace frc3512;
 
 const frc::Transform2d Vision::kCameraInGlobalToTurretInGlobal{
     frc::Pose2d{}, frc::Pose2d{0_in, -3_in, 0_rad}};
-
-frc::Transform2d operator+(const frc::Transform2d& first,
-                           const frc::Transform2d& second) {
-    return frc::Transform2d{
-        frc::Pose2d{}, frc::Pose2d{}.TransformBy(first).TransformBy(second)};
-}
 
 Vision::Vision(Turret& turret) : m_turret(turret) {}
 
@@ -85,14 +79,13 @@ void Vision::RobotPeriodic() {
 
     const auto& result = m_rpiCam.GetLatestResult();
 
-    if (result.GetTargets().size() == 0 ||
-        frc::DriverStation::GetInstance().IsDisabled()) {
+    if (result.GetTargets().size() == 0 || frc::DriverStation::IsDisabled()) {
         m_isTargetDetected = false;
         return;
     }
 
     m_isTargetDetected = true;
-    auto timestamp = frc2::Timer::GetFPGATimestamp() - result.GetLatency();
+    auto timestamp = frc::Timer::GetFPGATimestamp() - result.GetLatency();
 
     photonlib::PhotonTrackedTarget target = result.GetBestTarget();
 

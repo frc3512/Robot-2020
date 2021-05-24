@@ -167,7 +167,7 @@ Eigen::Matrix<double, 1, 1> TurretController::Calculate(
             m_u << 0.0;
         }
 
-        m_u = frc::NormalizeInputVector<1>(m_u, 12.0);
+        m_u = frc::DesaturateInputVector<1>(m_u, 12.0);
 
         UpdateAtReferences(m_nextR - x);
     } else {

@@ -9,12 +9,16 @@
 #include <thread>
 #include <vector>
 
-#include <frc/smartdashboard/Sendable.h>
-#include <frc/smartdashboard/SendableBuilder.h>
+#include <networktables/NTSendable.h>
 #include <networktables/NetworkTableEntry.h>
 #include <units/time.h>
 #include <wpi/condition_variable.h>
 #include <wpi/mutex.h>
+#include <wpi/sendable/SendableHelper.h>
+
+namespace nt {
+class NTSendableBuilder;
+}  // namespace nt
 
 namespace frc3512 {
 
@@ -22,7 +26,8 @@ namespace frc3512 {
  * A convenience wrapper around a SendableChooser for managing, selecting, and
  * running autonomous modes.
  */
-class AutonomousChooser : public frc::Sendable {
+class AutonomousChooser : public nt::NTSendable,
+                          public wpi::SendableHelper<AutonomousChooser> {
 public:
     /**
      * Constructs an AutonomousChooser.
@@ -147,7 +152,7 @@ public:
      *
      * @param builder sendable builder
      */
-    void InitSendable(frc::SendableBuilder& builder) override;
+    void InitSendable(nt::NTSendableBuilder& builder) override;
 
 private:
     struct AutonomousMode {

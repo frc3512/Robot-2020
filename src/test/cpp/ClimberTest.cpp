@@ -1,9 +1,9 @@
 // Copyright (c) FRC Team 3512. All Rights Reserved.
 
 #include <frc/Notifier.h>
+#include <frc/Timer.h>
 #include <frc/simulation/JoystickSim.h>
 #include <frc/simulation/SimHooks.h>
-#include <frc2/Timer.h>
 #include <gtest/gtest.h>
 
 #include "Constants.hpp"
@@ -26,7 +26,7 @@ public:
 };
 
 TEST_F(ClimberTest, ConfigSpaceLimits) {
-    frc2::Timer timer;
+    frc::Timer timer;
     timer.Start();
 
     frc::sim::JoystickSim appendageStick1{

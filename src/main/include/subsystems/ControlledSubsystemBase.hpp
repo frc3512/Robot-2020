@@ -5,6 +5,7 @@
 #include <array>
 #include <atomic>
 #include <stdexcept>
+#include <string_view>
 #include <thread>
 
 #include <Eigen/Core>
@@ -12,14 +13,11 @@
 #include <frc/DriverStation.h>
 #include <frc/RobotBase.h>
 #include <frc/Threads.h>
-#include <frc/fmt/Units.h>
+#include <frc/Timer.h>
 #include <frc/logging/CSVLogFile.h>
-#include <frc2/Timer.h>
 #include <units/math.h>
 #include <units/time.h>
 #include <wpi/ConcurrentQueue.h>
-#include <wpi/StringRef.h>
-#include <wpi/Twine.h>
 
 #include "Constants.hpp"
 #include "RealTimePriorities.hpp"
@@ -54,13 +52,13 @@ public:
      *                       unit.
      */
     ControlledSubsystemBase(
-        wpi::StringRef controllerName,
+        std::string_view controllerName,
         const std::array<ControllerLabel, States>& stateLabels,
         const std::array<ControllerLabel, Inputs>& inputLabels,
         const std::array<ControllerLabel, Outputs>& outputLabels)
         : m_csvLogger{controllerName, stateLabels, inputLabels, outputLabels},
           m_ntLogger{controllerName, stateLabels, inputLabels, outputLabels},
-          m_timingLogger{(controllerName + " timing").str(),
+          m_timingLogger{fmt::format("{} timing", controllerName),
                          "Loop duration (ms)", "Scheduling period (ms)"} {
         m_entryThreadRunning = true;
         m_entryThread = std::thread{[=] { EntryThreadMain(); }};
@@ -89,7 +87,7 @@ public:
         // m_lastTime is reset so that a large time delta isn't generated from
         // Update() not being called in a while.
         m_lastTime =
-            frc2::Timer::GetFPGATimestamp() - Constants::kControllerPeriod;
+            frc::Timer::GetFPGATimestamp() - Constants::kControllerPeriod;
         m_isEnabled = true;
     }
 
@@ -117,7 +115,7 @@ public:
      * Computes current timestep's dt.
      */
     void UpdateDt() {
-        m_nowBegin = frc2::Timer::GetFPGATimestamp();
+        m_nowBegin = frc::Timer::GetFPGATimestamp();
         m_dt = m_nowBegin - m_lastTime;
 
         if (m_dt == 0_s) {
@@ -143,7 +141,7 @@ public:
              const Eigen::Matrix<double, States, 1>& x,
              const Eigen::Matrix<double, Inputs, 1>& u,
              const Eigen::Matrix<double, Outputs, 1>& y) {
-        m_entryQueue.emplace(m_nowBegin, frc2::Timer::GetFPGATimestamp(), r, x,
+        m_entryQueue.emplace(m_nowBegin, frc::Timer::GetFPGATimestamp(), r, x,
                              u, y);
         m_lastTime = m_nowBegin;
     }
@@ -209,8 +207,8 @@ private:
             m_csvLogger.Log(entry.nowBegin - frc::CSVLogFile::GetStartTime(),
                             entry.r, entry.x, entry.u, entry.y);
 
-            auto& ds = frc::DriverStation::GetInstance();
-            if (ds.IsDisabled() || !ds.IsFMSAttached()) {
+            if (frc::DriverStation::IsDisabled() ||
+                !frc::DriverStation::IsFMSAttached()) {
                 m_ntLogger.Log(entry.r, entry.x, entry.u, entry.y);
             }
 

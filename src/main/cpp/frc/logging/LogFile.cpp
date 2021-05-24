@@ -8,15 +8,14 @@
 
 #include <fmt/chrono.h>
 #include <fmt/format.h>
-#include <wpi/FileSystem.h>
-#include <wpi/SmallString.h>
+#include <wpi/fs.h>
 
 #include "frc/Filesystem.h"
 #include "frc/RobotBase.h"
 
 using namespace frc;
 
-LogFile::LogFile(wpi::StringRef filePrefix, wpi::StringRef fileExtension)
+LogFile::LogFile(std::string_view filePrefix, std::string_view fileExtension)
     : m_filePrefix{filePrefix},
       m_fileExtension{fileExtension},
       m_time{std::time(nullptr)},
@@ -28,7 +27,7 @@ LogFile::LogFile(wpi::StringRef filePrefix, wpi::StringRef fileExtension)
   }
 }
 
-void LogFile::Log(const wpi::StringRef& text) {
+void LogFile::Log(std::string_view text) {
   m_file << text;
   UpdateFilename();
 }
@@ -50,22 +49,13 @@ void LogFile::UpdateFilename() {
 std::string LogFile::CreateFilename(std::time_t time) const {
   // Write to USB storage when running on the roboRIO
   if constexpr (RobotBase::IsSimulation()) {
-    wpi::SmallString<64> path;
-    frc::filesystem::GetOperatingDirectory(path);
-    return fmt::format("{}/{}-{:%Y-%m-%d-%H_%M_%S}.{}",
-                       std::string_view{path.str().data(), path.str().size()},
-                       m_filePrefix, fmt::localtime(time), m_fileExtension);
+    std::string path = frc::filesystem::GetOperatingDirectory();
+    return fmt::format("{}/{}-{:%Y-%m-%d-%H_%M_%S}.{}", path, m_filePrefix,
+                       fmt::localtime(time), m_fileExtension);
   } else {
-    using wpi::sys::fs::directory_iterator;
-
     std::vector<std::string> files;
-    std::error_code ec;
-    for (auto p = directory_iterator("/media", ec, false);
-         p != directory_iterator(); p.increment(ec)) {
-      if (ec) {
-        break;
-      }
-      files.emplace_back(p->path());
+    for (const auto& entry : fs::directory_iterator{"/media"}) {
+      files.emplace_back(entry.path().u8string());
     }
 
     // If there's storage mounted in /media, put log files in the first
@@ -74,11 +64,9 @@ std::string LogFile::CreateFilename(std::time_t time) const {
       return fmt::format("{}/{}-{:%Y-%m-%d-%H_%M_%S}.{}", files[0],
                          m_filePrefix, fmt::localtime(time), m_fileExtension);
     } else {
-      wpi::SmallString<64> path;
-      frc::filesystem::GetOperatingDirectory(path);
-      return fmt::format("{}/{}-{:%Y-%m-%d-%H_%M_%S}.{}",
-                         std::string_view{path.str().data(), path.str().size()},
-                         m_filePrefix, fmt::localtime(time), m_fileExtension);
+      std::string path = frc::filesystem::GetOperatingDirectory();
+      return fmt::format("{}/{}-{:%Y-%m-%d-%H_%M_%S}.{}", path, m_filePrefix,
+                         fmt::localtime(time), m_fileExtension);
     }
   }
 }

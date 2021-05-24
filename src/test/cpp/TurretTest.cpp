@@ -1,9 +1,9 @@
 // Copyright (c) FRC Team 3512. All Rights Reserved.
 
 #include <frc/Notifier.h>
+#include <frc/Timer.h>
 #include <frc/simulation/JoystickSim.h>
 #include <frc/simulation/SimHooks.h>
-#include <frc2/Timer.h>
 #include <gtest/gtest.h>
 #include <wpi/numbers>
 
@@ -27,7 +27,7 @@ TEST_F(TurretTest, ConfigSpaceLimits) {
     constexpr int kPovCW = 90;
     constexpr int kPovCCW = 270;
 
-    frc2::Timer timer;
+    frc::Timer timer;
     timer.Start();
 
     frc::sim::JoystickSim appendageStick1{

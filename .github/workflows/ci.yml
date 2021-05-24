@@ -41,7 +41,7 @@ jobs:
   build-athena:
     runs-on: ubuntu-latest
 
-    container: wpilib/roborio-cross-ubuntu:2021-18.04
+    container: wpilib/roborio-cross-ubuntu:2022-20.04
 
     steps:
     - uses: actions/checkout@v2
@@ -78,8 +78,13 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
+    - uses: actions/setup-java@v1
+      with:
+        java-version: 11
+        architecture: x64
+
     - name: Compile and run x86-64 unit tests
-      run: ./gradlew test -Ptoolchain-optional-roboRio ${{ matrix.build-options }}
+      run: ./gradlew testRelease -Ptoolchain-optional-roboRio ${{ matrix.build-options }}
 
   documentation:
     runs-on: ubuntu-latest

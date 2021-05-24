@@ -6,6 +6,7 @@
 #include <cmath>
 
 #include <frc/MathUtil.h>
+#include <frc/controller/LinearQuadraticRegulator.h>
 #include <frc/fmt/Eigen.h>
 #include <frc/kinematics/DifferentialDriveKinematics.h>
 #include <frc/system/plant/DCMotor.h>
@@ -13,8 +14,6 @@
 #include <frc/trajectory/TrajectoryGenerator.h>
 #include <frc/trajectory/constraint/CentripetalAccelerationConstraint.h>
 #include <frc/trajectory/constraint/DifferentialDriveVelocitySystemConstraint.h>
-
-#include "controllers/LQR.hpp"
 
 using namespace frc3512;
 
@@ -116,9 +115,9 @@ Eigen::Matrix<double, 2, 1> DrivetrainController::Calculate(
             0, 0;
 
         Eigen::Matrix<double, 2, 1> u_fb = Controller(x, m_r);
-        u_fb = frc::NormalizeInputVector<2>(u_fb, 12.0);
+        u_fb = frc::DesaturateInputVector<2>(u_fb, 12.0);
         m_u = u_fb + m_ff.Calculate(m_nextR);
-        m_u = frc::NormalizeInputVector<2>(m_u, 12.0);
+        m_u = frc::DesaturateInputVector<2>(m_u, 12.0);
 
         Eigen::Matrix<double, 5, 1> error =
             m_nextR.block<5, 1>(0, 0) - x.block<5, 1>(0, 0);
@@ -175,7 +174,9 @@ Eigen::Matrix<double, 2, 5> DrivetrainController::ControllerGainForState(
     }
 
     m_A(State::kY, State::kHeading) = velocity;
-    return LQR<5, 2>(m_A, m_B, m_Q, m_R, Constants::kControllerPeriod);
+    return frc::LinearQuadraticRegulator<5, 2>(m_A, m_B, m_Q, m_R,
+                                               Constants::kControllerPeriod)
+        .K();
 }
 
 Eigen::Matrix<double, 2, 1> DrivetrainController::Controller(

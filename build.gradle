@@ -3,72 +3,67 @@ import org.gradle.internal.os.OperatingSystem
 plugins {
     id "cpp"
     id "google-test-test-suite"
-    id "edu.wpi.first.GradleRIO" version "2021.3.1"
+    id "edu.wpi.first.GradleRIO" version "2022.1.1"
     id "org.ysb33r.doxygen" version "0.7.0"
 }
 
-// For testing development versions of WPILib
-// wpi.wpilibVersion = '2021.3.1'
-// wpi.wpimathVersion = '2021.3.1'
-
-// For automatically using the newest development version of WPILib
-// wpi.wpilibVersion = '2021.+'
-// wpi.wpimathVersion = '2021.+'
-
 // For using remote development artifacts
+// wpi.maven.useLocal = false
 // wpi.maven.useDevelopment = true
+// wpi.versions.wpilibVersion = '2022.+'
+// wpi.versions.wpimathVersion = '2022.+'
 
 // For using local development artifacts
 // wpi.maven.useFrcMavenLocalDevelopment = true
+// wpi.versions.wpilibVersion = '2022.424242.+'
+// wpi.versions.wpimathVersion = '2022.424242.+'
 
 // Define my targets (RoboRIO) and artifacts (deployable files)
-// This is added by GradleRIO's backing project EmbeddedTools.
+// This is added by GradleRIO's backing project DeployUtils.
 deploy {
     targets {
-        roboRIO("roborio") {
+        roborio(getTargetTypeClass('RoboRIO')) {
             // Team number is loaded either from the .wpilib/wpilib_preferences.json
             // or from command line. If not found an exception will be thrown.
             // You can use getTeamOrDefault(team) instead of getTeamNumber if you
             // want to store a team number in this file.
-            team = frc.getTeamNumber()
-        }
-    }
-    artifacts {
-        frcNativeArtifact('frcCpp') {
-            targets << "roborio"
-            component = 'frcUserProgram'
-            // Debug can be overridden by command line, for use with VSCode
-            debug = frc.getDebugOrDefault(false)
+            team = project.frc.getTeamNumber()
+            debug = project.frc.getDebugOrDefault(false)
 
-            postdeploy << { ctx ->
-                ctx.execute('chown admin /home/lvuser/frcUserProgram')
-                ctx.execute('chmod u+s /home/lvuser/frcUserProgram')
+            artifacts {
+                // First part is artifact name, 2nd is artifact type
+                // getTargetTypeClass is a shortcut to get the class type using a string
+
+                frcCpp(getArtifactTypeClass('FRCNativeArtifact')) {
+                    postdeploy << { ctx ->
+                        ctx.execute('chown admin /home/lvuser/frcUserProgram')
+                        ctx.execute('chmod u+s /home/lvuser/frcUserProgram')
+                    }
+                }
+
+                // Static files artifact
+                frcStaticFileDeploy(getArtifactTypeClass('FileTreeArtifact')) {
+                    files = project.fileTree('src/main/deploy')
+                    directory = '/home/lvuser/deploy'
+                }
             }
-        }
-        // Built in artifact to deploy arbitrary files to the roboRIO.
-        fileTreeArtifact('frcStaticFileDeploy') {
-            // The directory below is the local directory to deploy
-            files = fileTree(dir: 'src/main/deploy')
-            // Deploy to RoboRIO target, into /home/lvuser/deploy
-            targets << "roborio"
-            directory = '/home/lvuser/deploy'
         }
     }
 }
+
+def deployArtifact = deploy.targets.roborio.artifacts.frcCpp
 
 // Set this to true to enable desktop support.
 def includeDesktopSupport = true
 
-// Enable simulation gui support. Must check the box in vscode to enable support
-// upon debugging
-dependencies {
-    simulation wpi.deps.sim.gui(wpi.platforms.desktop, false)
-    simulation wpi.deps.sim.driverstation(wpi.platforms.desktop, false)
+// Set to true to run simulation in debug mode
+wpi.cpp.debugSimulation = false
 
-    // Websocket extensions require additional configuration.
-    // simulation wpi.deps.sim.ws_server(wpi.platforms.desktop, false)
-    // simulation wpi.deps.sim.ws_client(wpi.platforms.desktop, false)
-}
+// Default enable simgui
+wpi.sim.addGui().defaultEnabled = true
+
+// Enable DS but not by default
+wpi.sim.addDriverstation()
 
 nativeUtils.platformConfigs.named("linuxathena").configure {
     it.cppCompiler.args.add('-Wall')
@@ -76,9 +71,6 @@ nativeUtils.platformConfigs.named("linuxathena").configure {
     it.cppCompiler.args.add('-pedantic')
     it.cppCompiler.args.add('-Werror')
     it.cppCompiler.args.add('-Wno-unused-parameter')
-    // Suppress warning from incorrect [[deprecated]] attribute usage in
-    // CANSparkMax.h
-    it.cppCompiler.args.add('-Wno-attributes')
 }
 
 if (OperatingSystem.current().isWindows()) {
@@ -153,9 +145,17 @@ model {
                 }
             }
 
+            // Set deploy task to deploy this component
+            deployArtifact.component = it
+
+            // Enable run tasks for this component
+            wpi.cpp.enableExternalTasks(it)
+
+            // Enable simulation for this component
+            wpi.sim.enable(it)
             // Defining my dependencies. In this case, WPILib (+ friends), and vendor libraries.
-            wpi.deps.vendor.cpp(it)
-            wpi.deps.wpilib(it)
+            wpi.cpp.vendor.cpp(it)
+            wpi.cpp.deps.wpilib(it)
         }
     }
     testSuites {
@@ -175,25 +175,23 @@ model {
                     srcDir 'src/test/cpp'
                     include '**/*.cpp'
                 }
-
                 exportedHeaders {
                     srcDir 'src/test/include'
                 }
             }
 
-            wpi.deps.vendor.cpp(it)
-            wpi.deps.wpilib(it)
-            wpi.deps.googleTest(it)
+            // Enable run tasks for this component
+            wpi.cpp.enableExternalTasks(it)
+
+            wpi.cpp.vendor.cpp(it)
+            wpi.cpp.deps.wpilib(it)
+            wpi.cpp.deps.googleTest(it)
         }
     }
 }
 
 task buildAthena {
     dependsOn 'frcUserProgramLinuxathenaReleaseExecutable'
-}
-
-task test {
-    dependsOn 'testRelease'
 }
 
 task testDebug {
@@ -204,24 +202,6 @@ task testRelease {
     dependsOn 'runFrcUserProgramTest' + wpi.platforms.desktop.capitalize() + 'ReleaseGoogleTestExe'
 }
 
-task simulateCpp {
-    dependsOn 'simulateFrcUserProgram' + wpi.platforms.desktop.capitalize() + 'ReleaseExecutable'
-}
-
-if (!OperatingSystem.current().isWindows()) {
-    simulateCpp.doLast {
-        exec {
-            executable 'tail'
-            args '-f', 'build/stdout/simulateFrcUserProgram' + wpi.platforms.desktop.capitalize() + 'ReleaseExecutable.log'
-        }
-    }
-
-    task valgrind(type: Exec) {
-        dependsOn 'installFrcUserProgramTest' + wpi.platforms.desktop.capitalize() + 'ReleaseGoogleTestExe'
-        commandLine 'python3', './buildscripts/valgrind.py'
-    }
-}
-
 task intellisense(type: Exec) {
     dependsOn 'generateCompileCommands'
     commandLine 'python3', './buildscripts/copy_compile_commands.py'
@@ -229,14 +209,12 @@ task intellisense(type: Exec) {
 
 doxygen {
     executables {
-        doxygen version : '1.9.1',
+        doxygen version : '1.9.2',
         baseURI : 'https://frcmaven.wpi.edu/artifactory/generic-release-mirror/doxygen'
     }
 
-    exclude 'adi/*'
-    exclude 'fmt/*'
     exclude 'frc/*'
-    exclude 'rev/*'
+    exclude 'photonlib/*'
 
     extension_mapping 'inc=C++'
     generate_html true

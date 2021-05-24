@@ -230,8 +230,7 @@ void Climber::RunControlPanelSM() {
         SetTraverser(1.0);
 
         // Read game-specific data from the Field Management System (FMS)
-        char desiredColor =
-            frc::DriverStation::GetInstance().GetGameSpecificMessage()[0];
+        char desiredColor = frc::DriverStation::GetGameSpecificMessage()[0];
 
         // If there's no game-specific data, stop the state machine
         if (desiredColor != 'Y' && desiredColor != 'R' && desiredColor != 'B' &&
