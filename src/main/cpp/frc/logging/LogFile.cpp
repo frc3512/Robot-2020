@@ -16,7 +16,7 @@
 
 using namespace frc;
 
-LogFile::LogFile(wpi::StringRef filePrefix, wpi::StringRef fileExtension)
+LogFile::LogFile(std::string_view filePrefix, std::string_view fileExtension)
     : m_filePrefix{filePrefix},
       m_fileExtension{fileExtension},
       m_time{std::time(nullptr)},
@@ -28,7 +28,7 @@ LogFile::LogFile(wpi::StringRef filePrefix, wpi::StringRef fileExtension)
   }
 }
 
-void LogFile::Log(const wpi::StringRef& text) {
+void LogFile::Log(std::string_view text) {
   m_file << text;
   UpdateFilename();
 }

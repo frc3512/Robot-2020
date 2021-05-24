@@ -5,6 +5,7 @@
 #include <array>
 #include <atomic>
 #include <stdexcept>
+#include <string_view>
 #include <thread>
 
 #include <Eigen/Core>
@@ -16,8 +17,6 @@
 #include <units/math.h>
 #include <units/time.h>
 #include <wpi/ConcurrentQueue.h>
-#include <wpi/StringRef.h>
-#include <wpi/Twine.h>
 
 #include "RealTimeRobot.hpp"
 #include "UnitsFormat.hpp"
@@ -52,13 +51,13 @@ public:
      *                       unit.
      */
     ControlledSubsystemBase(
-        wpi::StringRef controllerName,
+        std::string_view controllerName,
         const std::array<ControllerLabel, States>& stateLabels,
         const std::array<ControllerLabel, Inputs>& inputLabels,
         const std::array<ControllerLabel, Outputs>& outputLabels)
         : m_csvLogger{controllerName, stateLabels, inputLabels, outputLabels},
           m_ntLogger{controllerName, stateLabels, inputLabels, outputLabels},
-          m_timingLogger{(controllerName + " timing").str(),
+          m_timingLogger{fmt::format("{} timing", controllerName),
                          "Loop duration (ms)", "Scheduling period (ms)"} {
         m_entryThreadRunning = true;
         m_entryThread = std::thread{[=] { EntryThreadMain(); }};

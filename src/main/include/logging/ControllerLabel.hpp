@@ -1,10 +1,9 @@
-// Copyright (c) 2020 FRC Team 3512. All Rights Reserved.
+// Copyright (c) 2020-2021 FRC Team 3512. All Rights Reserved.
 
 #pragma once
 
 #include <string>
-
-#include <wpi/StringRef.h>
+#include <string_view>
 
 namespace frc3512 {
 
@@ -31,7 +30,7 @@ struct ControllerLabel {
      * @param name The label name.
      * @param unit The unit name.
      */
-    ControllerLabel(wpi::StringRef name, wpi::StringRef unit)
+    ControllerLabel(std::string_view name, std::string_view unit)
         : name(name), unit(unit) {}
 };
 

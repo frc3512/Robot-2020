@@ -3,9 +3,9 @@
 #pragma once
 
 #include <initializer_list>
+#include <string_view>
 
 #include <networktables/NetworkTableEntry.h>
-#include <wpi/Twine.h>
 
 namespace frc3512::NetworkTableUtil {
 
@@ -15,7 +15,7 @@ namespace frc3512::NetworkTableUtil {
  * @param name         Path of network table entry.
  * @param defaultValue The entry's initial value.
  */
-nt::NetworkTableEntry MakeDoubleEntry(const wpi::Twine& name,
+nt::NetworkTableEntry MakeDoubleEntry(std::string_view name,
                                       double defaultValue = 0.0);
 
 /**
@@ -24,7 +24,7 @@ nt::NetworkTableEntry MakeDoubleEntry(const wpi::Twine& name,
  * @param name         Path of network table entry.
  * @param defaultValue The entry's initial value.
  */
-nt::NetworkTableEntry MakeBoolEntry(const wpi::Twine& name,
+nt::NetworkTableEntry MakeBoolEntry(std::string_view name,
                                     bool defaultValue = false);
 
 /**
@@ -33,8 +33,8 @@ nt::NetworkTableEntry MakeBoolEntry(const wpi::Twine& name,
  * @param name         Path of network table entry.
  * @param defaultValue The entry's initial value.
  */
-nt::NetworkTableEntry MakeStringEntry(const wpi::Twine& name,
-                                      const wpi::Twine& defaultValue = "");
+nt::NetworkTableEntry MakeStringEntry(std::string_view name,
+                                      std::string_view defaultValue = "");
 
 /**
  * Creates a NetworkTable entry with a default double array value of {}.
@@ -43,6 +43,6 @@ nt::NetworkTableEntry MakeStringEntry(const wpi::Twine& name,
  * @param defaultValue The entry's initial value.
  */
 nt::NetworkTableEntry MakeDoubleArrayEntry(
-    const wpi::Twine& name, std::initializer_list<double> defaultValue = {});
+    std::string_view name, std::initializer_list<double> defaultValue = {});
 
 }  // namespace frc3512::NetworkTableUtil

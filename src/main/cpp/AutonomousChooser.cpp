@@ -15,7 +15,7 @@
 
 namespace frc3512 {
 
-AutonomousChooser::AutonomousChooser(wpi::StringRef name,
+AutonomousChooser::AutonomousChooser(std::string_view name,
                                      std::function<void()> func,
                                      units::second_t duration) {
     m_defaultChoice = name;
@@ -49,7 +49,7 @@ AutonomousChooser::~AutonomousChooser() {
     m_selectedEntry.RemoveListener(m_selectedListenerHandle);
 }
 
-void AutonomousChooser::AddAutonomous(wpi::StringRef name,
+void AutonomousChooser::AddAutonomous(std::string_view name,
                                       std::function<void()> func,
                                       units::second_t duration) {
     m_choices[name] = {func, duration};
@@ -61,7 +61,7 @@ void AutonomousChooser::AddAutonomous(wpi::StringRef name,
     m_optionsEntry.SetStringArray(m_names);
 }
 
-void AutonomousChooser::SelectAutonomous(wpi::StringRef name) {
+void AutonomousChooser::SelectAutonomous(std::string_view name) {
     {
         std::scoped_lock lock{m_selectionMutex};
         m_selectedChoice = name;
