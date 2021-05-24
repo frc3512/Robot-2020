@@ -9,10 +9,10 @@
 #include <frc/RobotBase.h>
 #include <frc/RobotController.h>
 #include <frc/StateSpaceUtil.h>
+#include <frc/drive/DifferentialDrive.h>
 #include <frc/smartdashboard/SmartDashboard.h>
 
 #include "CANSparkMaxUtil.hpp"
-#include "CurvatureDrive.hpp"
 #include "EigenFormat.hpp"
 #include "RealTimeRobot.hpp"
 
@@ -68,7 +68,7 @@ Drivetrain::Drivetrain()
     // Reset the pose estimate to the field's bottom-left corner with the turret
     // facing in the target's general direction. This is relatively close to the
     // robot's testing configuration, so the turret won't hit the soft limits.
-    Reset(frc::Pose2d{0_m, 0_m, units::radian_t{wpi::math::pi}});
+    Reset(frc::Pose2d{0_m, 0_m, units::radian_t{wpi::numbers::pi}});
 
     frc::SmartDashboard::PutData(&m_field);
 }
@@ -169,7 +169,7 @@ void Drivetrain::ControllerPeriodic() {
         GetLeftPosition().to<double>(), GetRightPosition().to<double>(),
         GetAccelerationX().to<double>(), GetAccelerationY().to<double>();
     m_latencyComp.AddObserverState(m_observer, m_controller.GetInputs(), y,
-                                   frc2::Timer::GetFPGATimestamp());
+                                   frc::Timer::GetFPGATimestamp());
     m_observer.Correct(m_controller.GetInputs(), y);
 
     if (m_controller.HaveTrajectory()) {
@@ -316,7 +316,8 @@ void Drivetrain::TeleopPeriodic() {
         y *= 0.5;
         x *= 0.5;
     }
-    auto [left, right] = CurvatureDrive(y, x, driveStick2.GetRawButton(2));
+    auto [left, right] = frc::DifferentialDrive::CurvatureDriveIK(
+        y, x, driveStick2.GetRawButton(2));
 
     // Implicit model following
     // TODO: Velocities need filtering

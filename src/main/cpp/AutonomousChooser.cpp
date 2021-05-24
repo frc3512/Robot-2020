@@ -8,8 +8,8 @@
 #include <fmt/core.h>
 #include <frc/DriverStation.h>
 #include <frc/Threads.h>
+#include <frc/Timer.h>
 #include <frc/smartdashboard/SmartDashboard.h>
-#include <frc2/Timer.h>
 
 #include "RealTimeRobot.hpp"
 
@@ -105,7 +105,7 @@ bool AutonomousChooser::Suspend(std::function<bool()> cond) {
 }
 
 bool AutonomousChooser::SuspendFor(units::second_t duration) {
-    frc2::Timer timer;
+    frc::Timer timer;
     timer.Start();
     return Suspend([=] { return timer.HasElapsed(duration); });
 }
@@ -185,7 +185,7 @@ bool AutonomousChooser::IsSuspended() const {
     return m_autonThread.joinable() && m_autonRunning;
 }
 
-void AutonomousChooser::InitSendable(frc::SendableBuilder& builder) {
+void AutonomousChooser::InitSendable(wpi::SendableBuilder& builder) {
     builder.SetSmartDashboardType("String Chooser");
 
     builder.GetEntry("default").SetString(m_defaultChoice);

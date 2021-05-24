@@ -2,7 +2,7 @@
 
 #include <frc/trajectory/constraint/MaxVelocityConstraint.h>
 #include <frc/trajectory/constraint/RectangularRegionConstraint.h>
-#include <wpi/math>
+#include <wpi/numbers>
 
 #include "Robot.hpp"
 
@@ -15,18 +15,18 @@ void Robot::AutoGalacticSearchB() {
     const frc::Pose2d kFirstRedBall{2.38_m - 0.3_m, 2.801_m,
                                     units::radian_t{0}};
     const frc::Pose2d kSecondRedBall{3.553_m, 1.529_m, units::radian_t{0}};
-    const frc::Pose2d kThirdRedBall{5.38_m, 3.42_m,
-                                    units::radian_t{13 * wpi::math::pi / 36}};
+    const frc::Pose2d kThirdRedBall{
+        5.38_m, 3.42_m, units::radian_t{13 * wpi::numbers::pi / 36}};
     const frc::Pose2d kThirdtoEndRed{6.635_m, 3.507_m, units::radian_t{0}};
     const frc::Pose2d kRedEndPose{8.532_m, 3.507_m, units::radian_t{0}};
 
     const frc::Pose2d kFirstBlueBall{4.54_m, 1.54_m, units::radian_t{0}};
     const frc::Pose2d kFirstToSecondBlueBall{
-        5.351_m, 2.258_m, units::radian_t{wpi::math::pi / 4}};
+        5.351_m, 2.258_m, units::radian_t{wpi::numbers::pi / 4}};
     const frc::Pose2d kSecondBlueBall{6.017_m, 2.999_m,
-                                      units::radian_t{wpi::math::pi / 4}};
-    const frc::Pose2d kThirdBlueBall{7.225_m, 1.634_m,
-                                     units::radian_t{35 * wpi::math::pi / 18}};
+                                      units::radian_t{wpi::numbers::pi / 4}};
+    const frc::Pose2d kThirdBlueBall{
+        7.225_m, 1.634_m, units::radian_t{35 * wpi::numbers::pi / 18}};
     const frc::Pose2d kBlueEndPose{8.591_m, 1.534_m, units::radian_t{0}};
 
     const units::meters_per_second_t kMaxV = 1_mps;

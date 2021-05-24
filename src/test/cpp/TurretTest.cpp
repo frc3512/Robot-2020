@@ -1,11 +1,11 @@
 // Copyright (c) 2019-2021 FRC Team 3512. All Rights Reserved.
 
 #include <frc/Notifier.h>
+#include <frc/Timer.h>
 #include <frc/simulation/JoystickSim.h>
 #include <frc/simulation/SimHooks.h>
-#include <frc2/Timer.h>
 #include <gtest/gtest.h>
-#include <wpi/math>
+#include <wpi/numbers>
 
 #include "Constants.hpp"
 #include "RealTimeRobot.hpp"
@@ -29,7 +29,7 @@ TEST_F(TurretTest, ConfigSpaceLimits) {
     constexpr int kPovCW = 90;
     constexpr int kPovCCW = 270;
 
-    frc2::Timer timer;
+    frc::Timer timer;
     timer.Start();
 
     frc::sim::JoystickSim appendageStick1{kAppendageStick1Port};
@@ -106,7 +106,7 @@ TEST_F(TurretTest, ReachesReferenceStaticDrivetrain) {
         frc3512::RealTimeRobot::kDefaultControllerPeriod);
 
     frc::Pose2d initialPose{12.65_m, 5.800_m - 0.343_m,
-                            units::radian_t{wpi::math::pi}};
+                            units::radian_t{wpi::numbers::pi}};
     drivetrain.Reset(initialPose);
 
     frc::sim::StepTiming(10_s);
@@ -127,11 +127,13 @@ TEST_F(TurretTest, ReachesReferenceSCurveDrivetrain) {
     controllerPeriodic.StartPeriodic(
         frc3512::RealTimeRobot::kDefaultControllerPeriod);
 
-    frc::Pose2d initialPose{4.8768_m, 2.7432_m, units::radian_t{wpi::math::pi}};
+    frc::Pose2d initialPose{4.8768_m, 2.7432_m,
+                            units::radian_t{wpi::numbers::pi}};
 
     drivetrain.Reset(initialPose);
     drivetrain.AddTrajectory(
-        initialPose, {}, frc::Pose2d(0_m, 0_m, units::radian_t{wpi::math::pi}));
+        initialPose, {},
+        frc::Pose2d(0_m, 0_m, units::radian_t{wpi::numbers::pi}));
 
     frc::sim::StepTiming(10_s);
 
@@ -151,12 +153,13 @@ TEST_F(TurretTest, ReachesReferenceAutonDrivetrain) {
     controllerPeriodic.StartPeriodic(
         frc3512::RealTimeRobot::kDefaultControllerPeriod);
 
-    frc::Pose2d initialPose{12.65_m, 5.800_m, units::radian_t{wpi::math::pi}};
+    frc::Pose2d initialPose{12.65_m, 5.800_m,
+                            units::radian_t{wpi::numbers::pi}};
     drivetrain.Reset(initialPose);
     drivetrain.AddTrajectory(
         initialPose, {},
         frc::Pose2d(12.65_m - frc3512::Drivetrain::kLength, 5.800_m,
-                    units::radian_t{wpi::math::pi}));
+                    units::radian_t{wpi::numbers::pi}));
 
     frc::sim::StepTiming(10_s);
 

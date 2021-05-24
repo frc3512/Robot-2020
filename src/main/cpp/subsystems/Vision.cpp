@@ -5,9 +5,9 @@
 #include <chrono>
 #include <vector>
 
+#include <frc/Timer.h>
 #include <frc/geometry/Pose2d.h>
 #include <frc/geometry/Transform2d.h>
-#include <frc2/Timer.h>
 #include <units/angle.h>
 
 #include "TargetModel.hpp"
@@ -65,7 +65,7 @@ void Vision::ProcessNewMeasurement() {
     auto turretInGlobal =
         cameraInGlobal.TransformBy(kCameraInGlobalToTurretInGlobal);
 
-    auto timestamp = frc2::Timer::GetFPGATimestamp();
+    auto timestamp = frc::Timer::GetFPGATimestamp();
     timestamp -= latency;
 
     m_measurements.push({timestamp, turretInGlobal});

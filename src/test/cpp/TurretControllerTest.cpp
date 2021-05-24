@@ -5,7 +5,7 @@
 #include <frc/simulation/SimHooks.h>
 #include <gtest/gtest.h>
 #include <units/math.h>
-#include <wpi/math>
+#include <wpi/numbers>
 
 #include "RealTimeRobot.hpp"
 #include "SimulatorTest.hpp"
@@ -23,7 +23,7 @@ TEST_F(TurretControllerTest, CalculateHeading) {
     // Target is pi/4 radians CCW if robot is facing at 0 radians with the
     // following target and turret locations
     EXPECT_EQ(controller.CalculateHeading({4_m, 2_m}, {2_m, 0_m}),
-              units::radian_t{wpi::math::pi / 4.0});
+              units::radian_t{wpi::numbers::pi / 4.0});
 }
 
 TEST_F(TurretControllerTest, CalculateAngularVelocity) {
@@ -86,9 +86,9 @@ void VerifyHeadingAdjustment(units::meters_per_second_t drivetrainSpeed,
 }
 
 TEST_F(TurretControllerTest, CalculateHeadingAdjustment) {
-    VerifyHeadingAdjustment(3.5_mps, units::radian_t{wpi::math::pi / 2.0},
+    VerifyHeadingAdjustment(3.5_mps, units::radian_t{wpi::numbers::pi / 2.0},
                             {-2_m, 0_m});
-    VerifyHeadingAdjustment(3.5_mps, units::radian_t{wpi::math::pi},
+    VerifyHeadingAdjustment(3.5_mps, units::radian_t{wpi::numbers::pi},
                             {-2_m, 1_m});
 }
 
@@ -101,17 +101,17 @@ TEST_F(TurretControllerTest, ProperDistanceFromTarget) {
 
     Eigen::Matrix<double, 7, 1> drivetrainXhat;
     drivetrainXhat << kDrivetrainX.to<double>(), kDrivetrainY.to<double>(),
-        wpi::math::pi, 0, 0, 0, 0;
+        wpi::numbers::pi, 0, 0, 0, 0;
 
     controller.SetDrivetrainStates(drivetrainXhat);
     Eigen::Matrix<double, 1, 1> y;
     y << 0.0;
     auto turretPose = controller.DrivetrainToTurretInGlobal(frc::Pose2d{
-        kDrivetrainX, kDrivetrainY, units::radian_t{wpi::math::pi}});
+        kDrivetrainX, kDrivetrainY, units::radian_t{wpi::numbers::pi}});
 
     const frc::Pose2d kTargetPoseInGlobal{TargetModel::kCenter.X(),
                                           TargetModel::kCenter.Y(),
-                                          units::radian_t{wpi::math::pi}};
+                                          units::radian_t{wpi::numbers::pi}};
 
     auto distance =
         turretPose.Translation().Distance(kTargetPoseInGlobal.Translation());

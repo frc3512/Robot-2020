@@ -1,9 +1,9 @@
 // Copyright (c) 2020-2021 FRC Team 3512. All Rights Reserved.
 
 #include <frc/Notifier.h>
+#include <frc/Timer.h>
 #include <frc/simulation/JoystickSim.h>
 #include <frc/simulation/SimHooks.h>
-#include <frc2/Timer.h>
 #include <gtest/gtest.h>
 
 #include "Constants.hpp"
@@ -25,14 +25,14 @@ public:
 };
 
 TEST_F(ClimberTest, ConfigSpaceLimits) {
-    frc2::Timer timer;
+    frc::Timer timer;
     timer.Start();
 
     frc::sim::JoystickSim appendageStick1{
         frc3512::Constants::Robot::kAppendageStick1Port};
 
     // Make sure turret doesn't interfere with climber movement
-    turret.Reset(units::radian_t{wpi::math::pi / 2.0});
+    turret.Reset(units::radian_t{wpi::numbers::pi / 2.0});
 
     frc3512::SubsystemBase::RunAllTeleopInit();
     frc::Notifier controllerPeriodic{[&] {

@@ -3,15 +3,15 @@
 #pragma once
 
 #include <frc/Encoder.h>
-#include <frc/LinearFilter.h>
+#include <frc/Timer.h>
 #include <frc/estimator/KalmanFilter.h>
+#include <frc/filter/LinearFilter.h>
 #include <frc/geometry/Pose2d.h>
 #include <frc/simulation/EncoderSim.h>
 #include <frc/simulation/FlywheelSim.h>
 #include <frc/simulation/LinearSystemSim.h>
 #include <frc/system/LinearSystem.h>
 #include <frc/system/plant/LinearSystemId.h>
-#include <frc2/Timer.h>
 #include <units/angle.h>
 #include <units/angular_velocity.h>
 #include <units/current.h>
@@ -163,7 +163,7 @@ private:
 
     units::radian_t m_angle;
     units::radian_t m_lastAngle;
-    units::second_t m_time = frc2::Timer::GetFPGATimestamp();
+    units::second_t m_time = frc::Timer::GetFPGATimestamp();
     units::second_t m_lastTime =
         m_time - RealTimeRobot::kDefaultControllerPeriod;
 

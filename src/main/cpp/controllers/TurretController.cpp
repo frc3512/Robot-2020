@@ -12,10 +12,10 @@
 using namespace frc3512;
 
 const frc::Pose2d TurretController::kDrivetrainToTurretFrame{
-    2_in, 0_m, wpi::math::pi * 1_rad};
+    2_in, 0_m, wpi::numbers::pi * 1_rad};
 const frc::Pose2d TurretController::kTargetPoseInGlobal{
     TargetModel::kCenter.X(), TargetModel::kCenter.Y(),
-    units::radian_t{wpi::math::pi}};
+    units::radian_t{wpi::numbers::pi}};
 
 template <typename Vector1, typename Vector2>
 auto Dot(const Vector1& a, const Vector2& b) -> decltype(auto) {

@@ -8,7 +8,7 @@
 #include <frc/RobotBase.h>
 #include <frc/RobotController.h>
 #include <units/math.h>
-#include <wpi/math>
+#include <wpi/numbers>
 
 #include "CANSparkMaxUtil.hpp"
 #include "EigenFormat.hpp"
@@ -20,9 +20,9 @@
 using namespace frc3512;
 using namespace frc3512::Constants::Robot;
 
-const frc::Pose2d Flywheel::kTargetPoseInGlobal{TargetModel::kCenter.X(),
-                                                TargetModel::kCenter.Y(),
-                                                units::radian_t{wpi::math::pi}};
+const frc::Pose2d Flywheel::kTargetPoseInGlobal{
+    TargetModel::kCenter.X(), TargetModel::kCenter.Y(),
+    units::radian_t{wpi::numbers::pi}};
 
 Flywheel::Flywheel(Drivetrain& drivetrain)
     : ControlledSubsystemBase("Flywheel",
@@ -131,7 +131,7 @@ void Flywheel::ControllerPeriodic() {
     }
 
     m_angle = GetAngle();
-    m_time = frc2::Timer::GetFPGATimestamp();
+    m_time = frc::Timer::GetFPGATimestamp();
 
     // WPILib uses the time between pulses in GetRate() to calculate velocity,
     // but this is very noisy for high-resolution encoders. Instead, we

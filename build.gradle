@@ -3,7 +3,7 @@ import org.gradle.internal.os.OperatingSystem
 plugins {
     id "cpp"
     id "google-test-test-suite"
-    id "edu.wpi.first.GradleRIO" version "2021.3.1"
+    id "edu.wpi.first.GradleRIO" version "2022.0.0-alpha-2"
     id "org.ysb33r.doxygen" version "0.6"
 }
 
@@ -74,11 +74,13 @@ nativeUtils.platformConfigs.named("linuxathena").configure {
     it.cppCompiler.args.add('-Wall')
     it.cppCompiler.args.add('-Wextra')
     it.cppCompiler.args.add('-pedantic')
-    it.cppCompiler.args.add('-Werror')
     it.cppCompiler.args.add('-Wno-unused-parameter')
     // Suppress warning from incorrect [[deprecated]] attribute usage in
     // CANSparkMax.h
     it.cppCompiler.args.add('-Wno-attributes')
+
+    // Deprecation warnings won't go away until vendors recompile
+    it.cppCompiler.args.add('-Wno-error=deprecated')
 }
 
 if (OperatingSystem.current().isWindows()) {
@@ -91,8 +93,10 @@ if (OperatingSystem.current().isWindows()) {
         it.cppCompiler.args.add('-Wall')
         it.cppCompiler.args.add('-Wextra')
         it.cppCompiler.args.add('-pedantic')
-        it.cppCompiler.args.add('-Werror')
         it.cppCompiler.args.add('-Wno-unused-parameter')
+
+        // Deprecation warnings won't go away until vendors recompile
+        it.cppCompiler.args.add('-Wno-error=deprecated')
     }
 }
 

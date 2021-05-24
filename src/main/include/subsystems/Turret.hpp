@@ -37,7 +37,8 @@ public:
     enum class Direction { kNone, kCCW, kCW };
 
     // CW limit for turret that allows climber to move
-    static constexpr units::radian_t kCWLimitForClimbing{0.375 * wpi::math::pi};
+    static constexpr units::radian_t kCWLimitForClimbing{0.375 *
+                                                         wpi::numbers::pi};
 
     explicit Turret(Vision& vision, Drivetrain& drivetrain, Flywheel& flywheel);
 

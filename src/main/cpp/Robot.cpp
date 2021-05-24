@@ -2,7 +2,7 @@
 
 #include "Robot.hpp"
 
-#include <frc/DriverStation.h>
+#include <frc/Errors.h>
 #include <frc/Joystick.h>
 #include <frc/RobotController.h>
 #include <frc/simulation/BatterySim.h>
@@ -241,7 +241,8 @@ void Robot::RunShooterSM() {
                 } else {
                     m_flywheel.SetGoal(0_rad_per_s);
                     m_state = ShootingState::kIdle;
-                    frc::DriverStation::GetInstance().ReportError(
+                    FRC_ReportError(
+                        frc::warn::Warning, "{}",
                         "Flywheel didn't start spinning. Either the motors "
                         "aren't responding or the encoder isn't plugged in.");
                 }

@@ -15,7 +15,7 @@
 #include <units/length.h>
 #include <units/velocity.h>
 #include <units/voltage.h>
-#include <wpi/math>
+#include <wpi/numbers>
 
 #include "RealTimeRobot.hpp"
 #include "controllers/ControllerBase.hpp"
@@ -31,7 +31,7 @@ public:
     };
 
     static constexpr double kGearRatio = 18.0 / 160.0;
-    static constexpr double kDpR = kGearRatio * 2.0 * wpi::math::pi;
+    static constexpr double kDpR = kGearRatio * 2.0 * wpi::numbers::pi;
 
     // Transformation from drivetrain to turret
     static const frc::Pose2d kDrivetrainToTurretFrame;
@@ -41,8 +41,8 @@ public:
     static constexpr auto kAngularVelocityTolerance = 2.0_rad_per_s;
 
     // Turret configuration space limits
-    static constexpr units::radian_t kCCWLimit{2.0 / 3.0 * wpi::math::pi};
-    static constexpr units::radian_t kCWLimit{-2.0 / 3.0 * wpi::math::pi};
+    static constexpr units::radian_t kCCWLimit{2.0 / 3.0 * wpi::numbers::pi};
+    static constexpr units::radian_t kCWLimit{-2.0 / 3.0 * wpi::numbers::pi};
 
     /**
      * States of the turret system.

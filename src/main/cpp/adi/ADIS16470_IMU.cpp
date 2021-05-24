@@ -21,15 +21,12 @@
 
 #include <frc/DigitalInput.h>
 #include <frc/DigitalSource.h>
-#include <frc/DriverStation.h>
-#include <frc/ErrorBase.h>
+#include <frc/Errors.h>
 #include <frc/RobotBase.h>
 #include <frc/Threads.h>
 #include <frc/Timer.h>
-#include <frc/WPIErrors.h>
-#include <frc/smartdashboard/SendableBuilder.h>
 #include <hal/HAL.h>
-#include <wpi/math>
+#include <wpi/numbers>
 
 #include "RTUtils.hpp"
 
@@ -96,7 +93,8 @@ ADIS16470_IMU::ADIS16470_IMU(IMUAxis yaw_axis, SPI::Port port, ADIS16470Calibrat
     WriteRegister(NULL_CNFG, m_calibration_time | 0x700);
 
     // Notify DS that IMU calibration delay is active
-    DriverStation::ReportWarning("ADIS16470 IMU Detected. Starting initial calibration delay.");
+    FRC_ReportError(frc::warn::Warning, "{}",
+        "ADIS16470 IMU Detected. Starting initial calibration delay.");
 
     // Wait for samples to accumulate internal to the IMU (110% of user-defined time)
     Wait(pow(2, m_calibration_time) / 2000 * 64 * 1.1);
@@ -110,7 +108,8 @@ ADIS16470_IMU::ADIS16470_IMU(IMUAxis yaw_axis, SPI::Port port, ADIS16470Calibrat
     }
 
     // Let the user know the IMU was initiallized successfully
-    DriverStation::ReportWarning("ADIS16470 IMU Successfully Initialized!");
+    FRC_ReportError(frc::warn::Warning, "{}",
+        "ADIS16470 IMU Successfully Initialized!");
 
     // Drive SPI CS3 (IMU ready LED) low (active low)
     new DigitalOutput(28); 
@@ -171,7 +170,8 @@ bool ADIS16470_IMU::SwitchToStandardSPI(){
     // Validate the product ID
     uint16_t prod_id = ReadRegister(PROD_ID);
     if (prod_id != 16982 && prod_id != 16470) {
-      DriverStation::ReportError("Could not find ADIS16470!");
+      FRC_ReportError(frc::err::Error, "{}",
+          "Could not find ADIS16470!");
       Close();
       return false;
     }
@@ -182,7 +182,8 @@ bool ADIS16470_IMU::SwitchToStandardSPI(){
     ReadRegister(PROD_ID); // Dummy read
     uint16_t prod_id = ReadRegister(PROD_ID);
     if (prod_id != 16982 && prod_id != 16470) {
-      DriverStation::ReportError("Could not find ADIS16470!");
+      FRC_ReportError(frc::err::Error, "{}",
+          "Could not find ADIS16470!");
       Close();
       return false;
     }
@@ -209,7 +210,8 @@ bool ADIS16470_IMU::SwitchToAutoSPI(){
   // No SPI port has been set up. Go set one up first.
   if(m_spi == nullptr){
     if(!SwitchToStandardSPI()){
-      DriverStation::ReportError("Failed to start/restart auto SPI");
+      FRC_ReportError(frc::err::Error, "{}",
+          "Failed to start/restart auto SPI");
       return false;
     }
   }
@@ -278,13 +280,15 @@ int ADIS16470_IMU::ConfigCalTime(ADIS16470CalibrationTime new_cal_time) {
   if(m_calibration_time == (uint16_t)new_cal_time)
     return 1;
   if(!SwitchToStandardSPI()) {
-    DriverStation::ReportError("Failed to configure/reconfigure standard SPI.");
+    FRC_ReportError(frc::err::Error, "{}",
+        "Failed to configure/reconfigure standard SPI.");
     return 2;
   }
   m_calibration_time = (uint16_t)new_cal_time;
   WriteRegister(NULL_CNFG, m_calibration_time | 0x700);
   if(!SwitchToAutoSPI()) {
-    DriverStation::ReportError("Failed to configure/reconfigure auto SPI.");
+    FRC_ReportError(frc::err::Error, "{}",
+        "Failed to configure/reconfigure auto SPI.");
     return 2;
   }
   return 0;
@@ -302,17 +306,20 @@ int ADIS16470_IMU::ConfigCalTime(ADIS16470CalibrationTime new_cal_time) {
 int ADIS16470_IMU::ConfigDecRate(uint16_t reg) { 
   uint16_t m_reg = reg;
   if(!SwitchToStandardSPI()) {
-    DriverStation::ReportError("Failed to configure/reconfigure standard SPI.");
+    FRC_ReportError(frc::err::Error, "{}",
+        "Failed to configure/reconfigure standard SPI.");
     return 2;
   }
   if(m_reg > 1999) {
-    DriverStation::ReportError("Attempted to write an invalid decimation value.");
+    FRC_ReportError(frc::err::Error, "{}",
+        "Attempted to write an invalid decimation value.");
     m_reg = 1999;
   }
   m_scaled_sample_rate = (((m_reg + 1.0)/2000.0) * 1000000.0);
   WriteRegister(DEC_RATE, m_reg);
   if(!SwitchToAutoSPI()) {
-    DriverStation::ReportError("Failed to configure/reconfigure auto SPI.");
+    FRC_ReportError(frc::err::Error, "{}",
+        "Failed to configure/reconfigure auto SPI.");
     return 2;
   }
   return 0;
@@ -327,11 +334,13 @@ int ADIS16470_IMU::ConfigDecRate(uint16_t reg) {
  **/
 void ADIS16470_IMU::Calibrate() {
   if(!SwitchToStandardSPI()) {
-    DriverStation::ReportError("Failed to configure/reconfigure standard SPI.");
+    FRC_ReportError(frc::err::Error, "{}",
+        "Failed to configure/reconfigure standard SPI.");
   }
   WriteRegister(GLOB_CMD, 0x0001);
   if(!SwitchToAutoSPI()) {
-    DriverStation::ReportError("Failed to configure/reconfigure auto SPI.");
+    FRC_ReportError(frc::err::Error, "{}",
+        "Failed to configure/reconfigure auto SPI.");
   }
 }
 
@@ -339,12 +348,14 @@ int ADIS16470_IMU::SetYawAxis(IMUAxis yaw_axis) {
   if(m_yaw_axis == yaw_axis)
     return 1; 
   if(!SwitchToStandardSPI()) {
-    DriverStation::ReportError("Failed to configure/reconfigure standard SPI.");
+    FRC_ReportError(frc::err::Error, "{}",
+        "Failed to configure/reconfigure standard SPI.");
     return 2;
   }
   m_yaw_axis = yaw_axis;
   if(!SwitchToAutoSPI()) {
-    DriverStation::ReportError("Failed to configure/reconfigure auto SPI.");
+    FRC_ReportError(frc::err::Error, "{}",
+        "Failed to configure/reconfigure auto SPI.");
     return 2;
   }
   return 0;
@@ -428,7 +439,7 @@ ADIS16470_IMU::~ADIS16470_IMU() {
   Close();
 }
 
-ADIS16470_IMU::ADIS16470_IMU(ADIS16470_IMU&& rhs) : GyroBase(std::move(rhs)) {
+ADIS16470_IMU::ADIS16470_IMU(ADIS16470_IMU&& rhs) {
   std::swap(m_thread_active, rhs.m_thread_active);
   std::swap(m_first_run, rhs.m_first_run);
   std::swap(m_thread_idle, rhs.m_thread_idle);
@@ -447,8 +458,6 @@ ADIS16470_IMU::ADIS16470_IMU(ADIS16470_IMU&& rhs) : GyroBase(std::move(rhs)) {
 }
 
 ADIS16470_IMU& ADIS16470_IMU::operator=(ADIS16470_IMU&& rhs) {
-  GyroBase::operator=(std::move(rhs));
-
   std::swap(m_thread_active, rhs.m_thread_active);
   std::swap(m_first_run, rhs.m_first_run);
   std::swap(m_thread_idle, rhs.m_thread_idle);
@@ -535,7 +544,8 @@ void ADIS16470_IMU::Acquire() {
       /* Want to cap the data to read in a single read at the buffer size */
       if(data_to_read > BUFFER_SIZE)
       {
-          DriverStation::ReportWarning("ADIS16470 data processing thread overrun has occurred!");
+          FRC_ReportError(frc::warn::Warning, "{}",
+              "ADIS16470 data processing thread overrun has occurred!");
           data_to_read = BUFFER_SIZE - (BUFFER_SIZE % dataset_len);
       }
       m_spi->ReadAutoReceivedData(buffer, data_to_read, 0_s); // Read data from DMA buffer (only complete sets)
@@ -655,31 +665,31 @@ void ADIS16470_IMU::Acquire() {
 
 /* Complementary filter functions */
 double ADIS16470_IMU::FormatFastConverge(double compAngle, double accAngle) {
-  if(compAngle > accAngle + wpi::math::pi) {
-    compAngle = compAngle - 2.0 * wpi::math::pi;
+  if(compAngle > accAngle + wpi::numbers::pi) {
+    compAngle = compAngle - 2.0 * wpi::numbers::pi;
   }
-  else if (accAngle > compAngle + wpi::math::pi) {
-    compAngle = compAngle + 2.0 * wpi::math::pi;
+  else if (accAngle > compAngle + wpi::numbers::pi) {
+    compAngle = compAngle + 2.0 * wpi::numbers::pi;
   }
   return compAngle;  
 }
 
 double ADIS16470_IMU::FormatRange0to2PI(double compAngle) {
-  while(compAngle >= 2 * wpi::math::pi) {
-    compAngle = compAngle - 2.0 * wpi::math::pi;
+  while(compAngle >= 2 * wpi::numbers::pi) {
+    compAngle = compAngle - 2.0 * wpi::numbers::pi;
   }
   while(compAngle < 0.0) {
-    compAngle = compAngle + 2.0 * wpi::math::pi;
+    compAngle = compAngle + 2.0 * wpi::numbers::pi;
   }
   return compAngle;
 }
 
 double ADIS16470_IMU::FormatAccelRange(double accelAngle, double accelZ) {
   if(accelZ < 0.0) {
-    accelAngle = wpi::math::pi - accelAngle;
+    accelAngle = wpi::numbers::pi - accelAngle;
   }
   else if(accelZ > 0.0 && accelAngle < 0.0) {
-    accelAngle = 2.0 * wpi::math::pi + accelAngle;
+    accelAngle = 2.0 * wpi::numbers::pi + accelAngle;
   }
   return accelAngle;
 }
@@ -688,8 +698,8 @@ double ADIS16470_IMU::CompFilterProcess(double compAngle, double accelAngle, dou
   compAngle = FormatFastConverge(compAngle, accelAngle);
   compAngle = m_alpha * (compAngle + omega * m_dt) + (1.0 - m_alpha) * accelAngle;
   compAngle = FormatRange0to2PI(compAngle);
-  if(compAngle > wpi::math::pi) {
-    compAngle = compAngle - 2.0 * wpi::math::pi;
+  if(compAngle > wpi::numbers::pi) {
+    compAngle = compAngle - 2.0 * wpi::numbers::pi;
   }
   return compAngle;
 }
@@ -799,7 +809,7 @@ int ADIS16470_IMU::GetPort() const {
   *
   * This function pushes the most recent angle estimates for all axes to the driver station.
  **/
-void ADIS16470_IMU::InitSendable(SendableBuilder& builder) {
+void ADIS16470_IMU::InitSendable(wpi::SendableBuilder& builder) {
   builder.SetSmartDashboardType("ADIS16470 IMU");
   auto yaw_angle = builder.GetEntry("Yaw Angle").GetHandle();
   builder.SetUpdateTable([=]() {

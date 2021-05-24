@@ -36,8 +36,6 @@ public:
 
     void StopMotor() override { Disable(); }
 
-    void PIDWrite(double output) override { Set(output); }
-
     CANEncoder GetEncoder(CANEncoder::EncoderType sensorType =
                               CANEncoder::EncoderType::kHallSensor,
                           int countsPerRev = 0) {

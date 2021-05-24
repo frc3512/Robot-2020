@@ -7,12 +7,12 @@
 #include <tuple>
 #include <vector>
 
+#include <frc/Timer.h>
 #include <frc/controller/ControlAffinePlantInversionFeedforward.h>
 #include <frc/geometry/Pose2d.h>
 #include <frc/system/LinearSystem.h>
 #include <frc/trajectory/Trajectory.h>
 #include <frc/trajectory/TrajectoryConfig.h>
-#include <frc2/Timer.h>
 #include <units/angle.h>
 #include <units/angular_acceleration.h>
 #include <units/angular_velocity.h>
@@ -21,7 +21,7 @@
 #include <units/time.h>
 #include <units/velocity.h>
 #include <units/voltage.h>
-#include <wpi/math>
+#include <wpi/numbers>
 
 #include "LerpTable.hpp"
 #include "RealTimeRobot.hpp"
@@ -34,7 +34,7 @@ public:
     static constexpr units::meter_t kWheelRadius = 3.05_in;
     static constexpr double kDriveGearRatio = 1.0 / 1.0;
     static constexpr double kDpP =
-        (2.0 * wpi::math::pi * kWheelRadius.to<double>()) * kDriveGearRatio /
+        (2.0 * wpi::numbers::pi * kWheelRadius.to<double>()) * kDriveGearRatio /
         2048.0;
 
     static constexpr units::meter_t kWidth = [] {
@@ -258,7 +258,7 @@ private:
 
     frc::Trajectory m_trajectory;
     frc::Pose2d m_goal;
-    frc2::Timer m_trajectoryTimeElapsed;
+    frc::Timer m_trajectoryTimeElapsed;
 
     bool m_atReferences = false;
 

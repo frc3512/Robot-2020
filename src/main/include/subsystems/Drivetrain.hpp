@@ -9,13 +9,13 @@
 #include <adi/simulation/ADIS16470_IMUSim.h>
 #include <frc/AnalogInput.h>
 #include <frc/Encoder.h>
-#include <frc/LinearFilter.h>
-#include <frc/SpeedControllerGroup.h>
 #include <frc/estimator/AngleStatistics.h>
 #include <frc/estimator/KalmanFilterLatencyCompensator.h>
 #include <frc/estimator/UnscentedKalmanFilter.h>
+#include <frc/filter/LinearFilter.h>
 #include <frc/geometry/Pose2d.h>
 #include <frc/geometry/Translation2d.h>
+#include <frc/motorcontrol/MotorControllerGroup.h>
 #include <frc/simulation/AnalogInputSim.h>
 #include <frc/simulation/DifferentialDrivetrainSim.h>
 #include <frc/simulation/EncoderSim.h>
@@ -245,13 +245,13 @@ private:
                                   rev::CANSparkMax::MotorType::kBrushless};
     rev::CANSparkMax m_leftFollower{Constants::Drivetrain::kLeftFollowerPort,
                                     rev::CANSparkMax::MotorType::kBrushless};
-    frc::SpeedControllerGroup m_leftGrbx{m_leftLeader, m_leftFollower};
+    frc::MotorControllerGroup m_leftGrbx{m_leftLeader, m_leftFollower};
 
     rev::CANSparkMax m_rightLeader{Constants::Drivetrain::kRightLeaderPort,
                                    rev::CANSparkMax::MotorType::kBrushless};
     rev::CANSparkMax m_rightFollower{Constants::Drivetrain::kRightFollowerPort,
                                      rev::CANSparkMax::MotorType::kBrushless};
-    frc::SpeedControllerGroup m_rightGrbx{m_rightLeader, m_rightFollower};
+    frc::MotorControllerGroup m_rightGrbx{m_rightLeader, m_rightFollower};
 
     frc::Encoder m_leftEncoder{Constants::Drivetrain::kLeftEncoderA,
                                Constants::Drivetrain::kLeftEncoderB};

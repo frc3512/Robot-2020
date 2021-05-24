@@ -6,7 +6,7 @@
 #include <rev/CANSparkMaxLowLevel.h>
 
 #else
-#include <frc/SpeedController.h>
+#include <frc/motorcontrol/MotorController.h>
 #include <rev/CANError.h>
 
 namespace rev {
@@ -14,7 +14,7 @@ namespace rev {
 /**
  * REV CANSparkMaxLowLevel shim.
  */
-class CANSparkMaxLowLevel : public frc::SpeedController {
+class CANSparkMaxLowLevel : public frc::MotorController {
 public:
     enum class MotorType { kBrushed = 0, kBrushless = 1 };
 

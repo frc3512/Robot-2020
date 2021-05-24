@@ -12,8 +12,8 @@
 
 #include <units/time.h>
 
+#include "frc/Timer.h"
 #include "frc/logging/LogFile.h"
-#include "frc2/Timer.h"
 
 namespace frc {
 
@@ -89,14 +89,14 @@ class CSVLogFile {
    */
   template <typename Value, typename... Values>
   void Log(Value value, Values... values) {
-    Log(frc2::Timer::GetFPGATimestamp() - GetStartTime(), value, values...);
+    Log(frc::Timer::GetFPGATimestamp() - GetStartTime(), value, values...);
   }
 
   /**
    * Returns the timestamp when the robot program started.
    */
   static units::second_t GetStartTime() {
-    static units::second_t startTime = frc2::Timer::GetFPGATimestamp();
+    static units::second_t startTime = frc::Timer::GetFPGATimestamp();
     return startTime;
   }
 

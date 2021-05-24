@@ -2,7 +2,7 @@
 
 #include <frc/trajectory/constraint/MaxVelocityConstraint.h>
 #include <frc/trajectory/constraint/RectangularRegionConstraint.h>
-#include <wpi/math>
+#include <wpi/numbers>
 
 #include "Robot.hpp"
 
@@ -11,12 +11,12 @@ namespace frc3512 {
 void Robot::AutoRightSideShootSix() {
     // Initial Pose - Right in line with the three balls in the Trench Run
     const frc::Pose2d kInitialPose{12.89_m, 0.71_m,
-                                   units::radian_t{wpi::math::pi}};
+                                   units::radian_t{wpi::numbers::pi}};
     // Mid Pose - Drive forward slightly
     const frc::Pose2d kMidPose{12.89_m - 1.5 * Drivetrain::kLength, 0.71_m,
-                               units::radian_t{wpi::math::pi}};
+                               units::radian_t{wpi::numbers::pi}};
     // End Pose - Third/Farthest ball in the Trench Run
-    const frc::Pose2d kEndPose{8_m, 0.71_m, units::radian_t{wpi::math::pi}};
+    const frc::Pose2d kEndPose{8_m, 0.71_m, units::radian_t{wpi::numbers::pi}};
 
     m_drivetrain.Reset(kInitialPose);
 

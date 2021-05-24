@@ -6,8 +6,8 @@
 #include <vector>
 
 #include <frc/TimedRobot.h>
+#include <frc/Timer.h>
 #include <frc/logging/CSVLogFile.h>
-#include <frc2/Timer.h>
 #include <units/time.h>
 
 #if RUNNING_FRC_TESTS
@@ -263,7 +263,7 @@ private:
     int m_ballsToShoot = -1;
     units::second_t m_shootTimeout = kMaxShootTimeout;
     bool m_prevFlywheelAtGoal = false;
-    frc2::Timer m_timer;
+    frc::Timer m_timer;
 
     AutonomousChooser m_autonChooser{"No-op", [=] { AutoNoOp(); }};
 

@@ -8,8 +8,6 @@
 #include <frc/system/Discretization.h>
 #include <units/time.h>
 
-#include "controllers/DARE.hpp"
-
 namespace frc3512 {
 
 /**
@@ -55,7 +53,7 @@ Eigen::Matrix<double, Inputs, States> LQR(
     const Eigen::Matrix<double, Inputs, Inputs>& R,
     const Eigen::Matrix<double, States, Inputs>& N) {
     Eigen::Matrix<double, States, States> S =
-        DARE<States, Inputs>(A, B, Q, R, N);
+        drake::math::DiscreteAlgebraicRiccatiEquation(A, B, Q, R, N);
     return (B.transpose() * S * B + R)
         .llt()
         .solve(B.transpose() * S * A + N.transpose());

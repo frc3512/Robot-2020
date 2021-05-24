@@ -4,8 +4,8 @@
 
 #include <frc/DigitalInput.h>
 #include <frc/DoubleSolenoid.h>
+#include <frc/Timer.h>
 #include <frc/logging/CSVLogFile.h>
-#include <frc2/Timer.h>
 #include <networktables/NetworkTableEntry.h>
 #include <networktables/NetworkTableInstance.h>
 #include <units/time.h>
@@ -91,7 +91,7 @@ public:
     void RobotPeriodic() override;
 
 private:
-    frc2::Timer m_conveyorTimer;
+    frc::Timer m_conveyorTimer;
 
     Flywheel& m_flywheel;
 
