@@ -87,11 +87,10 @@ void SubsystemBase::RunAllTestPeriodic() {
 
 void SubsystemBase::ConsumeButtonEdgeEvents() {
     // Consumes button edge events produced in disabled mode
-    auto& ds = frc::DriverStation::GetInstance();
     for (int stick = 0; stick < frc::DriverStation::kJoystickPorts; ++stick) {
         for (int button = 1; button < 32; ++button) {
-            ds.GetStickButtonPressed(stick, button);
-            ds.GetStickButtonReleased(stick, button);
+            frc::DriverStation::GetStickButtonPressed(stick, button);
+            frc::DriverStation::GetStickButtonReleased(stick, button);
         }
     }
 }

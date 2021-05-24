@@ -7,9 +7,9 @@
 #include <ctime>
 #include <fstream>
 #include <string>
+#include <string_view>
 
 #include <units/time.h>
-#include <wpi/StringRef.h>
 
 namespace frc {
 
@@ -28,8 +28,8 @@ class LogFile {
    * @param filePrefix    The prefix of the LogFile.
    * @param fileExtension The extension of the LogFile (without dot).
    */
-  explicit LogFile(wpi::StringRef filePrefix = "log",
-                   wpi::StringRef fileExtension = "txt");
+  explicit LogFile(std::string_view filePrefix = "log",
+                   std::string_view fileExtension = "txt");
 
   LogFile(LogFile&&) = default;
   LogFile& operator=(LogFile&&) = default;
@@ -39,7 +39,7 @@ class LogFile {
    *
    * @param text The text to be logged in the file.
    */
-  void Log(const wpi::StringRef& text);
+  void Log(std::string_view text);
 
   /**
    * Flushes lines written to the log file to disk.

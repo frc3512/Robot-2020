@@ -119,7 +119,7 @@ TEST_F(DrivetrainTest, CorrectsTowardGlobalY) {
     Eigen::Matrix<double, 2, 1> globalY =
         frc3512::DrivetrainController::GlobalMeasurementModel(
             x, Eigen::Matrix<double, 2, 1>::Zero());
-    auto globalTimestamp = frc2::Timer::GetFPGATimestamp();
+    auto globalTimestamp = frc::Timer::GetFPGATimestamp();
 
     // Add measurement noise
     if constexpr (!kIdealModel) {

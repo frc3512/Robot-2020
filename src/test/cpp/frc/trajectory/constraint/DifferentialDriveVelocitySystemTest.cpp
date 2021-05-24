@@ -24,7 +24,7 @@ TEST(DifferentialDriveVelocitySystemTest, DISABLED_Constraint) {
   // Pick an unreasonably large kA to ensure the constraint has to do some work
   const frc::LinearSystem<2, 2, 2> system =
       frc::LinearSystemId::IdentifyDrivetrainSystem(
-          1_V / 1_mps, 3_V / 1_mps_sq, 1_V / 1_rad_per_s, 3_V / 1_rad_per_s_sq);
+          1_V / 1_mps, 3_V / 1_mps_sq, 1_V / 1_mps, 3_V / 1_mps_sq);
   const frc::DifferentialDriveKinematics kinematics{0.5_m};
   auto config = frc::TrajectoryConfig(12_mps, 12_mps_sq);
   config.AddConstraint(frc::DifferentialDriveVelocitySystemConstraint(
@@ -65,7 +65,7 @@ TEST(DifferentialDriveVelocitySystemTest, HighCurvature) {
 
   const frc::LinearSystem<2, 2, 2> system =
       frc::LinearSystemId::IdentifyDrivetrainSystem(
-          1_V / 1_mps, 3_V / 1_mps_sq, 1_V / 1_rad_per_s, 3_V / 1_rad_per_s_sq);
+          1_V / 1_mps, 3_V / 1_mps_sq, 1_V / 1_mps, 3_V / 1_mps_sq);
   // Large trackwidth - need to test with radius of curvature less than half of
   // trackwidth
   const frc::DifferentialDriveKinematics kinematics{3_m};

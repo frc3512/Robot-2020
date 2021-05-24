@@ -40,7 +40,7 @@ Eigen::Matrix<double, 1, 1> FlywheelController::Calculate(
               frc::MakeMatrix<1, 1>(kS.value());
     }
 
-    m_u = frc::NormalizeInputVector<1>(m_u, 12.0);
+    m_u = frc::DesaturateInputVector<1>(m_u, 12.0);
 
     // m_nextR is used here so AtGoal() returns false after calling SetGoal()
     UpdateAtGoal(units::radians_per_second_t{(m_nextR - x)(0)});

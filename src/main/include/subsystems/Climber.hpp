@@ -2,24 +2,24 @@
 
 #pragma once
 
-#include <frc/Debouncer.h>
 #include <frc/I2C.h>
 #include <frc/Servo.h>
 #include <frc/Solenoid.h>
+#include <frc/filter/Debouncer.h>
 #include <frc/simulation/LinearSystemSim.h>
 #include <frc/system/plant/LinearSystemId.h>
 #include <frc/util/Color.h>
 #include <networktables/NetworkTableEntry.h>
 #include <networktables/NetworkTableInstance.h>
+#include <rev/CANSparkMax.h>
+#include <rev/ColorMatch.h>
 #include <rev/ColorSensorV3.h>
+#include <rev/SparkMaxRelativeEncoder.h>
 #include <units/length.h>
 #include <units/voltage.h>
 
 #include "HWConfig.hpp"
 #include "NetworkTableUtil.hpp"
-#include "rev/CANEncoder.hpp"
-#include "rev/CANSparkMax.hpp"
-#include "rev/ColorMatch.hpp"
 #include "subsystems/SubsystemBase.hpp"
 
 namespace frc3512 {
@@ -80,13 +80,13 @@ public:
 private:
     rev::CANSparkMax m_elevator{HWConfig::Climber::kElevatorMotorID,
                                 rev::CANSparkMax::MotorType::kBrushless};
-    rev::CANEncoder m_elevatorEncoder =
-        m_elevator.GetEncoder(rev::CANEncoder::EncoderType::kHallSensor);
+    rev::SparkMaxRelativeEncoder m_elevatorEncoder = m_elevator.GetEncoder();
 
     rev::CANSparkMax m_traverser{frc3512::HWConfig::Climber::kTraverserMotorID,
                                  rev::CANSparkMax::MotorType::kBrushless};
 
-    frc::Solenoid m_pancake{frc3512::HWConfig::Climber::kClimberLockChannel};
+    frc::Solenoid m_pancake{frc::PneumaticsModuleType::CTREPCM,
+                            frc3512::HWConfig::Climber::kClimberLockChannel};
 
     Turret& m_turret;
     frc::Debouncer m_debouncer{50_ms, frc::Debouncer::DebounceType::kBoth};

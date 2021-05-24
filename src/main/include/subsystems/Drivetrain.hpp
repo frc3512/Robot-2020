@@ -5,17 +5,17 @@
 #include <vector>
 
 #include <Eigen/Core>
-#include <adi/ADIS16470_IMU.h>
-#include <adi/simulation/ADIS16470_IMUSim.h>
+#include <frc/ADIS16470_IMU.h>
 #include <frc/AnalogInput.h>
 #include <frc/Encoder.h>
-#include <frc/LinearFilter.h>
-#include <frc/SpeedControllerGroup.h>
 #include <frc/estimator/AngleStatistics.h>
 #include <frc/estimator/KalmanFilterLatencyCompensator.h>
 #include <frc/estimator/UnscentedKalmanFilter.h>
+#include <frc/filter/LinearFilter.h>
 #include <frc/geometry/Pose2d.h>
 #include <frc/geometry/Translation2d.h>
+#include <frc/motorcontrol/MotorControllerGroup.h>
+#include <frc/simulation/ADIS16470_IMUSim.h>
 #include <frc/simulation/AnalogInputSim.h>
 #include <frc/simulation/DifferentialDrivetrainSim.h>
 #include <frc/simulation/EncoderSim.h>
@@ -23,6 +23,7 @@
 #include <frc/system/plant/LinearSystemId.h>
 #include <frc/trajectory/TrajectoryConfig.h>
 #include <networktables/NetworkTableEntry.h>
+#include <rev/CANSparkMax.h>
 #include <units/acceleration.h>
 #include <units/angle.h>
 #include <units/angular_velocity.h>
@@ -36,7 +37,6 @@
 #include "NetworkTableUtil.hpp"
 #include "controllers/DrivetrainController.hpp"
 #include "controllers/ImplicitModelFollower.hpp"
-#include "rev/CANSparkMax.hpp"
 #include "static_concurrent_queue.hpp"
 #include "subsystems/ControlledSubsystemBase.hpp"
 #include "subsystems/Vision.hpp"
@@ -284,14 +284,14 @@ private:
                                   rev::CANSparkMax::MotorType::kBrushless};
     rev::CANSparkMax m_leftFollower{HWConfig::Drivetrain::kLeftMotorFollowerID,
                                     rev::CANSparkMax::MotorType::kBrushless};
-    frc::SpeedControllerGroup m_leftGrbx{m_leftLeader, m_leftFollower};
+    frc::MotorControllerGroup m_leftGrbx{m_leftLeader, m_leftFollower};
 
     rev::CANSparkMax m_rightLeader{HWConfig::Drivetrain::kRightMotorLeaderID,
                                    rev::CANSparkMax::MotorType::kBrushless};
     rev::CANSparkMax m_rightFollower{
         HWConfig::Drivetrain::kRightMotorFollowerID,
         rev::CANSparkMax::MotorType::kBrushless};
-    frc::SpeedControllerGroup m_rightGrbx{m_rightLeader, m_rightFollower};
+    frc::MotorControllerGroup m_rightGrbx{m_rightLeader, m_rightFollower};
 
     frc::Encoder m_leftEncoder{HWConfig::Drivetrain::kLeftEncoderA,
                                HWConfig::Drivetrain::kLeftEncoderB};

@@ -8,7 +8,6 @@
 #include <frc/RobotBase.h>
 #include <frc/RobotController.h>
 #include <frc/fmt/Eigen.h>
-#include <frc/fmt/Units.h>
 #include <units/math.h>
 #include <wpi/numbers>
 
@@ -72,7 +71,7 @@ units::radians_per_second_t Flywheel::GetGoal() const {
 bool Flywheel::AtGoal() const { return m_controller.AtGoal(); }
 
 void Flywheel::SetGoalFromPose() {
-    if (frc::DriverStation::GetInstance().IsTest()) {
+    if (frc::DriverStation::IsTest()) {
         SetGoal(ThrottleToReference(m_testThrottle));
     } else {
         SetGoal(GetReferenceForPose(m_drivetrain.GetPose()));
@@ -114,7 +113,7 @@ units::radians_per_second_t Flywheel::GetReferenceForRange(
 }
 
 void Flywheel::RobotPeriodic() {
-    if (frc::DriverStation::GetInstance().IsTest()) {
+    if (frc::DriverStation::IsTest()) {
         static frc::Joystick appendageStick2{HWConfig::kAppendageStick2Port};
 
         m_testThrottle = appendageStick2.GetThrottle();
@@ -143,7 +142,7 @@ void Flywheel::ControllerPeriodic() {
     }
 
     m_angle = GetAngle();
-    m_time = frc2::Timer::GetFPGATimestamp();
+    m_time = frc::Timer::GetFPGATimestamp();
 
     // WPILib uses the time between pulses in GetRate() to calculate velocity,
     // but this is very noisy for high-resolution encoders. Instead, we

@@ -4,15 +4,15 @@
 
 #include <frc/DigitalInput.h>
 #include <frc/Solenoid.h>
+#include <frc/Timer.h>
 #include <frc/logging/CSVLogFile.h>
-#include <frc2/Timer.h>
 #include <networktables/NetworkTableEntry.h>
 #include <networktables/NetworkTableInstance.h>
+#include <rev/CANSparkMax.h>
 #include <units/time.h>
 
 #include "HWConfig.hpp"
 #include "NetworkTableUtil.hpp"
-#include "rev/CANSparkMax.hpp"
 #include "subsystems/SubsystemBase.hpp"
 
 namespace frc3512 {
@@ -99,7 +99,7 @@ public:
     void RobotPeriodic() override;
 
 private:
-    frc2::Timer m_conveyorTimer;
+    frc::Timer m_conveyorTimer;
 
     Flywheel& m_flywheel;
 
@@ -118,7 +118,8 @@ private:
     frc::DigitalInput m_upperSensor{HWConfig::Intake::kUpperSensorChannel};
     frc::DigitalInput m_lowerSensor{HWConfig::Intake::kLowerSensorChannel};
 
-    frc::Solenoid m_arm{HWConfig::Intake::kArmChannel};
+    frc::Solenoid m_arm{frc::PneumaticsModuleType::CTREPCM,
+                        HWConfig::Intake::kArmChannel};
 
     nt::NetworkTableEntry m_upperSensorEntry = NetworkTableUtil::MakeBoolEntry(
         "/Diagnostics/Intake/Upper sensor blocked");

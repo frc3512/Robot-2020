@@ -6,9 +6,9 @@
 #include <string_view>
 #include <vector>
 
+#include <frc/Timer.h>
 #include <frc/TimesliceRobot.h>
 #include <frc/logging/CSVLogFile.h>
-#include <frc2/Timer.h>
 #include <units/time.h>
 
 #if RUNNING_FRC_TESTS
@@ -335,9 +335,9 @@ private:
     int m_ballsToShoot = -1;
     units::second_t m_shootTimeout = kMaxShootTimeout;
     bool m_prevFlywheelAtGoal = false;
-    frc2::Timer m_timer;
+    frc::Timer m_timer;
 
-    frc2::Timer m_visionTimer;
+    frc::Timer m_visionTimer;
 
     nt::NetworkTableEntry m_LEDEntry =
         NetworkTableUtil::MakeBoolEntry("/photonvision/ledMode");

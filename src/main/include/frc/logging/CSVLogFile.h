@@ -6,14 +6,14 @@
 
 #include <algorithm>
 #include <string>
+#include <string_view>
 #include <tuple>
 #include <type_traits>
 
 #include <units/time.h>
-#include <wpi/StringRef.h>
 
+#include "frc/Timer.h"
 #include "frc/logging/LogFile.h"
-#include "frc2/Timer.h"
 
 namespace frc {
 
@@ -37,7 +37,7 @@ class CSVLogFile {
    * @param columnHeadings Titles of other CSVLogFile columns.
    */
   template <typename Value, typename... Values>
-  CSVLogFile(wpi::StringRef filePrefix, Value columnHeading,
+  CSVLogFile(std::string_view filePrefix, Value columnHeading,
              Values... columnHeadings)
       : m_logFile(filePrefix, "csv") {
     m_logFile << "\"Time (s)\",";
@@ -55,7 +55,7 @@ class CSVLogFile {
    * @param columnHeadings Titles of CSVLogFile columns.
    */
   template <typename... Values>
-  CSVLogFile(wpi::StringRef filePrefix,
+  CSVLogFile(std::string_view filePrefix,
              const std::tuple<Values...>& columnHeadings)
       : m_logFile(filePrefix, "csv") {
     static_assert(sizeof...(Values) > 0,
@@ -96,14 +96,14 @@ class CSVLogFile {
    */
   template <typename Value, typename... Values>
   void Log(Value value, Values... values) {
-    Log(frc2::Timer::GetFPGATimestamp() - GetStartTime(), value, values...);
+    Log(frc::Timer::GetFPGATimestamp() - GetStartTime(), value, values...);
   }
 
   /**
    * Returns the timestamp when the robot program started.
    */
   static units::second_t GetStartTime() {
-    static units::second_t startTime = frc2::Timer::GetFPGATimestamp();
+    static units::second_t startTime = frc::Timer::GetFPGATimestamp();
     return startTime;
   }
 
@@ -116,7 +116,7 @@ class CSVLogFile {
    */
   template <typename Value, typename... Values>
   void LogValues(Value value, Values... values) {
-    if constexpr (std::is_convertible_v<Value, wpi::StringRef>) {
+    if constexpr (std::is_convertible_v<Value, std::string_view>) {
       m_logFile << '\"' << EscapeDoubleQuotes(value) << '\"';
     } else {
       m_logFile << value;
@@ -137,8 +137,8 @@ class CSVLogFile {
    * @param text Text to escape.
    * @return The text with all its double quotes escaped.
    */
-  std::string EscapeDoubleQuotes(wpi::StringRef text) const {
-    std::string textString = text.str();
+  std::string EscapeDoubleQuotes(std::string_view text) const {
+    std::string textString{text};
     for (std::string::size_type i = 0; i < text.size(); i++) {
       if (text[i] == '\"') {
         i++;

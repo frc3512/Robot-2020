@@ -6,12 +6,12 @@
 #include <tuple>
 #include <vector>
 
+#include <frc/Timer.h>
 #include <frc/controller/ControlAffinePlantInversionFeedforward.h>
 #include <frc/geometry/Pose2d.h>
 #include <frc/system/LinearSystem.h>
 #include <frc/trajectory/Trajectory.h>
 #include <frc/trajectory/TrajectoryConfig.h>
-#include <frc2/Timer.h>
 #include <units/angle.h>
 #include <units/angular_acceleration.h>
 #include <units/angular_velocity.h>
@@ -87,10 +87,10 @@ public:
     static constexpr auto kLinearA = 0.642_V / 1_mps_sq;
 
     /// Angular velocity system ID gain.
-    static constexpr auto kAngularV = 1.382_V / 1_rad_per_s;
+    static constexpr auto kAngularV = 1.382_V / 1_mps;
 
     /// Angular acceleration system ID gain.
-    static constexpr auto kAngularA = 0.08495_V / 1_rad_per_s_sq;
+    static constexpr auto kAngularA = 0.08495_V / 1_mps_sq;
 
     /// Maximum linear velocity.
     static constexpr auto kMaxV = 12_V / kLinearV;
@@ -363,7 +363,7 @@ private:
 
     frc::Trajectory m_trajectory;
     frc::Pose2d m_goal;
-    frc2::Timer m_trajectoryTimeElapsed;
+    frc::Timer m_trajectoryTimeElapsed;
 
     bool m_atReferences = false;
 
