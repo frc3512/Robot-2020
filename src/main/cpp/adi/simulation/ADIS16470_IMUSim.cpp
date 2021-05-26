@@ -3,16 +3,11 @@
 #include <adi/ADIS16470_IMU.h>
 #include <adi/simulation/ADIS16470_IMUSim.h>
 #include <frc/simulation/SimDeviceSim.h>
-#include <wpi/SmallString.h>
-#include <wpi/raw_ostream.h>
 
 using namespace frc::sim;
 
 ADIS16470_IMUSim::ADIS16470_IMUSim(const frc::ADIS16470_IMU& imu) {
-    wpi::SmallString<128> fullname;
-    wpi::raw_svector_ostream os(fullname);
-    os << "Gyro:ADIS16470" << '[' << imu.GetPort() << ']';
-    frc::sim::SimDeviceSim deviceSim{fullname.c_str()};
+    frc::sim::SimDeviceSim deviceSim{"Gyro:ADIS16470", imu.GetPort()};
     m_simAngle = deviceSim.GetDouble("angle_x");
     m_simRate = deviceSim.GetDouble("rate_x");
     m_simAccelX = deviceSim.GetDouble("accel_x");
