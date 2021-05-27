@@ -1,18 +1,16 @@
-// Copyright (c) 2020 FRC Team 3512. All Rights Reserved.
+// Copyright (c) 2020-2021 FRC Team 3512. All Rights Reserved.
 
 #pragma once
 
-#if !defined(__FRC_ROBORIO__)
-#if defined(__GNUC__) && __GNUC__ < 9 && !defined(__llvm__)
-#include <experimental/filesystem>
+#if __has_include(<filesystem>)
+#include <filesystem>
 
+#elif __has_include(<experimental/filesystem>)
+#include <experimental/filesystem>
 namespace std {
 namespace filesystem = experimental::filesystem;
 }  // namespace std
-#else
-#include <filesystem>
-#endif  // defined(__GNUC__) && __GNUC__ < 9 && !defined(__llvm__)
-#endif  // !defined(__FRC_ROBORIO__)
+#endif
 
 namespace frc3512 {
 

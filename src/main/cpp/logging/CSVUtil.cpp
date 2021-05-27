@@ -4,16 +4,14 @@
 
 #include <algorithm>
 
-#if !defined(__FRC_ROBORIO__)
-#if defined(__GNUC__) && __GNUC__ < 8 && !defined(__llvm__)
+#if __has_include(<filesystem>)
+#include <filesystem>
+#elif __has_include(<experimental/filesystem>)
 #include <experimental/filesystem>
 namespace std {
 namespace filesystem = experimental::filesystem;
 }  // namespace std
-#else
-#include <filesystem>
-#endif  // defined(__GNUC__) && __GNUC__ < 8 && !defined(__llvm__)
-#endif  // !defined(__FRC_ROBORIO__)
+#endif
 
 #include <frc2/Timer.h>
 
