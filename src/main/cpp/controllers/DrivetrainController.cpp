@@ -193,10 +193,10 @@ Eigen::Matrix<double, 2, 1> DrivetrainController::Controller(
 
     Eigen::Matrix<double, 5, 5> inRobotFrame =
         Eigen::Matrix<double, 5, 5>::Identity();
-    inRobotFrame(0, 0) = std::cos(x(2));
-    inRobotFrame(0, 1) = std::sin(x(2));
-    inRobotFrame(1, 0) = -std::sin(x(2));
-    inRobotFrame(1, 1) = std::cos(x(2));
+    inRobotFrame(0, 0) = std::cos(x(State::kHeading));
+    inRobotFrame(0, 1) = std::sin(x(State::kHeading));
+    inRobotFrame(1, 0) = -std::sin(x(State::kHeading));
+    inRobotFrame(1, 1) = std::cos(x(State::kHeading));
 
     Eigen::Matrix<double, 5, 1> error =
         r.block<5, 1>(0, 0) - x.block<5, 1>(0, 0);
