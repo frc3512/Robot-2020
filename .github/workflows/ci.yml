@@ -52,7 +52,7 @@ jobs:
     - name: Compile robot code for Athena
       run: ./gradlew buildAthena
   test:
-    timeout-minutes: 20
+    timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
