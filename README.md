@@ -103,18 +103,19 @@ folder. This command generates HTML documentation for the robot code from
 in-source Doxygen comments. The results are placed in a `docs/html` folder with
 an `index.html` page as the root.
 
-### GNU debugger (GDB)
+### Debugger
 
-* `./buildscripts/gdb_test.py`
+* `./buildscripts/debug_test.py`
 
-This runs a debug build of the tests in GDB. Once the build completes and GDB's
-prompt appears, enter `run` to start the robot program. It may take a while due
-to the debugger having to load a lot of symbols. If the robot code crashes,
-enter `bt` to get a backtrace.
+This runs a debug build of the tests in GDB. Once the build completes and the
+debugger's prompt appears, enter `run` to start the robot program. It may take a
+while due to the debugger having to load a lot of symbols. If the robot code
+crashes, enter `bt` to get a backtrace.
 
-* `./buildscripts/gdb_simulate.py`
+* `./buildscripts/debug_simulation.py`
 
-This runs a debug desktop build of the robot code and simulation GUI in GDB.
+This runs a debug desktop build of the robot code and simulation GUI in a
+debugger.
 
 * `./buildscripts/gdb-test-ci.sh`
 
