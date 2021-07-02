@@ -22,7 +22,7 @@ extensions = [
     os.path.join(dp, f)
     for dp, dn, fn in os.walk(".")
     for f in fn
-    if f.endswith("libhalsim_guid.so")
+    if "halsim_guid" in f
 ]
 os.environ["HALSIM_EXTENSIONS"] = os.path.abspath(
     list(reversed(sorted(extensions)))[0])
