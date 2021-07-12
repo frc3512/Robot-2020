@@ -5,15 +5,29 @@
 #include <frc/DriverStation.h>
 #include <frc/Joystick.h>
 #include <frc/RobotController.h>
+#include <frc/livewindow/LiveWindow.h>
 #include <frc/simulation/BatterySim.h>
 #include <frc/simulation/RoboRioSim.h>
 
 #include "Constants.hpp"
+#include "Setup.hpp"
 #include "logging/CSVUtil.hpp"
 
 namespace frc3512 {
 
 Robot::Robot() {
+    StopCrond();
+
+    // These warnings generate console prints that cause scheduling jitter
+    frc::DriverStation::GetInstance().SilenceJoystickConnectionWarning(true);
+
+    // This telemetry regularly causes loop overruns
+    frc::LiveWindow::GetInstance()->DisableAllTelemetry();
+
+    // Log NT data every 20ms instead of every 100ms for higher resolution
+    // dashboard plots
+    SetNetworkTablesFlushEnabled(true);
+
     m_autonChooser.AddAutonomous("Left Side Intake",
                                  [=] { AutoLeftSideIntake(); });
     m_autonChooser.AddAutonomous("Left Side Shoot Ten",
