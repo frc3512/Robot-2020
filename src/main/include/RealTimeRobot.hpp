@@ -21,7 +21,7 @@ namespace frc3512 {
  */
 class RealTimeRobot : public frc::TimedRobot {
 public:
-    static constexpr auto kDefaultPriority = 15;
+    static constexpr int kDefaultPriority = 15;
     static constexpr auto kDefaultControllerPeriod = 5_ms;
 
     /**
