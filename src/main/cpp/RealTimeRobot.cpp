@@ -37,7 +37,7 @@ void RealTimeRobot::Schedule(std::function<void()> func,
     if (m_nextOffset > m_controllerPeriod) {
         throw std::runtime_error(
             fmt::format("Function scheduled at offset {} with allocation {} "
-                        "exceeded controller period of {}",
+                        "exceeded controller period of {}\n",
                         m_nextOffset, allocation, m_controllerPeriod));
     }
 
