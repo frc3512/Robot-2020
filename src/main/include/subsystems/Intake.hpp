@@ -3,7 +3,7 @@
 #pragma once
 
 #include <frc/DigitalInput.h>
-#include <frc/DoubleSolenoid.h>
+#include <frc/Solenoid.h>
 #include <frc/logging/CSVLogFile.h>
 #include <frc2/Timer.h>
 #include <networktables/NetworkTableEntry.h>
@@ -110,8 +110,7 @@ private:
     frc::DigitalInput m_upperSensor{Constants::Intake::kUpperSensorPort};
     frc::DigitalInput m_lowerSensor{Constants::Intake::kLowerSensorPort};
 
-    frc::DoubleSolenoid m_arm{Constants::Intake::kArmForward,
-                              Constants::Intake::kArmReverse};
+    frc::Solenoid m_arm{Constants::Intake::kArmChannel};
 
     nt::NetworkTableEntry m_upperSensorEntry = NetworkTableUtil::MakeBoolEntry(
         "/Diagnostics/Intake/Upper sensor blocked");
