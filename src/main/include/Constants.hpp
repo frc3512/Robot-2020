@@ -68,9 +68,9 @@ constexpr int kFunnelPortRight = 5;
 constexpr int kLowerSensorPort = 4;
 constexpr int kUpperSensorPort = 5;
 
-// Solenoid Ports
-constexpr int kArmForward = 0;
-constexpr int kArmReverse = 1;
+// Solenoid Port
+constexpr int kArmChannel = 0;
+
 }  // namespace Intake
 
 namespace Climber {

@@ -21,13 +21,11 @@ Intake::Intake(Flywheel& flywheel) : m_flywheel(flywheel) {
     m_conveyorMotor.SetSmartCurrentLimit(80);
 }
 
-void Intake::Deploy() { m_arm.Set(frc::DoubleSolenoid::kForward); }
+void Intake::Deploy() { m_arm.Set(true); }
 
-void Intake::Stow() { m_arm.Set(frc::DoubleSolenoid::kReverse); }
+void Intake::Stow() { m_arm.Set(false); }
 
-bool Intake::IsDeployed() const {
-    return m_arm.Get() == frc::DoubleSolenoid::kForward;
-}
+bool Intake::IsDeployed() const { return m_arm.Get(); }
 
 void Intake::Start() {
     SetArmMotor(ArmMotorDirection::kIntake);
