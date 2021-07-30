@@ -5,7 +5,7 @@
 namespace frc3512 {
 
 /**
- * The crond service occassionally uses 50% CPU and there's no cronjobs to run.
+ * The crond service occasionally uses 50% CPU and there's no cronjobs to run.
  */
 void StopCrond();
 
