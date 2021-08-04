@@ -226,8 +226,13 @@ void Robot::RobotPeriodic() {
     m_batteryLogger.Log(
         units::second_t{std::chrono::steady_clock::now().time_since_epoch()},
         batteryVoltage);
-    m_batteryVoltageEntry.SetDouble(batteryVoltage);
-    m_ballsToShootEntry.SetDouble(m_ballsToShoot);
+
+    auto sendDiagnostics =
+        NetworkTableUtil::MakeBoolEntry("/Diagnostics/SendDiagnostics", false);
+    if (sendDiagnostics.GetBoolean(false)) {
+        m_batteryVoltageEntry.SetDouble(batteryVoltage);
+        m_ballsToShootEntry.SetDouble(m_ballsToShoot);
+    }
 }
 
 void Robot::SimulationPeriodic() {

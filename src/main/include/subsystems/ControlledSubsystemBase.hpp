@@ -9,6 +9,7 @@
 
 #include <Eigen/Core>
 #include <fmt/core.h>
+#include <frc/DriverStation.h>
 #include <frc/RobotBase.h>
 #include <frc/Threads.h>
 #include <frc/fmt/Units.h>
@@ -21,6 +22,7 @@
 #include <wpi/Twine.h>
 
 #include "Constants.hpp"
+#include "NetworkTableUtil.hpp"
 #include "RealTimePriorities.hpp"
 #include "logging/CSVControllerLogger.hpp"
 #include "logging/NTControllerLogger.hpp"
@@ -200,7 +202,13 @@ private:
 
             m_csvLogger.Log(entry.nowBegin - frc::CSVLogFile::GetStartTime(),
                             entry.r, entry.x, entry.u, entry.y);
-            m_ntLogger.Log(entry.r, entry.x, entry.u, entry.y);
+
+            auto sendDiagnostics = NetworkTableUtil::MakeBoolEntry(
+                "/Diagnostics/SendDiagnostics", false);
+            if (sendDiagnostics.GetBoolean(false) &&
+                !frc::DriverStation::GetInstance().IsFMSAttached()) {
+                m_ntLogger.Log(entry.r, entry.x, entry.u, entry.y);
+            }
 
             m_timingLogger.Log(
                 entry.nowBegin - frc::CSVLogFile::GetStartTime(),
