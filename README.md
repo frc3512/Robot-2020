@@ -142,9 +142,9 @@ they can be fixed.
 ## Live logging
 
 Logging can be viewed while the robot is running and in simulation.
-**OutlineViewer**, **CSV**, and **Glass** are the main ways to view logs while the robot is running.
-ControllerBase supports two logging backends for high-throughput controller
-performance data: **CSV** and **Glass**.
+**OutlineViewer**, **CSV**, and **Glass** are the main ways to view logs while
+the robot is running. ControllerBase supports two logging backends for
+high-throughput controller performance data: **CSV** and **Glass**.
 
 ### OutlineViewer
 
@@ -177,22 +177,48 @@ for more details.
 
 ## Simulation logging
 
-Logs can be viewed inside of the simulation GUI using NetworkTables or from CSV.
-Simulation GUI is straightforward but can be read more about
-[here](https://docs.wpilib.org/en/latest/docs/software/wpilib-tools/robot-simulation/simulation-gui.html)
+Logs can be viewed in real time via NetworkTables in the simulation GUI or
+offline via CSV processing.
+
+### Simulation GUI
+
+The simulation GUI is straightforward but can be read more about
+[here](https://docs.wpilib.org/en/latest/docs/software/wpilib-tools/robot-simulation/simulation-gui.html).
 
 ### CSV
 
-After running the tests the CSV files will be saved.
-The backend writes CSV files to `build/test-results/frcUserProgramTest`.
-In order to display the CSVs, the command needs to be given the specific location
-of the CSVs after the `frcUserProgramTest` folder.
-`tools/plot_subsystems.py [location]`
-Desired subsystems can be appended to the end of the command to only show that one.
-Certain parameters such as states, inputs, or outputs can also be set.
+After running the tests, the CSV files will be saved. The backend writes CSV
+files to `build/test-results/frcUserProgramTest`. To display the CSVs, run the
+following command:
 
-Examples: `tools/plot_subsystems.py "DrivetrainTest/ReachesReferenceStraight"`
-`tools/plot_subsystems.py "AutonomousTests/AutonomousTest/Run/Left Side Shoot Ten/Drivetrain (States|Outputs)"`
+```
+./tools/plot_subsystems.py [regexp]
+```
+
+`plot_subsystems.py` will display CSVs whose filepaths match the optional
+regular expression `[regexp]`. It should be given filepath components after the
+`frcUserProgramTest` folder.
+
+To show data for a specific subsystem, include its name in the regular
+expression.
+
+```
+./tools/plot_subsystems.py Flywheel
+```
+
+Specific states, inputs, or outputs can be viewed as well.
+
+```
+./tools/plot_subsystems.py "Flywheel states"
+```
+
+Other examples:
+
+```
+./tools/plot_subsystems.py "DrivetrainTest/ReachesReferenceStraight"
+./tools/plot_subsystems.py "AutonomousTests/AutonomousTest/Run/Left Side Shoot Ten/Drivetrain (States|Outputs)"
+./tools/plot_subsystems.py "DrivetrainTest/ReachesReferenceCurve/Drivetrain timing"
+```
 
 ## Autonomous mode selection
 
