@@ -139,7 +139,16 @@ This runs a release build of the tests in Valgrind. Valgrind is useful for
 finding memory leaks, memory corruption, and reads from uninitialized memory so
 they can be fixed.
 
-## Logging
+## Live logging
+
+Logging can be viewed while the robot is running and in simulation.
+**OutlineViewer**, **CSV**, and **Glass** are the main ways to view logs while
+the robot is running. ControllerBase supports two logging backends for
+high-throughput controller performance data: **CSV** and **Glass**.
+
+### OutlineViewer
+
+OutlineViewer is a WPILib tool to view NetworkTables.
 
 * Make sure to have FRC toolchain from the setup section.
 * Open the tools directory `~/wpilib/2020/tools` and run
@@ -147,21 +156,69 @@ they can be fixed.
 * Open OutlineViewer by running `python3 OutlineViewer.py` and set the server
   location to 10.35.12.2. The default port will work.
 
-ControllerBase supports two logging backends for high-throughput controller
-performance data: CSV and LiveGrapher.
-
 ### CSV
 
 This backend writes CSV files to the roboRIO flash storage. After they are
 recorded, they can be retrieved with `tools/get_csvs.py` and displayed with
 `tools/plot_subsystems.py`.
 
-### LiveGrapher
+### Glass
 
-This backend sends information in real-time to LiveGrapher clients connected to
-the robot network. See the
-[LiveGrapher README](https://github.com/frc3512/LiveGrapher#livegrapher) for
-more.
+Glass is a WPILib tool that allows for pose visualization and networktable
+plotting/visualization while the robot is running. See the
+[Glass documentation](https://docs.wpilib.org/en/latest/docs/software/dashboards/glass/introduction.html)
+for more details.
+
+* Make sure to have FRC toolchain from the setup section.
+* Open the tools directory `~/wpilib/2020/tools` and run
+  `python3 ToolsUpdater.py`.
+* Open OutlineViewer by running `python3 Glass.py` and set the server
+  location to 10.35.12.2. The default port will work.
+
+## Simulation logging
+
+Logs can be viewed in real time via NetworkTables in the simulation GUI or
+offline via CSV processing.
+
+### Simulation GUI
+
+The simulation GUI is straightforward but can be read more about
+[here](https://docs.wpilib.org/en/latest/docs/software/wpilib-tools/robot-simulation/simulation-gui.html).
+
+### CSV
+
+After running the tests, the CSV files will be saved. The backend writes CSV
+files to `build/test-results/frcUserProgramTest`. To display the CSVs, run the
+following command:
+
+```
+./tools/plot_subsystems.py [regexp]
+```
+
+`plot_subsystems.py` will display CSVs whose filepaths match the optional
+regular expression `[regexp]`. It should be given filepath components after the
+`frcUserProgramTest` folder.
+
+To show data for a specific subsystem, include its name in the regular
+expression.
+
+```
+./tools/plot_subsystems.py Flywheel
+```
+
+Specific states, inputs, or outputs can be viewed as well.
+
+```
+./tools/plot_subsystems.py "Flywheel states"
+```
+
+Other examples:
+
+```
+./tools/plot_subsystems.py "DrivetrainTest/ReachesReferenceStraight"
+./tools/plot_subsystems.py "AutonomousTests/AutonomousTest/Run/Left Side Shoot Ten/Drivetrain (States|Outputs)"
+./tools/plot_subsystems.py "DrivetrainTest/ReachesReferenceCurve/Drivetrain timing"
+```
 
 ## Autonomous mode selection
 
