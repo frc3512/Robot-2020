@@ -44,6 +44,18 @@ public:
 
 namespace frc3512 {
 
+void SetRTRuntimeLimit() {
+    if constexpr (!frc::RobotBase::IsSimulation()) {
+        UidSetter uidSetter{0};
+
+        int status = std::system("sysctl -w kernel.sched_rt_runtime_us=950000");
+        if (status != 0) {
+            throw std::runtime_error(
+                fmt::format("Failed to set RT runtime limit ({})", status));
+        }
+    }
+}
+
 void StopCrond() {
     if constexpr (!frc::RobotBase::IsSimulation()) {
         UidSetter uidSetter{0};

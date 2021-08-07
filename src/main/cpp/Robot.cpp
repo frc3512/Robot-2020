@@ -24,6 +24,8 @@
 namespace frc3512 {
 
 Robot::Robot() : frc::TimesliceRobot{2_ms, Constants::kControllerPeriod} {
+    SetRTRuntimeLimit();
+
     if (!frc::Notifier::SetHALThreadPriority(true, kPrioHALNotifierThread)) {
         throw std::runtime_error(
             fmt::format("Giving HAL Notifier RT priority {} failed\n",
