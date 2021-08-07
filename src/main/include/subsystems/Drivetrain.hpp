@@ -32,8 +32,8 @@
 #include <units/velocity.h>
 
 #include "Constants.hpp"
+#include "HWConfig.hpp"
 #include "NetworkTableUtil.hpp"
-#include "RealTimeRobot.hpp"
 #include "controllers/DrivetrainController.hpp"
 #include "rev/CANSparkMax.hpp"
 #include "subsystems/ControlledSubsystemBase.hpp"
@@ -236,28 +236,28 @@ private:
 
     static const frc::LinearSystem<2, 2, 2> kPlant;
 
-    frc::AnalogInput m_ultrasonic{Constants::Drivetrain::kUltrasonicPort};
+    frc::AnalogInput m_ultrasonic{HWConfig::Drivetrain::kUltrasonicPort};
     units::meter_t m_ultrasonicDistance;
     frc::LinearFilter<units::meter_t> m_distanceFilter =
         frc::LinearFilter<units::meter_t>::SinglePoleIIR(0.1, 0.02_s);
 
-    rev::CANSparkMax m_leftLeader{Constants::Drivetrain::kLeftLeaderPort,
+    rev::CANSparkMax m_leftLeader{HWConfig::Drivetrain::kLeftLeaderPort,
                                   rev::CANSparkMax::MotorType::kBrushless};
-    rev::CANSparkMax m_leftFollower{Constants::Drivetrain::kLeftFollowerPort,
+    rev::CANSparkMax m_leftFollower{HWConfig::Drivetrain::kLeftFollowerPort,
                                     rev::CANSparkMax::MotorType::kBrushless};
     frc::SpeedControllerGroup m_leftGrbx{m_leftLeader, m_leftFollower};
 
-    rev::CANSparkMax m_rightLeader{Constants::Drivetrain::kRightLeaderPort,
+    rev::CANSparkMax m_rightLeader{HWConfig::Drivetrain::kRightLeaderPort,
                                    rev::CANSparkMax::MotorType::kBrushless};
-    rev::CANSparkMax m_rightFollower{Constants::Drivetrain::kRightFollowerPort,
+    rev::CANSparkMax m_rightFollower{HWConfig::Drivetrain::kRightFollowerPort,
                                      rev::CANSparkMax::MotorType::kBrushless};
     frc::SpeedControllerGroup m_rightGrbx{m_rightLeader, m_rightFollower};
 
-    frc::Encoder m_leftEncoder{Constants::Drivetrain::kLeftEncoderA,
-                               Constants::Drivetrain::kLeftEncoderB};
+    frc::Encoder m_leftEncoder{HWConfig::Drivetrain::kLeftEncoderA,
+                               HWConfig::Drivetrain::kLeftEncoderB};
 
-    frc::Encoder m_rightEncoder{Constants::Drivetrain::kRightEncoderA,
-                                Constants::Drivetrain::kRightEncoderB};
+    frc::Encoder m_rightEncoder{HWConfig::Drivetrain::kRightEncoderA,
+                                HWConfig::Drivetrain::kRightEncoderB};
 
     frc::ADIS16470_IMU m_imu;
     units::radian_t m_headingOffset = 0_rad;
@@ -272,7 +272,7 @@ private:
         frc::AngleResidual<7>(2),
         frc::AngleResidual<5>(0),
         frc::AngleAdd<7>(2),
-        RealTimeRobot::kDefaultControllerPeriod};
+        Constants::kControllerPeriod};
     frc::KalmanFilterLatencyCompensator<7, 2, 5,
                                         frc::UnscentedKalmanFilter<7, 2, 5>>
         m_latencyComp;

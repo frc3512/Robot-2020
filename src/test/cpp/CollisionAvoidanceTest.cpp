@@ -7,6 +7,7 @@
 #include <gtest/gtest.h>
 
 #include "Constants.hpp"
+#include "HWConfig.hpp"
 #include "SimulatorTest.hpp"
 #include "subsystems/Climber.hpp"
 #include "subsystems/Drivetrain.hpp"
@@ -28,7 +29,7 @@ TEST_F(CollisionAvoidanceTest, TestAvoidance) {
     timer.Start();
 
     frc::sim::JoystickSim appendageStick1{
-        frc3512::Constants::Robot::kAppendageStick1Port};
+        frc3512::HWConfig::kAppendageStick1Port};
 
     frc::Notifier controllerPeriodic{[&] {
         turret.TeleopPeriodic();
@@ -37,8 +38,7 @@ TEST_F(CollisionAvoidanceTest, TestAvoidance) {
         climber.TeleopPeriodic();
     }};
     frc3512::SubsystemBase::RunAllTeleopInit();
-    controllerPeriodic.StartPeriodic(
-        frc3512::RealTimeRobot::kDefaultControllerPeriod);
+    controllerPeriodic.StartPeriodic(frc3512::Constants::kControllerPeriod);
 
     // Press the trigger button and ensure turret moves out of the way.
     appendageStick1.SetRawButton(1, true);

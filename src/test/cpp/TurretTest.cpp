@@ -8,7 +8,7 @@
 #include <wpi/numbers>
 
 #include "Constants.hpp"
-#include "RealTimeRobot.hpp"
+#include "HWConfig.hpp"
 #include "SimulatorTest.hpp"
 #include "subsystems/Drivetrain.hpp"
 #include "subsystems/Flywheel.hpp"
@@ -24,15 +24,14 @@ public:
 };
 
 TEST_F(TurretTest, ConfigSpaceLimits) {
-    using namespace frc3512::Constants::Robot;
-
     constexpr int kPovCW = 90;
     constexpr int kPovCCW = 270;
 
     frc2::Timer timer;
     timer.Start();
 
-    frc::sim::JoystickSim appendageStick1{kAppendageStick1Port};
+    frc::sim::JoystickSim appendageStick1{
+        frc3512::HWConfig::kAppendageStick1Port};
 
     frc3512::SubsystemBase::RunAllTeleopInit();
     turret.SetControlMode(frc3512::TurretController::ControlMode::kManual);
@@ -40,8 +39,7 @@ TEST_F(TurretTest, ConfigSpaceLimits) {
         turret.TeleopPeriodic();
         turret.ControllerPeriodic();
     }};
-    controllerPeriodic.StartPeriodic(
-        frc3512::RealTimeRobot::kDefaultControllerPeriod);
+    controllerPeriodic.StartPeriodic(frc3512::Constants::kControllerPeriod);
 
     // Verify turret can move CW when it isn't at the soft limits
     appendageStick1.SetPOV(kPovCW);
@@ -102,8 +100,7 @@ TEST_F(TurretTest, ReachesReferenceStaticDrivetrain) {
         drivetrain.ControllerPeriodic();
         turret.ControllerPeriodic();
     }};
-    controllerPeriodic.StartPeriodic(
-        frc3512::RealTimeRobot::kDefaultControllerPeriod);
+    controllerPeriodic.StartPeriodic(frc3512::Constants::kControllerPeriod);
 
     frc::Pose2d initialPose{12.65_m, 5.800_m - 0.343_m,
                             units::radian_t{wpi::numbers::pi}};
@@ -124,8 +121,7 @@ TEST_F(TurretTest, ReachesReferenceSCurveDrivetrain) {
         drivetrain.ControllerPeriodic();
         turret.ControllerPeriodic();
     }};
-    controllerPeriodic.StartPeriodic(
-        frc3512::RealTimeRobot::kDefaultControllerPeriod);
+    controllerPeriodic.StartPeriodic(frc3512::Constants::kControllerPeriod);
 
     frc::Pose2d initialPose{4.8768_m, 2.7432_m,
                             units::radian_t{wpi::numbers::pi}};
@@ -150,8 +146,7 @@ TEST_F(TurretTest, ReachesReferenceAutonDrivetrain) {
         drivetrain.ControllerPeriodic();
         turret.ControllerPeriodic();
     }};
-    controllerPeriodic.StartPeriodic(
-        frc3512::RealTimeRobot::kDefaultControllerPeriod);
+    controllerPeriodic.StartPeriodic(frc3512::Constants::kControllerPeriod);
 
     frc::Pose2d initialPose{12.65_m, 5.800_m,
                             units::radian_t{wpi::numbers::pi}};

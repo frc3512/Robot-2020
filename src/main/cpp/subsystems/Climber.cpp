@@ -12,12 +12,11 @@
 #include <wpi/numbers>
 
 #include "CANSparkMaxUtil.hpp"
-#include "Constants.hpp"
+#include "HWConfig.hpp"
 #include "subsystems/Turret.hpp"
 
 using namespace frc3512;
-using namespace frc3512::Constants::Climber;
-using namespace frc3512::Constants::Robot;
+using namespace frc3512::HWConfig::Climber;
 
 Climber::Climber(Turret& turret) : m_turret{turret} {
     SetCANSparkMaxBusUsage(m_elevator, Usage::kPositionOnly);
@@ -62,8 +61,8 @@ void Climber::RobotPeriodic() {
 }
 
 void Climber::TeleopPeriodic() {
-    static frc::Joystick appendageStick1{kAppendageStick1Port};
-    static frc::Joystick appendageStick2{kAppendageStick2Port};
+    static frc::Joystick appendageStick1{HWConfig::kAppendageStick1Port};
+    static frc::Joystick appendageStick2{HWConfig::kAppendageStick2Port};
 
     // Climber traverser
     SetTraverser(appendageStick2.GetX());
@@ -90,7 +89,7 @@ void Climber::TeleopPeriodic() {
 }
 
 void Climber::TestPeriodic() {
-    static frc::Joystick appendageStick1{kAppendageStick1Port};
+    static frc::Joystick appendageStick1{HWConfig::kAppendageStick1Port};
 
     // Positive voltage should move climber in the positive X direction
     double speed = -appendageStick1.GetY();

@@ -7,7 +7,7 @@
 #include <units/math.h>
 #include <wpi/numbers>
 
-#include "RealTimeRobot.hpp"
+#include "Constants.hpp"
 #include "SimulatorTest.hpp"
 #include "TargetModel.hpp"
 #include "controllers/TurretController.hpp"
@@ -97,7 +97,7 @@ TEST_F(TurretControllerTest, ProperDistanceFromTarget) {
     constexpr units::meter_t kDrivetrainY = 2.600_m - 0.343_m;
 
     frc3512::TurretController controller;
-    frc::sim::StepTiming(frc3512::RealTimeRobot::kDefaultControllerPeriod);
+    frc::sim::StepTiming(frc3512::Constants::kControllerPeriod);
 
     Eigen::Matrix<double, 7, 1> drivetrainXhat;
     drivetrainXhat << kDrivetrainX.to<double>(), kDrivetrainY.to<double>(),

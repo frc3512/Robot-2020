@@ -18,7 +18,6 @@
 #include "subsystems/Drivetrain.hpp"
 
 using namespace frc3512;
-using namespace frc3512::Constants::Robot;
 
 const frc::Pose2d Flywheel::kTargetPoseInGlobal{
     TargetModel::kCenter.X(), TargetModel::kCenter.Y(),
@@ -112,7 +111,7 @@ units::radians_per_second_t Flywheel::GetReferenceForPose(
 
 void Flywheel::RobotPeriodic() {
     if (frc::DriverStation::GetInstance().IsTest()) {
-        static frc::Joystick appendageStick2{kAppendageStick2Port};
+        static frc::Joystick appendageStick2{HWConfig::kAppendageStick2Port};
 
         m_testThrottle = appendageStick2.GetThrottle();
         auto manualRef = ThrottleToReference(m_testThrottle);

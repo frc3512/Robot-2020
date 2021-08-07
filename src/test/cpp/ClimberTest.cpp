@@ -7,7 +7,7 @@
 #include <gtest/gtest.h>
 
 #include "Constants.hpp"
-#include "RealTimeRobot.hpp"
+#include "HWConfig.hpp"
 #include "SimulatorTest.hpp"
 #include "subsystems/Climber.hpp"
 #include "subsystems/Drivetrain.hpp"
@@ -29,7 +29,7 @@ TEST_F(ClimberTest, ConfigSpaceLimits) {
     timer.Start();
 
     frc::sim::JoystickSim appendageStick1{
-        frc3512::Constants::Robot::kAppendageStick1Port};
+        frc3512::HWConfig::kAppendageStick1Port};
 
     // Make sure turret doesn't interfere with climber movement
     turret.Reset(units::radian_t{wpi::numbers::pi / 2.0});
@@ -39,8 +39,7 @@ TEST_F(ClimberTest, ConfigSpaceLimits) {
         climber.RobotPeriodic();
         climber.TeleopPeriodic();
     }};
-    controllerPeriodic.StartPeriodic(
-        frc3512::RealTimeRobot::kDefaultControllerPeriod);
+    controllerPeriodic.StartPeriodic(frc3512::Constants::kControllerPeriod);
 
     // Verify climber can't move below bottom soft limit
     appendageStick1.SetRawButton(1, true);

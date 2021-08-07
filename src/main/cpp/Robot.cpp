@@ -10,12 +10,13 @@
 #include <frc/simulation/RoboRioSim.h>
 
 #include "Constants.hpp"
+#include "HWConfig.hpp"
 #include "Setup.hpp"
 #include "logging/CSVUtil.hpp"
 
 namespace frc3512 {
 
-Robot::Robot() {
+Robot::Robot() : RealTimeRobot{2_ms, Constants::kControllerPeriod} {
     StopCrond();
 
     // These warnings generate console prints that cause scheduling jitter
@@ -50,7 +51,7 @@ Robot::Robot() {
                                  [=] { AutoRightSideShootSix(); });
     m_autonChooser.AddAutonomous("Right Side Shoot Eight",
                                  [=] { AutoRightSideShootEight(); });
-    if constexpr (Constants::Robot::kAtHomeChallenge) {
+    if constexpr (Constants::kAtHomeChallenge) {
         m_autonChooser.AddAutonomous(
             "AutoNav Bounce", [=] { AutoNavBounce(); }, 30_s);
         m_autonChooser.AddAutonomous(
@@ -167,13 +168,13 @@ void Robot::TestInit() {
 void Robot::RobotPeriodic() {
     SubsystemBase::RunAllRobotPeriodic();
 
-    static frc::Joystick appendageStick2{kAppendageStick2Port};
+    static frc::Joystick appendageStick2{HWConfig::kAppendageStick2Port};
 
     if (IsOperatorControlEnabled() || IsTest()) {
         if (appendageStick2.GetRawButtonPressed(1)) {
             Shoot();
         }
-        if (Constants::Robot::kAtHomeChallenge) {
+        if constexpr (Constants::kAtHomeChallenge) {
             if (appendageStick2.GetRawButtonPressed(7)) {
                 // Shoot from 5.91667 feet away
                 Shoot(764_rad_per_s);

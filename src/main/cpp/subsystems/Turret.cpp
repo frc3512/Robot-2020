@@ -13,7 +13,6 @@
 #include "subsystems/Vision.hpp"
 
 using namespace frc3512;
-using namespace frc3512::Constants::Robot;
 
 Turret::Turret(Vision& vision, Drivetrain& drivetrain, Flywheel& flywheel)
     : ControlledSubsystemBase("Turret",
@@ -129,7 +128,7 @@ void Turret::RobotPeriodic() {
 }
 
 void Turret::TeleopPeriodic() {
-    static frc::Joystick appendageStick1{kAppendageStick1Port};
+    static frc::Joystick appendageStick1{HWConfig::kAppendageStick1Port};
 
     // Turret manual override
     if (appendageStick1.GetRawButtonPressed(11)) {
@@ -148,7 +147,7 @@ void Turret::TeleopPeriodic() {
 }
 
 void Turret::TestPeriodic() {
-    static frc::Joystick appendageStick1{kAppendageStick1Port};
+    static frc::Joystick appendageStick1{HWConfig::kAppendageStick1Port};
 
     // Ignore soft limits so the user can manually reset the turret before
     // rebooting the robot

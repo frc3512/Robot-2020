@@ -10,7 +10,7 @@
 #include <networktables/NetworkTableInstance.h>
 #include <units/time.h>
 
-#include "Constants.hpp"
+#include "HWConfig.hpp"
 #include "NetworkTableUtil.hpp"
 #include "rev/CANSparkMax.hpp"
 #include "subsystems/SubsystemBase.hpp"
@@ -95,22 +95,22 @@ private:
 
     Flywheel& m_flywheel;
 
-    rev::CANSparkMax m_funnelMotorLeft{Constants::Intake::kFunnelPortLeft,
+    rev::CANSparkMax m_funnelMotorLeft{HWConfig::Intake::kFunnelPortLeft,
                                        rev::CANSparkMax::MotorType::kBrushless};
     rev::CANSparkMax m_funnelMotorRight{
-        Constants::Intake::kFunnelPortRight,
+        HWConfig::Intake::kFunnelPortRight,
         rev::CANSparkMax::MotorType::kBrushless};
 
-    rev::CANSparkMax m_conveyorMotor{Constants::Intake::kConveyorPort,
+    rev::CANSparkMax m_conveyorMotor{HWConfig::Intake::kConveyorPort,
                                      rev::CANSparkMax::MotorType::kBrushless};
 
-    rev::CANSparkMax m_armMotor{Constants::Intake::kArmMotorPort,
+    rev::CANSparkMax m_armMotor{HWConfig::Intake::kArmMotorPort,
                                 rev::CANSparkMax::MotorType::kBrushless};
 
-    frc::DigitalInput m_upperSensor{Constants::Intake::kUpperSensorPort};
-    frc::DigitalInput m_lowerSensor{Constants::Intake::kLowerSensorPort};
+    frc::DigitalInput m_upperSensor{HWConfig::Intake::kUpperSensorPort};
+    frc::DigitalInput m_lowerSensor{HWConfig::Intake::kLowerSensorPort};
 
-    frc::Solenoid m_arm{Constants::Intake::kArmChannel};
+    frc::Solenoid m_arm{HWConfig::Intake::kArmChannel};
 
     nt::NetworkTableEntry m_upperSensorEntry = NetworkTableUtil::MakeBoolEntry(
         "/Diagnostics/Intake/Upper sensor blocked");

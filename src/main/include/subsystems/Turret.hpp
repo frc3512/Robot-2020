@@ -16,7 +16,7 @@
 
 #include "ADCInput.hpp"
 #include "Constants.hpp"
-#include "RealTimeRobot.hpp"
+#include "HWConfig.hpp"
 #include "controllers/TurretController.hpp"
 #include "rev/CANSparkMax.hpp"
 #include "subsystems/ControlledSubsystemBase.hpp"
@@ -149,22 +149,19 @@ private:
     units::radian_t m_ccwLimit{TurretController::kCCWLimit};
     units::radian_t m_cwLimit{TurretController::kCWLimit};
 
-    frc::DutyCycleEncoder m_encoder{Constants::Turret::kEncoderPort};
-    rev::CANSparkMax m_motor{Constants::Turret::kPort,
+    frc::DutyCycleEncoder m_encoder{HWConfig::Turret::kEncoderPort};
+    rev::CANSparkMax m_motor{HWConfig::Turret::kPort,
                              rev::CANSparkMax::MotorType::kBrushless};
 
     frc::LinearSystem<2, 1, 1> m_plant{TurretController::GetPlant()};
     frc::KalmanFilter<2, 1, 1> m_observer{
-        m_plant,
-        {0.21745, 0.28726},
-        {0.01},
-        RealTimeRobot::kDefaultControllerPeriod};
+        m_plant, {0.21745, 0.28726}, {0.01}, Constants::kControllerPeriod};
 
     TurretController m_controller;
     Eigen::Matrix<double, 1, 1> m_u = Eigen::Matrix<double, 1, 1>::Zero();
 
-    ADCInput m_ccwLimitSwitch{Constants::Turret::kCCWHallPort};
-    ADCInput m_cwLimitSwitch{Constants::Turret::kCWHallPort};
+    ADCInput m_ccwLimitSwitch{HWConfig::Turret::kCCWHallPort};
+    ADCInput m_cwLimitSwitch{HWConfig::Turret::kCWHallPort};
 
     Vision& m_vision;
     Drivetrain& m_drivetrain;
@@ -177,8 +174,8 @@ private:
                                                    {0.001}};
     frc::sim::DutyCycleEncoderSim m_encoderSim{m_encoder};
     frc::sim::AnalogInputSim m_ccwLimitSwitchSim{
-        Constants::Turret::kCCWHallPort};
-    frc::sim::AnalogInputSim m_cwLimitSwitchSim{Constants::Turret::kCWHallPort};
+        HWConfig::Turret::kCCWHallPort};
+    frc::sim::AnalogInputSim m_cwLimitSwitchSim{HWConfig::Turret::kCWHallPort};
 
     /**
      * Set voltage output of turret motor.

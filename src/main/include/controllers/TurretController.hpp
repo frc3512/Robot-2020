@@ -17,7 +17,7 @@
 #include <units/voltage.h>
 #include <wpi/numbers>
 
-#include "RealTimeRobot.hpp"
+#include "Constants.hpp"
 #include "controllers/ControllerBase.hpp"
 
 namespace frc3512 {
@@ -200,12 +200,9 @@ private:
 
     frc::LinearSystem<2, 1, 1> m_plant{GetPlant()};
     frc::LinearQuadraticRegulator<2, 1> m_lqr{
-        m_plant,
-        {0.01245, 0.109726},
-        {12.0},
-        RealTimeRobot::kDefaultControllerPeriod};
+        m_plant, {0.01245, 0.109726}, {12.0}, Constants::kControllerPeriod};
     frc::LinearPlantInversionFeedforward<2, 1> m_ff{
-        m_plant, RealTimeRobot::kDefaultControllerPeriod};
+        m_plant, Constants::kControllerPeriod};
 
     ControlMode m_controlMode = ControlMode::kManual;
 

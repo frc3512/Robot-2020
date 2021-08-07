@@ -10,7 +10,7 @@
 #include <units/length.h>
 #include <units/voltage.h>
 
-#include "Constants.hpp"
+#include "HWConfig.hpp"
 #include "NetworkTableUtil.hpp"
 #include "rev/CANEncoder.hpp"
 #include "rev/CANSparkMax.hpp"
@@ -61,15 +61,15 @@ public:
     void TestPeriodic() override;
 
 private:
-    rev::CANSparkMax m_elevator{Constants::Climber::kElevatorPortRight,
+    rev::CANSparkMax m_elevator{HWConfig::Climber::kElevatorPortRight,
                                 rev::CANSparkMax::MotorType::kBrushless};
     rev::CANEncoder m_elevatorEncoder =
         m_elevator.GetEncoder(rev::CANEncoder::EncoderType::kHallSensor);
 
-    rev::CANSparkMax m_traverser{frc3512::Constants::Climber::kTraverserPort,
+    rev::CANSparkMax m_traverser{frc3512::HWConfig::Climber::kTraverserPort,
                                  rev::CANSparkMax::MotorType::kBrushless};
 
-    frc::Solenoid m_pancake{frc3512::Constants::Climber::kClimberLock};
+    frc::Solenoid m_pancake{frc3512::HWConfig::Climber::kClimberLock};
 
     Turret& m_turret;
 

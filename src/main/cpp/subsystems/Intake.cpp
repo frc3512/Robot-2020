@@ -9,8 +9,7 @@
 #include "subsystems/Flywheel.hpp"
 
 using namespace frc3512;
-using namespace frc3512::Constants::Intake;
-using namespace frc3512::Constants::Robot;
+using namespace frc3512::HWConfig::Intake;
 
 Intake::Intake(Flywheel& flywheel) : m_flywheel(flywheel) {
     SetCANSparkMaxBusUsage(m_funnelMotorLeft, Usage::kMinimal);
@@ -54,7 +53,7 @@ bool Intake::IsLowerSensorBlocked() const { return !m_lowerSensor.Get(); }
 void Intake::RobotPeriodic() {
     // See intake-io-table.md for the input-output table the logic below was
     // based on.
-    static frc::Joystick appendageStick2{kAppendageStick2Port};
+    static frc::Joystick appendageStick2{HWConfig::kAppendageStick2Port};
 
     // Arm logic
     if (m_flywheel.IsOn()) {

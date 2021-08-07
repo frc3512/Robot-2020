@@ -39,8 +39,6 @@ struct NoOp {
 
 namespace frc3512 {
 
-using namespace frc3512::Constants::Robot;
-
 /**
  * The main robot class.
  */

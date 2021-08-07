@@ -141,7 +141,7 @@ Eigen::Matrix<double, 1, 1> TurretController::Calculate(
             frc::TrapezoidProfile<units::radian> profile{m_constraints, m_goal,
                                                          references};
             auto profiledReference =
-                profile.Calculate(RealTimeRobot::kDefaultControllerPeriod);
+                profile.Calculate(Constants::kControllerPeriod);
             SetReferences(profiledReference.position,
                           profiledReference.velocity);
         }

@@ -14,10 +14,8 @@
 
 #include "CANSparkMaxUtil.hpp"
 #include "CurvatureDrive.hpp"
-#include "RealTimeRobot.hpp"
 
 using namespace frc3512;
-using namespace frc3512::Constants::Robot;
 
 const Eigen::Matrix<double, 2, 2> Drivetrain::kGlobalR =
     frc::MakeCovMatrix(0.2, 0.2);
@@ -150,7 +148,7 @@ void Drivetrain::CorrectWithGlobalOutputs(units::meter_t x, units::meter_t y,
     Eigen::Matrix<double, 2, 1> globalY;
     globalY << x.to<double>(), y.to<double>();
     m_latencyComp.ApplyPastMeasurement<2>(
-        &m_observer, RealTimeRobot::kDefaultControllerPeriod, globalY,
+        &m_observer, Constants::kControllerPeriod, globalY,
         [&](const Eigen::Matrix<double, 2, 1>& u,
             const Eigen::Matrix<double, 2, 1>& y) {
             m_observer.Correct<2>(
@@ -306,11 +304,11 @@ void Drivetrain::TestInit() {
 }
 
 void Drivetrain::TeleopPeriodic() {
-    static frc::Joystick driveStick1{kDriveStick1Port};
-    static frc::Joystick driveStick2{kDriveStick2Port};
+    static frc::Joystick driveStick1{HWConfig::kDriveStick1Port};
+    static frc::Joystick driveStick2{HWConfig::kDriveStick2Port};
 
-    double y = ApplyDeadband(-driveStick1.GetY(), kJoystickDeadband);
-    double x = ApplyDeadband(driveStick2.GetX(), kJoystickDeadband);
+    double y = ApplyDeadband(-driveStick1.GetY(), Constants::kJoystickDeadband);
+    double x = ApplyDeadband(driveStick2.GetX(), Constants::kJoystickDeadband);
 
     if (driveStick1.GetRawButton(1)) {
         y *= 0.5;
@@ -332,11 +330,11 @@ void Drivetrain::TeleopPeriodic() {
 }
 
 void Drivetrain::TestPeriodic() {
-    static frc::Joystick driveStick1{kDriveStick1Port};
-    static frc::Joystick driveStick2{kDriveStick2Port};
+    static frc::Joystick driveStick1{HWConfig::kDriveStick1Port};
+    static frc::Joystick driveStick2{HWConfig::kDriveStick2Port};
 
-    double y = ApplyDeadband(-driveStick1.GetY(), kJoystickDeadband);
-    double x = ApplyDeadband(driveStick2.GetX(), kJoystickDeadband);
+    double y = ApplyDeadband(-driveStick1.GetY(), Constants::kJoystickDeadband);
+    double x = ApplyDeadband(driveStick2.GetX(), Constants::kJoystickDeadband);
 
     if (driveStick1.GetRawButton(1)) {
         y *= 0.5;
