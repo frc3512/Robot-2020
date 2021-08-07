@@ -6,10 +6,9 @@
 
 #include <fmt/format.h>
 #include <frc/Notifier.h>
+#include <frc/Processes.h>
 #include <frc/Threads.h>
 #include <frc/fmt/Units.h>
-
-#include "RTUtils.hpp"
 
 using namespace frc3512;
 
@@ -29,7 +28,12 @@ RealTimeRobot::RealTimeRobot(units::second_t robotPeriodicAllocation,
 
     // Give FRC_NetCommDaemon RT priority 35 so it's not preempted by robot code
     // during high CPU utilization.
-    SetProcessRTPriority("/usr/local/frc/bin/FRC_NetCommDaemon", 35);
+    if (!frc::SetProcessPriority("/usr/local/frc/bin/FRC_NetCommDaemon", true,
+                                 35)) {
+        throw std::runtime_error(
+            "Setting /usr/local/frc/bin/FRC_NetCommDaemon to RT priority 35 "
+            "failed");
+    }
 }
 
 void RealTimeRobot::Schedule(std::function<void()> func,

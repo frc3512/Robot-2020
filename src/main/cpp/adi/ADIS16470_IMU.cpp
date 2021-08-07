@@ -23,6 +23,7 @@
 #include <frc/DigitalSource.h>
 #include <frc/DriverStation.h>
 #include <frc/ErrorBase.h>
+#include <frc/Processes.h>
 #include <frc/RobotBase.h>
 #include <frc/Threads.h>
 #include <frc/Timer.h>
@@ -30,8 +31,6 @@
 #include <frc/smartdashboard/SendableBuilder.h>
 #include <hal/HAL.h>
 #include <wpi/numbers>
-
-#include "RTUtils.hpp"
 
 /* Helpful conversion functions */
 static inline int32_t ToInt(const uint32_t *buf){
@@ -60,7 +59,9 @@ ADIS16470_IMU::ADIS16470_IMU(IMUAxis yaw_axis, SPI::Port port, ADIS16470Calibrat
                 m_sim_device("Gyro:ADIS16470", port) {
   // NI's SPI driver defaults to SCHED_OTHER. Find its PID with ps and change it
   // it to RT priority 33.
-  frc3512::SetProcessRTPriority("spi0", 33);
+  if (!frc::SetProcessPriority("spi0", true, 33)) {
+    throw std::runtime_error("Setting spi0 to RT priority 33 failed");
+  }
 
   if (m_sim_device) {
     m_sim_angle =
