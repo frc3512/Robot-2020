@@ -4,7 +4,7 @@
 #include <frc/trajectory/constraint/MaxVelocityConstraint.h>
 #include <frc/trajectory/constraint/RectangularRegionConstraint.h>
 #include <gtest/gtest.h>
-#include <wpi/math>
+#include <wpi/numbers>
 
 #include "Constants.hpp"
 #include "RealTimeRobot.hpp"
@@ -28,13 +28,13 @@ public:
 
 TEST_F(DrivetrainTest, ReachesReferenceStraight) {
     const frc::Pose2d kInitialPose{12.65_m, 5.800_m - 0.343_m,
-                                   units::radian_t{wpi::math::pi}};
+                                   units::radian_t{wpi::numbers::pi}};
 
     drivetrain.Reset(kInitialPose);
     drivetrain.AddTrajectory(
         kInitialPose, {},
         frc::Pose2d(12.65_m - 0.9398_m - 0.5_m, 5.800_m - 0.343_m,
-                    units::radian_t{wpi::math::pi}));
+                    units::radian_t{wpi::numbers::pi}));
 
     frc::sim::StepTiming(10_s);
 
@@ -68,12 +68,12 @@ TEST_F(DrivetrainTest, ReachesReferenceOffsetCurve) {
 TEST_F(DrivetrainTest, TrajectoryQueue) {
     // Initial Pose - Right in line with the Target Zone
     const frc::Pose2d kInitialPose{12.89_m, 2.41_m,
-                                   units::radian_t{wpi::math::pi}};
+                                   units::radian_t{wpi::numbers::pi}};
     // Mid Pose - Right before first/closest ball in the Trench Run
     const frc::Pose2d kMidPose{9.82_m + 0.5 * frc3512::Drivetrain::kLength,
-                               0.705_m, units::radian_t{wpi::math::pi}};
+                               0.705_m, units::radian_t{wpi::numbers::pi}};
     // End Pose - Third/Farthest ball in the Trench Run
-    const frc::Pose2d kEndPose{8_m, 0.71_m, units::radian_t{wpi::math::pi}};
+    const frc::Pose2d kEndPose{8_m, 0.71_m, units::radian_t{wpi::numbers::pi}};
 
     drivetrain.Reset(kInitialPose);
 

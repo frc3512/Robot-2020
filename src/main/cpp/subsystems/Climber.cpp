@@ -9,7 +9,7 @@
 #include <frc/RobotController.h>
 #include <frc/StateSpaceUtil.h>
 #include <wpi/MathExtras.h>
-#include <wpi/math>
+#include <wpi/numbers>
 
 #include "CANSparkMaxUtil.hpp"
 #include "Constants.hpp"
@@ -34,8 +34,8 @@ units::meter_t Climber::GetElevatorPosition() {
     } else {
         double rotations = -m_elevatorEncoder.GetPosition();
         return units::meter_t{
-            0.04381 * wpi::math::pi * kG * rotations /
-            (1.0 + 0.014983 * wpi::math::pi * kG * rotations)};
+            0.04381 * wpi::numbers::pi * kG * rotations /
+            (1.0 + 0.014983 * wpi::numbers::pi * kG * rotations)};
     }
 }
 

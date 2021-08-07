@@ -32,7 +32,7 @@ TEST_F(ClimberTest, ConfigSpaceLimits) {
         frc3512::Constants::Robot::kAppendageStick1Port};
 
     // Make sure turret doesn't interfere with climber movement
-    turret.Reset(units::radian_t{wpi::math::pi / 2.0});
+    turret.Reset(units::radian_t{wpi::numbers::pi / 2.0});
 
     frc3512::SubsystemBase::RunAllTeleopInit();
     frc::Notifier controllerPeriodic{[&] {

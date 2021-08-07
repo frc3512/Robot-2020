@@ -21,7 +21,7 @@
 #include <units/time.h>
 #include <units/velocity.h>
 #include <units/voltage.h>
-#include <wpi/math>
+#include <wpi/numbers>
 
 #include "LerpTable.hpp"
 #include "RealTimeRobot.hpp"
@@ -34,7 +34,7 @@ public:
     static constexpr units::meter_t kWheelRadius = 3.05_in;
     static constexpr double kDriveGearRatio = 1.0 / 1.0;
     static constexpr double kDpP =
-        (2.0 * wpi::math::pi * kWheelRadius.to<double>()) * kDriveGearRatio /
+        (2.0 * wpi::numbers::pi * kWheelRadius.to<double>()) * kDriveGearRatio /
         2048.0;
 
     static constexpr units::meter_t kWidth = [] {

@@ -29,7 +29,7 @@
 #include <frc/WPIErrors.h>
 #include <frc/smartdashboard/SendableBuilder.h>
 #include <hal/HAL.h>
-#include <wpi/math>
+#include <wpi/numbers>
 
 #include "RTUtils.hpp"
 
@@ -655,31 +655,31 @@ void ADIS16470_IMU::Acquire() {
 
 /* Complementary filter functions */
 double ADIS16470_IMU::FormatFastConverge(double compAngle, double accAngle) {
-  if(compAngle > accAngle + wpi::math::pi) {
-    compAngle = compAngle - 2.0 * wpi::math::pi;
+  if(compAngle > accAngle + wpi::numbers::pi) {
+    compAngle = compAngle - 2.0 * wpi::numbers::pi;
   }
-  else if (accAngle > compAngle + wpi::math::pi) {
-    compAngle = compAngle + 2.0 * wpi::math::pi;
+  else if (accAngle > compAngle + wpi::numbers::pi) {
+    compAngle = compAngle + 2.0 * wpi::numbers::pi;
   }
   return compAngle;  
 }
 
 double ADIS16470_IMU::FormatRange0to2PI(double compAngle) {
-  while(compAngle >= 2 * wpi::math::pi) {
-    compAngle = compAngle - 2.0 * wpi::math::pi;
+  while(compAngle >= 2 * wpi::numbers::pi) {
+    compAngle = compAngle - 2.0 * wpi::numbers::pi;
   }
   while(compAngle < 0.0) {
-    compAngle = compAngle + 2.0 * wpi::math::pi;
+    compAngle = compAngle + 2.0 * wpi::numbers::pi;
   }
   return compAngle;
 }
 
 double ADIS16470_IMU::FormatAccelRange(double accelAngle, double accelZ) {
   if(accelZ < 0.0) {
-    accelAngle = wpi::math::pi - accelAngle;
+    accelAngle = wpi::numbers::pi - accelAngle;
   }
   else if(accelZ > 0.0 && accelAngle < 0.0) {
-    accelAngle = 2.0 * wpi::math::pi + accelAngle;
+    accelAngle = 2.0 * wpi::numbers::pi + accelAngle;
   }
   return accelAngle;
 }
@@ -688,8 +688,8 @@ double ADIS16470_IMU::CompFilterProcess(double compAngle, double accelAngle, dou
   compAngle = FormatFastConverge(compAngle, accelAngle);
   compAngle = m_alpha * (compAngle + omega * m_dt) + (1.0 - m_alpha) * accelAngle;
   compAngle = FormatRange0to2PI(compAngle);
-  if(compAngle > wpi::math::pi) {
-    compAngle = compAngle - 2.0 * wpi::math::pi;
+  if(compAngle > wpi::numbers::pi) {
+    compAngle = compAngle - 2.0 * wpi::numbers::pi;
   }
   return compAngle;
 }

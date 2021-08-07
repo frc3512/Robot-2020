@@ -2,7 +2,7 @@
 
 #include <frc/trajectory/constraint/MaxVelocityConstraint.h>
 #include <frc/trajectory/constraint/RectangularRegionConstraint.h>
-#include <wpi/math>
+#include <wpi/numbers>
 
 #include "Robot.hpp"
 
@@ -24,10 +24,11 @@ void Robot::AutoGalacticSearchA() {
     const frc::Pose2d kSecondBlueBall{5.409_m, 3.049_m + 0.25_m,
                                       units::radian_t{0}};
     const frc::Pose2d kThirdBlueBall{
-        6.969_m, 2.282_m + 0.45_m, units::radian_t{((7 * wpi::math::pi) / 4)}};
+        6.969_m, 2.282_m + 0.45_m,
+        units::radian_t{((7 * wpi::numbers::pi) / 4)}};
 
-    const frc::Pose2d kBlueEndPose{8.618_m, 1.083_m,
-                                   units::radian_t{((7 * wpi::math::pi) / 4)}};
+    const frc::Pose2d kBlueEndPose{
+        8.618_m, 1.083_m, units::radian_t{((7 * wpi::numbers::pi) / 4)}};
     const frc::Pose2d kRedEndPose{8.618_m, 3.892_m, units::radian_t{0}};
 
     m_turret.SetControlMode(TurretController::ControlMode::kManual);

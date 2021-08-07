@@ -10,7 +10,7 @@
 #include <units/angular_velocity.h>
 #include <units/time.h>
 #include <units/voltage.h>
-#include <wpi/math>
+#include <wpi/numbers>
 
 #include "RealTimeRobot.hpp"
 #include "controllers/ControllerBase.hpp"
@@ -24,7 +24,8 @@ public:
     static constexpr auto kA = 0.0045649_V / 1_rad_per_s_sq;
 
     static constexpr double kGearRatio = 8.0;
-    static constexpr double kDpP = (wpi::math::pi * 2.0) * kGearRatio / 512.0;
+    static constexpr double kDpP =
+        (wpi::numbers::pi * 2.0) * kGearRatio / 512.0;
     static constexpr auto kMaxAngularVelocity = 12_V / kV;
 
     /**
