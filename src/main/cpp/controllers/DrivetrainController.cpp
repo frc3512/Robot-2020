@@ -6,6 +6,7 @@
 #include <cmath>
 
 #include <frc/MathUtil.h>
+#include <frc/fmt/Eigen.h>
 #include <frc/kinematics/DifferentialDriveKinematics.h>
 #include <frc/system/plant/DCMotor.h>
 #include <frc/system/plant/LinearSystemId.h>
@@ -13,7 +14,6 @@
 #include <frc/trajectory/constraint/CentripetalAccelerationConstraint.h>
 #include <frc/trajectory/constraint/DifferentialDriveVelocitySystemConstraint.h>
 
-#include "EigenFormat.hpp"
 #include "controllers/LQR.hpp"
 
 using namespace frc3512;

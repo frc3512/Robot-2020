@@ -9,11 +9,11 @@
 #include <frc/RobotBase.h>
 #include <frc/RobotController.h>
 #include <frc/StateSpaceUtil.h>
+#include <frc/fmt/Eigen.h>
 #include <frc/smartdashboard/SmartDashboard.h>
 
 #include "CANSparkMaxUtil.hpp"
 #include "CurvatureDrive.hpp"
-#include "EigenFormat.hpp"
 #include "RealTimeRobot.hpp"
 
 using namespace frc3512;

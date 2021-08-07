@@ -7,9 +7,9 @@
 #include <fmt/format.h>
 #include <frc/Notifier.h>
 #include <frc/Threads.h>
+#include <frc/fmt/Units.h>
 
 #include "RTUtils.hpp"
-#include "UnitsFormat.hpp"
 
 using namespace frc3512;
 

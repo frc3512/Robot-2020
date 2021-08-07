@@ -11,6 +11,7 @@
 #include <fmt/core.h>
 #include <frc/RobotBase.h>
 #include <frc/Threads.h>
+#include <frc/fmt/Units.h>
 #include <frc/logging/CSVLogFile.h>
 #include <frc2/Timer.h>
 #include <units/math.h>
@@ -20,7 +21,6 @@
 #include <wpi/Twine.h>
 
 #include "RealTimeRobot.hpp"
-#include "UnitsFormat.hpp"
 #include "logging/CSVControllerLogger.hpp"
 #include "logging/NTControllerLogger.hpp"
 #include "subsystems/SubsystemBase.hpp"
