@@ -2,21 +2,47 @@
 
 #include "Robot.hpp"
 
+#include <stdexcept>
+
+#include <fmt/format.h>
 #include <frc/DriverStation.h>
 #include <frc/Joystick.h>
+#include <frc/Notifier.h>
+#include <frc/Processes.h>
 #include <frc/RobotController.h>
+#include <frc/Threads.h>
 #include <frc/livewindow/LiveWindow.h>
 #include <frc/simulation/BatterySim.h>
 #include <frc/simulation/RoboRioSim.h>
 
 #include "Constants.hpp"
 #include "HWConfig.hpp"
+#include "RealTimePriorities.hpp"
 #include "Setup.hpp"
 #include "logging/CSVUtil.hpp"
 
 namespace frc3512 {
 
-Robot::Robot() : RealTimeRobot{2_ms, Constants::kControllerPeriod} {
+Robot::Robot() : frc::TimesliceRobot{2_ms, Constants::kControllerPeriod} {
+    if (!frc::Notifier::SetHALThreadPriority(true, kPrioHALNotifierThread)) {
+        throw std::runtime_error(
+            fmt::format("Giving HAL Notifier RT priority {} failed\n",
+                        kPrioHALNotifierThread));
+    }
+
+    if (!frc::SetProcessPriority("/usr/local/frc/bin/FRC_NetCommDaemon", true,
+                                 kPrioNetCommDaemon)) {
+        throw std::runtime_error(fmt::format(
+            "Giving /usr/local/frc/bin/FRC_NetCommDaemon RT priority {} failed",
+            kPrioNetCommDaemon));
+    }
+
+    if (!frc::SetCurrentThreadPriority(true, kPrioMainRobotThread)) {
+        throw std::runtime_error(
+            fmt::format("Giving TimesliceRobot RT priority {} failed\n",
+                        kPrioMainRobotThread));
+    }
+
     StopCrond();
 
     // These warnings generate console prints that cause scheduling jitter

@@ -19,6 +19,7 @@
 
 #include <adi/ADIS16470_IMU.h>
 
+#include <fmt/format.h>
 #include <frc/DigitalInput.h>
 #include <frc/DigitalSource.h>
 #include <frc/DriverStation.h>
@@ -31,6 +32,8 @@
 #include <frc/smartdashboard/SendableBuilder.h>
 #include <hal/HAL.h>
 #include <wpi/numbers>
+
+#include "RealTimePriorities.hpp"
 
 /* Helpful conversion functions */
 static inline int32_t ToInt(const uint32_t *buf){
@@ -57,10 +60,10 @@ ADIS16470_IMU::ADIS16470_IMU(IMUAxis yaw_axis, SPI::Port port, ADIS16470Calibrat
                 m_spi_port(port),
                 m_calibration_time((uint16_t)cal_time),
                 m_sim_device("Gyro:ADIS16470", port) {
-  // NI's SPI driver defaults to SCHED_OTHER. Find its PID with ps and change it
-  // it to RT priority 33.
-  if (!frc::SetProcessPriority("spi0", true, 33)) {
-    throw std::runtime_error("Setting spi0 to RT priority 33 failed");
+  // Give NI's SPI driver RT priority
+  if (!frc::SetProcessPriority("spi0", true, frc3512::kPrioSPIGyro)) {
+    throw std::runtime_error(
+        fmt::format("Giving spi0 RT priority {} failed", frc3512::kPrioSPIGyro));
   }
 
   if (m_sim_device) {
@@ -517,8 +520,9 @@ void ADIS16470_IMU::Acquire() {
   double accelAngleX = 0.0;
   double accelAngleY = 0.0;
 
-  if (!frc::SetCurrentThreadPriority(true, 33)) {
-      throw std::runtime_error("Setting ADIS16470 acquire thread RT priority failed");
+  if (!frc::SetCurrentThreadPriority(true, frc3512::kPrioSPIGyro)) {
+      throw std::runtime_error(
+          fmt::format("Giving ADIS16470 acquire thread RT priority {} failed", frc3512::kPrioSPIGyro));
   }
 
   while (true) {

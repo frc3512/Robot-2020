@@ -21,7 +21,7 @@
 #include <wpi/Twine.h>
 
 #include "Constants.hpp"
-#include "RealTimeRobot.hpp"
+#include "RealTimePriorities.hpp"
 #include "logging/CSVControllerLogger.hpp"
 #include "logging/NTControllerLogger.hpp"
 #include "subsystems/SubsystemBase.hpp"
@@ -184,11 +184,10 @@ private:
     std::thread m_entryThread;
 
     void EntryThreadMain() {
-        if (!frc::SetCurrentThreadPriority(
-                true, RealTimeRobot::kDefaultPriority - 1)) {
+        if (!frc::SetCurrentThreadPriority(true, kPrioLoggingThread)) {
             throw std::runtime_error(
                 fmt::format("Setting logging thread RT priority to {} failed\n",
-                            RealTimeRobot::kDefaultPriority - 1));
+                            kPrioLoggingThread));
         }
 
         // Loops until the thread is told to exit and all remaining queue items

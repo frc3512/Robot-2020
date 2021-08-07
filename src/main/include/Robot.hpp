@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 
-#include <frc/TimedRobot.h>
+#include <frc/TimesliceRobot.h>
 #include <frc/logging/CSVLogFile.h>
 #include <frc2/Timer.h>
 #include <units/time.h>
@@ -29,7 +29,6 @@ struct NoOp {
 #include "AutonomousChooser.hpp"
 #include "IntakeSim.hpp"
 #include "NetworkTableUtil.hpp"
-#include "RealTimeRobot.hpp"
 #include "subsystems/Climber.hpp"
 #include "subsystems/Drivetrain.hpp"
 #include "subsystems/Flywheel.hpp"
@@ -42,7 +41,7 @@ namespace frc3512 {
 /**
  * The main robot class.
  */
-class Robot : public RealTimeRobot {
+class Robot : public frc::TimesliceRobot {
 public:
     /**
      * States used for the multi-subsystem shooting procedure
