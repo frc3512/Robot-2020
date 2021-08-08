@@ -8,7 +8,9 @@
 #include <unistd.h>
 #endif  // !defined(_MSC_VER)
 
+#include <cerrno>
 #include <cstdlib>
+#include <system_error>
 
 #include <fmt/format.h>
 

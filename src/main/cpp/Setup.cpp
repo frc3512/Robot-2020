@@ -6,8 +6,10 @@
 #include <unistd.h>
 #endif  // !defined(_MSC_VER)
 
+#include <cerrno>
 #include <cstdlib>
 #include <stdexcept>
+#include <system_error>
 
 #include <frc/RobotBase.h>
 #include <fmt/format.h>
