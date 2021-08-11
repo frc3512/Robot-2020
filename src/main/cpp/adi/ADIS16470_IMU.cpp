@@ -7,13 +7,7 @@
 /* Juan Chong - frcsupport@analog.com                                         */
 /*----------------------------------------------------------------------------*/
 
-#if !defined(_MSC_VER)
-#include <unistd.h>
-#endif  // !defined(_MSC_VER)
-
 #include <cmath>
-#include <cstdlib>
-#include <stdexcept>
 #include <string>
 #include <iostream>
 
@@ -28,6 +22,7 @@
 #include <frc/RobotBase.h>
 #include <frc/Threads.h>
 #include <frc/Timer.h>
+#include <frc/UidSetter.h>
 #include <frc/WPIErrors.h>
 #include <frc/smartdashboard/SendableBuilder.h>
 #include <hal/HAL.h>
@@ -520,9 +515,13 @@ void ADIS16470_IMU::Acquire() {
   double accelAngleX = 0.0;
   double accelAngleY = 0.0;
 
-  if (!frc::SetCurrentThreadPriority(true, frc3512::kPrioSPIGyro)) {
+  {
+    frc::UidSetter uidSetter{0};
+    if (!frc::SetCurrentThreadPriority(true, frc3512::kPrioSPIGyro)) {
       throw std::runtime_error(
-          fmt::format("Giving ADIS16470 acquire thread RT priority {} failed", frc3512::kPrioSPIGyro));
+          fmt::format("Giving ADIS16470 acquire thread RT priority {} failed",
+                      frc3512::kPrioSPIGyro));
+    }
   }
 
   while (true) {

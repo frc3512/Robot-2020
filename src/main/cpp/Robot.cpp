@@ -11,6 +11,7 @@
 #include <frc/Processes.h>
 #include <frc/RobotController.h>
 #include <frc/Threads.h>
+#include <frc/UidSetter.h>
 #include <frc/livewindow/LiveWindow.h>
 #include <frc/simulation/BatterySim.h>
 #include <frc/simulation/RoboRioSim.h>
@@ -26,10 +27,14 @@ namespace frc3512 {
 Robot::Robot() : frc::TimesliceRobot{2_ms, Constants::kControllerPeriod} {
     SetRTRuntimeLimit();
 
-    if (!frc::Notifier::SetHALThreadPriority(true, kPrioHALNotifierThread)) {
-        throw std::runtime_error(
-            fmt::format("Giving HAL Notifier RT priority {} failed\n",
-                        kPrioHALNotifierThread));
+    {
+        frc::UidSetter uidSetter{0};
+        if (!frc::Notifier::SetHALThreadPriority(true,
+                                                 kPrioHALNotifierThread)) {
+            throw std::runtime_error(
+                fmt::format("Giving HAL Notifier RT priority {} failed\n",
+                            kPrioHALNotifierThread));
+        }
     }
 
     if (!frc::SetProcessPriority("/usr/local/frc/bin/FRC_NetCommDaemon", true,
@@ -39,10 +44,13 @@ Robot::Robot() : frc::TimesliceRobot{2_ms, Constants::kControllerPeriod} {
             kPrioNetCommDaemon));
     }
 
-    if (!frc::SetCurrentThreadPriority(true, kPrioMainRobotThread)) {
-        throw std::runtime_error(
-            fmt::format("Giving TimesliceRobot RT priority {} failed\n",
-                        kPrioMainRobotThread));
+    {
+        frc::UidSetter uidSetter{0};
+        if (!frc::SetCurrentThreadPriority(true, kPrioMainRobotThread)) {
+            throw std::runtime_error(
+                fmt::format("Giving TimesliceRobot RT priority {} failed\n",
+                            kPrioMainRobotThread));
+        }
     }
 
     StopCrond();

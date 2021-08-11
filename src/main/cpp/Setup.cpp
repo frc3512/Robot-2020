@@ -12,55 +12,24 @@
 #include <system_error>
 
 #include <frc/RobotBase.h>
+#include <frc/UidSetter.h>
 #include <fmt/format.h>
-
-namespace {
-#if !defined(_MSC_VER)
-class UidSetter {
-public:
-    explicit UidSetter(uid_t uid) {
-        m_uid = getuid();
-        if (setuid(uid) == -1) {
-            throw std::system_error(errno, std::generic_category(),
-                                    fmt::format("setuid({}) failed", uid));
-        }
-    }
-
-    ~UidSetter() noexcept(false) {
-        if (setuid(m_uid) == -1) {
-            throw std::system_error(errno, std::generic_category(),
-                                    fmt::format("setuid({}) failed", m_uid));
-        }
-    }
-
-private:
-    uid_t m_uid;
-};
-#else
-class UidSetter {
-public:
-    explicit UidSetter(int uid) {}
-};
-#endif  // !defined(_MSC_VER)
-}  // namespace
+#include <fmt/os.h>
 
 namespace frc3512 {
 
 void SetRTRuntimeLimit() {
     if constexpr (!frc::RobotBase::IsSimulation()) {
-        UidSetter uidSetter{0};
+        frc::UidSetter uidSetter{0};
 
-        int status = std::system("sysctl -w kernel.sched_rt_runtime_us=950000");
-        if (status != 0) {
-            throw std::runtime_error(
-                fmt::format("Failed to set RT runtime limit ({})", status));
-        }
+        auto setting = fmt::output_file("/proc/sys/kernel/sched_rt_runtime_us");
+        setting.print("950000\n");
     }
 }
 
 void StopCrond() {
     if constexpr (!frc::RobotBase::IsSimulation()) {
-        UidSetter uidSetter{0};
+        frc::UidSetter uidSetter{0};
 
         int status = std::system("/etc/init.d/crond stop");
         if (status != 0) {
