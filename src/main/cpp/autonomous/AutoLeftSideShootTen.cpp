@@ -42,9 +42,9 @@ void Robot::AutoLeftSideShootTen() {
     auto reverseConfig = Drivetrain::MakeTrajectoryConfig();
     reverseConfig.SetReversed(true);
 
-    m_drivetrain.Reset(kInitialPose);
+    drivetrain.Reset(kInitialPose);
 
-    m_intake.Deploy();
+    intake.Deploy();
 
     {
         // Left Pickup Region Constraint
@@ -54,13 +54,13 @@ void Robot::AutoLeftSideShootTen() {
             frc::Translation2d{kLeftPickupPose.X() + 0.5 * Drivetrain::kLength,
                                kInitialPose.Y() + 0.5 * Drivetrain::kLength},
             frc::MaxVelocityConstraint{kMaxV}};
-        auto config = m_drivetrain.MakeTrajectoryConfig();
+        auto config = drivetrain.MakeTrajectoryConfig();
         config.AddConstraint(regionConstraint);
-        m_drivetrain.AddTrajectory(kInitialPose, {}, kLeftPickupPose, config);
+        drivetrain.AddTrajectory(kInitialPose, {}, kLeftPickupPose, config);
     }
 
     // Intake Balls x2
-    m_intake.Start();
+    intake.Start();
 
     if constexpr (IsSimulation()) {
         for (int i = 0; i < 5; ++i) {
@@ -68,24 +68,24 @@ void Robot::AutoLeftSideShootTen() {
         }
     }
 
-    if (!m_autonChooser.Suspend([=] { return m_drivetrain.AtGoal(); })) {
+    if (!m_autonChooser.Suspend([=] { return drivetrain.AtGoal(); })) {
         return;
     }
 
-    m_intake.Stop();
+    intake.Stop();
 
     // Left back up
-    m_drivetrain.AddTrajectory(kLeftPickupPose, {}, kFiringZonePose,
-                               reverseConfig);
+    drivetrain.AddTrajectory(kLeftPickupPose, {}, kFiringZonePose,
+                             reverseConfig);
 
     // First fire
     Shoot(5);
 
-    if (!m_autonChooser.Suspend([=] { return m_drivetrain.AtGoal(); })) {
+    if (!m_autonChooser.Suspend([=] { return drivetrain.AtGoal(); })) {
         return;
     }
 
-    m_drivetrain.AddTrajectory(kFiringZonePose, {}, kPreGenPose, reverseConfig);
+    drivetrain.AddTrajectory(kFiringZonePose, {}, kPreGenPose, reverseConfig);
 
     // Right generator pickup
     {
@@ -94,22 +94,21 @@ void Robot::AutoLeftSideShootTen() {
             frc::Translation2d{9.43_m, 2.65_m},
             frc::Translation2d{9.93_m, 3.61_m},
             frc::MaxVelocityConstraint{kMaxV}};
-        auto config = m_drivetrain.MakeTrajectoryConfig();
+        auto config = drivetrain.MakeTrajectoryConfig();
         config.AddConstraint(regionConstraint);
-        m_drivetrain.AddTrajectory(kPreGenPose, {}, kGenPose);
+        drivetrain.AddTrajectory(kPreGenPose, {}, kGenPose);
     }
 
     // Intake Balls x2
-    m_intake.Start();
+    intake.Start();
 
-    if (!m_autonChooser.Suspend([=] { return m_drivetrain.AtGoal(); })) {
+    if (!m_autonChooser.Suspend([=] { return drivetrain.AtGoal(); })) {
         return;
     }
 
-    m_intake.Stop();
+    intake.Stop();
 
-    m_drivetrain.AddTrajectory(kGenPose, {}, kFrontTrenchRunPose,
-                               reverseConfig);
+    drivetrain.AddTrajectory(kGenPose, {}, kFrontTrenchRunPose, reverseConfig);
 
     {
         // Trench Run Region Constraint
@@ -119,14 +118,14 @@ void Robot::AutoLeftSideShootTen() {
             frc::Translation2d{9.82_m + 0.5 * Drivetrain::kLength,
                                0.71_m + 0.5 * Drivetrain::kLength},
             frc::MaxVelocityConstraint{kMaxV}};
-        auto config = m_drivetrain.MakeTrajectoryConfig();
+        auto config = drivetrain.MakeTrajectoryConfig();
         config.AddConstraint(regionConstraint);
-        m_drivetrain.AddTrajectory(kFrontTrenchRunPose, {}, kLastBallPose,
-                                   config);
+        drivetrain.AddTrajectory(kFrontTrenchRunPose, {}, kLastBallPose,
+                                 config);
     }
 
     // Intake Balls x3
-    m_intake.Start();
+    intake.Start();
 
     if constexpr (IsSimulation()) {
         for (int i = 0; i < 5; ++i) {
@@ -134,18 +133,17 @@ void Robot::AutoLeftSideShootTen() {
         }
     }
 
-    if (!m_autonChooser.Suspend([=] { return m_drivetrain.AtGoal(); })) {
+    if (!m_autonChooser.Suspend([=] { return drivetrain.AtGoal(); })) {
         return;
     }
 
-    m_intake.Stop();
+    intake.Stop();
 
-    m_drivetrain.AddTrajectory(kLastBallPose, {}, kFinalShootPose,
-                               reverseConfig);
+    drivetrain.AddTrajectory(kLastBallPose, {}, kFinalShootPose, reverseConfig);
 
     Shoot(5);
 
-    if (!m_autonChooser.Suspend([=] { return m_drivetrain.AtGoal(); })) {
+    if (!m_autonChooser.Suspend([=] { return drivetrain.AtGoal(); })) {
         return;
     }
 }

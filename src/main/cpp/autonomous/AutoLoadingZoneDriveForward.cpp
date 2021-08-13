@@ -15,10 +15,10 @@ void Robot::AutoLoadingZoneDriveForward() {
     const frc::Pose2d kEndPose{12.89_m - 1.5 * Drivetrain::kLength, 5.662_m,
                                units::radian_t{wpi::numbers::pi}};
 
-    m_drivetrain.Reset(kInitialPose);
-    m_drivetrain.AddTrajectory(kInitialPose, {}, kEndPose);
+    drivetrain.Reset(kInitialPose);
+    drivetrain.AddTrajectory(kInitialPose, {}, kEndPose);
 
-    if (!m_autonChooser.Suspend([=] { return m_drivetrain.AtGoal(); })) {
+    if (!m_autonChooser.Suspend([=] { return drivetrain.AtGoal(); })) {
         return;
     }
 }

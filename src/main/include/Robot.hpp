@@ -50,6 +50,15 @@ public:
 
     static constexpr auto kMaxShootTimeout = 3_s;
 
+    // The order the subsystems are initialized determines the order the
+    // controllers run in.
+    Vision vision;
+    Drivetrain drivetrain;
+    Flywheel flywheel{drivetrain};
+    Turret turret{vision, drivetrain, flywheel};
+    Intake intake{flywheel};
+    Climber climber{turret};
+
     // Simulation variables
     IntakeSim intakeSim;
 
@@ -240,15 +249,6 @@ public:
     void ExpectAutonomousEndConds();
 
 private:
-    // The order the subsystems are initialized determines the order the
-    // controllers run in.
-    Vision m_vision;
-    Drivetrain m_drivetrain;
-    Flywheel m_flywheel{m_drivetrain};
-    Turret m_turret{m_vision, m_drivetrain, m_flywheel};
-    Intake m_intake{m_flywheel};
-    Climber m_climber{m_turret};
-
     ShootingState m_state = ShootingState::kIdle;
     int m_ballsToShoot = -1;
     units::second_t m_shootTimeout = kMaxShootTimeout;

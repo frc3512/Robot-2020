@@ -111,21 +111,21 @@ Robot::Robot() : frc::TimesliceRobot{2_ms, Constants::kControllerPeriod} {
     Schedule(
         [=] {
             if (IsEnabled()) {
-                m_drivetrain.ControllerPeriodic();
+                drivetrain.ControllerPeriodic();
             }
         },
         1.5_ms);
     Schedule(
         [=] {
             if (IsEnabled()) {
-                m_flywheel.ControllerPeriodic();
+                flywheel.ControllerPeriodic();
             }
         },
         0.7_ms);
     Schedule(
         [=] {
             if (IsEnabled()) {
-                m_turret.ControllerPeriodic();
+                turret.ControllerPeriodic();
             }
         },
         0.8_ms);
@@ -133,8 +133,8 @@ Robot::Robot() : frc::TimesliceRobot{2_ms, Constants::kControllerPeriod} {
 
 void Robot::Shoot(int ballsToShoot) {
     if (m_state == ShootingState::kIdle) {
-        m_vision.TurnLEDOn();
-        m_flywheel.SetGoalFromPose();
+        vision.TurnLEDOn();
+        flywheel.SetGoalFromPose();
         m_state = ShootingState::kStartFlywheel;
         m_ballsToShoot = ballsToShoot;
         if (ballsToShoot != -1) {
@@ -149,8 +149,8 @@ void Robot::Shoot(int ballsToShoot) {
 
 void Robot::Shoot(units::radians_per_second_t radsToShoot, int ballsToShoot) {
     if (m_state == ShootingState::kIdle) {
-        m_flywheel.SetMoveAndShoot(false);
-        m_flywheel.SetGoal(radsToShoot);
+        flywheel.SetMoveAndShoot(false);
+        flywheel.SetGoal(radsToShoot);
         m_state = ShootingState::kStartFlywheel;
         m_ballsToShoot = ballsToShoot;
         if (ballsToShoot != -1) {
@@ -165,7 +165,7 @@ void Robot::Shoot(units::radians_per_second_t radsToShoot, int ballsToShoot) {
 
 bool Robot::IsShooting() const { return m_state != ShootingState::kIdle; }
 
-bool Robot::FlywheelAtGoal() const { return m_flywheel.AtGoal(); }
+bool Robot::FlywheelAtGoal() const { return flywheel.AtGoal(); }
 
 units::second_t Robot::SelectedAutonomousDuration() const {
     return m_autonChooser.SelectedAutonomousDuration();
@@ -178,8 +178,8 @@ void Robot::DisabledInit() {
     SubsystemBase::RunAllDisabledInit();
 
     // Reset teleop shooting state machine when disabling robot
-    m_flywheel.SetGoal(0_rad_per_s);
-    m_vision.TurnLEDOff();
+    flywheel.SetGoal(0_rad_per_s);
+    vision.TurnLEDOff();
     m_timer.Stop();
     m_state = ShootingState::kIdle;
 }
@@ -246,13 +246,12 @@ void Robot::RobotPeriodic() {
 void Robot::SimulationPeriodic() {
     SubsystemBase::RunAllSimulationPeriodic();
 
-    if (intakeSim.Update(m_intake.IsConveyorRunning(), 20_ms)) {
-        m_flywheel.SetSimAngularVelocity(0.96 *
-                                         m_flywheel.GetAngularVelocity());
+    if (intakeSim.Update(intake.IsConveyorRunning(), 20_ms)) {
+        flywheel.SetSimAngularVelocity(0.96 * flywheel.GetAngularVelocity());
     }
 
     frc::sim::RoboRioSim::SetVInVoltage(frc::sim::BatterySim::Calculate(
-        {m_drivetrain.GetCurrentDraw(), m_flywheel.GetCurrentDraw()}));
+        {drivetrain.GetCurrentDraw(), flywheel.GetCurrentDraw()}));
 }
 
 void Robot::DisabledPeriodic() { SubsystemBase::RunAllDisabledPeriodic(); }
@@ -271,8 +270,8 @@ void Robot::TestPeriodic() { SubsystemBase::RunAllTestPeriodic(); }
 void Robot::RunShooterSM() {
     m_eventLogger.Log(
         fmt::format("Flywheel error = {}",
-                    m_flywheel.GetGoal() - m_flywheel.GetAngularVelocity()),
-        fmt::format("Flywheel AtGoal = {}", m_flywheel.AtGoal()));
+                    flywheel.GetGoal() - flywheel.GetAngularVelocity()),
+        fmt::format("Flywheel AtGoal = {}", flywheel.AtGoal()));
 
     // Shooting state machine
     switch (m_state) {
@@ -283,17 +282,17 @@ void Robot::RunShooterSM() {
         }
         // Allow the flywheel to spin up to the correct angular velocity.
         case ShootingState::kStartFlywheel: {
-            if (m_flywheel.AtGoal()) {
+            if (flywheel.AtGoal()) {
                 // AtGoal() returns true if either the flywheel is at the goal
                 // or a timeout occurred. If a timeout occurred, the flywheel
                 // may not be spinning due to flywheel motor issues. Only start
                 // the conveyor if the flywheel is moving to avoid jams.
-                if (m_flywheel.GetAngularVelocity() > 0_rad_per_s) {
+                if (flywheel.GetAngularVelocity() > 0_rad_per_s) {
                     m_timer.Reset();
                     m_timer.Start();
                     m_state = ShootingState::kStartConveyor;
                 } else {
-                    m_flywheel.SetGoal(0_rad_per_s);
+                    flywheel.SetGoal(0_rad_per_s);
                     m_state = ShootingState::kIdle;
                     frc::DriverStation::GetInstance().ReportError(
                         "Flywheel didn't start spinning. Either the motors "
@@ -308,7 +307,7 @@ void Robot::RunShooterSM() {
             // from not at the goal to at the goal, we shot a ball and have
             // recovered
             if (m_ballsToShoot > 0 && !m_prevFlywheelAtGoal &&
-                m_flywheel.AtGoal()) {
+                flywheel.AtGoal()) {
                 --m_ballsToShoot;
                 m_eventLogger.Log(fmt::format("Shot a ball; balls left = {}",
                                               m_ballsToShoot));
@@ -319,9 +318,9 @@ void Robot::RunShooterSM() {
             // FIXME: Also stop flywheel if m_ballsToShoot == 0 when
             // Flywheel::AtGoal() is fixed
             if (m_timer.HasElapsed(m_shootTimeout) &&
-                !m_intake.IsUpperSensorBlocked()) {
-                m_flywheel.SetGoal(0_rad_per_s);
-                m_vision.TurnLEDOff();
+                !intake.IsUpperSensorBlocked()) {
+                flywheel.SetGoal(0_rad_per_s);
+                vision.TurnLEDOff();
                 m_timer.Stop();
                 m_state = ShootingState::kIdle;
             }
@@ -329,7 +328,7 @@ void Robot::RunShooterSM() {
         }
     }
 
-    m_prevFlywheelAtGoal = m_flywheel.AtGoal();
+    m_prevFlywheelAtGoal = flywheel.AtGoal();
 }
 
 void Robot::SelectAutonomous(wpi::StringRef name) {
@@ -344,15 +343,15 @@ void Robot::ExpectAutonomousEndConds() {
     if constexpr (IsSimulation()) {
         EXPECT_FALSE(m_autonChooser.IsSuspended())
             << "Autonomous mode didn't finish within the autonomous period";
-        EXPECT_TRUE(m_turret.AtGoal());
+        EXPECT_TRUE(turret.AtGoal());
 
-        EXPECT_TRUE(m_drivetrain.AtGoal());
+        EXPECT_TRUE(drivetrain.AtGoal());
 
         // Verify left/right wheel velocities are zero
-        EXPECT_NEAR(m_drivetrain.GetStates()(3), 0.0, 0.01);
-        EXPECT_NEAR(m_drivetrain.GetStates()(4), 0.0, 0.01);
+        EXPECT_NEAR(drivetrain.GetStates()(3), 0.0, 0.01);
+        EXPECT_NEAR(drivetrain.GetStates()(4), 0.0, 0.01);
 
-        EXPECT_EQ(m_flywheel.GetGoal(), 0_rad_per_s);
+        EXPECT_EQ(flywheel.GetGoal(), 0_rad_per_s);
     }
 }
 

@@ -17,7 +17,7 @@ void Robot::AutoLeftSideIntake() {
     const frc::Pose2d kEndPose{9.63_m + Drivetrain::kMiddleOfRobotToIntake,
                                7.513_m, units::radian_t{wpi::numbers::pi}};
 
-    m_drivetrain.Reset(kInitialPose);
+    drivetrain.Reset(kInitialPose);
 
     // Add a region constraint to slow down the drivetrain while
     // it's approaching the balls
@@ -30,17 +30,17 @@ void Robot::AutoLeftSideIntake() {
 
     auto config = Drivetrain::MakeTrajectoryConfig();
     config.AddConstraint(regionConstraint);
-    m_drivetrain.AddTrajectory(kInitialPose, {}, kEndPose, config);
+    drivetrain.AddTrajectory(kInitialPose, {}, kEndPose, config);
 
     // Intake Balls x2
-    m_intake.Deploy();
-    m_intake.Start();
+    intake.Deploy();
+    intake.Start();
 
-    if (!m_autonChooser.Suspend([=] { return m_drivetrain.AtGoal(); })) {
+    if (!m_autonChooser.Suspend([=] { return drivetrain.AtGoal(); })) {
         return;
     }
 
-    m_intake.Stop();
+    intake.Stop();
 }
 
 }  // namespace frc3512

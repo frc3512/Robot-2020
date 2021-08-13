@@ -56,8 +56,8 @@ void Robot::AutoNavBounce() {
     const frc::Pose2d kEndPose{7.379_m, 2.5_m + 0.5_m,
                                units::radian_t{wpi::numbers::pi}};
 
-    m_turret.SetControlMode(TurretController::ControlMode::kManual);
-    m_drivetrain.Reset(kInitialPose);
+    turret.SetControlMode(TurretController::ControlMode::kManual);
+    drivetrain.Reset(kInitialPose);
 
     auto forwardConfig = Drivetrain::MakeTrajectoryConfig();
     auto backwardConfig = Drivetrain::MakeTrajectoryConfig();
@@ -65,16 +65,16 @@ void Robot::AutoNavBounce() {
     backwardConfig.SetReversed(true);
     backwardConfig.AddConstraint(frc::MaxVelocityConstraint(kMaxV));
 
-    m_drivetrain.AddTrajectory(kInitialPose, {}, kFirstStar, forwardConfig);
-    m_drivetrain.AddTrajectory({kFirstStar, kFirstSideCurve1, kFirstBottomCurve,
-                                kFirstSideCurve2, kSecondStar},
-                               backwardConfig);
-    m_drivetrain.AddTrajectory(
+    drivetrain.AddTrajectory(kInitialPose, {}, kFirstStar, forwardConfig);
+    drivetrain.AddTrajectory({kFirstStar, kFirstSideCurve1, kFirstBottomCurve,
+                              kFirstSideCurve2, kSecondStar},
+                             backwardConfig);
+    drivetrain.AddTrajectory(
         {kSecondStar, kSecondBottomCurve, kSecondSideCurve, kThirdStar},
         forwardConfig);
-    m_drivetrain.AddTrajectory(kThirdStar, {}, kEndPose, backwardConfig);
+    drivetrain.AddTrajectory(kThirdStar, {}, kEndPose, backwardConfig);
 
-    if (!m_autonChooser.Suspend([=] { return m_drivetrain.AtGoal(); })) {
+    if (!m_autonChooser.Suspend([=] { return drivetrain.AtGoal(); })) {
         return;
     }
 }

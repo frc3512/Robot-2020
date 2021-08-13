@@ -20,9 +20,9 @@ void Robot::AutoRightSideShootEight() {
 
     const units::meters_per_second_t kMaxV = 1.6_mps;
 
-    m_drivetrain.Reset(kInitialPose);
+    drivetrain.Reset(kInitialPose);
 
-    m_intake.Deploy();
+    intake.Deploy();
 
     if constexpr (IsSimulation()) {
         for (int i = 0; i < 3; ++i) {
@@ -46,13 +46,13 @@ void Robot::AutoRightSideShootEight() {
             frc::MaxVelocityConstraint{kMaxV}};
         auto config = Drivetrain::MakeTrajectoryConfig();
         config.AddConstraint(regionConstraint);
-        m_drivetrain.AddTrajectory(kInitialPose, {}, kTrenchPose, config);
+        drivetrain.AddTrajectory(kInitialPose, {}, kTrenchPose, config);
     }
 
     // Intake Balls x3
-    m_intake.Start();
+    intake.Start();
 
-    if (!m_autonChooser.Suspend([=] { return m_drivetrain.AtGoal(); })) {
+    if (!m_autonChooser.Suspend([=] { return drivetrain.AtGoal(); })) {
         return;
     }
 
@@ -60,10 +60,10 @@ void Robot::AutoRightSideShootEight() {
     {
         auto config = Drivetrain::MakeTrajectoryConfig();
         config.SetReversed(true);
-        m_drivetrain.AddTrajectory(kTrenchPose, {}, kInitialPose, config);
+        drivetrain.AddTrajectory(kTrenchPose, {}, kInitialPose, config);
     }
 
-    if (!m_autonChooser.Suspend([=] { return m_drivetrain.AtGoal(); })) {
+    if (!m_autonChooser.Suspend([=] { return drivetrain.AtGoal(); })) {
         return;
     }
 
@@ -75,12 +75,12 @@ void Robot::AutoRightSideShootEight() {
             frc::Translation2d{kGenPose.X() + 0.5 * Drivetrain::kLength,
                                kGenPose.Y() + 0.5 * Drivetrain::kLength},
             frc::MaxVelocityConstraint{kMaxV}};
-        auto config = m_drivetrain.MakeTrajectoryConfig();
+        auto config = drivetrain.MakeTrajectoryConfig();
         config.AddConstraint(regionConstraint);
-        m_drivetrain.AddTrajectory(kInitialPose, {}, kGenPose, config);
+        drivetrain.AddTrajectory(kInitialPose, {}, kGenPose, config);
     }
 
-    if (!m_autonChooser.Suspend([=] { return m_drivetrain.AtGoal(); })) {
+    if (!m_autonChooser.Suspend([=] { return drivetrain.AtGoal(); })) {
         return;
     }
 
@@ -96,7 +96,7 @@ void Robot::AutoRightSideShootEight() {
         return;
     }
 
-    m_intake.Stop();
+    intake.Stop();
 }
 
 }  // namespace frc3512

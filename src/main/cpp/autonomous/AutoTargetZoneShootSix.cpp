@@ -18,9 +18,9 @@ void Robot::AutoTargetZoneShootSix() {
     // End Pose - Third/Farthest ball in the Trench Run
     const frc::Pose2d kEndPose{8_m, 0.71_m, units::radian_t{wpi::numbers::pi}};
 
-    m_drivetrain.Reset(kInitialPose);
+    drivetrain.Reset(kInitialPose);
 
-    m_intake.Deploy();
+    intake.Deploy();
 
     if constexpr (IsSimulation()) {
         for (int i = 0; i < 3; ++i) {
@@ -47,25 +47,25 @@ void Robot::AutoTargetZoneShootSix() {
     {
         auto config = Drivetrain::MakeTrajectoryConfig();
         config.AddConstraint(regionConstraint);
-        m_drivetrain.AddTrajectory({kInitialPose, kMidPose, kEndPose}, config);
+        drivetrain.AddTrajectory({kInitialPose, kMidPose, kEndPose}, config);
     }
 
     // Intake Balls x3
-    m_intake.Start();
+    intake.Start();
 
     // Drive back
     {
         auto config = Drivetrain::MakeTrajectoryConfig();
         config.SetReversed(true);
-        m_drivetrain.AddTrajectory(kEndPose, {}, kMidPose, config);
+        drivetrain.AddTrajectory(kEndPose, {}, kMidPose, config);
     }
 
     if (!m_autonChooser.Suspend([=] {
-            if (m_drivetrain.GetReferencePose().Translation().Distance(
+            if (drivetrain.GetReferencePose().Translation().Distance(
                     kEndPose.Translation()) < 1_cm) {
-                m_intake.Stop();
+                intake.Stop();
             }
-            return m_drivetrain.AtGoal();
+            return drivetrain.AtGoal();
         })) {
         return;
     }

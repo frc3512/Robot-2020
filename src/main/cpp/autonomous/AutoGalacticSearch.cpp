@@ -55,17 +55,17 @@ void Robot::AutoGalacticSearch() {
     // Max velocity for this auton mode to run in
     const units::meters_per_second_t kMaxV = 1_mps;
 
-    m_turret.SetControlMode(TurretController::ControlMode::kManual);
-    m_drivetrain.Reset(kInitialPose);
+    turret.SetControlMode(TurretController::ControlMode::kManual);
+    drivetrain.Reset(kInitialPose);
 
-    m_intake.Deploy();
-    m_intake.Start();
-    m_intake.SetConveyor(0.7);
+    intake.Deploy();
+    intake.Start();
+    intake.SetConveyor(0.7);
     if (!m_autonChooser.SuspendFor(1_s)) {
         return;
     }
 
-    if (m_drivetrain.GetLeftUltrasonicDistance() <=
+    if (drivetrain.GetLeftUltrasonicDistance() <=
         (kBFirstRedBall.X() - kInitialPose.X())) {
         m_autoGalacticSearchLayout.SetString("Path B");
         m_autoGalacticSearchPath.SetString("Red");
@@ -94,15 +94,15 @@ void Robot::AutoGalacticSearch() {
         config.AddConstraint(firstBallConstraint);
         config.AddConstraint(secondBallConstraint);
         config.AddConstraint(thirdBallConstraint);
-        m_drivetrain.AddTrajectory(
+        drivetrain.AddTrajectory(
             {kInitialPose, kBFirstRedBall, kBSecondRedBall, kBThirdRedBall,
              kBThirdtoEndRed, kBRedEndPose},
             config);
-        if (!m_autonChooser.Suspend([=] { return m_drivetrain.AtGoal(); })) {
+        if (!m_autonChooser.Suspend([=] { return drivetrain.AtGoal(); })) {
             return;
         }
-        m_intake.Stop();
-    } else if (m_drivetrain.GetRightUltrasonicDistance() <=
+        intake.Stop();
+    } else if (drivetrain.GetRightUltrasonicDistance() <=
                (kAFirstRedBall.X() - kInitialPose.X())) {
         m_autoGalacticSearchLayout.SetString("Path A");
         m_autoGalacticSearchPath.SetString("Red");
@@ -131,23 +131,22 @@ void Robot::AutoGalacticSearch() {
         config.AddConstraint(firstBallConstraint);
         config.AddConstraint(secondBallConstraint);
         config.AddConstraint(thirdBallConstraint);
-        m_drivetrain.AddTrajectory(
-            {kInitialPose, kAFirstRedBall, kASecondRedBall, kAThirdRedBall,
-             kARedEndPose},
-            config);
+        drivetrain.AddTrajectory({kInitialPose, kAFirstRedBall, kASecondRedBall,
+                                  kAThirdRedBall, kARedEndPose},
+                                 config);
 
-        if (!m_autonChooser.Suspend([=] { return m_drivetrain.AtGoal(); })) {
+        if (!m_autonChooser.Suspend([=] { return drivetrain.AtGoal(); })) {
             return;
         }
-        m_intake.Stop();
+        intake.Stop();
     } else {
         m_autoGalacticSearchPath.SetString("Blue");
 
         frc::Pose2d seeBlue{0.514_m + 0.762_m + 105_in, 2.616_m,
                             units::radian_t{0}};
-        m_drivetrain.AddTrajectory(kInitialPose, {}, seeBlue);
+        drivetrain.AddTrajectory(kInitialPose, {}, seeBlue);
 
-        if (!m_autonChooser.Suspend([=] { return m_drivetrain.AtGoal(); })) {
+        if (!m_autonChooser.Suspend([=] { return drivetrain.AtGoal(); })) {
             return;
         }
 
@@ -155,7 +154,7 @@ void Robot::AutoGalacticSearch() {
             return;
         }
 
-        if (m_drivetrain.GetLeftUltrasonicDistance() <=
+        if (drivetrain.GetLeftUltrasonicDistance() <=
             (kBFirstRedBall.X() - kInitialPose.X())) {
             m_autoGalacticSearchLayout.SetString("Path B");
             frc::RectangularRegionConstraint firstBallConstraint{
@@ -189,15 +188,14 @@ void Robot::AutoGalacticSearch() {
             config.AddConstraint(firstBallConstraint);
             config.AddConstraint(secondBallConstraint);
             config.AddConstraint(thirdBallConstraint);
-            m_drivetrain.AddTrajectory(
+            drivetrain.AddTrajectory(
                 {seeBlue, kBFirstBlueBall, kBFirstToSecondBlueBall,
                  kBSecondBlueBall, kBThirdBlueBall, kBBlueEndPose},
                 config);
-            if (!m_autonChooser.Suspend(
-                    [=] { return m_drivetrain.AtGoal(); })) {
+            if (!m_autonChooser.Suspend([=] { return drivetrain.AtGoal(); })) {
                 return;
             }
-            m_intake.Stop();
+            intake.Stop();
         } else {
             m_autoGalacticSearchLayout.SetString("Path A");
             frc::RectangularRegionConstraint firstBallConstraint{
@@ -231,16 +229,15 @@ void Robot::AutoGalacticSearch() {
             config.AddConstraint(firstBallConstraint);
             config.AddConstraint(secondBallConstraint);
             config.AddConstraint(thirdBallConstraint);
-            m_drivetrain.AddTrajectory(
+            drivetrain.AddTrajectory(
                 {seeBlue, kAFirstBlueBall, kASecondBlueBall, kAThirdBlueBall,
                  kABlueEndPose},
                 config);
 
-            if (!m_autonChooser.Suspend(
-                    [=] { return m_drivetrain.AtGoal(); })) {
+            if (!m_autonChooser.Suspend([=] { return drivetrain.AtGoal(); })) {
                 return;
             }
-            m_intake.Stop();
+            intake.Stop();
         }
     }
 }

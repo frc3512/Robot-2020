@@ -57,29 +57,29 @@ void Robot::AutoNavSlalom() {
     const frc::Pose2d kEndPose{1.08_m, 2.434_m,
                                units::radian_t{wpi::numbers::pi}};
 
-    m_turret.SetControlMode(TurretController::ControlMode::kManual);
-    m_drivetrain.Reset(kInitialPose);
+    turret.SetControlMode(TurretController::ControlMode::kManual);
+    drivetrain.Reset(kInitialPose);
 
     auto config = Drivetrain::MakeTrajectoryConfig();
     config.AddConstraint(frc::MaxVelocityConstraint(kMaxV));
 
-    m_drivetrain.AddTrajectory({kInitialPose, kTopArchLeft, kTopArchRight,
+    drivetrain.AddTrajectory({kInitialPose, kTopArchLeft, kTopArchRight,
                               kRingBottom, kRingRight, kRingTop,
                               kBottomArchRight, kBottomArchLeft, kEndPose});
     */
-    m_turret.SetControlMode(TurretController::ControlMode::kManual);
-    m_drivetrain.Reset(kInitialPose);
+    turret.SetControlMode(TurretController::ControlMode::kManual);
+    drivetrain.Reset(kInitialPose);
 
     auto config = Drivetrain::MakeTrajectoryConfig();
     config.AddConstraint(frc::MaxVelocityConstraint(kMaxV));
 
-    m_drivetrain.AddTrajectory(
+    drivetrain.AddTrajectory(
         {kInitialPose, kTopArchLeft, kTopArchMiddle, kTopArchRight,
          kArchTopToLoop, kRingBottom, kRingRight, kRingTop, kRingToArch,
          kBottomArchRight, kBottomArchLeft, kEndPose},
         config);
 
-    if (!m_autonChooser.Suspend([=] { return m_drivetrain.AtGoal(); })) {
+    if (!m_autonChooser.Suspend([=] { return drivetrain.AtGoal(); })) {
         return;
     }
 }

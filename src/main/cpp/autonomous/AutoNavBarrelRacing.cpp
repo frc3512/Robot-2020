@@ -50,27 +50,26 @@ void Robot::AutoNavBarrelRacing() {
     const frc::Pose2d kEndPose{0.35_m + 3_ft, 2.614_m,
                                units::radian_t{wpi::numbers::pi}};
 
-    m_turret.SetControlMode(TurretController::ControlMode::kManual);
-    m_drivetrain.Reset(kInitialPose);
+    turret.SetControlMode(TurretController::ControlMode::kManual);
+    drivetrain.Reset(kInitialPose);
 
     auto config1 =
-        m_drivetrain.MakeTrajectoryConfig(0_mps, DrivetrainController::kMaxV);
-    auto config2 = m_drivetrain.MakeTrajectoryConfig(
-        DrivetrainController::kMaxV, DrivetrainController::kMaxV);
+        drivetrain.MakeTrajectoryConfig(0_mps, DrivetrainController::kMaxV);
+    auto config2 = drivetrain.MakeTrajectoryConfig(DrivetrainController::kMaxV,
+                                                   DrivetrainController::kMaxV);
     auto config3 =
-        m_drivetrain.MakeTrajectoryConfig(DrivetrainController::kMaxV, 0_mps);
+        drivetrain.MakeTrajectoryConfig(DrivetrainController::kMaxV, 0_mps);
 
-    m_drivetrain.AddTrajectory({kInitialPose, kD5Entrance, kD5Loop1}, config1);
-    m_drivetrain.AddTrajectory(kD5Loop1, {kD5Loop2, kD5Loop3}, kB8Entrance,
-                               config2);
-    m_drivetrain.AddTrajectory(
+    drivetrain.AddTrajectory({kInitialPose, kD5Entrance, kD5Loop1}, config1);
+    drivetrain.AddTrajectory(kD5Loop1, {kD5Loop2, kD5Loop3}, kB8Entrance,
+                             config2);
+    drivetrain.AddTrajectory(
         {kB8Entrance, kB8Loop1, kB8Loop2, kD10Entrance, kD10Loop1, kD10Loop2},
         config2);
-    m_drivetrain.AddTrajectory(kD10Loop2, {kD10Loop3}, kFinishApproach,
-                               config2);
-    m_drivetrain.AddTrajectory(kFinishApproach, {}, kEndPose, config3);
+    drivetrain.AddTrajectory(kD10Loop2, {kD10Loop3}, kFinishApproach, config2);
+    drivetrain.AddTrajectory(kFinishApproach, {}, kEndPose, config3);
 
-    if (!m_autonChooser.Suspend([=] { return m_drivetrain.AtGoal(); })) {
+    if (!m_autonChooser.Suspend([=] { return drivetrain.AtGoal(); })) {
         return;
     }
 }
