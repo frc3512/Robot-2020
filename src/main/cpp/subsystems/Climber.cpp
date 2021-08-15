@@ -72,7 +72,7 @@ void Climber::TeleopPeriodic() {
         // Move the turret out of the way of the climber and set new soft limit.
         // Also, disable auto-aim.
         m_turret.SetControlMode(TurretController::ControlMode::kClosedLoop);
-        m_turret.SetGoal(TurretController::kCCWLimit, 0_rad_per_s);
+        m_turret.SetGoal(units::radian_t{wpi::numbers::pi / 2}, 0_rad_per_s);
         m_turret.SetCWLimit(Turret::kCWLimitForClimbing);
     } else if (GetElevatorPosition() < 1.5_in) {
         // Let turret move full range again once climber is back down
