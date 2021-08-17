@@ -2,6 +2,14 @@
 
 #pragma once
 
+/**
+ * The hardware configuration namespace is for joystick ports and roboRIO
+ * channel assignments.
+ *
+ * Other hardware configuration constants that won't change often and belong to
+ * only one subsystem (like gear ratios) should be defined in the subsystem
+ * itself instead.
+ */
 namespace frc3512::HWConfig {
 
 // Joystick Ports
