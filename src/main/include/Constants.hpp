@@ -4,6 +4,10 @@
 
 #include <units/time.h>
 
+/**
+ * This namespace is for robot-wide constants that aren't related to hardware
+ * configuration. See HWConfig.hpp for hardware configuration.
+ */
 namespace frc3512::Constants {
 
 // Joystick axis deadband range
