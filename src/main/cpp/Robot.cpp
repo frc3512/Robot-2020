@@ -235,9 +235,8 @@ void Robot::RobotPeriodic() {
         units::second_t{std::chrono::steady_clock::now().time_since_epoch()},
         batteryVoltage);
 
-    auto sendDiagnostics =
-        NetworkTableUtil::MakeBoolEntry("/Diagnostics/SendDiagnostics", false);
-    if (sendDiagnostics.GetBoolean(false)) {
+    auto& ds = frc::DriverStation::GetInstance();
+    if (ds.IsDisabled() || !ds.IsFMSAttached()) {
         m_batteryVoltageEntry.SetDouble(batteryVoltage);
         m_ballsToShootEntry.SetDouble(m_ballsToShoot);
     }

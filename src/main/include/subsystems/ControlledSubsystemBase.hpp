@@ -22,7 +22,6 @@
 #include <wpi/Twine.h>
 
 #include "Constants.hpp"
-#include "NetworkTableUtil.hpp"
 #include "RealTimePriorities.hpp"
 #include "logging/CSVControllerLogger.hpp"
 #include "logging/NTControllerLogger.hpp"
@@ -203,10 +202,8 @@ private:
             m_csvLogger.Log(entry.nowBegin - frc::CSVLogFile::GetStartTime(),
                             entry.r, entry.x, entry.u, entry.y);
 
-            auto sendDiagnostics = NetworkTableUtil::MakeBoolEntry(
-                "/Diagnostics/SendDiagnostics", false);
-            if (sendDiagnostics.GetBoolean(false) &&
-                !frc::DriverStation::GetInstance().IsFMSAttached()) {
+            auto& ds = frc::DriverStation::GetInstance();
+            if (ds.IsDisabled() || !ds.IsFMSAttached()) {
                 m_ntLogger.Log(entry.r, entry.x, entry.u, entry.y);
             }
 

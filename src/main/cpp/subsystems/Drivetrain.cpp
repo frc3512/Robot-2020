@@ -4,6 +4,7 @@
 
 #include <algorithm>
 
+#include <frc/DriverStation.h>
 #include <frc/Joystick.h>
 #include <frc/MathUtil.h>
 #include <frc/RobotBase.h>
@@ -242,9 +243,8 @@ void Drivetrain::RobotPeriodic() {
     m_rightUltrasonicDistance = m_rightDistanceFilter.Calculate(
         units::volt_t{m_rightUltrasonic.GetVoltage()} * 1_m / 1_V);
 
-    auto sendDiagnostics =
-        NetworkTableUtil::MakeBoolEntry("/Diagnostics/SendDiagnostics", false);
-    if (sendDiagnostics.GetBoolean(false)) {
+    auto& ds = frc::DriverStation::GetInstance();
+    if (ds.IsDisabled() || !ds.IsFMSAttached()) {
         m_leftUltrasonicOutputEntry.SetDouble(
             m_leftUltrasonicDistance.to<double>());
         m_rightUltrasonicOutputEntry.SetDouble(
