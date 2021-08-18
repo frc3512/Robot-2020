@@ -241,10 +241,16 @@ void Drivetrain::RobotPeriodic() {
         units::volt_t{m_leftUltrasonic.GetVoltage()} * 1_m / 1_V);
     m_rightUltrasonicDistance = m_rightDistanceFilter.Calculate(
         units::volt_t{m_rightUltrasonic.GetVoltage()} * 1_m / 1_V);
-    m_leftUltrasonicOutputEntry.SetDouble(
-        m_leftUltrasonicDistance.to<double>());
-    m_rightUltrasonicOutputEntry.SetDouble(
-        m_rightUltrasonicDistance.to<double>());
+
+    auto sendDiagnostics =
+        NetworkTableUtil::MakeBoolEntry("/Diagnostics/SendDiagnostics", false);
+    if (sendDiagnostics.GetBoolean(false)) {
+        m_leftUltrasonicOutputEntry.SetDouble(
+            m_leftUltrasonicDistance.to<double>());
+        m_rightUltrasonicOutputEntry.SetDouble(
+            m_rightUltrasonicDistance.to<double>());
+    }
+
     if constexpr (frc::RobotBase::IsSimulation()) {
         m_leftUltrasonicDistance = m_leftDistanceFilter.Calculate(
             units::volt_t{m_leftUltrasonicSim.GetVoltage()} * 1_m / 1_V);
