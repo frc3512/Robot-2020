@@ -221,9 +221,9 @@ public:
      */
     units::ampere_t GetCurrentDraw() const;
 
-    void DisabledInit() override { Disable(); }
+    void DisabledInit() override;
 
-    void AutonomousInit() override { Enable(); }
+    void AutonomousInit() override;
 
     void TeleopInit() override;
 
@@ -320,6 +320,18 @@ private:
     frc::sim::AnalogInputSim m_leftUltrasonicSim{m_leftUltrasonic};
     frc::sim::AnalogInputSim m_rightUltrasonicSim{m_rightUltrasonic};
     frc::Field2d m_field;
+
+    /**
+     * Set drivetrain motors to brake mode, which the feedback controllers
+     * expect.
+     */
+    void SetBrakeMode();
+
+    /**
+     * Set drivetrain motors to coast mode so the robot is easier to push when
+     * it's disabled.
+     */
+    void SetCoastMode();
 };
 
 }  // namespace frc3512

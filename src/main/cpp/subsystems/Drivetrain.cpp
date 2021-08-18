@@ -300,7 +300,19 @@ units::ampere_t Drivetrain::GetCurrentDraw() const {
     return m_drivetrainSim.GetCurrentDraw();
 }
 
+void Drivetrain::DisabledInit() {
+    SetCoastMode();
+    Disable();
+}
+
+void Drivetrain::AutonomousInit() {
+    SetBrakeMode();
+    Enable();
+}
+
 void Drivetrain::TeleopInit() {
+    SetBrakeMode();
+
     // If the robot was disabled while still following a trajectory in
     // autonomous, it will continue to do so in teleop. This aborts any
     // trajectories so teleop driving can occur.
@@ -310,7 +322,13 @@ void Drivetrain::TeleopInit() {
 }
 
 void Drivetrain::TestInit() {
+    SetBrakeMode();
+
+    // If the robot was disabled while still following a trajectory in
+    // autonomous, it will continue to do so in teleop. This aborts any
+    // trajectories so teleop driving can occur.
     m_controller.AbortTrajectories();
+
     Enable();
 }
 
@@ -360,4 +378,18 @@ void Drivetrain::TestPeriodic() {
 
     m_leftGrbx.SetVoltage(units::volt_t{u(0)});
     m_rightGrbx.SetVoltage(units::volt_t{u(1)});
+}
+
+void Drivetrain::SetBrakeMode() {
+    m_leftLeader.SetIdleMode(rev::CANSparkMax::IdleMode::kBrake);
+    m_leftFollower.SetIdleMode(rev::CANSparkMax::IdleMode::kBrake);
+    m_rightLeader.SetIdleMode(rev::CANSparkMax::IdleMode::kBrake);
+    m_rightFollower.SetIdleMode(rev::CANSparkMax::IdleMode::kBrake);
+}
+
+void Drivetrain::SetCoastMode() {
+    m_leftLeader.SetIdleMode(rev::CANSparkMax::IdleMode::kCoast);
+    m_leftFollower.SetIdleMode(rev::CANSparkMax::IdleMode::kCoast);
+    m_rightLeader.SetIdleMode(rev::CANSparkMax::IdleMode::kCoast);
+    m_rightFollower.SetIdleMode(rev::CANSparkMax::IdleMode::kCoast);
 }

@@ -19,6 +19,8 @@ namespace rev {
  */
 class CANSparkMax : public CANSparkMaxLowLevel {
 public:
+    enum class IdleMode { kCoast = 0, kBrake = 1 };
+
     CANSparkMax(int deviceID, rev::CANSparkMax::MotorType motorType)
         : CANSparkMaxLowLevel{deviceID, motorType} {}
 
@@ -51,6 +53,8 @@ public:
                                   unsigned int limitRPM = 20000) {
         return CANError::kOk;
     }
+
+    CANError SetIdleMode(IdleMode mode) { return CANError::kOk; }
 
 private:
     double m_speed = 0.0;
