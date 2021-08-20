@@ -30,6 +30,7 @@ public:
         kAutoAim      // Closed loop with auto-aiming
     };
 
+    // See docs/turret-encoder-resolution.md for encoder gear ratio selection
     static constexpr double kGearRatio = 18.0 / 160.0;
     static constexpr double kDpR = kGearRatio * 2.0 * wpi::numbers::pi;
 

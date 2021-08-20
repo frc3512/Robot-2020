@@ -51,8 +51,8 @@ bool Intake::IsUpperSensorBlocked() const { return !m_upperSensor.Get(); }
 bool Intake::IsLowerSensorBlocked() const { return !m_lowerSensor.Get(); }
 
 void Intake::RobotPeriodic() {
-    // See intake-io-table.md for the input-output table the logic below was
-    // based on.
+    // See docs/intake-io-table.md for the input-output table on which the logic
+    // below was based
     static frc::Joystick appendageStick2{HWConfig::kAppendageStick2Port};
 
     // Arm logic
