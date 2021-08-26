@@ -185,7 +185,7 @@ Eigen::Matrix<double, 2, 1> DrivetrainController::Controller(
     const Eigen::Matrix<double, 7, 1>& x,
     const Eigen::Matrix<double, 7, 1>& r) {
     // This implements the linear time-varying differential drive controller in
-    // theorem 8.6.4 of https://tavsys.net/controls-in-frc.
+    // theorem 9.6.3 of https://tavsys.net/controls-in-frc.
     units::meters_per_second_t velocity{
         (x(State::kLeftVelocity) + x(State::kRightVelocity)) / 2.0};
     const auto& K = m_table[velocity];
