@@ -172,8 +172,8 @@ for more details.
 * Make sure to have FRC toolchain from the setup section.
 * Open the tools directory `~/wpilib/2020/tools` and run
   `python3 ToolsUpdater.py`.
-* Open OutlineViewer by running `python3 Glass.py` and set the server
-  location to 10.35.12.2. The default port will work.
+* Open Glass by running `python3 Glass.py` and set the server location to
+  10.35.12.2. The default port will work.
 
 ## Simulation logging
 
