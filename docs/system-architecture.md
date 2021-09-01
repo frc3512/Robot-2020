@@ -1,10 +1,11 @@
 # System architecture
 
+This document describes the robot's overall system architecture.
+
 ## TimesliceRobot class
 
-### Overridable member functions
-
-The main robot class inherits from the TimesliceRobot class, so it supports the
+The main robot class inherits from
+[TimesliceRobot](../src/main/include/frc/TimesliceRobot.h), so it supports the
 following modes:
 
 * Disabled (the robot doesn't move)
@@ -12,14 +13,15 @@ following modes:
 * Teleop (the robot follows driver commands)
 * Test (the robot executes diagnostic code)
 
-The following member functions are called on mode entry:
+The following overridable member functions are called on mode entry:
 
 * DisabledInit()
 * AutonomousInit()
 * TelopInit()
 * TestInit()
 
-The following member functions are called every 20 ms while in that mode:
+The following overridable member functions are called every 20 ms while in that
+mode:
 
 * DisabledPeriodic()
 * AutonomousPeriodic()
@@ -29,9 +31,9 @@ The following member functions are called every 20 ms while in that mode:
 ## Subsystem overview
 
 This robot has six subsystems: drivetrain, flywheel, turret, intake, and
-climber. Each subsystem's `*Init()` and `*Periodic()` functions (provided by the
-SubsystemBase base class) are called in the Robot class's corresponding
-functions every 20 ms.
+climber, which all inherit from
+[SubsystemBase](../src/main/include/subsystems/SubsystemBase.hpp) to provide
+"init" and "periodic" functions for each mode just like those in TimesliceRobot.
 
 ### Vision
 
@@ -88,31 +90,34 @@ machine or autonomous modes exist in the Robot class instead of a subsystem.
 
 ## Subsystem controllers
 
-The subsystems that have state-space controllers inherit from
-ControlledSubsystemBase:
+The subsystems that have state-space controllers (drivetrain, flywheel, and
+turret) inherit from
+[ControlledSubsystemBase](../src/main/include/subsystems/ControlledSubsystemBase.hpp),
+which provides logging for the references, states, inputs, and outputs of the
+controller. CSV and NetworkTables endpoints are supported.
 
-* Drivetrain
-* Flywheel
-* Turret
-
-The ControllerPeriodic() function in each subsystem is given a timeslot within
-which to run every 5 ms while the robot is enabled. The timeslot ordering and
-duration are documented in the timeslot allocation table in the Robot
-constructor. The timeslots are scheduled using the `Schedule()` function
-provided by TimesliceRobot.
+Each controlled subsystem's implementation of
+`ControlledSubsystemBase::ControllerPeriodic()` is given a timeslot within which
+to run every 5 ms while the robot is enabled. The timeslot ordering and duration
+are documented in the timeslot allocation table in the Robot constructor. The
+timeslots are scheduled using `TimesliceRobot::Schedule()`.
 
 Each controlled subsystem has a corresponding controller class (e.g., Flywheel
-has FlywheelController). The subsystem controllers are run in the following
-order:
+has FlywheelController). Each controller class inherits from
+[ControllerBase](../src/main/include/controllers/ControllerBase.hpp), which
+requires a Calculate() function and contains some bookkeeping variables for
+controllers.
+
+The subsystem controllers are run in the following order:
 
 * DrivetrainControler
 * FlywheelController
 * TurretController
 
-Each ControllerPeriodic() function performs a state observer prediction based on
-the previous run's motor outputs, performs a state observer update based on the
-current run's measurements, calls the controller's Calculate() function, then
-sets the motor outputs.
+Each subsystem's `ControllerPeriodic()` performs a state observer prediction
+based on the previous run's motor outputs, performs a state observer update
+based on the current run's measurements, calls the controller's Calculate()
+function, then sets the motor outputs.
 
 ### Information flow
 
@@ -205,7 +210,7 @@ preempted by a higher priority thread, or it yields.
 
 See `man 7 sched` for other scheduler types.
 
-## Our robot's real-time setup
+## Real-time configuration
 
 See [RealTimePriorities.hpp](../src/main/include/RealTimePriorities.hpp) for the
 full list of thread priorities.
