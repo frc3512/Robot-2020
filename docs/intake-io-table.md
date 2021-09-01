@@ -1,3 +1,5 @@
+# Intake I/O table
+
 The following table shows the relevant inputs and the desired allowable
 actuations for each input combination.
 

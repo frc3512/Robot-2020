@@ -96,12 +96,14 @@ This runs a debug build of the robot code in the simulation GUI.
 
 ### Documentation
 
+The source code and algorithms documentation is located in the [docs](docs)
+folder.
+
 * `./gradlew doxygen`
 
-The source code and algorithms documentation is located in the [docs](docs)
-folder. This command generates HTML documentation for the robot code from
-in-source Doxygen comments. The results are placed in a `docs/html` folder with
-an `index.html` page as the root.
+This command generates HTML documentation for the robot code from in-source
+Doxygen comments. The results are placed in a `docs/html` folder with an
+`index.html` page as the root.
 
 ### Debugger
 

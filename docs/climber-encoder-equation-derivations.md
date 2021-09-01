@@ -1,5 +1,4 @@
-Climber encoder equation derivations
-====================================
+# Climber encoder equation derivations
 
 Because the dyneema wraps around the climber drum, the diameter changes as the
 climber moves. Our dyneema has a 0.125 inch diameter. The drum is so small on
@@ -7,24 +6,25 @@ the climber, that it isn't negligible like our previous elevators. The drum
 diameter is 1 inch when the elevator is at the top and it's about 1.7 inches at
 the bottom. At the top, the dyneema is completely unspooled.
 
-Data collection
----------------
+## Data collection
 
-```
 Distances (m):
+
 28.375" bottom, 65.75" top
 
 Encoder measurements:
+
 0.002659 bottom, -0.70968 top
 
 Distance difference:
+
 48.375" -> 1.2287 m
 
 Encoder measurement difference:
+
 (0.002659 - -0.70968) = 0.712339 m
 
 0.712339 m / (pi * 1 in * 1/20) = 178.539 rotations
-```
 
 Find the true drum diameter.
 
@@ -49,12 +49,11 @@ y - 0.04381 = ((0.0254 - 0.04381) / (1.2287 - 0)) (x - 0)
 y - 0.04381 = ((0.0254 - 0.04381) / 1.2287) x
 y = -0.014983 x + 0.04381
 y = 0.04381 - 0.014983 x
-
-drum diameter = 0.04381 - 0.014983 distance
 ```
 
-Encoder distance equation
--------------------------
+drum diameter = 0.04381 - 0.014983 distance
+
+## Encoder distance equation
 
 `r` is rotations of the motor.
 

@@ -1,5 +1,4 @@
-Turret encoder resolution
-=========================
+# Turret encoder resolution
 
 "Rollover" is when the absolute encoder passes through the end of its range and
 appears on the other side (the reading resets). We can detect that occurence at
