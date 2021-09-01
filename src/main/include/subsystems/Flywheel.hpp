@@ -24,7 +24,6 @@
 #include "LerpTable.hpp"
 #include "controllers/FlywheelController.hpp"
 #include "rev/CANSparkMax.hpp"
-#include "static_concurrent_queue.hpp"
 #include "subsystems/ControlledSubsystemBase.hpp"
 #include "subsystems/Flywheel.hpp"
 
