@@ -22,6 +22,7 @@ This document describes the robot's overall system architecture.
     + [Logging](#logging)
     + [Automomous](#automomous)
     + [ADIS16470 IMU thread](#adis16470-imu-thread)
+    + [FRC_NetCommDaemon process](#frc-netcommdaemon-process)
 
 ## TimesliceRobot class
 
@@ -279,6 +280,11 @@ an abstraction over threads).
 
 ### ADIS16470 IMU thread
 
-The ADIS16470 IMU thread is given a priority of 35 so SPI gyro measurements are
+The ADIS16470 IMU thread is given a priority of 33 so SPI gyro measurements are
 incorporated before any other user code tries to sample the gyro, but the HAL
 Notifier thread can still preempt to wake up user threads.
+
+### FRC_NetCommDaemon process
+
+The FRC_NetCommDaemon process is given a priority of 35 so it's not preempted by
+user code during high CPU utilization.

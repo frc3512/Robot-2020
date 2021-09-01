@@ -19,7 +19,7 @@ constexpr int kPrioAutonomousThread = 15;
 // Give NI's SPI driver RT priority 33
 constexpr int kPrioSPIGyro = 33;
 
-// Give FRC_NetCommDaemon higher priority so it's not preempted by robot code
+// Give FRC_NetCommDaemon higher priority so it's not preempted by user code
 // during high CPU utilization
 constexpr int kPrioNetCommDaemon = 35;
 
