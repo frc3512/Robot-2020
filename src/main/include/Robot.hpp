@@ -29,7 +29,6 @@ struct NoOp {
 #include "AutonomousChooser.hpp"
 #include "IntakeSim.hpp"
 #include "NetworkTableUtil.hpp"
-#include "static_concurrent_queue.hpp"
 #include "subsystems/Climber.hpp"
 #include "subsystems/Drivetrain.hpp"
 #include "subsystems/Flywheel.hpp"
@@ -53,17 +52,19 @@ public:
 
     // The order the subsystems are initialized determines the order the
     // controllers run in.
-    Vision vision;
     Drivetrain drivetrain;
     Flywheel flywheel{drivetrain};
-    Turret turret{vision, drivetrain, flywheel};
     Intake intake{flywheel};
+    Turret turret{drivetrain, flywheel};
     Climber climber{turret};
+    Vision vision{turret};
 
     // Simulation variables
     IntakeSim intakeSim;
 
     Robot();
+
+    ~Robot();
 
     /**
      * Start shooting.
@@ -256,7 +257,8 @@ private:
     bool m_prevFlywheelAtGoal = false;
     frc2::Timer m_timer;
 
-    static_concurrent_queue<Vision::GlobalMeasurement, 8> m_visionMeasurements;
+    nt::NetworkTableEntry m_LEDEntry =
+        NetworkTableUtil::MakeBoolEntry("/photonvision/ledMode");
 
     AutonomousChooser m_autonChooser{"No-op", [=] { AutoNoOp(); }};
 

@@ -8,7 +8,6 @@
 #include "SimulatorTest.hpp"
 #include "subsystems/Drivetrain.hpp"
 #include "subsystems/Flywheel.hpp"
-#include "subsystems/Vision.hpp"
 
 class FlywheelTest : public frc3512::SimulatorTest {
 public:

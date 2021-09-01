@@ -37,7 +37,9 @@
 #include "controllers/DrivetrainController.hpp"
 #include "controllers/ImplicitModelFollower.hpp"
 #include "rev/CANSparkMax.hpp"
+#include "static_concurrent_queue.hpp"
 #include "subsystems/ControlledSubsystemBase.hpp"
+#include "subsystems/Vision.hpp"
 
 namespace frc3512 {
 
@@ -48,6 +50,8 @@ class Drivetrain : public ControlledSubsystemBase<7, 2, 5> {
 public:
     static constexpr units::meter_t kLength = 0.9398_m;
     static constexpr units::meter_t kMiddleOfRobotToIntake = 0.656_m;
+
+    static_concurrent_queue<Vision::GlobalMeasurement, 8> visionQueue;
 
     Drivetrain();
 
@@ -221,6 +225,12 @@ public:
      */
     units::ampere_t GetCurrentDraw() const;
 
+    /**
+     * Returns how many times the vision measurement was too far from the
+     * drivetrain pose estimate.
+     */
+    int GetPoseMeasurementFaultCounter();
+
     void DisabledInit() override;
 
     void AutonomousInit() override;
@@ -308,6 +318,10 @@ private:
             DrivetrainController::kAngularA * 2.0);
     ImplicitModelFollower<2, 2> m_imf{
         kPlant, m_imfRef, {0.01, 0.01}, {8.0, 8.0}, 20_ms};
+
+    int m_poseMeasurementFaultCounter = 0;
+    nt::NetworkTableEntry m_poseMeasurementFaultEntry =
+        NetworkTableUtil::MakeDoubleEntry("/Diagnostics/Vision/Vision faults");
 
     // Simulation variables
     frc::sim::DifferentialDrivetrainSim m_drivetrainSim{

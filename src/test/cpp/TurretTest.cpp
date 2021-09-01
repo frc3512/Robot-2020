@@ -17,10 +17,10 @@
 
 class TurretTest : public frc3512::SimulatorTest {
 public:
-    frc3512::Vision vision;
     frc3512::Drivetrain drivetrain;
     frc3512::Flywheel flywheel{drivetrain};
-    frc3512::Turret turret{vision, drivetrain, flywheel};
+    frc3512::Turret turret{drivetrain, flywheel};
+    frc3512::Vision vision{turret};
 };
 
 TEST_F(TurretTest, ConfigSpaceLimits) {

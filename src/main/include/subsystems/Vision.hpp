@@ -21,6 +21,8 @@
 
 namespace frc3512 {
 
+class Turret;
+
 /**
  * Vision subsystem.
  */
@@ -30,12 +32,11 @@ public:
     static const frc::Transform2d kCameraInGlobalToTurretInGlobal;
 
     struct GlobalMeasurement {
-        frc::Pose2d turretInGlobal;
+        frc::Pose2d drivetrainInGlobal;
         units::second_t timestamp;
     };
 
-    frc::Transform2d Compose(const frc::Transform2d& first,
-                             const frc::Transform2d& second);
+    explicit Vision(Turret& turret);
 
     /**
      * Turns on power to the LED ring light.
@@ -53,20 +54,20 @@ public:
     bool IsLEDOn() const;
 
     /**
-     * Allows subsystems to subscribe to vision data
+     * Subscribe a subsystem to vision data.
      *
-     * @param queue Queue to use to subscribe to vision data
+     * @param queue Queue to subscribe.
      */
     void SubscribeToVisionData(
         frc3512::static_concurrent_queue<GlobalMeasurement, 8>& queue);
 
     /**
-     * Converts solvePnP data from the networktables into a global turret pose
-     * measurement
+     * Unsubscribe a subsystem from vision data.
      *
-     * @param result from camera
+     * @param queue Queue to unsubscribe.
      */
-    void ProcessNewMeasurement(photonlib::PhotonPipelineResult result);
+    void UnsubscribeFromVisionData(
+        frc3512::static_concurrent_queue<GlobalMeasurement, 8>& queue);
 
     /**
      * Updates vision sim data with new pose and camera transformation
@@ -92,8 +93,8 @@ private:
     std::vector<frc3512::static_concurrent_queue<GlobalMeasurement, 8>*>
         m_subsystemQueues;
 
-    nt::NetworkTableEntry m_hasTargetEntry =
-        NetworkTableUtil::MakeBoolEntry("/Diagnostics/Vision/Has target");
+    Turret& m_turret;
+
     nt::NetworkTableEntry m_poseEntry = NetworkTableUtil::MakeDoubleArrayEntry(
         "/Diagnostics/Vision/Turret pose");
     nt::NetworkTableEntry m_yawEntry =

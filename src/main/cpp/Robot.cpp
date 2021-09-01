@@ -98,7 +98,7 @@ Robot::Robot() : frc::TimesliceRobot{2_ms, Constants::kControllerPeriod} {
             "Galactic Search", [=] { AutoGalacticSearch(); }, 30_s);
     }
 
-    vision.SubscribeToVisionData(m_visionMeasurements);
+    vision.SubscribeToVisionData(drivetrain.visionQueue);
 
     // TIMESLICE ALLOCATION TABLE
     //
@@ -132,6 +132,8 @@ Robot::Robot() : frc::TimesliceRobot{2_ms, Constants::kControllerPeriod} {
         },
         0.8_ms);
 }
+
+Robot::~Robot() { vision.UnsubscribeFromVisionData(drivetrain.visionQueue); }
 
 void Robot::Shoot(int ballsToShoot) {
     if (m_state == ShootingState::kIdle) {
@@ -204,6 +206,8 @@ void Robot::RobotPeriodic() {
 
     static frc::Joystick appendageStick2{HWConfig::kAppendageStick2Port};
 
+    auto& ds = frc::DriverStation::GetInstance();
+
     if (IsOperatorControlEnabled() || IsTest()) {
         if (appendageStick2.GetRawButtonPressed(1)) {
             Shoot();
@@ -230,12 +234,22 @@ void Robot::RobotPeriodic() {
         RunShooterSM();
     }
 
+    units::radian_t turretHeadingInGlobal{
+        turret.GetStates()(TurretController::State::kAngle) +
+        drivetrain.GetStates()(DrivetrainController::State::kHeading)};
+    if (!ds.IsDisabled() &&
+        ((turretHeadingInGlobal < 45_deg && turretHeadingInGlobal > -45_deg) ||
+         m_LEDEntry.GetBoolean(false))) {
+        vision.TurnLEDOn();
+    } else {
+        vision.TurnLEDOff();
+    }
+
     auto batteryVoltage = frc::RobotController::GetInputVoltage();
     m_batteryLogger.Log(
         units::second_t{std::chrono::steady_clock::now().time_since_epoch()},
         batteryVoltage);
 
-    auto& ds = frc::DriverStation::GetInstance();
     if (ds.IsDisabled() || !ds.IsFMSAttached()) {
         m_batteryVoltageEntry.SetDouble(batteryVoltage);
         m_ballsToShootEntry.SetDouble(m_ballsToShoot);
@@ -248,6 +262,9 @@ void Robot::SimulationPeriodic() {
     if (intakeSim.Update(intake.IsConveyorRunning(), 20_ms)) {
         flywheel.SetSimAngularVelocity(0.96 * flywheel.GetAngularVelocity());
     }
+
+    vision.UpdateVisionMeasurementsSim(
+        drivetrain.GetPose(), turret.GetTurretInGlobalToDrivetrainInGlobal());
 
     frc::sim::RoboRioSim::SetVInVoltage(frc::sim::BatterySim::Calculate(
         {drivetrain.GetCurrentDraw(), flywheel.GetCurrentDraw()}));

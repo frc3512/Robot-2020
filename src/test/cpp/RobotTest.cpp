@@ -138,20 +138,16 @@ TEST_F(RobotTest, CalculateDrivetrainInGlobal) {
 
         frc::sim::StepTiming(40_ms);
 
-        auto drivetrainInGlobal =
-            robot.turret.GetDrivetrainInGlobalMeasurement();
+        // Ensure the vision measurements were actually incorporated into the
+        // pose estimate
+        EXPECT_EQ(robot.drivetrain.GetPoseMeasurementFaultCounter(), 0);
 
-        fmt::print("drivetrainInGlobal ({}, {}, {})\n",
-                   drivetrainInGlobal.X().to<double>(),
-                   drivetrainInGlobal.Y().to<double>(),
-                   drivetrainInGlobal.Rotation().Radians().to<double>());
-        fmt::print("initialPose ({}, {}, {})\n", x.to<double>(), y.to<double>(),
-                   theta.to<double>());
-
-        ASSERT_GT(robot.drivetrain.GetPose().X(), 0_m);
-        ASSERT_GT(robot.drivetrain.GetPose().Y(), 0_m);
-        EXPECT_NEAR_UNITS(drivetrainInGlobal.X(), x, 0.2_m);
-        EXPECT_NEAR_UNITS(drivetrainInGlobal.Y(), y, 0.2_m);
+        // Ensures the vision data is converted back to the same drivetrain pose
+        // from which it was generated
+        EXPECT_NEAR_UNITS(robot.drivetrain.GetPose().X(), x, 1e-5_m);
+        EXPECT_NEAR_UNITS(robot.drivetrain.GetPose().Y(), y, 1e-5_m);
+        EXPECT_NEAR_UNITS(robot.drivetrain.GetPose().Rotation().Radians(),
+                          theta, 1e-5_rad);
     };
 
     testMeasurement(12.89_m, 2.41_m, units::radian_t{wpi::numbers::pi});

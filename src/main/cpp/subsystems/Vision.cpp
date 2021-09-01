@@ -5,11 +5,15 @@
 #include <chrono>
 #include <vector>
 
+#include <frc/DriverStation.h>
 #include <frc/RobotBase.h>
 #include <frc/geometry/Pose2d.h>
 #include <frc/geometry/Transform2d.h>
 #include <frc2/Timer.h>
 #include <units/angle.h>
+
+#include "subsystems/Drivetrain.hpp"
+#include "subsystems/Turret.hpp"
 
 using namespace frc3512;
 using namespace Constants::Vision;
@@ -17,11 +21,13 @@ using namespace Constants::Vision;
 const frc::Transform2d Vision::kCameraInGlobalToTurretInGlobal{
     frc::Pose2d{}, frc::Pose2d{0_in, -3_in, 0_rad}};
 
-frc::Transform2d Vision::Compose(const frc::Transform2d& first,
-                                 const frc::Transform2d& second) {
+frc::Transform2d operator+(const frc::Transform2d& first,
+                           const frc::Transform2d& second) {
     return frc::Transform2d{
         frc::Pose2d{}, frc::Pose2d{}.TransformBy(first).TransformBy(second)};
 }
+
+Vision::Vision(Turret& turret) : m_turret(turret) {}
 
 void Vision::TurnLEDOn() { m_rpiCam.SetLEDMode(photonlib::LEDMode::kOn); }
 
@@ -37,37 +43,19 @@ void Vision::SubscribeToVisionData(
     m_subsystemQueues.push_back(&queue);
 }
 
-void Vision::ProcessNewMeasurement(photonlib::PhotonPipelineResult result) {
-    units::second_t latency = result.GetLatency();
-
-    photonlib::PhotonTrackedTarget target = result.GetBestTarget();
-
-    auto cameraInTarget = target.GetCameraRelativePose();
-    auto cameraInGlobal =
-        TargetModel::kTargetPoseInGlobal.TransformBy(cameraInTarget);
-    auto turretInGlobal =
-        cameraInGlobal.TransformBy(kCameraInGlobalToTurretInGlobal);
-
-    std::array<double, 3> pose{
-        turretInGlobal.X().to<double>(), turretInGlobal.Y().to<double>(),
-        turretInGlobal.Rotation().Radians().to<double>()};
-    m_poseEntry.SetDoubleArray(pose);
-    m_yawEntry.SetDouble(target.GetYaw());
-
-    auto timestamp = frc2::Timer::GetFPGATimestamp();
-    timestamp -= latency;
-
+void Vision::UnsubscribeFromVisionData(
+    frc3512::static_concurrent_queue<GlobalMeasurement, 8>& queue) {
     std::scoped_lock lock{m_subsystemQueuesMutex};
-    for (auto& queue : m_subsystemQueues) {
-        queue->push({turretInGlobal, timestamp});
-    }
+    m_subsystemQueues.erase(
+        std::remove(m_subsystemQueues.begin(), m_subsystemQueues.end(), &queue),
+        m_subsystemQueues.end());
 }
 
 void Vision::UpdateVisionMeasurementsSim(
     const frc::Pose2d& drivetrainPose,
     const frc::Transform2d& turretInGlobalToDrivetrainInGlobal) {
-    m_simVision.MoveCamera(Compose(turretInGlobalToDrivetrainInGlobal.Inverse(),
-                                   kCameraInGlobalToTurretInGlobal.Inverse()),
+    m_simVision.MoveCamera(turretInGlobalToDrivetrainInGlobal.Inverse() +
+                               kCameraInGlobalToTurretInGlobal.Inverse(),
                            Constants::Vision::kCameraHeight,
                            Constants::Vision::kCameraPitch);
     m_simVision.ProcessFrame(drivetrainPose);
@@ -89,11 +77,33 @@ void Vision::SimulationInit() {
 void Vision::RobotPeriodic() {
     const auto& result = m_rpiCam.GetLatestResult();
 
-    if (result.HasTargets() &&
-        !frc::DriverStation::GetInstance().IsDisabled()) {
-        m_hasTargetEntry.SetBoolean(true);
-        ProcessNewMeasurement(result);
-    } else {
-        m_hasTargetEntry.SetBoolean(false);
+    if (result.GetTargets().size() == 0 ||
+        frc::DriverStation::GetInstance().IsDisabled()) {
+        return;
+    }
+
+    auto timestamp = frc2::Timer::GetFPGATimestamp() - result.GetLatency();
+
+    photonlib::PhotonTrackedTarget target = result.GetBestTarget();
+
+    // Converts solvePnP() data from the NetworkTables to a global drivetrain
+    // pose measurement
+    auto cameraInTarget = target.GetCameraRelativePose();
+    auto cameraInGlobal =
+        TargetModel::kTargetPoseInGlobal.TransformBy(cameraInTarget);
+    auto drivetrainInGlobal =
+        cameraInGlobal.TransformBy(kCameraInGlobalToTurretInGlobal)
+            .TransformBy(m_turret.GetTurretInGlobalToDrivetrainInGlobal());
+
+    std::array<double, 3> pose{
+        drivetrainInGlobal.X().to<double>(),
+        drivetrainInGlobal.Y().to<double>(),
+        drivetrainInGlobal.Rotation().Radians().to<double>()};
+    m_poseEntry.SetDoubleArray(pose);
+    m_yawEntry.SetDouble(target.GetYaw());
+
+    std::scoped_lock lock{m_subsystemQueuesMutex};
+    for (auto& queue : m_subsystemQueues) {
+        queue->push({drivetrainInGlobal, timestamp});
     }
 }

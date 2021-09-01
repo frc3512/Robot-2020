@@ -144,16 +144,14 @@ function, then sets the motor outputs.
 The turret uses the drivetrain position relative to the target and the flywheel
 speed to determine where to aim. Therefore:
 
-1. The drivetrain pose is updated using encoder measurements and IMU
-   measurements.
-2. The flywheel speed is updated based on a lookup table (LUT) of
+1. The Vision subsystem retrieves new camera-to-target transformations from
+   PhotonVision, converts them to drivetrain global pose measurements, then
+   pushes them into a queue for the Drivetrain subsystem to consume.
+2. The drivetrain pose is updated using encoder measurements, IMU measurements,
+   and any existing vision data in the queue.
+3. The flywheel speed is updated based on a lookup table (LUT) of
    range-to-target to flywheel speed mappings.
-3. The Vision subsystem retrieves new camera-to-target transformations from
-   PhotonVision, converts them to turret global pose measurements, then pushes
-   them into a queue for the Turret subsystem to consume.
-4. The Turret subsystem updates the drivetrain pose using any vision data in the
-   queue.
-5. The turret is aimed using the drivetrain's pose estimate. A correction factor
+4. The turret is aimed using the drivetrain's pose estimate. A correction factor
    incorporating the flywheel's speed is applied if the drivetrain is moving
    relative to the target (see [this derivation](turret-aim-while-moving.md)).
 

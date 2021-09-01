@@ -175,6 +175,24 @@ void Drivetrain::ControllerPeriodic() {
                                    frc2::Timer::GetFPGATimestamp());
     m_observer.Correct(m_controller.GetInputs(), y);
 
+    auto visionData = visionQueue.pop();
+    while (visionData.has_value()) {
+        auto drivetrainInGlobal = visionData.value().drivetrainInGlobal;
+
+        // If pose measurement is too far away from the state estimate, discard
+        // it and increment the fault counter
+        if (GetPose().Translation().Distance(drivetrainInGlobal.Translation()) <
+            1_m) {
+            CorrectWithGlobalOutputs(drivetrainInGlobal.X(),
+                                     drivetrainInGlobal.Y(),
+                                     visionData.value().timestamp);
+        } else {
+            m_poseMeasurementFaultCounter++;
+        }
+
+        visionData = visionQueue.pop();
+    }
+
     if (m_controller.HaveTrajectory()) {
         m_u = m_controller.Calculate(m_observer.Xhat());
 
@@ -242,6 +260,7 @@ void Drivetrain::RobotPeriodic() {
         units::volt_t{m_leftUltrasonic.GetVoltage()} * 1_m / 1_V);
     m_rightUltrasonicDistance = m_rightDistanceFilter.Calculate(
         units::volt_t{m_rightUltrasonic.GetVoltage()} * 1_m / 1_V);
+    m_poseMeasurementFaultEntry.SetDouble(m_poseMeasurementFaultCounter);
 
     auto& ds = frc::DriverStation::GetInstance();
     if (ds.IsDisabled() || !ds.IsFMSAttached()) {
@@ -304,6 +323,10 @@ const Eigen::Matrix<double, 2, 1>& Drivetrain::GetInputs() const {
 
 units::ampere_t Drivetrain::GetCurrentDraw() const {
     return m_drivetrainSim.GetCurrentDraw();
+}
+
+int Drivetrain::GetPoseMeasurementFaultCounter() {
+    return m_poseMeasurementFaultCounter;
 }
 
 void Drivetrain::DisabledInit() {

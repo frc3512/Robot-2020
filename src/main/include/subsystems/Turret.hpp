@@ -9,6 +9,7 @@
 #include <frc/DutyCycleEncoder.h>
 #include <frc/estimator/KalmanFilter.h>
 #include <frc/geometry/Pose2d.h>
+#include <frc/geometry/Transform2d.h>
 #include <frc/simulation/AnalogInputSim.h>
 #include <frc/simulation/DutyCycleEncoderSim.h>
 #include <frc/simulation/LinearSystemSim.h>
@@ -19,12 +20,9 @@
 #include "ADCInput.hpp"
 #include "Constants.hpp"
 #include "HWConfig.hpp"
-#include "NetworkTableUtil.hpp"
 #include "controllers/TurretController.hpp"
 #include "rev/CANSparkMax.hpp"
-#include "static_concurrent_queue.hpp"
 #include "subsystems/ControlledSubsystemBase.hpp"
-#include "subsystems/Vision.hpp"
 
 namespace frc3512 {
 
@@ -44,7 +42,7 @@ public:
     static constexpr units::radian_t kCWLimitForClimbing{0.375 *
                                                          wpi::numbers::pi};
 
-    explicit Turret(Vision& vision, Drivetrain& drivetrain, Flywheel& flywheel);
+    explicit Turret(Drivetrain& drivetrain, Flywheel& flywheel);
 
     Turret(const Turret&) = delete;
     Turret& operator=(const Turret&) = delete;
@@ -115,9 +113,10 @@ public:
     units::volt_t GetMotorOutput() const;
 
     /**
-     * Returns the pose measurement of the drivetrain in the global frame.
+     * Returns transformation from turret in global frame to drivetrain in
+     * global frame.
      */
-    const frc::Pose2d& GetDrivetrainInGlobalMeasurement() const;
+    frc::Transform2d GetTurretInGlobalToDrivetrainInGlobal();
 
     /**
      * Returns the turret state estimate.
@@ -142,8 +141,6 @@ public:
     void TeleopPeriodic() override;
 
     void TestPeriodic() override;
-
-    void RobotPeriodic() override;
 
     void ControllerPeriodic() override;
 
@@ -171,20 +168,10 @@ private:
     ADCInput m_ccwLimitSwitch{HWConfig::Turret::kCCWHallPort};
     ADCInput m_cwLimitSwitch{HWConfig::Turret::kCWHallPort};
 
-    Vision& m_vision;
     Drivetrain& m_drivetrain;
     Flywheel& m_flywheel;
 
-    static_concurrent_queue<Vision::GlobalMeasurement, 8> m_visionQueue;
-    int m_poseMeasurementFaultCounter = 0;
-
-    nt::NetworkTableEntry m_poseMeasurementFaultEntry =
-        NetworkTableUtil::MakeDoubleEntry("/Diagnostics/Vision/Vision faults");
-    nt::NetworkTableEntry m_LEDEntry =
-        NetworkTableUtil::MakeBoolEntry("/photonvision/ledMode");
-
     frc::Transform2d cameraInGlobalToDrivetrainInGlobal;
-    frc::Pose2d m_drivetrainInGlobal;
 
     // Simulation variables
     frc::sim::LinearSystemSim<2, 1, 1> m_turretSim{m_controller.GetPlant(),

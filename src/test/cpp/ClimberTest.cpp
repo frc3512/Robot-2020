@@ -13,17 +13,15 @@
 #include "subsystems/Drivetrain.hpp"
 #include "subsystems/Flywheel.hpp"
 #include "subsystems/Turret.hpp"
-#include "subsystems/Vision.hpp"
 
 #define EXPECT_NEAR_UNITS(val1, val2, eps) \
     EXPECT_LE(units::math::abs(val1 - val2), eps)
 
 class ClimberTest : public frc3512::SimulatorTest {
 public:
-    frc3512::Vision vision;
     frc3512::Drivetrain drivetrain;
     frc3512::Flywheel flywheel{drivetrain};
-    frc3512::Turret turret{vision, drivetrain, flywheel};
+    frc3512::Turret turret{drivetrain, flywheel};
     frc3512::Climber climber{turret};
 };
 

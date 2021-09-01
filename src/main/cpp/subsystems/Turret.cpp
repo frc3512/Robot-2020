@@ -2,7 +2,6 @@
 
 #include "subsystems/Turret.hpp"
 
-#include <frc/DriverStation.h>
 #include <frc/Joystick.h>
 #include <frc/RobotBase.h>
 #include <frc/RobotController.h>
@@ -14,13 +13,12 @@
 
 using namespace frc3512;
 
-Turret::Turret(Vision& vision, Drivetrain& drivetrain, Flywheel& flywheel)
+Turret::Turret(Drivetrain& drivetrain, Flywheel& flywheel)
     : ControlledSubsystemBase("Turret",
                               {ControllerLabel{"Angle", "rad"},
                                ControllerLabel{"Angular velocity", "rad/s"}},
                               {ControllerLabel{"Voltage", "V"}},
                               {ControllerLabel{"Angle", "rad"}}),
-      m_vision(vision),
       m_drivetrain(drivetrain),
       m_flywheel(flywheel) {
     SetCANSparkMaxBusUsage(m_motor, Usage::kMinimal);
@@ -31,8 +29,6 @@ Turret::Turret(Vision& vision, Drivetrain& drivetrain, Flywheel& flywheel)
 
     m_encoder.SetDistancePerRotation(TurretController::kDpR);
     Reset(0_rad);
-
-    m_vision.SubscribeToVisionData(m_visionQueue);
 }
 
 void Turret::SetControlMode(TurretController::ControlMode mode) {
@@ -105,13 +101,18 @@ void Turret::SetGoal(units::radian_t angleGoal,
 
 bool Turret::AtGoal() const { return m_controller.AtGoal(); }
 
-const frc::Pose2d& Turret::GetDrivetrainInGlobalMeasurement() const {
-    return m_drivetrainInGlobal;
-}
-
 units::volt_t Turret::GetMotorOutput() const {
     return m_motor.Get() *
            units::volt_t{frc::RobotController::GetInputVoltage()};
+}
+
+frc::Transform2d Turret::GetTurretInGlobalToDrivetrainInGlobal() {
+    return frc::Transform2d{
+        frc::Pose2d{
+            TurretController::kDrivetrainToTurretFrame.Translation(),
+            TurretController::kDrivetrainToTurretFrame.Rotation().Radians() +
+                GetAngle()},
+        frc::Pose2d{}};
 }
 
 const Eigen::Matrix<double, 2, 1>& Turret::GetStates() const {
@@ -154,25 +155,6 @@ void Turret::TestPeriodic() {
     }
 }
 
-void Turret::RobotPeriodic() {
-    m_poseMeasurementFaultEntry.SetDouble(m_poseMeasurementFaultCounter);
-
-    if (!frc::DriverStation::GetInstance().IsDisabled()) {
-        auto turretHeadingInGlobal = units::radian_t{
-            GetStates()(TurretController::State::kAngle) +
-            m_drivetrain.GetStates()(DrivetrainController::State::kHeading)};
-        if ((turretHeadingInGlobal < 45_deg &&
-             turretHeadingInGlobal > -45_deg) ||
-            m_LEDEntry.GetBoolean(0)) {
-            m_vision.TurnLEDOn();
-        } else {
-            m_vision.TurnLEDOff();
-        }
-    } else {
-        m_vision.TurnLEDOff();
-    }
-}
-
 void Turret::ControllerPeriodic() {
     UpdateDt();
 
@@ -187,32 +169,6 @@ void Turret::ControllerPeriodic() {
     m_observer.Correct(m_controller.GetInputs(), y);
 
     m_u = m_controller.Calculate(m_observer.Xhat());
-
-    frc::Transform2d turretInGlobalToDrivetrainInGlobal{
-        frc::Pose2d{
-            TurretController::kDrivetrainToTurretFrame.Translation(),
-            TurretController::kDrivetrainToTurretFrame.Rotation().Radians() +
-                GetAngle()},
-        frc::Pose2d{}};
-
-    auto visionData = m_visionQueue.pop();
-    if (visionData.has_value()) {
-        auto turretInGlobal = visionData.value().turretInGlobal;
-
-        m_drivetrainInGlobal =
-            turretInGlobal.TransformBy(turretInGlobalToDrivetrainInGlobal);
-
-        // If pose measurement is too far away from the state estimate, discard
-        // it and increment the fault counter
-        if (m_drivetrain.GetPose().Translation().Distance(
-                m_drivetrainInGlobal.Translation()) < 1_m) {
-            m_drivetrain.CorrectWithGlobalOutputs(m_drivetrainInGlobal.X(),
-                                                  m_drivetrainInGlobal.Y(),
-                                                  visionData.value().timestamp);
-        } else {
-            m_poseMeasurementFaultCounter++;
-        }
-    }
 
     // Set motor input
     if (m_controller.GetControlMode() !=
@@ -243,9 +199,6 @@ void Turret::ControllerPeriodic() {
         } else {
             m_cwLimitSwitchSim.SetVoltage(5.0);
         }
-
-        m_vision.UpdateVisionMeasurementsSim(
-            m_drivetrain.GetPose(), turretInGlobalToDrivetrainInGlobal);
     }
 }
 

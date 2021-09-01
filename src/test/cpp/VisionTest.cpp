@@ -1,8 +1,6 @@
 // Copyright (c) 2019-2021 FRC Team 3512. All Rights Reserved.
 
 #include <frc/simulation/DriverStationSim.h>
-#include <frc/simulation/SimHooks.h>
-#include <frc2/Timer.h>
 #include <gtest/gtest.h>
 #include <networktables/NetworkTableEntry.h>
 #include <networktables/NetworkTableInstance.h>
@@ -19,7 +17,10 @@
 
 class VisionTest : public frc3512::SimulatorTest {
 public:
-    frc3512::Vision vision;
+    frc3512::Drivetrain drivetrain;
+    frc3512::Flywheel flywheel{drivetrain};
+    frc3512::Turret turret{drivetrain, flywheel};
+    frc3512::Vision vision{turret};
 };
 
 TEST_F(VisionTest, TestData) {
@@ -86,4 +87,6 @@ TEST_F(VisionTest, QueueData) {
     std::this_thread::sleep_for(std::chrono::milliseconds(50));
 
     ASSERT_TRUE(queue.pop().has_value());
+
+    vision.UnsubscribeFromVisionData(queue);
 }
