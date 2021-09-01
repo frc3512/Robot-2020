@@ -261,4 +261,6 @@ This years robot's unique features include:
 
 Mentors: Tyler Veness
 
-Students: William Jin (Lead), Kyle Quinlan, Matthew Santana, Ivy Quach, Adan Silva
+Students (2020): William Jin (Lead), Kyle Quinlan, Matthew Santana, Ivy Quach, Adan Silva
+
+Students (2021): Kyle Quinlan (Lead), Matthew Santana, Ivy Quach, Adan Silva, Daniela Elenes
