@@ -4,10 +4,12 @@
 
 #include <cmath>
 
+#include <frc/DriverStation.h>
 #include <frc/Joystick.h>
 #include <frc/RobotBase.h>
 #include <frc/RobotController.h>
 #include <frc/StateSpaceUtil.h>
+#include <frc/smartdashboard/SmartDashboard.h>
 #include <wpi/MathExtras.h>
 #include <wpi/numbers>
 
@@ -23,6 +25,11 @@ Climber::Climber(Turret& turret) : m_turret{turret} {
     m_elevator.SetSmartCurrentLimit(40);
     SetCANSparkMaxBusUsage(m_traverser, Usage::kMinimal);
     m_traverser.SetSmartCurrentLimit(40);
+
+    m_matcher.AddColorMatch(kRedTarget);
+    m_matcher.AddColorMatch(kBlueTarget);
+    m_matcher.AddColorMatch(kGreenTarget);
+    m_matcher.AddColorMatch(kYellowTarget);
 }
 
 units::meter_t Climber::GetElevatorPosition() {
@@ -51,6 +58,30 @@ units::volt_t Climber::GetElevatorMotorOutput() const {
 
 void Climber::RobotPeriodic() {
     m_elevatorEncoderEntry.SetDouble(GetElevatorPosition().to<double>());
+    m_changedColorNumEntry.SetDouble(m_changedColorCount);
+
+    m_currentColor =
+        m_matcher.MatchClosestColor(m_colorSensor.GetColor(), m_confidence);
+
+    if (m_currentColor == kRedTarget) {
+        m_colorSensorOutputEntry.SetString("Red");
+    } else if (m_currentColor == kBlueTarget) {
+        m_colorSensorOutputEntry.SetString("Blue");
+    } else if (m_currentColor == kYellowTarget) {
+        m_colorSensorOutputEntry.SetString("Yellow");
+    } else if (m_currentColor == kGreenTarget) {
+        m_colorSensorOutputEntry.SetString("Green");
+    } else {
+        m_colorSensorOutputEntry.SetString("No Color");
+    }
+
+    if (m_state == ControlPanelState::kInit) {
+        m_colorStateMachineEntry.SetString("Init");
+    } else if (m_state == ControlPanelState::kRotateWheel) {
+        m_colorStateMachineEntry.SetString("Rotate Wheel");
+    } else if (m_state == ControlPanelState::kStopOnColor) {
+        m_colorStateMachineEntry.SetString("Stop on Color");
+    }
 
     if constexpr (frc::RobotBase::IsSimulation()) {
         m_elevatorSim.SetInput(frc::MakeMatrix<1, 1>(
@@ -65,7 +96,9 @@ void Climber::TeleopPeriodic() {
     static frc::Joystick appendageStick2{HWConfig::kAppendageStick2Port};
 
     // Climber traverser
-    SetTraverser(appendageStick2.GetX());
+    if (m_state == ControlPanelState::kInit) {
+        SetTraverser(appendageStick2.GetX());
+    }
 
     if (appendageStick1.GetRawButton(1) &&
         std::abs(appendageStick1.GetY()) > 0.02) {
@@ -86,6 +119,23 @@ void Climber::TeleopPeriodic() {
     } else {
         SetElevator(0.0);
     }
+
+    // Control panel
+    if (appendageStick1.GetRawButtonPressed(6)) {
+        m_colorSensorArm.Set(0.5);
+    } else if (appendageStick1.GetRawButtonPressed(7)) {
+        m_colorSensorArm.Set(0.0);
+    }
+
+    if (appendageStick1.GetRawButtonPressed(8)) {
+        m_state = ControlPanelState::kRotateWheel;
+        m_prevColor = m_currentColor;
+        m_startColor = m_currentColor;
+    } else if (appendageStick1.GetRawButtonPressed(9)) {
+        m_state = ControlPanelState::kStopOnColor;
+    }
+
+    RunControlPanelSM();
 }
 
 void Climber::TestPeriodic() {
@@ -140,5 +190,59 @@ void Climber::SetElevator(double speed) {
     } else {
         m_pancake.Set(false);
         m_elevator.Set(0.0);
+    }
+}
+
+void Climber::RunControlPanelSM() {
+    // If climbing, stop control panel mechanism if the process never completed
+    if (m_state != ControlPanelState::kInit && GetElevatorPosition() > 1.5_in) {
+        SetTraverser(0.0);
+        m_state = ControlPanelState::kInit;
+    }
+
+    if (m_state == ControlPanelState::kInit) {
+    } else if (m_state == ControlPanelState::kRotateWheel) {
+        SetTraverser(1.0);
+        // Check that the wheel has spun to the same color as the beginning
+        // color. If previous color is the same as the start color, control
+        // panel hasn't been moved yet.
+        if (m_currentColor == m_startColor && m_prevColor != m_startColor) {
+            m_changedColorCount++;
+        }
+
+        if (m_prevColor != m_currentColor) {
+            m_prevColor = m_currentColor;
+        }
+
+        // 3 to 5 rotations of the control panel are required in the match.
+        // Each color appears twice on the control panel, and the state machine
+        // rotates the wheel 3.5 times. 2 * 3.5 = 7, so when a color is detected
+        // 7 times, 3.5 rotations have occurred.
+        if (m_changedColorCount >= 7) {
+            SetTraverser(0.0);
+            m_changedColorCount = 0;
+            m_state = ControlPanelState::kInit;
+        }
+    } else if (m_state == ControlPanelState::kStopOnColor) {
+        SetTraverser(1.0);
+
+        // Read game-specific data from the Field Management System (FMS)
+        char desiredColor =
+            frc::DriverStation::GetInstance().GetGameSpecificMessage()[0];
+
+        // If there's no game-specific data, stop the state machine
+        if (desiredColor != 'Y' && desiredColor != 'R' && desiredColor != 'B' &&
+            desiredColor != 'G') {
+            m_state = ControlPanelState::kInit;
+        }
+
+        // If the color sensor is 90° away from the desired color, stop moving
+        if ((desiredColor == 'Y' && m_currentColor == kGreenTarget) ||
+            (desiredColor == 'R' && m_currentColor == kBlueTarget) ||
+            (desiredColor == 'B' && m_currentColor == kRedTarget) ||
+            (desiredColor == 'G' && m_currentColor == kYellowTarget)) {
+            SetTraverser(0.0);
+            m_state = ControlPanelState::kInit;
+        }
     }
 }

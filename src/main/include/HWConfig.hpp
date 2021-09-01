@@ -83,6 +83,7 @@ constexpr int kTraverserPort = 13;
 
 // Solenoid Port
 constexpr int kClimberLock = 3;
+constexpr int kColorSensorArmPort = 9;
 }  // namespace Climber
 
 }  // namespace frc3512::HWConfig
