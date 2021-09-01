@@ -7,6 +7,7 @@ Source code also for the 2020 practice robot: Ellinika
 - [FRC team 3512's 2020 robot](#frc-team-3512-s-2020-robot)
   * [Setup](#setup)
   * [C++ intellisense in Vim with clangd](#c---intellisense-in-vim-with-clangd)
+  * [Documentation](#documentation)
   * [Build options](#build-options)
     + [Build everything](#build-everything)
     + [Build (athena)](#build--athena-)
@@ -14,7 +15,7 @@ Source code also for the 2020 practice robot: Ellinika
     + [roboRIO imaging](#roborio-imaging)
     + [Test](#test)
     + [Simulation GUI](#simulation-gui)
-    + [Documentation](#documentation)
+    + [API documentation](#api-documentation)
     + [Debugger](#debugger)
     + [Address sanitizer](#address-sanitizer)
     + [Valgrind](#valgrind)
@@ -67,6 +68,12 @@ follows.
 
 The clangd indexer will start when a file is opened in Vim. See
 https://github.com/clangd/coc-clangd for troubleshooting steps if needed.
+
+## Documentation
+
+The source code and algorithms documentation is located in the [docs](docs)
+folder. The overall system architecture is documented
+[here](docs/system-architecture.md).
 
 ## Build options
 
@@ -121,11 +128,7 @@ This runs a release build of the robot code's unit tests from `src/test`.
 
 This runs a debug build of the robot code in the simulation GUI.
 
-### Documentation
-
-The source code and algorithms documentation is located in the [docs](docs)
-folder. The overall system architecture is documented
-[here](docs/system-architecture.md).
+### API documentation
 
 * `./gradlew doxygen`
 
