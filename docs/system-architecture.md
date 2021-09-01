@@ -2,6 +2,27 @@
 
 This document describes the robot's overall system architecture.
 
+- [System architecture](#system-architecture)
+  * [TimesliceRobot class](#timeslicerobot-class)
+  * [Subsystem overview](#subsystem-overview)
+    + [Vision](#vision)
+    + [Drivetrain](#drivetrain)
+    + [Flywheel](#flywheel)
+    + [Turret](#turret)
+    + [Intake](#intake)
+    + [Climber](#climber)
+  * [Subsystem controllers](#subsystem-controllers)
+    + [Information flow](#information-flow)
+    + [Flywheel controller implementation](#flywheel-controller-implementation)
+    + [Turret controller implementation](#turret-controller-implementation)
+    + [Drivetrain controller implementation](#drivetrain-controller-implementation)
+  * [Background on real-time scheduling](#background-on-real-time-scheduling)
+  * [Real-time configuration](#real-time-configuration)
+    + [Main robot thread](#main-robot-thread)
+    + [Logging](#logging)
+    + [Automomous](#automomous)
+    + [ADIS16470 IMU thread](#adis16470-imu-thread)
+
 ## TimesliceRobot class
 
 The main robot class inherits from
@@ -34,6 +55,9 @@ This robot has six subsystems: drivetrain, flywheel, turret, intake, and
 climber, which all inherit from
 [SubsystemBase](../src/main/include/subsystems/SubsystemBase.hpp) to provide
 "init" and "periodic" functions for each mode just like those in TimesliceRobot.
+
+Functions that access multiple subsystems at once like the shooting state
+machine or autonomous modes exist in the Robot class instead of a subsystem.
 
 ### Vision
 
@@ -82,11 +106,6 @@ The _Climber_ subsystem controls an elevator for hanging and balancing on a
 tilting bar (like an inverted teeter-totter). The elevator assembly has a wheel
 protruding from the front that's used for traversing the bar and spinning the
 control panel to a color determined by the Field Management System (FMS).
-
-### Robot
-
-Functions that access multiple subsystems at once like the shooting state
-machine or autonomous modes exist in the Robot class instead of a subsystem.
 
 ## Subsystem controllers
 
