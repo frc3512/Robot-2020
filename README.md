@@ -4,6 +4,33 @@ Source code for the 2020 comp robot: Arcadia
 
 Source code also for the 2020 practice robot: Ellinika
 
+- [FRC team 3512's 2020 robot](#frc-team-3512-s-2020-robot)
+  * [Setup](#setup)
+  * [C++ intellisense in Vim with clangd](#c---intellisense-in-vim-with-clangd)
+  * [Build options](#build-options)
+    + [Build everything](#build-everything)
+    + [Build (athena)](#build--athena-)
+    + [Deploy](#deploy)
+    + [roboRIO imaging](#roborio-imaging)
+    + [Test](#test)
+    + [Simulation GUI](#simulation-gui)
+    + [Documentation](#documentation)
+    + [Debugger](#debugger)
+    + [Address sanitizer](#address-sanitizer)
+    + [Valgrind](#valgrind)
+  * [Live logging](#live-logging)
+    + [OutlineViewer](#outlineviewer)
+    + [CSV](#csv)
+    + [Glass](#glass)
+  * [Simulation logging](#simulation-logging)
+    + [Simulation GUI](#simulation-gui-1)
+    + [CSV](#csv-1)
+  * [Autonomous mode selection](#autonomous-mode-selection)
+  * [Game](#game)
+  * [Unique features](#unique-features)
+  * [Goals of the year](#goals-of-the-year)
+  * [Roster](#roster)
+
 ## Setup
 
 Install the relevant FRC toolchain for your platform (see
