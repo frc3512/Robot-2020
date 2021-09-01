@@ -29,6 +29,7 @@ struct NoOp {
 #include "AutonomousChooser.hpp"
 #include "IntakeSim.hpp"
 #include "NetworkTableUtil.hpp"
+#include "static_concurrent_queue.hpp"
 #include "subsystems/Climber.hpp"
 #include "subsystems/Drivetrain.hpp"
 #include "subsystems/Flywheel.hpp"
