@@ -5,25 +5,23 @@
 #include <chrono>
 #include <vector>
 
+#include <frc/RobotBase.h>
 #include <frc/geometry/Pose2d.h>
 #include <frc/geometry/Transform2d.h>
 #include <frc2/Timer.h>
 #include <units/angle.h>
 
-#include "TargetModel.hpp"
-
 using namespace frc3512;
+using namespace Constants::Vision;
 
 const frc::Transform2d Vision::kCameraInGlobalToTurretInGlobal{
     frc::Pose2d{}, frc::Pose2d{0_in, -3_in, 0_rad}};
 
-Vision::Vision() {
-    m_listenerHandle =
-        m_pose.AddListener([=](const auto&) { ProcessNewMeasurement(); },
-                           NT_NOTIFY_NEW | NT_NOTIFY_UPDATE | NT_NOTIFY_LOCAL);
+frc::Transform2d Vision::Compose(const frc::Transform2d& first,
+                                 const frc::Transform2d& second) {
+    return frc::Transform2d{
+        frc::Pose2d{}, frc::Pose2d{}.TransformBy(first).TransformBy(second)};
 }
-
-Vision::~Vision() { m_pose.RemoveListener(m_listenerHandle); }
 
 void Vision::TurnLEDOn() { m_rpiCam.SetLEDMode(photonlib::LEDMode::kOn); }
 
@@ -33,40 +31,69 @@ bool Vision::IsLEDOn() const {
     return m_rpiCam.GetLEDMode() == photonlib::LEDMode::kOn;
 }
 
-std::optional<Vision::GlobalMeasurement> Vision::GetGlobalMeasurement() {
-    return m_measurements.pop();
+void Vision::SubscribeToVisionData(
+    frc3512::static_concurrent_queue<GlobalMeasurement, 8>& queue) {
+    std::scoped_lock lock{m_subsystemQueuesMutex};
+    m_subsystemQueues.push_back(&queue);
 }
 
-void Vision::ProcessNewMeasurement() {
-    units::microsecond_t latency(
-        static_cast<int64_t>(m_latency.GetDouble(-1) * 1000));
+void Vision::ProcessNewMeasurement(photonlib::PhotonPipelineResult result) {
+    units::second_t latency = result.GetLatency();
 
-    // PnP data is transformation from camera's coordinate frame to target's
-    // coordinate frame
-    std::vector<double> pose = m_pose.GetDoubleArray({0.0, 0.0, 0.0});
+    photonlib::PhotonTrackedTarget target = result.GetBestTarget();
 
-    // If we don't see the target, don't push data into the queue
-    if (pose == std::vector{0.0, 0.0, 0.0}) {
-        return;
-    }
-
-    frc::Pose2d targetInGlobal{TargetModel::kCenter.X(),
-                               TargetModel::kCenter.Y(), 0_rad};
-
-    // The transformation from PnP data to the origin is from the camera's point
-    // of view
-    frc::Transform2d targetInGlobalToCameraInGlobal{
-        frc::Pose2d{units::inch_t{pose[0]}, units::inch_t{pose[1]},
-                    frc::Rotation2d{units::degree_t{pose[2]}}},
-        frc::Pose2d{}};
+    auto cameraInTarget = target.GetCameraRelativePose();
     auto cameraInGlobal =
-        targetInGlobal.TransformBy(targetInGlobalToCameraInGlobal);
-
+        TargetModel::kTargetPoseInGlobal.TransformBy(cameraInTarget);
     auto turretInGlobal =
         cameraInGlobal.TransformBy(kCameraInGlobalToTurretInGlobal);
+
+    std::array<double, 3> pose{
+        turretInGlobal.X().to<double>(), turretInGlobal.Y().to<double>(),
+        turretInGlobal.Rotation().Radians().to<double>()};
+    m_poseEntry.SetDoubleArray(pose);
+    m_yawEntry.SetDouble(target.GetYaw());
 
     auto timestamp = frc2::Timer::GetFPGATimestamp();
     timestamp -= latency;
 
-    m_measurements.push({timestamp, turretInGlobal});
+    std::scoped_lock lock{m_subsystemQueuesMutex};
+    for (auto& queue : m_subsystemQueues) {
+        queue->push({turretInGlobal, timestamp});
+    }
+}
+
+void Vision::UpdateVisionMeasurementsSim(
+    const frc::Pose2d& drivetrainPose,
+    const frc::Transform2d& turretInGlobalToDrivetrainInGlobal) {
+    m_simVision.MoveCamera(Compose(turretInGlobalToDrivetrainInGlobal.Inverse(),
+                                   kCameraInGlobalToTurretInGlobal.Inverse()),
+                           Constants::Vision::kCameraHeight,
+                           Constants::Vision::kCameraPitch);
+    m_simVision.ProcessFrame(drivetrainPose);
+}
+
+void Vision::SimulationInit() {
+    m_simVision.MoveCamera(frc::Transform2d{}, kCameraHeight, kCameraPitch);
+
+    frc::Pose2d kTargetPose{
+        frc::Translation2d{TargetModel::kCenter.X(), TargetModel::kCenter.Y()},
+        0_rad};
+    photonlib::SimVisionTarget newTgt{
+        kTargetPose, TargetModel::kC.Z(),
+        TargetModel::kB.Y() - TargetModel::kG.Y(),
+        TargetModel::kCenter.Z() - TargetModel::kC.Z()};
+    m_simVision.AddSimVisionTarget(newTgt);
+}
+
+void Vision::RobotPeriodic() {
+    const auto& result = m_rpiCam.GetLatestResult();
+
+    if (result.HasTargets() &&
+        !frc::DriverStation::GetInstance().IsDisabled()) {
+        m_hasTargetEntry.SetBoolean(true);
+        ProcessNewMeasurement(result);
+    } else {
+        m_hasTargetEntry.SetBoolean(false);
+    }
 }

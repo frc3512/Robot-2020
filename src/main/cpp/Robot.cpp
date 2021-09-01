@@ -98,6 +98,8 @@ Robot::Robot() : frc::TimesliceRobot{2_ms, Constants::kControllerPeriod} {
             "Galactic Search", [=] { AutoGalacticSearch(); }, 30_s);
     }
 
+    vision.SubscribeToVisionData(m_visionMeasurements);
+
     // TIMESLICE ALLOCATION TABLE
     //
     // |  Subsystem | Duration (ms) | Allocation (ms) |
@@ -133,7 +135,6 @@ Robot::Robot() : frc::TimesliceRobot{2_ms, Constants::kControllerPeriod} {
 
 void Robot::Shoot(int ballsToShoot) {
     if (m_state == ShootingState::kIdle) {
-        vision.TurnLEDOn();
         flywheel.SetGoalFromPose();
         m_state = ShootingState::kStartFlywheel;
         m_ballsToShoot = ballsToShoot;
@@ -179,7 +180,6 @@ void Robot::DisabledInit() {
 
     // Reset teleop shooting state machine when disabling robot
     flywheel.SetGoal(0_rad_per_s);
-    vision.TurnLEDOff();
     m_timer.Stop();
     m_state = ShootingState::kIdle;
 }
@@ -319,7 +319,6 @@ void Robot::RunShooterSM() {
             if (m_timer.HasElapsed(m_shootTimeout) &&
                 !intake.IsUpperSensorBlocked()) {
                 flywheel.SetGoal(0_rad_per_s);
-                vision.TurnLEDOff();
                 m_timer.Stop();
                 m_state = ShootingState::kIdle;
             }
@@ -351,6 +350,7 @@ void Robot::ExpectAutonomousEndConds() {
         EXPECT_NEAR(drivetrain.GetStates()(4), 0.0, 0.01);
 
         EXPECT_EQ(flywheel.GetGoal(), 0_rad_per_s);
+        EXPECT_TRUE(turret.AtGoal());
     }
 }
 

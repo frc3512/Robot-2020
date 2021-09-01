@@ -192,8 +192,6 @@ private:
     static constexpr auto kMaxV = 12_V / kV;
     static constexpr auto kMaxA = 10_V / kA;
 
-    static const frc::Pose2d kTargetPoseInGlobal;
-
     frc::TrapezoidProfile<units::radian>::State m_goal;
     frc::TrapezoidProfile<units::radian>::Constraints m_constraints{kMaxV,
                                                                     kMaxA};

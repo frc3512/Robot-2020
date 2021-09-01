@@ -60,9 +60,10 @@ jobs:
           - os: ubuntu-latest
             name: linux
             build-options: "-Ponlylinuxx86-64"
-          - os: windows-latest
-            name: windows
-            build-options: "-Ponlywindowsx86-64"
+          # FIXME: There's no Windows binaries for photonvision
+          #- os: windows-latest
+          #  name: windows
+          #  build-options: "-Ponlywindowsx86-64"
           - os: macos-latest
             name: macos
             build-options: "-Ponlymacosx86-64"

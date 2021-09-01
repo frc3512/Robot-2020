@@ -13,9 +13,6 @@ using namespace frc3512;
 
 const frc::Pose2d TurretController::kDrivetrainToTurretFrame{
     2_in, 0_m, wpi::numbers::pi * 1_rad};
-const frc::Pose2d TurretController::kTargetPoseInGlobal{
-    TargetModel::kCenter.X(), TargetModel::kCenter.Y(),
-    units::radian_t{wpi::numbers::pi}};
 
 template <typename Vector1, typename Vector2>
 auto Dot(const Vector1& a, const Vector2& b) -> decltype(auto) {
@@ -98,7 +95,8 @@ Eigen::Matrix<double, 1, 1> TurretController::Calculate(
 
             // Find angle reference for this timestep
             auto turretHeadingForTargetInGlobal = CalculateHeading(
-                kTargetPoseInGlobal.Translation() + TargetModel::kOffset,
+                TargetModel::kTargetPoseInGlobal.Translation() +
+                    TargetModel::kOffset,
                 turretNextPoseInGlobal.Translation());
             auto turretDesiredHeadingInDrivetrain =
                 turretHeadingForTargetInGlobal -
@@ -123,7 +121,7 @@ Eigen::Matrix<double, 1, 1> TurretController::Calculate(
                 CalculateAngularVelocity(
                     drivetrainVelocityInGlobal,
                     turretNextPoseInGlobal.Translation() -
-                        (kTargetPoseInGlobal.Translation() +
+                        (TargetModel::kTargetPoseInGlobal.Translation() +
                          TargetModel::kOffset)) -
                 drivetrainW;
 

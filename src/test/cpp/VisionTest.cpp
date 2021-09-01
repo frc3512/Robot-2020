@@ -1,49 +1,89 @@
 // Copyright (c) 2019-2021 FRC Team 3512. All Rights Reserved.
 
+#include <frc/simulation/DriverStationSim.h>
+#include <frc/simulation/SimHooks.h>
+#include <frc2/Timer.h>
 #include <gtest/gtest.h>
 #include <networktables/NetworkTableEntry.h>
 #include <networktables/NetworkTableInstance.h>
 #include <units/math.h>
 
+#include "Constants.hpp"
 #include "NetworkTableUtil.hpp"
 #include "SimulatorTest.hpp"
 #include "TargetModel.hpp"
+#include "subsystems/Drivetrain.hpp"
+#include "subsystems/Flywheel.hpp"
+#include "subsystems/Turret.hpp"
 #include "subsystems/Vision.hpp"
 
-#define EXPECT_NEAR_UNITS(val1, val2, eps) \
-    EXPECT_LE(units::math::abs(val1 - val2), eps)
-
-class VisionTest : public frc3512::SimulatorTest {};
-
-TEST_F(VisionTest, CalculateDrivetrainInGlobal) {
+class VisionTest : public frc3512::SimulatorTest {
+public:
     frc3512::Vision vision;
+};
 
-    auto pose = frc3512::NetworkTableUtil::MakeDoubleArrayEntry(
-        "photonvision/RPI-Cam/targetPose", {0, 0, 0});
+TEST_F(VisionTest, TestData) {
+    using namespace frc3512::Constants::Vision;
+    photonlib::PhotonCamera rpiCam{kCameraName};
+    const frc::Pose2d drivetrainPose{12.89_m, 2.41_m,
+                                     units::radian_t{wpi::numbers::pi}};
 
-    auto testMeasurement = [&](units::inch_t x, units::inch_t y,
-                               units::degree_t theta, units::inch_t globalX,
-                               units::inch_t globalY) {
-        pose.SetDoubleArray({x.to<double>(), y.to<double>(),
-                             theta.to<double>()});  // in, in, deg
-        nt::NetworkTableInstance::GetDefault().Flush();
+    // Simulation variables
+    photonlib::SimVisionSystem simVision{kCameraName,
+                                         kCameraDiagonalFOV,
+                                         kCameraPitch,
+                                         frc::Transform2d{},
+                                         kCameraHeight,
+                                         20_m,
+                                         960,
+                                         720,
+                                         10};
 
-        // Delay to ensure value propagates to tables
-        std::this_thread::sleep_for(std::chrono::milliseconds(50));
+    frc::Pose2d kTargetPose{
+        frc::Translation2d{TargetModel::kCenter.X(), TargetModel::kCenter.Y()},
+        0_rad};
+    photonlib::SimVisionTarget newTgt{
+        kTargetPose, TargetModel::kC.Z(),
+        TargetModel::kB.Y() - TargetModel::kG.Y(),
+        TargetModel::kCenter.Z() - TargetModel::kC.Z()};
+    simVision.AddSimVisionTarget(newTgt);
 
-        auto globalMeasurement = vision.GetGlobalMeasurement();
-        ASSERT_TRUE(globalMeasurement.has_value());
-        EXPECT_NEAR_UNITS(globalMeasurement.value().pose.X(), globalX, 0.05_m);
-        EXPECT_NEAR_UNITS(globalMeasurement.value().pose.Y(), globalY, 0.05_m);
-    };
+    simVision.MoveCamera(frc::Transform2d{frc::Translation2d{},
+                                          units::radian_t{wpi::numbers::pi}},
+                         kCameraHeight, kCameraPitch);
+    simVision.ProcessFrame(drivetrainPose);
 
-    frc::Translation2d kTargetCenter{TargetModel::kCenter.X(),
-                                     TargetModel::kCenter.Y()};
-    testMeasurement(5_m, 0_m, 0_deg,
-                    kTargetCenter.X() - 5_m +
-                        frc3512::Vision::kCameraInGlobalToTurretInGlobal.X(),
-                    kTargetCenter.Y() - 0_m +
-                        frc3512::Vision::kCameraInGlobalToTurretInGlobal.Y());
-    testMeasurement(5_m, 0_m, 45_deg, 12.3935_m, 5.73816_m);
-    testMeasurement(5_m, -2_m, -45_deg, 11.0871_m, 0.0813087_m);
+    // Flush and delay to ensure value propagates to tables
+    nt::NetworkTableInstance::GetDefault().Flush();
+    std::this_thread::sleep_for(std::chrono::milliseconds(50));
+
+    photonlib::PhotonPipelineResult result = rpiCam.GetLatestResult();
+
+    ASSERT_TRUE(result.HasTargets());
+}
+
+TEST_F(VisionTest, QueueData) {
+    // The vision subsystem only processes data when the robot is enabled
+    frc::sim::DriverStationSim::SetEnabled(true);
+    frc::sim::DriverStationSim::NotifyNewData();
+
+    frc3512::SubsystemBase::RunAllSimulationInit();
+
+    const frc::Pose2d drivetrainPose{12.89_m, 2.41_m,
+                                     units::radian_t{wpi::numbers::pi}};
+    frc3512::static_concurrent_queue<frc3512::Vision::GlobalMeasurement, 8>
+        queue;
+
+    vision.SubscribeToVisionData(queue);
+    vision.UpdateVisionMeasurementsSim(
+        drivetrainPose, frc::Transform2d{frc::Translation2d{},
+                                         units::radian_t{wpi::numbers::pi}});
+
+    frc3512::SubsystemBase::RunAllRobotPeriodic();
+
+    // Flush and delay to ensure value propagates to tables
+    nt::NetworkTableInstance::GetDefault().Flush();
+    std::this_thread::sleep_for(std::chrono::milliseconds(50));
+
+    ASSERT_TRUE(queue.pop().has_value());
 }
