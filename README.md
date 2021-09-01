@@ -97,7 +97,8 @@ This runs a debug build of the robot code in the simulation GUI.
 ### Documentation
 
 The source code and algorithms documentation is located in the [docs](docs)
-folder.
+folder. The overall system architecture is documented
+[here](docs/system-architecture.md).
 
 * `./gradlew doxygen`
 
