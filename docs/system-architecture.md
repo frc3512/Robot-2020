@@ -173,11 +173,13 @@ See section 9.6 in [Controls Engineering in
 FRC](https://file.tavsys.net/control/controls-engineering-in-frc.pdf) for a
 derivation of the control law we used shown in theorem 9.6.3.
 
-## Background on real-time priorities
+## Background on real-time scheduling
 
 Our robot code runs with
 [real-time priority](https://frc3512.github.io/ci/intro-to-real-time-software/).
 We use the first in-first out (FIFO) scheduler.
+
+The following docs are paraphrased from `man 7 sched`.
 
 SCHED_FIFO can be used only with static priorities higher than 0 (1 to 99 with
 99 being highest), which means that when a SCHED_FIFO thread becomes runnable,
@@ -213,7 +215,7 @@ See `man 7 sched` for other scheduler types.
 ## Real-time configuration
 
 See [RealTimePriorities.hpp](../src/main/include/RealTimePriorities.hpp) for the
-full list of thread priorities.
+full list of thread and process priorities.
 
 ### Main robot thread
 

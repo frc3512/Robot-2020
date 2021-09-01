@@ -4,51 +4,8 @@
 
 namespace frc3512 {
 
-// Priorities range from 1 to 99 with higher numbers being higher priority. We
-// use the first-in first-out scheduler. From "man 7 sched" with terminal width
-// of 87:
-//
-// SCHED_FIFO can be used only with static priorities higher than 0, which means
-// that  when  a  SCHED_FIFO thread becomes runnable, it will always immediately
-// preempt any currently running SCHED_OTHER, SCHED_BATCH, or SCHED_IDLE thread.
-// SCHED_FIFO  is  a  simple  scheduling  algorithm  without  time slicing.  For
-// threads scheduled under the SCHED_FIFO policy, the following rules apply:
-//
-// 1) A running SCHED_FIFO thread that has been preempted by another  thread  of
-//    higher  priority  will  stay  at the head of the list for its priority and
-//    will resume execution as soon  as  all  threads  of  higher  priority  are
-//    blocked again.
-//
-// 2) When  a blocked SCHED_FIFO thread becomes runnable, it will be inserted at
-//    the end of the list for its priority.
-//
-// 3) If a call to sched_setscheduler(2),  sched_setparam(2),  sched_setattr(2),
-//    pthread_setschedparam(3),  or pthread_setschedprio(3) changes the priority
-//    of the running or runnable SCHED_FIFO thread identified by pid the  effect
-//    on  the  thread's  position  in  the  list depends on the direction of the
-//    change to threads priority:
-//
-//    •  If the thread's priority is raised, it is placed at the end of the list
-//       for  its  new  priority.   As a consequence, it may preempt a currently
-//       running thread with the same priority.
-//
-//    •  If the thread's priority is unchanged, its position in the run list  is
-//       unchanged.
-//
-//    •  If  the  thread's priority is lowered, it is placed at the front of the
-//       list for its new priority.
-//
-//    According to POSIX.1-2008, changes to a thread's priority (or policy)  us‐
-//    ing  any mechanism other than pthread_setschedprio(3) should result in the
-//    thread being placed at the end of the list for its priority.
-//
-// 4) A thread calling sched_yield(2) will be put at the end of the list.
-//
-// No other events will move a thread scheduled under the SCHED_FIFO  policy  in
-// the wait list of runnable threads with equal static priority.
-//
-// A  SCHED_FIFO thread runs until either it is blocked by an I/O request, it is
-// preempted by a higher priority thread, or it calls sched_yield(2).
+// See docs/system-architecture.md#Background_on_real-time_scheduling for an
+// introduction to real-time scheduling.
 
 // Give logging thread lower priority than main robot thread and autonomous
 // thread to let them preempt logging thread
