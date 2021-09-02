@@ -177,15 +177,15 @@ void Drivetrain::ControllerPeriodic() {
 
     auto visionData = visionQueue.pop();
     while (visionData.has_value()) {
-        auto drivetrainInGlobal = visionData.value().drivetrainInGlobal;
+        const auto& measurement = visionData.value();
 
         // If pose measurement is too far away from the state estimate, discard
         // it and increment the fault counter
-        if (GetPose().Translation().Distance(drivetrainInGlobal.Translation()) <
-            1_m) {
-            CorrectWithGlobalOutputs(drivetrainInGlobal.X(),
-                                     drivetrainInGlobal.Y(),
-                                     visionData.value().timestamp);
+        if (GetPose().Translation().Distance(
+                measurement.drivetrainInGlobal.Translation()) < 1_m) {
+            CorrectWithGlobalOutputs(measurement.drivetrainInGlobal.X(),
+                                     measurement.drivetrainInGlobal.Y(),
+                                     measurement.timestamp);
         } else {
             m_poseMeasurementFaultCounter++;
         }
