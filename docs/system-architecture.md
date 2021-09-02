@@ -12,7 +12,7 @@ This document describes the robot's overall system architecture.
     + [Intake](#intake)
     + [Climber](#climber)
   * [Subsystem controllers](#subsystem-controllers)
-    + [Information flow](#information-flow)
+    + [Targeting information flow](#targeting-information-flow)
     + [Flywheel controller implementation](#flywheel-controller-implementation)
     + [Turret controller implementation](#turret-controller-implementation)
     + [Drivetrain controller implementation](#drivetrain-controller-implementation)
@@ -67,13 +67,14 @@ We run [PhotonVision](https://docs.photonvision.org/en/latest/) on a
 camera's coordinate frame to the target's coordinate frame (see solvePnP() in
 the [OpenCV docs](https://docs.opencv.org/4.5.3/d9/d0c/group__calib3d.html)).
 
-The _Vision_ subsystem receives the transformations via NetworkTables, converts
-them to turret pose measurements in the global coordinate frame, then pushes
-them into a thread-safe queue for the Turret subsystem to consume.
+Every 20 ms, the Vision subsystem receives the camera-to-target transformations
+via NetworkTables, converts them to drivetrain pose measurements in the global
+coordinate frame, then pushes them into a queue for the Drivetrain subsystem to
+consume.
 
 ### Drivetrain
 
-The _Drivetrain_ subsystem hands teleop driving via joysticks and autonomous
+The Drivetrain subsystem handles teleop driving via joysticks and autonomous
 driving along a desired path specified by Hermite splines.
 
 It can take either clamped cubic Hermite splines (poses at the endpoints and
@@ -86,24 +87,23 @@ waypoints.
 
 ### Flywheel
 
-The _Flywheel_ subsystem has a flywheel which is spun up to a desired RPM to
+The Flywheel subsystem has a flywheel which is spun up to a desired RPM to
 launch foam balls at a target.
 
 ### Turret
 
-The _Turret_ subsystem aims the flywheel.
+The Turret subsystem aims the flywheel.
 
 ### Intake
 
-The _Intake_ subsystem contains the logic controlling the intake rollers,
-funnel, and conveyor belt tower. IR beam sensors on the top and bottom of the
-conveyor belt tower are used to automatically index balls after they pass the
-intake rollers. See [this I/O table](intake-io-table.md) for the logic we
-implemented.
+The Intake subsystem contains the logic controlling the intake rollers, funnel,
+and conveyor belt tower. IR beam sensors on the top and bottom of the conveyor
+belt tower are used to automatically index balls after they pass the intake
+rollers. See [this I/O table](intake-io-table.md) for the logic we implemented.
 
 ### Climber
 
-The _Climber_ subsystem controls an elevator for hanging and balancing on a
+The Climber subsystem controls an elevator for hanging and balancing on a
 tilting bar (like an inverted teeter-totter). The elevator assembly has a wheel
 protruding from the front that's used for traversing the bar and spinning the
 control panel to a color determined by the Field Management System (FMS).
@@ -139,21 +139,23 @@ based on the previous run's motor outputs, performs a state observer update
 based on the current run's measurements, calls the controller's Calculate()
 function, then sets the motor outputs.
 
-### Information flow
+### Targeting information flow
 
 The turret uses the drivetrain position relative to the target and the flywheel
 speed to determine where to aim. Therefore:
 
-1. The drivetrain pose is updated.
-2. The flywheel speed is updated based on a lookup table (LUT) of range
-   measurement to flywheel speed mappings.
-3. Any existing vision data in the thread-safe queue is used to update the
-   drivetrain pose. (FIXME: The vision data queue and queue processing should be
-   moved to Drivetrain.)
-4. The turret is aimed based on where the drivetrain currently is with a
-   correction factor applied based on the flywheel's speed if the drivetrain is
-   moving relative to the target (see
-   [this derivation](turret-aim-while-moving.md)).
+1. The drivetrain pose is updated using encoder measurements and IMU
+   measurements.
+2. The flywheel speed is updated based on a lookup table (LUT) of
+   range-to-target to flywheel speed mappings.
+3. The Vision subsystem retrieves new camera-to-target transformations from
+   PhotonVision, converts them to turret global pose measurements, then pushes
+   them into a queue for the Turret subsystem to consume.
+4. The Turret subsystem updates the drivetrain pose using any vision data in the
+   queue.
+5. The turret is aimed using the drivetrain's pose estimate. A correction factor
+   incorporating the flywheel's speed is applied if the drivetrain is moving
+   relative to the target (see [this derivation](turret-aim-while-moving.md)).
 
 ### Flywheel controller implementation
 
