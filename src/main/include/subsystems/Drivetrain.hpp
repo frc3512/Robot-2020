@@ -231,6 +231,11 @@ public:
      */
     int GetPoseMeasurementFaultCounter();
 
+    /**
+     * Returns sim pose.
+     */
+    frc::Pose2d GetSimPose() const;
+
     void DisabledInit() override;
 
     void AutonomousInit() override;

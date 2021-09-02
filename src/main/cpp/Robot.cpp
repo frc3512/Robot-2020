@@ -264,7 +264,8 @@ void Robot::SimulationPeriodic() {
     }
 
     vision.UpdateVisionMeasurementsSim(
-        drivetrain.GetPose(), turret.GetTurretInGlobalToDrivetrainInGlobal());
+        drivetrain.GetSimPose(),
+        turret.GetTurretInGlobalToDrivetrainInGlobal());
 
     frc::sim::RoboRioSim::SetVInVoltage(frc::sim::BatterySim::Calculate(
         {drivetrain.GetCurrentDraw(), flywheel.GetCurrentDraw()}));
@@ -362,9 +363,13 @@ void Robot::ExpectAutonomousEndConds() {
 
         EXPECT_TRUE(drivetrain.AtGoal());
 
-        // Verify left/right wheel velocities are zero
-        EXPECT_NEAR(drivetrain.GetStates()(3), 0.0, 0.01);
-        EXPECT_NEAR(drivetrain.GetStates()(4), 0.0, 0.01);
+        // Verify left/right wheel velocities are close to zero
+        EXPECT_NEAR(
+            drivetrain.GetStates()(DrivetrainController::State::kLeftVelocity),
+            0.0, 0.01);
+        EXPECT_NEAR(
+            drivetrain.GetStates()(DrivetrainController::State::kRightVelocity),
+            0.0, 0.01);
 
         EXPECT_EQ(flywheel.GetGoal(), 0_rad_per_s);
         EXPECT_TRUE(turret.AtGoal());

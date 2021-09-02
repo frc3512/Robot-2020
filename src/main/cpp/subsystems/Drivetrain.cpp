@@ -329,6 +329,8 @@ int Drivetrain::GetPoseMeasurementFaultCounter() {
     return m_poseMeasurementFaultCounter;
 }
 
+frc::Pose2d Drivetrain::GetSimPose() const { return m_drivetrainSim.GetPose(); }
+
 void Drivetrain::DisabledInit() {
     SetCoastMode();
     Disable();
