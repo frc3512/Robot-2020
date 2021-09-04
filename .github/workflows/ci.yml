@@ -85,7 +85,10 @@ jobs:
       - name: Run doxygen
         run: ./gradlew doxygen -Ptoolchain-optional-roboRio
 
+      - name: Copy Markdown docs
+        run: cp README.md docs/*.md build/docs
+
       - uses: actions/upload-artifact@v2
         with:
           name: documentation
-          path: docs
+          path: build/docs

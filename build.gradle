@@ -234,6 +234,7 @@ doxygen {
     generate_html true
     generate_latex false
     generate_treeview true
+    html_extra_stylesheet 'docs/theme.css'
     html_timestamp true
     quiet true
     project_name 'Robot-2020'
@@ -242,5 +243,5 @@ doxygen {
     warn_if_undocumented true
 
     source 'src/main/include'
-    outputDir 'docs/'
+    outputDir 'build/docs/'
 }
