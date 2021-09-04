@@ -147,9 +147,9 @@ Eigen::Matrix<double, 1, 1> TurretController::Calculate(
         m_u << m_lqr.K() * (m_r - x) + m_ff.Calculate(m_nextR);
 
         units::radian_t heading{x(State::kAngle)};
-        if (heading > kCCWLimit && m_u(0) > 0.0) {
+        if (heading > kCCWLimit && m_u(Input::kVoltage) > 0.0) {
             m_u << 0.0;
-        } else if (heading < kCWLimit && m_u(0) < 0.0) {
+        } else if (heading < kCWLimit && m_u(Input::kVoltage) < 0.0) {
             m_u << 0.0;
         }
 

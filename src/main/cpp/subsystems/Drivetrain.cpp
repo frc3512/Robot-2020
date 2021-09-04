@@ -163,6 +163,8 @@ void Drivetrain::CorrectWithGlobalOutputs(units::meter_t x, units::meter_t y,
 }
 
 void Drivetrain::ControllerPeriodic() {
+    using Input = DrivetrainController::Input;
+
     UpdateDt();
 
     m_observer.Predict(m_u, GetDt());
@@ -197,8 +199,8 @@ void Drivetrain::ControllerPeriodic() {
         m_u = m_controller.Calculate(m_observer.Xhat());
 
         if (!AtGoal()) {
-            m_leftGrbx.SetVoltage(units::volt_t{m_u(0)});
-            m_rightGrbx.SetVoltage(units::volt_t{m_u(1)});
+            m_leftGrbx.SetVoltage(units::volt_t{m_u(Input::kLeftVoltage)});
+            m_rightGrbx.SetVoltage(units::volt_t{m_u(Input::kRightVoltage)});
         } else {
             m_leftGrbx.SetVoltage(0_V);
             m_rightGrbx.SetVoltage(0_V);
@@ -364,6 +366,8 @@ void Drivetrain::TestInit() {
 }
 
 void Drivetrain::TeleopPeriodic() {
+    using Input = DrivetrainController::Input;
+
     static frc::Joystick driveStick1{HWConfig::kDriveStick1Port};
     static frc::Joystick driveStick2{HWConfig::kDriveStick2Port};
 
@@ -383,11 +387,13 @@ void Drivetrain::TeleopPeriodic() {
                                               GetRightVelocity().to<double>()),
                         frc::MakeMatrix<2, 1>(left * 12.0, right * 12.0));
 
-    m_leftGrbx.SetVoltage(units::volt_t{u(0)});
-    m_rightGrbx.SetVoltage(units::volt_t{u(1)});
+    m_leftGrbx.SetVoltage(units::volt_t{u(Input::kLeftVoltage)});
+    m_rightGrbx.SetVoltage(units::volt_t{u(Input::kRightVoltage)});
 }
 
 void Drivetrain::TestPeriodic() {
+    using Input = DrivetrainController::Input;
+
     static frc::Joystick driveStick1{HWConfig::kDriveStick1Port};
     static frc::Joystick driveStick2{HWConfig::kDriveStick2Port};
 
@@ -407,8 +413,8 @@ void Drivetrain::TestPeriodic() {
                                               GetRightVelocity().to<double>()),
                         frc::MakeMatrix<2, 1>(left * 12.0, right * 12.0));
 
-    m_leftGrbx.SetVoltage(units::volt_t{u(0)});
-    m_rightGrbx.SetVoltage(units::volt_t{u(1)});
+    m_leftGrbx.SetVoltage(units::volt_t{u(Input::kLeftVoltage)});
+    m_rightGrbx.SetVoltage(units::volt_t{u(Input::kRightVoltage)});
 }
 
 void Drivetrain::SetBrakeMode() {

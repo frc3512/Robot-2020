@@ -116,6 +116,8 @@ void Flywheel::RobotPeriodic() {
 }
 
 void Flywheel::ControllerPeriodic() {
+    using Input = FlywheelController::Input;
+
     UpdateDt();
 
     m_observer.Predict(m_u, GetDt());
@@ -139,7 +141,7 @@ void Flywheel::ControllerPeriodic() {
     y << GetAngularVelocity().to<double>();
     m_observer.Correct(m_controller.GetInputs(), y);
     m_u = m_controller.Calculate(m_observer.Xhat());
-    SetVoltage(units::volt_t{m_u(0)});
+    SetVoltage(units::volt_t{m_u(Input::kVoltage)});
 
     Log(m_controller.GetReferences(), m_observer.Xhat(), m_u, y);
 

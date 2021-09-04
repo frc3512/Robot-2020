@@ -5,6 +5,8 @@
 #include <frc/system/plant/LinearSystemId.h>
 #include <wpi/MathExtras.h>
 
+#include "controllers/FlywheelController.hpp"
+
 using namespace frc3512;
 
 FlywheelSim::FlywheelSim(const frc::LinearSystem<1, 1, 1>& plant,
@@ -37,12 +39,14 @@ units::radians_per_second_t FlywheelSim::GetAngularVelocity() const {
 }
 
 units::ampere_t FlywheelSim::GetCurrentDraw() const {
+    using Input = FlywheelController::Input;
+
     // I = V / R - omega / (Kv * R)
     // Reductions are greater than 1, so a reduction of 10:1 would mean the
     // motor is spinning 10x faster than the output.
     return m_gearbox.Current(GetAngularVelocity() * m_gearing,
-                             units::volt_t{m_u(0)}) *
-           wpi::sgn(m_u(0));
+                             units::volt_t{m_u(Input::kVoltage)}) *
+           wpi::sgn(m_u(Input::kVoltage));
 }
 
 void FlywheelSim::SetInputVoltage(units::volt_t voltage) {

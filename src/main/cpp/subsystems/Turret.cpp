@@ -156,6 +156,8 @@ void Turret::TestPeriodic() {
 }
 
 void Turret::ControllerPeriodic() {
+    using Input = TurretController::Input;
+
     UpdateDt();
 
     m_observer.Predict(m_u, GetDt());
@@ -173,7 +175,7 @@ void Turret::ControllerPeriodic() {
     // Set motor input
     if (m_controller.GetControlMode() !=
         TurretController::ControlMode::kManual) {
-        SetVoltage(units::volt_t{m_u(0)});
+        SetVoltage(units::volt_t{m_u(Input::kVoltage)});
     }
 
     Log(m_controller.GetReferences(), m_observer.Xhat(), m_u, y);
