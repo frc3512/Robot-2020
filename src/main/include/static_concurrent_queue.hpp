@@ -1,4 +1,4 @@
-// Copyright (c) 2020 FRC Team 3512. All Rights Reserved.
+// Copyright (c) 2020-2021 FRC Team 3512. All Rights Reserved.
 
 #pragma once
 
@@ -88,10 +88,16 @@ public:
 
     static_concurrent_queue() = default;
 
+    /**
+     * Move constructor.
+     */
     static_concurrent_queue(static_concurrent_queue&& rhs) {
         std::swap(m_queue, rhs.m_queue);
     }
 
+    /**
+     * Move assignment operator.
+     */
     static_concurrent_queue& operator=(static_concurrent_queue&& rhs) {
         std::swap(m_queue, rhs.m_queue);
         return *this;

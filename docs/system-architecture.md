@@ -157,9 +157,8 @@ speed to determine where to aim. Therefore:
 
 ### Flywheel controller implementation
 
-The flywheel uses a Kalman filter for state estimation and an LQR for feedback
-control. A plant inversion feedforward is used to maintain steady-state
-velocity.
+The flywheel uses a Kalman filter for state estimation, an LQR for feedback
+control, and a plant inversion feedforward to maintain steady-state velocity.
 
 ### Turret controller implementation
 

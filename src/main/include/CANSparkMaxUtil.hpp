@@ -1,4 +1,4 @@
-// Copyright (c) 2020 FRC Team 3512. All Rights Reserved.
+// Copyright (c) 2020-2021 FRC Team 3512. All Rights Reserved.
 
 #pragma once
 
@@ -15,9 +15,9 @@ enum class Usage { kAll, kPositionOnly, kVelocityOnly, kMinimal };
  * See https://www.revrobotics.com/sparkmax-users-manual/#section-3-3-2-1 for a
  * description of the status frames.
  *
- * @param motor       The motor to adjust the status frame periods on.
- * @param utilization The status frame feedack to enable. kAll is the default
- *                    when a CANSparkMax is constructed.
+ * @param motor The motor to adjust the status frame periods on.
+ * @param usage The status frame feedack to enable. kAll is the default
+ *              when a CANSparkMax is constructed.
  */
 void SetCANSparkMaxBusUsage(rev::CANSparkMax& motor, Usage usage);
 

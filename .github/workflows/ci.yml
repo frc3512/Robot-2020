@@ -46,9 +46,6 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - name: Grant execute permission for gradlew
-      run: chmod +x gradlew
-
     - name: Compile robot code for Athena
       run: ./gradlew buildAthena
   test:
@@ -72,8 +69,23 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - name: Grant execute permission for gradlew
-      run: chmod +x gradlew
-
     - name: Compile and run x86-64 unit tests
       run: ./gradlew test -Ptoolchain-optional-roboRio ${{ matrix.build-options }}
+
+  documentation:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Install libclang-9
+        run: sudo apt update && sudo apt install -y libclang-cpp9 libclang1-9
+
+      - name: Run doxygen
+        run: ./gradlew doxygen -Ptoolchain-optional-roboRio
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: documentation
+          path: docs

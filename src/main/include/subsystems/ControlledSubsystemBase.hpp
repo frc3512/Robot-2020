@@ -66,7 +66,14 @@ public:
         m_entryThread = std::thread{[=] { EntryThreadMain(); }};
     }
 
+    /**
+     * Move constructor.
+     */
     ControlledSubsystemBase(ControlledSubsystemBase&&) = default;
+
+    /**
+     * Move assignment operator.
+     */
     ControlledSubsystemBase& operator=(ControlledSubsystemBase&&) = default;
 
     ~ControlledSubsystemBase() override {

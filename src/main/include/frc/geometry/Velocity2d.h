@@ -205,7 +205,7 @@ class Velocity2d {
    */
   bool operator!=(const Velocity2d& other) const;
 
-  /*
+  /**
    * Divides the current velocity by a scalar.
    *
    * This is similar to the / operator, except that current object is mutated.

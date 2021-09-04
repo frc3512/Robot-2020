@@ -22,27 +22,48 @@
 
 namespace frc3512 {
 
+/**
+ * The turret controller.
+ *
+ * The turret uses an LQR for feedback control. When the drivetrain pose isn't
+ * being used for aiming (which provides an implicit motion profile), a
+ * trapezoidal motion profile is applied to references so a plant inversion
+ * feedforward can be effectively applied at all times.
+ *
+ * The heading and angular rate references take into account the drivetrain's
+ * current velocity so it won't overshoot as the drivetrain moves.
+ */
 class TurretController : public ControllerBase<2, 1, 1> {
 public:
+    /**
+     * Turret control mode.
+     */
     enum class ControlMode {
-        kManual,      // Open loop
-        kClosedLoop,  // Closed loop without auto-aiming
-        kAutoAim      // Closed loop with auto-aiming
+        /// Open loop
+        kManual,
+        /// Closed loop without auto-aiming
+        kClosedLoop,
+        /// Closed loop with auto-aiming
+        kAutoAim
     };
 
-    // See docs/turret-encoder-resolution.md for encoder gear ratio selection
+    /**
+     * Gear ratio from encoder shaft to turret sprocket.
+     *
+     * See docs/turret-encoder-resolution.md for encoder gear ratio selection.
+     */
     static constexpr double kGearRatio = 18.0 / 160.0;
+
+    /// Turret angle per encoder revolution
     static constexpr double kDpR = kGearRatio * 2.0 * wpi::numbers::pi;
 
-    // Transformation from drivetrain to turret
+    /// Transformation from drivetrain to turret
     static const frc::Pose2d kDrivetrainToTurretFrame;
 
-    // State tolerances
-    static constexpr auto kAngleTolerance = 0.05_rad;
-    static constexpr auto kAngularVelocityTolerance = 2.0_rad_per_s;
-
-    // Turret configuration space limits
+    /// Couunterclockwise configuration space limit
     static constexpr units::radian_t kCCWLimit{2.0 / 3.0 * wpi::numbers::pi};
+
+    /// Clockwise configuration space limit
     static constexpr units::radian_t kCWLimit{-2.0 / 3.0 * wpi::numbers::pi};
 
     /**
@@ -50,7 +71,10 @@ public:
      */
     class State {
     public:
+        /// Turret heading in turret coordinate frame.
         static constexpr int kAngle = 0;
+
+        /// Angular velocity.
         static constexpr int kAngularVelocity = 1;
     };
 
@@ -59,6 +83,7 @@ public:
      */
     class Input {
     public:
+        /// Motor voltage.
         static constexpr int kVoltage = 0;
     };
 
@@ -67,12 +92,20 @@ public:
      */
     class Output {
     public:
+        /// Turret heading in turret coordinate frame.
         static constexpr int kAngle = 0;
     };
 
     TurretController();
 
+    /**
+     * Move constructor.
+     */
     TurretController(TurretController&&) = default;
+
+    /**
+     * Move assignment operator.
+     */
     TurretController& operator=(TurretController&&) = default;
 
     /**
@@ -133,6 +166,11 @@ public:
      */
     void Reset(units::radian_t initialHeading);
 
+    /**
+     * Returns the next output of the controller.
+     *
+     * @param x The current state x.
+     */
     Eigen::Matrix<double, 1, 1> Calculate(
         const Eigen::Matrix<double, 2, 1>& x) override;
 
@@ -191,6 +229,10 @@ private:
     static constexpr auto kA = 0.14_V / 1_rad_per_s_sq;
     static constexpr auto kMaxV = 12_V / kV;
     static constexpr auto kMaxA = 10_V / kA;
+
+    // State tolerances
+    static constexpr auto kAngleTolerance = 0.05_rad;
+    static constexpr auto kAngularVelocityTolerance = 2.0_rad_per_s;
 
     frc::TrapezoidProfile<units::radian>::State m_goal;
     frc::TrapezoidProfile<units::radian>::Constraints m_constraints{kMaxV,

@@ -6,6 +6,9 @@
 
 namespace frc {
 
+/**
+ * RAII wrapper for setting and restoring the effective user ID.
+ */
 class UidSetter {
  public:
   explicit UidSetter(int uid);

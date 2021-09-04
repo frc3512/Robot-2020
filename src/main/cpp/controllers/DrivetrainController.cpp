@@ -23,8 +23,6 @@ const frc::LinearSystem<2, 2, 2> DrivetrainController::kPlant{GetPlant()};
 DrivetrainController::DrivetrainController() {
     m_A = JacobianX(Eigen::Matrix<double, 7, 1>::Zero());
     m_B = JacobianU(Eigen::Matrix<double, 2, 1>::Zero());
-    m_Q = frc::MakeCostMatrix(kControllerQ);
-    m_R = frc::MakeCostMatrix(kControllerR);
 
     Eigen::Matrix<double, 7, 1> x = Eigen::Matrix<double, 7, 1>::Zero();
     for (auto velocity = -kMaxV; velocity < kMaxV; velocity += 0.01_mps) {

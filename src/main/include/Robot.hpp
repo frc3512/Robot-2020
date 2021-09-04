@@ -14,7 +14,13 @@
 #include <gtest/gtest.h>
 #else
 namespace frc3512::testing {
+/**
+ * A stream object shim for the GoogleTest EXPECT macros.
+ */
 struct NoOp {
+    /**
+     * No-op.
+     */
     void operator<<(const char*) {}
 };
 }  // namespace frc3512::testing
@@ -48,18 +54,31 @@ public:
      */
     enum class ShootingState { kIdle, kStartFlywheel, kStartConveyor };
 
+    /// Maximum time for which to run flywheel.
     static constexpr auto kMaxShootTimeout = 3_s;
 
-    // The order the subsystems are initialized determines the order the
-    // controllers run in.
+    // The order the subsystems are initialized determines the in which order
+    // the controllers are run.
+
+    /// Drivetrain subsystem.
     Drivetrain drivetrain;
+
+    /// Flywheel subsystem.
     Flywheel flywheel{drivetrain};
+
+    /// Intake subsystem.
     Intake intake{flywheel};
+
+    /// Turret subsystem.
     Turret turret{drivetrain, flywheel};
+
+    /// Climber subsystem.
     Climber climber{turret};
+
+    /// Vision subsystem.
     Vision vision{turret};
 
-    // Simulation variables
+    /// Intake simulation.
     IntakeSim intakeSim;
 
     Robot();
@@ -110,26 +129,66 @@ public:
      */
     units::second_t SelectedAutonomousDuration() const;
 
+    /**
+     * Robot-wide simulation initialization code should go here.
+     *
+     * Users should override this method for default Robot-wide simulation
+     * related initialization which will be called when the robot is first
+     * started. It will be called exactly one time after RobotInit is called
+     * only when the robot is in simulation.
+     */
     void SimulationInit() override;
 
+    /**
+     * Initialization code for disabled mode should go here.
+     */
     void DisabledInit() override;
 
+    /**
+     * Initialization code for autonomous mode should go here.
+     */
     void AutonomousInit() override;
 
+    /**
+     * Initialization code for teleop mode should go here.
+     */
     void TeleopInit() override;
 
+    /**
+     * Initialization coe for test mode should go here.
+     */
     void TestInit() override;
 
+    /**
+     * Periodic code for all modes should go here.
+     */
     void RobotPeriodic() override;
 
+    /**
+     * Periodic simulation code should go here.
+     *
+     * This function is called in a simulated robot after user code executes.
+     */
     void SimulationPeriodic() override;
 
+    /**
+     * Periodic code for disabled mode should go here.
+     */
     void DisabledPeriodic() override;
 
+    /**
+     * Periodic code for autonomous mode should go here.
+     */
     void AutonomousPeriodic() override;
 
+    /**
+     * Periodic code for teleop mode should go here.
+     */
     void TeleopPeriodic() override;
 
+    /**
+     * Periodic code for test mode should go here.
+     */
     void TestPeriodic() override;
 
     /**

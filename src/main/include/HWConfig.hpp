@@ -12,78 +12,105 @@
  */
 namespace frc3512::HWConfig {
 
-// Joystick Ports
+/// Drive joystick 1 port
 constexpr int kDriveStick1Port = 0;
+
+/// Drive joystick 2 port
 constexpr int kDriveStick2Port = 1;
+
+/// Appendage joystick 1 port
 constexpr int kAppendageStick1Port = 2;
+
+/// Appendage joystick 2 port
 constexpr int kAppendageStick2Port = 3;
 
 namespace Drivetrain {
-// Motor Ports
-constexpr int kLeftLeaderPort = 16;
-constexpr int kLeftFollowerPort = 1;
-constexpr int kRightLeaderPort = 14;
-constexpr int kRightFollowerPort = 15;
+/// Left motor leader CAN ID
+constexpr int kLeftMotorLeaderID = 16;
 
-// Encoder Ports
+/// Left motor follower CAN ID
+constexpr int kLeftMotorFollowerID = 1;
+
+/// Right motor leader CAN ID
+constexpr int kRightMotorLeaderID = 14;
+
+/// Right motor follower CAN ID
+constexpr int kRightMotorFollowerID = 15;
+
+// Encoder channels
 constexpr int kLeftEncoderA = 0;
 constexpr int kLeftEncoderB = 1;
 constexpr int kRightEncoderA = 2;
 constexpr int kRightEncoderB = 3;
 
-// Ultrasonic Port
-constexpr int kLeftUltrasonicPort = 3;
-constexpr int kRightUltrasonicPort = 2;
+/// Left ultrasonic sensor channel
+constexpr int kLeftUltrasonicChannel = 3;
+
+/// Right ultrasonic sensor channel
+constexpr int kRightUltrasonicChannel = 2;
 }  // namespace Drivetrain
 
 namespace Flywheel {
-constexpr int kLeftPort = 9;
-constexpr int kRightPort = 10;
+/// Left motor CAN ID
+constexpr int kLeftMotorID = 9;
+
+/// Right motor CAN ID
+constexpr int kRightMotorID = 10;
+
+/// Encoder channel A
 constexpr int kEncoderA = 6;
+
+/// Encoder channel B
 constexpr int kEncoderB = 7;
 }  // namespace Flywheel
 
 namespace Turret {
-// Spark Max Port Values
-constexpr int kPort = 8;
+/// Turret motor CAN ID
+constexpr int kMotorID = 8;
 
-// Hall Sensor Ports
-constexpr int kCCWHallPort = 0;
-constexpr int kCWHallPort = 1;
+/// Counterclockwise hall sensor digital input channel
+constexpr int kCCWHallChannel = 0;
 
-// Encoder Values
-constexpr int kEncoderPort = 8;
+/// Clockwise hall sensor digital input channel
+constexpr int kCWHallChannel = 1;
+
+// Encoder digital input channel
+constexpr int kEncoderChannel = 8;
 }  // namespace Turret
 
 namespace Intake {
-// Arm Motor Port
-constexpr int kArmMotorPort = 6;
+/// Arm motor CAN ID
+constexpr int kArmMotorID = 6;
 
-// Conveyor Motor Port
-constexpr int kConveyorPort = 7;
+/// Conveyor motor CAN ID
+constexpr int kConveyorMotorID = 7;
 
-// Funnel Motor Port
-constexpr int kFunnelPortLeft = 4;
-constexpr int kFunnelPortRight = 5;
+/// Funnel motor CAN ID
+constexpr int kFunnelLeftMotorID = 4;
+constexpr int kFunnelRightMotorID = 5;
 
-// Proximity Sensor Ports (Digital Inputs)
-constexpr int kLowerSensorPort = 4;
-constexpr int kUpperSensorPort = 5;
+/// Lower proximity sensor digital input channel
+constexpr int kLowerSensorChannel = 4;
 
-// Solenoid Port
+/// Upper proximity sensor digital input channel
+constexpr int kUpperSensorChannel = 5;
+
+/// Arm solenoid channel
 constexpr int kArmChannel = 0;
 }  // namespace Intake
 
 namespace Climber {
-// Side Elevator Motors
-constexpr int kElevatorPortRight = 3;
+/// Elevator motor CAN ID
+constexpr int kElevatorMotorID = 3;
 
-// Traverser Motor
-constexpr int kTraverserPort = 13;
+/// Traverser motor CAN ID
+constexpr int kTraverserMotorID = 13;
 
-// Solenoid Port
-constexpr int kClimberLock = 3;
-constexpr int kColorSensorArmPort = 9;
+/// Climber lock solenoid channel
+constexpr int kClimberLockChannel = 3;
+
+/// Climber color sensor arm servo channel
+constexpr int kColorSensorArmServoChannel = 9;
 }  // namespace Climber
 
 }  // namespace frc3512::HWConfig

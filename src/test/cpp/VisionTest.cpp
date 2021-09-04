@@ -24,17 +24,16 @@ public:
 };
 
 TEST_F(VisionTest, TestData) {
-    using namespace frc3512::Constants::Vision;
-    photonlib::PhotonCamera rpiCam{kCameraName};
+    photonlib::PhotonCamera rpiCam{frc3512::Vision::kCameraName};
     const frc::Pose2d drivetrainPose{12.89_m, 2.41_m,
                                      units::radian_t{wpi::numbers::pi}};
 
     // Simulation variables
-    photonlib::SimVisionSystem simVision{kCameraName,
-                                         kCameraDiagonalFOV,
-                                         kCameraPitch,
+    photonlib::SimVisionSystem simVision{frc3512::Vision::kCameraName,
+                                         frc3512::Vision::kCameraDiagonalFOV,
+                                         frc3512::Vision::kCameraPitch,
                                          frc::Transform2d{},
-                                         kCameraHeight,
+                                         frc3512::Vision::kCameraHeight,
                                          20_m,
                                          960,
                                          720,
@@ -51,7 +50,8 @@ TEST_F(VisionTest, TestData) {
 
     simVision.MoveCamera(frc::Transform2d{frc::Translation2d{},
                                           units::radian_t{wpi::numbers::pi}},
-                         kCameraHeight, kCameraPitch);
+                         frc3512::Vision::kCameraHeight,
+                         frc3512::Vision::kCameraPitch);
     simVision.ProcessFrame(drivetrainPose);
 
     // Flush and delay to ensure value propagates to tables

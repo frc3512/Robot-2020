@@ -1,4 +1,4 @@
-// Copyright (c) 2020 FRC Team 3512. All Rights Reserved.
+// Copyright (c) 2020-2021 FRC Team 3512. All Rights Reserved.
 
 #pragma once
 
@@ -46,7 +46,14 @@ public:
           m_outputLogger{(controllerName + " outputs").str(),
                          MakeOutputLabels(outputLabels)} {}
 
+    /**
+     * Move constructor.
+     */
     CSVControllerLogger(CSVControllerLogger&&) = default;
+
+    /**
+     * Move assignment operator.
+     */
     CSVControllerLogger& operator=(CSVControllerLogger&&) = default;
 
     /**

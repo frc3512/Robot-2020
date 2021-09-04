@@ -17,23 +17,43 @@
 
 namespace frc3512 {
 
+/**
+ * The flywheel controller.
+ *
+ * The flywheel uses an LQR for feedback control and a plant inversion
+ * feedforward to maintain steady-state velocity.
+ */
 class FlywheelController : public ControllerBase<1, 1, 1> {
 public:
+    /// Static friction system ID gain.
     static constexpr auto kS = 0.47564_V;
+
+    /// Angular velocity system ID gain.
     static constexpr auto kV = 0.0088813_V / 1_rad_per_s;
+
+    /// Angular acceleration system ID gain.
     static constexpr auto kA = 0.0045649_V / 1_rad_per_s_sq;
 
+    /// Gear ratio from encoder to flywheel.
     static constexpr double kGearRatio = 8.0;
+
+    /// Angle per encoder pulse.
     static constexpr double kDpP =
         (wpi::numbers::pi * 2.0) * kGearRatio / 512.0;
+
+    /// Maximum flywheel angular velocity.
     static constexpr auto kMaxAngularVelocity = 12_V / kV;
 
-    /**
-     * Constructs a flywheel controller.
-     */
     FlywheelController();
 
+    /**
+     * Move constructor.
+     */
     FlywheelController(FlywheelController&&) = default;
+
+    /**
+     * Move assignment operator.
+     */
     FlywheelController& operator=(FlywheelController&&) = default;
 
     /**
@@ -41,6 +61,7 @@ public:
      */
     class State {
     public:
+        /// Flywheel angular velocity.
         static constexpr int kAngularVelocity = 0;
     };
 
@@ -49,6 +70,7 @@ public:
      */
     class Input {
     public:
+        /// Motor voltage.
         static constexpr int kVoltage = 0;
     };
 
@@ -57,6 +79,7 @@ public:
      */
     class Output {
     public:
+        /// Flywheel angular velocity.
         static constexpr int kAngularVelocity = 0;
     };
 
@@ -67,6 +90,9 @@ public:
      */
     void SetGoal(units::radians_per_second_t goal);
 
+    /**
+     * Returns the goal.
+     */
     units::radians_per_second_t GetGoal() const;
 
     /**
@@ -79,6 +105,11 @@ public:
      */
     void Reset();
 
+    /**
+     * Returns the next output of the controller.
+     *
+     * @param x The current state x.
+     */
     Eigen::Matrix<double, 1, 1> Calculate(
         const Eigen::Matrix<double, 1, 1>& x) override;
 

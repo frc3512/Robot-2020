@@ -4,7 +4,7 @@ plugins {
     id "cpp"
     id "google-test-test-suite"
     id "edu.wpi.first.GradleRIO" version "2021.3.1"
-    id "org.ysb33r.doxygen" version "0.6"
+    id "org.ysb33r.doxygen" version "0.7.0"
 }
 
 // For testing development versions of WPILib
@@ -220,17 +220,26 @@ task intellisense(type: Exec) {
 }
 
 doxygen {
-    exclude 'fmt/*'
+    executables {
+        doxygen version : '1.9.1',
+        baseURI : 'https://frcmaven.wpi.edu/artifactory/generic-release-mirror/doxygen'
+    }
 
-    generate_html true
+    exclude 'adi/*'
+    exclude 'fmt/*'
+    exclude 'frc/*'
+    exclude 'rev/*'
+
     extension_mapping 'inc=C++'
-    project_name 'Robot-2020'
-    quiet true
-    warn_if_undocumented false
+    generate_html true
     generate_latex false
-    use_mathjax true
-    html_timestamp true
     generate_treeview true
+    html_timestamp true
+    quiet true
+    project_name 'Robot-2020'
+    use_mathjax true
+    warn_as_error 'FAIL_ON_WARNINGS'
+    warn_if_undocumented true
 
     source 'src/main/include'
     outputDir 'docs/'

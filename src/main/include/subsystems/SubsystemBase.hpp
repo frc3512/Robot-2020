@@ -1,4 +1,4 @@
-// Copyright (c) 2020 FRC Team 3512. All Rights Reserved.
+// Copyright (c) 2020-2021 FRC Team 3512. All Rights Reserved.
 
 #pragma once
 
@@ -16,9 +16,24 @@ public:
      */
     SubsystemBase();
 
+    /**
+     * Copy constructor.
+     */
     SubsystemBase(const SubsystemBase&) = default;
+
+    /**
+     * Copy assignment operator.
+     */
     SubsystemBase& operator=(const SubsystemBase&) = default;
+
+    /**
+     * Move constructor.
+     */
     SubsystemBase(SubsystemBase&&) = default;
+
+    /**
+     * Move assignment operator.
+     */
     SubsystemBase& operator=(SubsystemBase&&) = default;
 
     virtual ~SubsystemBase();

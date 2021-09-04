@@ -30,18 +30,29 @@ class Drivetrain;
 class Flywheel;
 
 /**
- * Turret subsystem.
+ * The turret subsystem.
  *
  * This is a circular plate below the shooter that can rotate to aim it.
+ *
+ * The turret uses a Kalman filter for state estimation.
  */
 class Turret : public ControlledSubsystemBase<2, 1, 1> {
 public:
+    /**
+     * Turret motor direction.
+     */
     enum class Direction { kNone, kCCW, kCW };
 
-    // CW limit for turret that allows climber to move
+    /// CW limit for turret that allows climber to move.
     static constexpr units::radian_t kCWLimitForClimbing{0.375 *
                                                          wpi::numbers::pi};
 
+    /**
+     * Constructs a Turret.
+     *
+     * @param drivetrain Drivetrain subsystem.
+     * @param flywheel Flywheel subsystem.
+     */
     explicit Turret(Drivetrain& drivetrain, Flywheel& flywheel);
 
     Turret(const Turret&) = delete;
@@ -154,8 +165,8 @@ private:
     units::radian_t m_ccwLimit{TurretController::kCCWLimit};
     units::radian_t m_cwLimit{TurretController::kCWLimit};
 
-    frc::DutyCycleEncoder m_encoder{HWConfig::Turret::kEncoderPort};
-    rev::CANSparkMax m_motor{HWConfig::Turret::kPort,
+    frc::DutyCycleEncoder m_encoder{HWConfig::Turret::kEncoderChannel};
+    rev::CANSparkMax m_motor{HWConfig::Turret::kMotorID,
                              rev::CANSparkMax::MotorType::kBrushless};
 
     frc::LinearSystem<2, 1, 1> m_plant{TurretController::GetPlant()};
@@ -165,8 +176,8 @@ private:
     TurretController m_controller;
     Eigen::Matrix<double, 1, 1> m_u = Eigen::Matrix<double, 1, 1>::Zero();
 
-    ADCInput m_ccwLimitSwitch{HWConfig::Turret::kCCWHallPort};
-    ADCInput m_cwLimitSwitch{HWConfig::Turret::kCWHallPort};
+    ADCInput m_ccwLimitSwitch{HWConfig::Turret::kCCWHallChannel};
+    ADCInput m_cwLimitSwitch{HWConfig::Turret::kCWHallChannel};
 
     Drivetrain& m_drivetrain;
     Flywheel& m_flywheel;
@@ -178,8 +189,9 @@ private:
                                                    {0.001}};
     frc::sim::DutyCycleEncoderSim m_encoderSim{m_encoder};
     frc::sim::AnalogInputSim m_ccwLimitSwitchSim{
-        HWConfig::Turret::kCCWHallPort};
-    frc::sim::AnalogInputSim m_cwLimitSwitchSim{HWConfig::Turret::kCWHallPort};
+        HWConfig::Turret::kCCWHallChannel};
+    frc::sim::AnalogInputSim m_cwLimitSwitchSim{
+        HWConfig::Turret::kCWHallChannel};
 
     /**
      * Set voltage output of turret motor.

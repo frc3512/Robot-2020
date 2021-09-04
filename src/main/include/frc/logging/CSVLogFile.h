@@ -65,7 +65,14 @@ class CSVLogFile {
                std::tuple_cat(std::tuple{this}, columnHeadings));
   }
 
+  /**
+   * Move constructor.
+   */
   CSVLogFile(CSVLogFile&&) = default;
+
+  /**
+   * Move assignment operator.
+   */
   CSVLogFile& operator=(CSVLogFile&&) = default;
 
   /**

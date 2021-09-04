@@ -20,15 +20,23 @@ namespace frc3512 {
 class Flywheel;
 
 /**
- * Intake subsystem.
+ * The intake subsystem.
  *
  * The intake consists of intake rollers, a funnel behind that, and a conveyor
  * above that. The conveyor has proximity sensors on the top and bottom.
  */
 class Intake : public SubsystemBase {
 public:
+    /**
+     * Arm motor direction.
+     */
     enum class ArmMotorDirection { kIntake, kOuttake, kIdle };
 
+    /**
+     * Constructs an Intake.
+     *
+     * @param flywheel Flywheel subsystem.
+     */
     explicit Intake(Flywheel& flywheel);
 
     Intake(const Intake&) = delete;
@@ -95,20 +103,20 @@ private:
 
     Flywheel& m_flywheel;
 
-    rev::CANSparkMax m_funnelMotorLeft{HWConfig::Intake::kFunnelPortLeft,
+    rev::CANSparkMax m_funnelMotorLeft{HWConfig::Intake::kFunnelLeftMotorID,
                                        rev::CANSparkMax::MotorType::kBrushless};
     rev::CANSparkMax m_funnelMotorRight{
-        HWConfig::Intake::kFunnelPortRight,
+        HWConfig::Intake::kFunnelRightMotorID,
         rev::CANSparkMax::MotorType::kBrushless};
 
-    rev::CANSparkMax m_conveyorMotor{HWConfig::Intake::kConveyorPort,
+    rev::CANSparkMax m_conveyorMotor{HWConfig::Intake::kConveyorMotorID,
                                      rev::CANSparkMax::MotorType::kBrushless};
 
-    rev::CANSparkMax m_armMotor{HWConfig::Intake::kArmMotorPort,
+    rev::CANSparkMax m_armMotor{HWConfig::Intake::kArmMotorID,
                                 rev::CANSparkMax::MotorType::kBrushless};
 
-    frc::DigitalInput m_upperSensor{HWConfig::Intake::kUpperSensorPort};
-    frc::DigitalInput m_lowerSensor{HWConfig::Intake::kLowerSensorPort};
+    frc::DigitalInput m_upperSensor{HWConfig::Intake::kUpperSensorChannel};
+    frc::DigitalInput m_lowerSensor{HWConfig::Intake::kLowerSensorChannel};
 
     frc::Solenoid m_arm{HWConfig::Intake::kArmChannel};
 

@@ -20,7 +20,15 @@ template <int States, int Inputs, int Outputs>
 class ControllerBase {
 public:
     ControllerBase() = default;
+
+    /**
+     * Move constructor.
+     */
     ControllerBase(ControllerBase&&) = default;
+
+    /**
+     * Move assignment operator.
+     */
     ControllerBase& operator=(ControllerBase&&) = default;
 
     virtual ~ControllerBase() = default;
@@ -67,12 +75,21 @@ public:
     }
 
 protected:
-    // Controller reference
+    /**
+     * Controller reference for current timestep.
+     */
     Eigen::Matrix<double, States, 1> m_r =
         Eigen::Matrix<double, States, 1>::Zero();
+
+    /**
+     * Controller reference for next timestep.
+     */
     Eigen::Matrix<double, States, 1> m_nextR =
         Eigen::Matrix<double, States, 1>::Zero();
 
+    /**
+     * Controller output.
+     */
     Eigen::Matrix<double, Inputs, 1> m_u =
         Eigen::Matrix<double, Inputs, 1>::Zero();
 };

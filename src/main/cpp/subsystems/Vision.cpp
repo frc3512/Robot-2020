@@ -15,7 +15,6 @@
 #include "subsystems/Turret.hpp"
 
 using namespace frc3512;
-using namespace Constants::Vision;
 
 const frc::Transform2d Vision::kCameraInGlobalToTurretInGlobal{
     frc::Pose2d{}, frc::Pose2d{0_in, -3_in, 0_rad}};
@@ -55,8 +54,7 @@ void Vision::UpdateVisionMeasurementsSim(
     const frc::Transform2d& turretInGlobalToDrivetrainInGlobal) {
     m_simVision.MoveCamera(turretInGlobalToDrivetrainInGlobal.Inverse() +
                                kCameraInGlobalToTurretInGlobal.Inverse(),
-                           Constants::Vision::kCameraHeight,
-                           Constants::Vision::kCameraPitch);
+                           kCameraHeight, kCameraPitch);
     m_simVision.ProcessFrame(drivetrainPose);
 }
 

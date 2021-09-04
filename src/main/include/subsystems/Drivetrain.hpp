@@ -44,13 +44,24 @@
 namespace frc3512 {
 
 /**
- * Drivetrain subsystem.
+ * The drivetrain subsystem.
+ *
+ * The drivetrain uses an unscented Kalman filter for state estimation.
  */
 class Drivetrain : public ControlledSubsystemBase<7, 2, 5> {
 public:
+    /// The drivetrain length.
     static constexpr units::meter_t kLength = 0.9398_m;
+
+    /**
+     * Distance from middle of robot to intake.
+     */
     static constexpr units::meter_t kMiddleOfRobotToIntake = 0.656_m;
 
+    /**
+     * Producer-consumer queue for global pose measurements from Vision
+     * subsystem.
+     */
     static_concurrent_queue<Vision::GlobalMeasurement, 8> visionQueue;
 
     Drivetrain();
@@ -258,10 +269,10 @@ private:
     static const frc::LinearSystem<2, 2, 2> kPlant;
 
     frc::AnalogInput m_leftUltrasonic{
-        HWConfig::Drivetrain::kLeftUltrasonicPort};
+        HWConfig::Drivetrain::kLeftUltrasonicChannel};
     units::meter_t m_leftUltrasonicDistance;
     frc::AnalogInput m_rightUltrasonic{
-        HWConfig::Drivetrain::kRightUltrasonicPort};
+        HWConfig::Drivetrain::kRightUltrasonicChannel};
     units::meter_t m_rightUltrasonicDistance;
     frc::LinearFilter<units::meter_t> m_leftDistanceFilter =
         frc::LinearFilter<units::meter_t>::SinglePoleIIR(0.1, 0.02_s);
@@ -269,16 +280,17 @@ private:
     frc::LinearFilter<units::meter_t> m_rightDistanceFilter =
         frc::LinearFilter<units::meter_t>::SinglePoleIIR(0.1, 0.02_s);
 
-    rev::CANSparkMax m_leftLeader{HWConfig::Drivetrain::kLeftLeaderPort,
+    rev::CANSparkMax m_leftLeader{HWConfig::Drivetrain::kLeftMotorLeaderID,
                                   rev::CANSparkMax::MotorType::kBrushless};
-    rev::CANSparkMax m_leftFollower{HWConfig::Drivetrain::kLeftFollowerPort,
+    rev::CANSparkMax m_leftFollower{HWConfig::Drivetrain::kLeftMotorFollowerID,
                                     rev::CANSparkMax::MotorType::kBrushless};
     frc::SpeedControllerGroup m_leftGrbx{m_leftLeader, m_leftFollower};
 
-    rev::CANSparkMax m_rightLeader{HWConfig::Drivetrain::kRightLeaderPort,
+    rev::CANSparkMax m_rightLeader{HWConfig::Drivetrain::kRightMotorLeaderID,
                                    rev::CANSparkMax::MotorType::kBrushless};
-    rev::CANSparkMax m_rightFollower{HWConfig::Drivetrain::kRightFollowerPort,
-                                     rev::CANSparkMax::MotorType::kBrushless};
+    rev::CANSparkMax m_rightFollower{
+        HWConfig::Drivetrain::kRightMotorFollowerID,
+        rev::CANSparkMax::MotorType::kBrushless};
     frc::SpeedControllerGroup m_rightGrbx{m_rightLeader, m_rightFollower};
 
     frc::Encoder m_leftEncoder{HWConfig::Drivetrain::kLeftEncoderA,

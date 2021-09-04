@@ -32,10 +32,17 @@ namespace frc3512 {
 class Drivetrain;
 
 /**
- * Flywheel subsystem.
+ * The flywheel subsystem.
+ *
+ * The flywheel uses a Kalman filter for state estimation.
  */
 class Flywheel : public ControlledSubsystemBase<1, 1, 1> {
 public:
+    /**
+     * Constructs a Flywheel.
+     *
+     * @param drivetrain Drivetrain subsystem.
+     */
     explicit Flywheel(Drivetrain& drivetrain);
 
     Flywheel(const Flywheel&) = delete;
@@ -138,9 +145,9 @@ private:
     // LUT from range to target to flywheel angular velocity
     LerpTable<units::meter_t, units::radians_per_second_t> m_table;
 
-    rev::CANSparkMax m_leftGrbx{HWConfig::Flywheel::kLeftPort,
+    rev::CANSparkMax m_leftGrbx{HWConfig::Flywheel::kLeftMotorID,
                                 rev::CANSparkMax::MotorType::kBrushless};
-    rev::CANSparkMax m_rightGrbx{HWConfig::Flywheel::kRightPort,
+    rev::CANSparkMax m_rightGrbx{HWConfig::Flywheel::kRightMotorID,
                                  rev::CANSparkMax::MotorType::kBrushless};
     frc::Encoder m_encoder{HWConfig::Flywheel::kEncoderA,
                            HWConfig::Flywheel::kEncoderB};

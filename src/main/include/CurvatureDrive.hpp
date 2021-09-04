@@ -13,7 +13,7 @@ namespace frc3512 {
  * @param value    Value to clip.
  * @param deadband Range around zero.
  */
-double ApplyDeadband(double number, double deadband);
+double ApplyDeadband(double value, double deadband);
 
 /**
  * Curvature drive method for differential drive platform.

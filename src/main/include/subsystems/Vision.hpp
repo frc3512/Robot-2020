@@ -24,18 +24,42 @@ namespace frc3512 {
 class Turret;
 
 /**
- * Vision subsystem.
+ * The vision subsystem.
  */
 class Vision : public SubsystemBase {
 public:
-    // Transformation from camera to drivetrain
+    /// Camera name in NetworkTables
+    static constexpr char kCameraName[] = "gloworm";
+
+    /// Camera height
+    static constexpr units::meter_t kCameraHeight = 39_in;
+
+    /// Camera pitch
+    static constexpr units::degree_t kCameraPitch = 22.8_deg;
+
+    /// Pi camera V1 diagonal field of view
+    static constexpr units::degree_t kCameraDiagonalFOV = 74.8_deg;
+
+    /// Transformation from camera to drivetrain
     static const frc::Transform2d kCameraInGlobalToTurretInGlobal;
 
+    /**
+     * Container for global measurements.
+     *
+     * These are sent to the drivetrain subsystem via a producer-consumer queue.
+     */
     struct GlobalMeasurement {
+        /// Drivetrain global pose measurement
         frc::Pose2d drivetrainInGlobal;
+        /// Timestamp at which the measurement was taken
         units::second_t timestamp;
     };
 
+    /**
+     * Constructs a Vision.
+     *
+     * @param turret Turret subsystem.
+     */
     explicit Vision(Turret& turret);
 
     /**
@@ -86,7 +110,7 @@ public:
     void RobotPeriodic() override;
 
 private:
-    photonlib::PhotonCamera m_rpiCam{Constants::Vision::kCameraName};
+    photonlib::PhotonCamera m_rpiCam{kCameraName};
 
     std::mutex m_subsystemQueuesMutex;
 
@@ -101,16 +125,15 @@ private:
         NetworkTableUtil::MakeDoubleEntry("/Diagnostics/Vision/Yaw");
 
     // Simulation variables
-    photonlib::SimVisionSystem m_simVision{
-        Constants::Vision::kCameraName,
-        Constants::Vision::kCameraDiagonalFOV,
-        Constants::Vision::kCameraPitch,
-        frc::Transform2d{},
-        Constants::Vision::kCameraHeight,
-        20_m,
-        960,
-        720,
-        10};
+    photonlib::SimVisionSystem m_simVision{kCameraName,
+                                           kCameraDiagonalFOV,
+                                           kCameraPitch,
+                                           frc::Transform2d{},
+                                           kCameraHeight,
+                                           20_m,
+                                           960,
+                                           720,
+                                           10};
 };
 
 }  // namespace frc3512

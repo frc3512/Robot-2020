@@ -2,7 +2,6 @@
 
 #pragma once
 
-#include <array>
 #include <functional>
 #include <tuple>
 #include <vector>
@@ -29,14 +28,42 @@
 
 namespace frc3512 {
 
+/**
+ * The drivetrain controller.
+ *
+ * The drivetrain uses a linear time-varying LQR for feedback control. Since the
+ * model is control-affine (the dynamics are nonlinear, but the control inputs
+ * provide a linear contribution), a plant inversion feedforward was used.
+ * Trajectories generated from splines provide the motion profile to follow.
+ *
+ * The linear time-varying controller has a similar form to the LQR, but the
+ * model used to compute the controller gain is the nonlinear model linearized
+ * around the drivetrain's current state. We precomputed gains for important
+ * places in our state-space, then interpolated between them with a LUT to save
+ * computational resources.
+ *
+ * We decided to control for longitudinal error and cross-track error in the
+ * chassis frame instead of x and y error in the global frame, so the state
+ * Jacobian simplified such that we only had to sweep velocities (-4m/s to
+ * 4m/s).
+ *
+ * See section 9.6 in Controls Engineering in FRC for a derivation of the
+ * control law we used shown in theorem 9.6.3.
+ */
 class DrivetrainController : public ControllerBase<7, 2, 4> {
 public:
+    /// The wheel radius.
     static constexpr units::meter_t kWheelRadius = 3.05_in;
+
+    /// The drivetrain gear ratio from the encoder to the wheel.
     static constexpr double kDriveGearRatio = 1.0 / 1.0;
+
+    /// Drivetrain distance per encoder pulse.
     static constexpr double kDpP =
         (2.0 * wpi::numbers::pi * kWheelRadius.to<double>()) * kDriveGearRatio /
         2048.0;
 
+    /// Drivetrain chassis width.
     static constexpr units::meter_t kWidth = [] {
         auto absoluteValue = [](auto arg) {
             return arg > decltype(arg){0} ? arg : -1.0 * arg;
@@ -53,15 +80,22 @@ public:
                absoluteValue(kHeading) * 1_rad;
     }();
 
-    static constexpr std::array<double, 5> kControllerQ{0.0625, 0.125, 2.5,
-                                                        0.95, 0.95};
-    static constexpr std::array<double, 2> kControllerR{12.0, 12.0};
-
+    /// Linear velocity system ID gain.
     static constexpr auto kLinearV = 3.02_V / 1_mps;
+
+    /// Linear acceleration system ID gain.
     static constexpr auto kLinearA = 0.642_V / 1_mps_sq;
+
+    /// Angular velocity system ID gain.
     static constexpr auto kAngularV = 1.382_V / 1_rad_per_s;
+
+    /// Angular acceleration system ID gain.
     static constexpr auto kAngularA = 0.08495_V / 1_rad_per_s_sq;
+
+    /// Maximum linear velocity.
     static constexpr auto kMaxV = 12_V / kLinearV;
+
+    /// Maximum linear acceleration.
     static constexpr auto kMaxA = 12_V / kLinearA;
 
     /**
@@ -69,12 +103,25 @@ public:
      */
     class State {
     public:
+        /// X position in global coordinate frame.
         static constexpr int kX = 0;
+
+        /// Y position in global coordinate frame.
         static constexpr int kY = 1;
+
+        /// Heading in global coordinate frame.
         static constexpr int kHeading = 2;
+
+        /// Left encoder velocity.
         static constexpr int kLeftVelocity = 3;
+
+        /// Right encoder velocity.
         static constexpr int kRightVelocity = 4;
+
+        /// Left encoder position.
         static constexpr int kLeftPosition = 5;
+
+        /// Right encoder position.
         static constexpr int kRightPosition = 6;
     };
 
@@ -83,7 +130,10 @@ public:
      */
     class Input {
     public:
+        /// Left motor voltage.
         static constexpr int kLeftVoltage = 0;
+
+        /// Right motor voltage.
         static constexpr int kRightVoltage = 1;
     };
 
@@ -92,10 +142,19 @@ public:
      */
     class LocalOutput {
     public:
+        /// Heading in global coordinate frame.
         static constexpr int kHeading = 0;
+
+        /// Left encoder position.
         static constexpr int kLeftPosition = 1;
+
+        /// Right encoder position.
         static constexpr int kRightPosition = 2;
+
+        /// Acceleration along X axis in chassis coordinate frame.
         static constexpr int kAccelerationX = 3;
+
+        /// Acceleration along Y axis in chassis coordinate frame.
         static constexpr int kAccelerationY = 4;
     };
 
@@ -104,7 +163,10 @@ public:
      */
     class GlobalOutput {
     public:
+        /// X position
         static constexpr int kX = 0;
+
+        /// Y position
         static constexpr int kY = 1;
     };
 
@@ -113,7 +175,14 @@ public:
      */
     DrivetrainController();
 
+    /**
+     * Move constructor.
+     */
     DrivetrainController(DrivetrainController&&) = default;
+
+    /**
+     * Move assignment operator.
+     */
     DrivetrainController& operator=(DrivetrainController&&) = default;
 
     /**
@@ -175,6 +244,11 @@ public:
      */
     void Reset(const frc::Pose2d& initialPose);
 
+    /**
+     * Returns the next output of the controller.
+     *
+     * @param x The current state x.
+     */
     Eigen::Matrix<double, 2, 1> Calculate(
         const Eigen::Matrix<double, 7, 1>& x) override;
 
@@ -208,10 +282,22 @@ public:
     Eigen::Matrix<double, 2, 5> ControllerGainForState(
         const Eigen::Matrix<double, 7, 1>& x);
 
+    /**
+     * The linear time-varying control law.
+     *
+     * @param x The state vector.
+     * @param r The reference vector.
+     */
     Eigen::Matrix<double, 2, 1> Controller(
         const Eigen::Matrix<double, 7, 1>& x,
         const Eigen::Matrix<double, 7, 1>& r);
 
+    /**
+     * The drivetrain system dynamics.
+     *
+     * @param x The state vector.
+     * @param u The input vector.
+     */
     static Eigen::Matrix<double, 7, 1> Dynamics(
         const Eigen::Matrix<double, 7, 1>& x,
         const Eigen::Matrix<double, 2, 1>& u);
@@ -219,6 +305,8 @@ public:
     /**
      * Returns the Jacobian of the pose and velocity dynamics with respect to
      * the state vector.
+     *
+     * @param x The state vector.
      */
     static Eigen::Matrix<double, 5, 5> JacobianX(
         const Eigen::Matrix<double, 7, 1>& x);
@@ -226,14 +314,30 @@ public:
     /**
      * Returns the Jacobian of the pose and velocity dynamics with respect to
      * the input vector.
+     *
+     * @param u The input vector.
      */
     static Eigen::Matrix<double, 5, 2> JacobianU(
         const Eigen::Matrix<double, 2, 1>& u);
 
+    /**
+     * Returns the local measurements that correspond to the given state and
+     * input vectors.
+     *
+     * @param x The state vector.
+     * @param u The input vector.
+     */
     static Eigen::Matrix<double, 5, 1> LocalMeasurementModel(
         const Eigen::Matrix<double, 7, 1>& x,
         const Eigen::Matrix<double, 2, 1>& u);
 
+    /**
+     * Returns the global measurements that correspond to the given state and
+     * input vectors.
+     *
+     * @param x The state vector.
+     * @param u The input vector.
+     */
     static Eigen::Matrix<double, 2, 1> GlobalMeasurementModel(
         const Eigen::Matrix<double, 7, 1>& x,
         const Eigen::Matrix<double, 2, 1>& u);
@@ -250,8 +354,9 @@ private:
 
     Eigen::Matrix<double, 5, 5> m_A;
     Eigen::Matrix<double, 5, 2> m_B;
-    Eigen::Matrix<double, 5, 5> m_Q;
-    Eigen::Matrix<double, 2, 2> m_R;
+    Eigen::Matrix<double, 5, 5> m_Q =
+        frc::MakeCostMatrix(0.0625, 0.125, 2.5, 0.95, 0.95);
+    Eigen::Matrix<double, 2, 2> m_R = frc::MakeCostMatrix(12.0, 12.0);
 
     // LUT from drivetrain linear velocity to LQR gain
     LerpTable<units::meters_per_second_t, Eigen::Matrix<double, 2, 5>> m_table;

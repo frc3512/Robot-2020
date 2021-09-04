@@ -59,7 +59,14 @@ public:
         }
     }
 
+    /**
+     * Move constructor.
+     */
     NTControllerLogger(NTControllerLogger&&) = default;
+
+    /**
+     * Move assignment operator.
+     */
     NTControllerLogger& operator=(NTControllerLogger&&) = default;
 
     /**

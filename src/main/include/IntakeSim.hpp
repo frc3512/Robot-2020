@@ -11,10 +11,13 @@
 
 namespace frc3512 {
 
+/**
+ * Simulates balls in the intake subsystem.
+ */
 class IntakeSim {
 public:
     /**
-     *
+     * Add ball to the front of the intake.
      */
     void AddBall();
 

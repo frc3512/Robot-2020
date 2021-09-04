@@ -26,7 +26,7 @@ namespace frc3512 {
 class Turret;
 
 /**
- * The climber composes of an elevator and a traverser.
+ * The climber is composed of an elevator and a traverser.
  *
  * To climb, the elevator reaches for the climbing bar, which can tilt in
  * different directions depending on how many robots are hanging on it. To keep
@@ -35,9 +35,18 @@ class Turret;
  */
 class Climber : public SubsystemBase {
 public:
+    /**
+     * Control panel state machine states.
+     */
     enum class ControlPanelState { kInit, kRotateWheel, kStopOnColor };
 
+    /**
+     * Constructs a Climber.
+     *
+     * @param turret Turret subsystem.
+     */
     explicit Climber(Turret& turret);
+
     Climber(const Climber&) = delete;
     Climber& operator=(const Climber&) = delete;
 
@@ -68,15 +77,15 @@ public:
     void TestPeriodic() override;
 
 private:
-    rev::CANSparkMax m_elevator{HWConfig::Climber::kElevatorPortRight,
+    rev::CANSparkMax m_elevator{HWConfig::Climber::kElevatorMotorID,
                                 rev::CANSparkMax::MotorType::kBrushless};
     rev::CANEncoder m_elevatorEncoder =
         m_elevator.GetEncoder(rev::CANEncoder::EncoderType::kHallSensor);
 
-    rev::CANSparkMax m_traverser{frc3512::HWConfig::Climber::kTraverserPort,
+    rev::CANSparkMax m_traverser{frc3512::HWConfig::Climber::kTraverserMotorID,
                                  rev::CANSparkMax::MotorType::kBrushless};
 
-    frc::Solenoid m_pancake{frc3512::HWConfig::Climber::kClimberLock};
+    frc::Solenoid m_pancake{frc3512::HWConfig::Climber::kClimberLockChannel};
 
     Turret& m_turret;
 
@@ -87,7 +96,7 @@ private:
     static constexpr frc::Color kYellowTarget{0.361, 0.524, 0.113};
 
     ControlPanelState m_state = ControlPanelState::kInit;
-    frc::Servo m_colorSensorArm{HWConfig::Climber::kColorSensorArmPort};
+    frc::Servo m_colorSensorArm{HWConfig::Climber::kColorSensorArmServoChannel};
     rev::ColorSensorV3 m_colorSensor{frc::I2C::Port::kMXP};
     rev::ColorMatch m_matcher;
     frc::Color m_currentColor;

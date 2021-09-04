@@ -142,6 +142,11 @@ public:
      */
     bool IsSuspended() const;
 
+    /**
+     * Initializes this Sendable object.
+     *
+     * @param builder sendable builder
+     */
     void InitSendable(frc::SendableBuilder& builder) override;
 
 private:
