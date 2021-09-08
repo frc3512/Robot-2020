@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include <frc/Debouncer.h>
 #include <frc/I2C.h>
 #include <frc/Servo.h>
 #include <frc/Solenoid.h>
@@ -88,6 +89,8 @@ private:
     frc::Solenoid m_pancake{frc3512::HWConfig::Climber::kClimberLockChannel};
 
     Turret& m_turret;
+    frc::Debouncer m_debouncer{50_ms, frc::Debouncer::DebounceType::kBoth};
+    bool m_prevReadyToClimb = false;
 
     // Control panel variables
     static constexpr frc::Color kRedTarget{0.561, 0.232, 0.114};

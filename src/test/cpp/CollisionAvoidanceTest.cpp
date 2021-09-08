@@ -22,7 +22,7 @@ public:
     frc3512::Climber climber{turret};
 };
 
-TEST_F(CollisionAvoidanceTest, TestAvoidance) {
+TEST_F(CollisionAvoidanceTest, DISABLED_TestAvoidance) {
     frc2::Timer timer;
     timer.Start();
 

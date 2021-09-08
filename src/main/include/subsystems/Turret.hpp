@@ -6,6 +6,8 @@
 
 #include <optional>
 
+#include <frc/DigitalInput.h>
+#include <frc/DutyCycle.h>
 #include <frc/DutyCycleEncoder.h>
 #include <frc/estimator/KalmanFilter.h>
 #include <frc/geometry/Pose2d.h>
@@ -13,6 +15,7 @@
 #include <frc/simulation/AnalogInputSim.h>
 #include <frc/simulation/DutyCycleEncoderSim.h>
 #include <frc/simulation/LinearSystemSim.h>
+#include <networktables/NetworkTableEntry.h>
 #include <units/angle.h>
 #include <units/current.h>
 #include <units/voltage.h>
@@ -20,6 +23,7 @@
 #include "ADCInput.hpp"
 #include "Constants.hpp"
 #include "HWConfig.hpp"
+#include "NetworkTableUtil.hpp"
 #include "controllers/TurretController.hpp"
 #include "rev/CANSparkMax.hpp"
 #include "subsystems/ControlledSubsystemBase.hpp"
@@ -158,16 +162,20 @@ public:
 private:
     // A CCW (positive) offset makes the encoder hit the soft limit sooner when
     // rotating CCW. For the current gear ratio, the duty cycle encoder rolls
-    // over to 0 rad at 0.707 rad. The offset is half that to provide a 20
+    // over to 0 rad at 5.655 rad. The offset is half that to provide a 162
     // degree buffer on each side for the robot starting configuration.
-    static constexpr auto kOffset = units::radian_t{0.380 + 0.03};
+    static constexpr auto kOffset = units::radian_t{2.6138};
 
     units::radian_t m_ccwLimit{TurretController::kCCWLimit};
     units::radian_t m_cwLimit{TurretController::kCWLimit};
 
-    frc::DutyCycleEncoder m_encoder{HWConfig::Turret::kEncoderChannel};
+    frc::DigitalInput m_encoderInput{HWConfig::Turret::kEncoderChannel};
+    frc::DutyCycle m_dutyCycle{m_encoderInput};
+    frc::DutyCycleEncoder m_encoder{m_dutyCycle};
     rev::CANSparkMax m_motor{HWConfig::Turret::kMotorID,
                              rev::CANSparkMax::MotorType::kBrushless};
+    nt::NetworkTableEntry m_encoderEntry = NetworkTableUtil::MakeDoubleEntry(
+        "Diagnostics/Turret/Duty Cycle Output");
 
     frc::LinearSystem<2, 1, 1> m_plant{TurretController::GetPlant()};
     frc::KalmanFilter<2, 1, 1> m_observer{

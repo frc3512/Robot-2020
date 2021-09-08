@@ -3,6 +3,7 @@
 #include "subsystems/Turret.hpp"
 
 #include <frc/Joystick.h>
+#include <frc/MathUtil.h>
 #include <frc/RobotBase.h>
 #include <frc/RobotController.h>
 
@@ -24,14 +25,27 @@ Turret::Turret(Drivetrain& drivetrain, Flywheel& flywheel)
     SetCANSparkMaxBusUsage(m_motor, Usage::kMinimal);
     m_motor.SetSmartCurrentLimit(80);
 
+    m_encoderEntry.SetDefaultDouble(0.0);
+
     // Ensures CANSparkMax::Get() returns an initialized value
     m_motor.Set(0.0);
 
     m_encoder.SetDistancePerRotation(TurretController::kDpR);
-    Reset(0_rad);
+
+    // The sim sensors need to be initialized before calling GetAngle()
+    if constexpr (frc::RobotBase::IsSimulation()) {
+        Reset(0_rad);
+    }
+
+    Reset(GetAngle());
 }
 
 void Turret::SetControlMode(TurretController::ControlMode mode) {
+    // Reset controller's reference to turret's current heading.
+    // Any previous reference can cause robot to do unexpected or unwanted
+    // things when switching control modes; it's best to have the turret not
+    // move when switching.
+    m_controller.Reset(GetAngle());
     m_controller.SetControlMode(mode);
 }
 
@@ -77,9 +91,11 @@ void Turret::Reset(units::radian_t initialHeading) {
 }
 
 units::radian_t Turret::GetAngle() const {
-    // Negative sign makes encoder counterclockwise positive. An offset is added
-    // to make the absolute encoder return 0 rad when it's facing forward.
-    return units::radian_t{-m_encoder.GetDistance()} + kOffset;
+    // Negative sign makes encoder counterclockwise positive. An offset is
+    // subtracted to make the absolute encoder return 0 rad when it's facing
+    // forward.
+    return frc::AngleModulus(units::radian_t{m_encoder.GetDistance()} -
+                             kOffset);
 }
 
 bool Turret::HasPassedCCWLimit() {
@@ -136,6 +152,8 @@ void Turret::TeleopPeriodic() {
     } else {
         SetDirection(Direction::kNone);
     }
+
+    m_encoderEntry.SetDouble(m_dutyCycle.GetOutput());
 }
 
 void Turret::TestPeriodic() {
@@ -215,8 +233,7 @@ void Turret::SetVoltage(units::volt_t voltage) {
 }
 
 double Turret::HeadingToEncoderDistance(units::radian_t heading) {
-    // heading = -GetDistance() + kOffset
-    // -GetDistance() = heading - kOffset
-    // GetDistance() = kOffset - heading
-    return (kOffset - heading).to<double>();
+    // heading = GetDistance() - kOffset
+    // GetDistance() = heading + kOffset
+    return (heading + kOffset).to<double>();
 }

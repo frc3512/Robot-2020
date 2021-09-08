@@ -86,6 +86,8 @@ void Robot::AutoRightSideShootSix() {
     }
 
     intake.Stop();
+
+    EXPECT_TRUE(turret.AtGoal());
 }
 
 }  // namespace frc3512
