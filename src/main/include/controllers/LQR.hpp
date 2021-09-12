@@ -2,8 +2,8 @@
 
 #pragma once
 
+#include <Eigen/Cholesky>
 #include <Eigen/Core>
-#include <Eigen/src/Cholesky/LLT.h>
 #include <drake/math/discrete_algebraic_riccati_equation.h>
 #include <frc/system/Discretization.h>
 #include <units/time.h>
