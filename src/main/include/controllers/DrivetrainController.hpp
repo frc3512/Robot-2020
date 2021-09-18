@@ -249,8 +249,8 @@ public:
      *
      * @param x The current state x.
      */
-    Eigen::Matrix<double, 2, 1> Calculate(
-        const Eigen::Matrix<double, 7, 1>& x) override;
+    Eigen::Vector<double, 2> Calculate(
+        const Eigen::Vector<double, 7>& x) override;
 
     /**
      * Returns the drivetrain's plant.
@@ -280,7 +280,7 @@ public:
      * @param x The state vector.
      */
     Eigen::Matrix<double, 2, 5> ControllerGainForState(
-        const Eigen::Matrix<double, 7, 1>& x);
+        const Eigen::Vector<double, 7>& x);
 
     /**
      * The linear time-varying control law.
@@ -288,9 +288,8 @@ public:
      * @param x The state vector.
      * @param r The reference vector.
      */
-    Eigen::Matrix<double, 2, 1> Controller(
-        const Eigen::Matrix<double, 7, 1>& x,
-        const Eigen::Matrix<double, 7, 1>& r);
+    Eigen::Vector<double, 2> Controller(const Eigen::Vector<double, 7>& x,
+                                        const Eigen::Vector<double, 7>& r);
 
     /**
      * The drivetrain system dynamics.
@@ -298,9 +297,8 @@ public:
      * @param x The state vector.
      * @param u The input vector.
      */
-    static Eigen::Matrix<double, 7, 1> Dynamics(
-        const Eigen::Matrix<double, 7, 1>& x,
-        const Eigen::Matrix<double, 2, 1>& u);
+    static Eigen::Vector<double, 7> Dynamics(const Eigen::Vector<double, 7>& x,
+                                             const Eigen::Vector<double, 2>& u);
 
     /**
      * Returns the Jacobian of the pose and velocity dynamics with respect to
@@ -309,7 +307,7 @@ public:
      * @param x The state vector.
      */
     static Eigen::Matrix<double, 5, 5> JacobianX(
-        const Eigen::Matrix<double, 7, 1>& x);
+        const Eigen::Vector<double, 7>& x);
 
     /**
      * Returns the Jacobian of the pose and velocity dynamics with respect to
@@ -318,7 +316,7 @@ public:
      * @param u The input vector.
      */
     static Eigen::Matrix<double, 5, 2> JacobianU(
-        const Eigen::Matrix<double, 2, 1>& u);
+        const Eigen::Vector<double, 2>& u);
 
     /**
      * Returns the local measurements that correspond to the given state and
@@ -327,9 +325,8 @@ public:
      * @param x The state vector.
      * @param u The input vector.
      */
-    static Eigen::Matrix<double, 5, 1> LocalMeasurementModel(
-        const Eigen::Matrix<double, 7, 1>& x,
-        const Eigen::Matrix<double, 2, 1>& u);
+    static Eigen::Vector<double, 5> LocalMeasurementModel(
+        const Eigen::Vector<double, 7>& x, const Eigen::Vector<double, 2>& u);
 
     /**
      * Returns the global measurements that correspond to the given state and
@@ -338,9 +335,8 @@ public:
      * @param x The state vector.
      * @param u The input vector.
      */
-    static Eigen::Matrix<double, 2, 1> GlobalMeasurementModel(
-        const Eigen::Matrix<double, 7, 1>& x,
-        const Eigen::Matrix<double, 2, 1>& u);
+    static Eigen::Vector<double, 2> GlobalMeasurementModel(
+        const Eigen::Vector<double, 7>& x, const Eigen::Vector<double, 2>& u);
 
 private:
     static constexpr double kPositionTolerance = 0.5;  // meters
@@ -373,7 +369,7 @@ private:
      *
      * @param error The error vector.
      */
-    void UpdateAtReferences(const Eigen::Matrix<double, 5, 1>& error);
+    void UpdateAtReferences(const Eigen::Vector<double, 5>& error);
 
     /**
      * Converts velocity and curvature of drivetrain into left and right wheel
@@ -387,7 +383,6 @@ private:
                                 units::meters_per_second_t>
     ToWheelVelocities(units::meters_per_second_t velocity,
                       units::curvature_t curvature, units::meter_t trackWidth) {
-        // clang-format off
         // v = (v_r + v_l) / 2     (1)
         // w = (v_r - v_l) / (2r)  (2)
         // k = w / v               (3)
@@ -399,7 +394,6 @@ private:
         // v_r = v + wr
         // v_r = v + (vk)r
         // v_r = v(1 + kr)
-        // clang-format on
         auto vl = velocity * (1 - (curvature / 1_rad * trackWidth / 2.0));
         auto vr = velocity * (1 + (curvature / 1_rad * trackWidth / 2.0));
         return {vl, vr};

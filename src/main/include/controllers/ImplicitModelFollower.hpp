@@ -150,7 +150,7 @@ public:
      *
      * @return The control input.
      */
-    const Eigen::Matrix<double, Inputs, 1>& U() const { return m_u; }
+    const Eigen::Vector<double, Inputs>& U() const { return m_u; }
 
     /**
      * Returns an element of the control input vector u.
@@ -172,16 +172,16 @@ public:
      * @param x The current state x.
      * @param u The current input for the original model.
      */
-    Eigen::Matrix<double, Inputs, 1> Calculate(
-        const Eigen::Matrix<double, States, 1>& x,
-        const Eigen::Matrix<double, Inputs, 1>& u) {
+    Eigen::Vector<double, Inputs> Calculate(
+        const Eigen::Vector<double, States>& x,
+        const Eigen::Vector<double, Inputs>& u) {
         m_u = -m_K * x + m_B * u;
         return m_u;
     }
 
 private:
     // Computed controller output
-    Eigen::Matrix<double, Inputs, 1> m_u;
+    Eigen::Vector<double, Inputs> m_u;
 
     // Controller gain
     Eigen::Matrix<double, Inputs, States> m_K;

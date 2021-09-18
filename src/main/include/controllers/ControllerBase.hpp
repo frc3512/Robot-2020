@@ -39,9 +39,7 @@ public:
      * See the State class in the derived class for what each element
      * corresponds to.
      */
-    const Eigen::Matrix<double, States, 1>& GetReferences() const {
-        return m_r;
-    }
+    const Eigen::Vector<double, States>& GetReferences() const { return m_r; }
 
     /**
      * Returns the control inputs.
@@ -49,15 +47,15 @@ public:
      * See the Input class in the derived class for what each element
      * corresponds to.
      */
-    const Eigen::Matrix<double, Inputs, 1>& GetInputs() const { return m_u; }
+    const Eigen::Vector<double, Inputs>& GetInputs() const { return m_u; }
 
     /**
      * Returns the next output of the controller.
      *
      * @param x The current state x.
      */
-    virtual Eigen::Matrix<double, Inputs, 1> Calculate(
-        const Eigen::Matrix<double, States, 1>& x) = 0;
+    virtual Eigen::Vector<double, Inputs> Calculate(
+        const Eigen::Vector<double, States>& x) = 0;
 
     /**
      * Returns the next output of the controller.
@@ -65,11 +63,11 @@ public:
      * @param x The current state x.
      * @param r The next reference r.
      */
-    Eigen::Matrix<double, Inputs, 1> Calculate(
-        const Eigen::Matrix<double, States, 1>& x,
-        const Eigen::Matrix<double, States, 1>& r) {
+    Eigen::Vector<double, Inputs> Calculate(
+        const Eigen::Vector<double, States>& x,
+        const Eigen::Vector<double, States>& r) {
         m_nextR = r;
-        Eigen::Matrix<double, Inputs, 1> u = Calculate(x);
+        Eigen::Vector<double, Inputs> u = Calculate(x);
         m_r = m_nextR;
         return u;
     }
@@ -78,20 +76,18 @@ protected:
     /**
      * Controller reference for current timestep.
      */
-    Eigen::Matrix<double, States, 1> m_r =
-        Eigen::Matrix<double, States, 1>::Zero();
+    Eigen::Vector<double, States> m_r = Eigen::Vector<double, States>::Zero();
 
     /**
      * Controller reference for next timestep.
      */
-    Eigen::Matrix<double, States, 1> m_nextR =
-        Eigen::Matrix<double, States, 1>::Zero();
+    Eigen::Vector<double, States> m_nextR =
+        Eigen::Vector<double, States>::Zero();
 
     /**
      * Controller output.
      */
-    Eigen::Matrix<double, Inputs, 1> m_u =
-        Eigen::Matrix<double, Inputs, 1>::Zero();
+    Eigen::Vector<double, Inputs> m_u = Eigen::Vector<double, Inputs>::Zero();
 };
 
 }  // namespace frc3512

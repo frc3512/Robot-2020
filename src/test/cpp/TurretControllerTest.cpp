@@ -99,13 +99,16 @@ TEST_F(TurretControllerTest, ProperDistanceFromTarget) {
     frc3512::TurretController controller;
     frc::sim::StepTiming(frc3512::Constants::kControllerPeriod);
 
-    Eigen::Matrix<double, 7, 1> drivetrainXhat;
-    drivetrainXhat << kDrivetrainX.value(), kDrivetrainY.value(),
-        wpi::numbers::pi, 0, 0, 0, 0;
+    Eigen::Vector<double, 7> drivetrainXhat{kDrivetrainX.value(),
+                                            kDrivetrainY.value(),
+                                            wpi::numbers::pi,
+                                            0,
+                                            0,
+                                            0,
+                                            0};
 
     controller.SetDrivetrainStates(drivetrainXhat);
-    Eigen::Matrix<double, 1, 1> y;
-    y << 0.0;
+    Eigen::Vector<double, 1> y{0.0};
     auto turretPose = controller.DrivetrainToTurretInGlobal(frc::Pose2d{
         kDrivetrainX, kDrivetrainY, units::radian_t{wpi::numbers::pi}});
 

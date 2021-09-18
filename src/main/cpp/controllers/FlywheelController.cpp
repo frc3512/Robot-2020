@@ -14,7 +14,7 @@ void FlywheelController::SetGoal(units::radians_per_second_t angularVelocity) {
         return;
     }
 
-    m_nextR << angularVelocity.value();
+    m_nextR = Eigen::Vector<double, 1>{angularVelocity.value()};
     m_atGoal = false;
 }
 
@@ -29,15 +29,15 @@ void FlywheelController::Reset() {
     m_nextR.setZero();
 }
 
-Eigen::Matrix<double, 1, 1> FlywheelController::Calculate(
-    const Eigen::Matrix<double, 1, 1>& x) {
+Eigen::Vector<double, 1> FlywheelController::Calculate(
+    const Eigen::Vector<double, 1>& x) {
     // To conserve battery when the flywheel doesn't have to be spinning, don't
     // apply a negative voltage to slow down.
     if (m_nextR(0) == 0.0) {
-        m_u << 0.0;
+        m_u = Eigen::Vector<double, 1>::Zero();
     } else {
         m_u = m_lqr.Calculate(x, m_r) + m_ff.Calculate(m_nextR) +
-              frc::MakeMatrix<1, 1>(kS.value());
+              Eigen::Vector<double, 1>{kS.value()};
     }
 
     m_u = frc::DesaturateInputVector<1>(m_u, 12.0);

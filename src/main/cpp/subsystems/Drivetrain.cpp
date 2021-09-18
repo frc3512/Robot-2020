@@ -129,13 +129,13 @@ void Drivetrain::Reset(const frc::Pose2d& initialPose) {
 
     m_observer.Reset();
     m_controller.Reset(initialPose);
-    m_u = Eigen::Matrix<double, 2, 1>::Zero();
+    m_u = Eigen::Vector<double, 2>::Zero();
     m_leftEncoder.Reset();
     m_rightEncoder.Reset();
     m_imu.Reset();
     m_headingOffset = initialPose.Rotation().Radians();
 
-    Eigen::Matrix<double, 7, 1> xHat;
+    Eigen::Vector<double, 7> xHat;
     xHat(State::kX) = initialPose.X().value();
     xHat(State::kY) = initialPose.Y().value();
     xHat(State::kHeading) = initialPose.Rotation().Radians().value();
@@ -150,12 +150,11 @@ void Drivetrain::Reset(const frc::Pose2d& initialPose) {
 
 void Drivetrain::CorrectWithGlobalOutputs(units::meter_t x, units::meter_t y,
                                           units::second_t timestamp) {
-    Eigen::Matrix<double, 2, 1> globalY;
-    globalY << x.value(), y.value();
+    Eigen::Vector<double, 2> globalY{x.value(), y.value()};
     m_latencyComp.ApplyPastGlobalMeasurement<2>(
         &m_observer, Constants::kControllerPeriod, globalY,
-        [&](const Eigen::Matrix<double, 2, 1>& u,
-            const Eigen::Matrix<double, 2, 1>& y) {
+        [&](const Eigen::Vector<double, 2>& u,
+            const Eigen::Vector<double, 2>& y) {
             m_observer.Correct<2>(
                 u, y, &DrivetrainController::GlobalMeasurementModel, kGlobalR);
         },
@@ -169,10 +168,10 @@ void Drivetrain::ControllerPeriodic() {
 
     m_observer.Predict(m_u, GetDt());
 
-    Eigen::Matrix<double, 5, 1> y;
-    y << frc::AngleModulus(GetAngle()).value(), GetLeftPosition().value(),
+    Eigen::Vector<double, 5> y{
+        frc::AngleModulus(GetAngle()).value(), GetLeftPosition().value(),
         GetRightPosition().value(), GetAccelerationX().value(),
-        GetAccelerationY().value();
+        GetAccelerationY().value()};
     m_latencyComp.AddObserverState(m_observer, m_controller.GetInputs(), y,
                                    frc::Timer::GetFPGATimestamp());
     m_observer.Correct(m_controller.GetInputs(), y);
@@ -211,10 +210,11 @@ void Drivetrain::ControllerPeriodic() {
         static_cast<void>(m_controller.Calculate(m_observer.Xhat()));
 
         // Run observer predict with inputs from teleop
-        m_u << std::clamp(m_leftGrbx.Get(), -1.0, 1.0) *
-                   frc::RobotController::GetInputVoltage(),
+        m_u = Eigen::Vector<double, 2>{
+            std::clamp(m_leftGrbx.Get(), -1.0, 1.0) *
+                frc::RobotController::GetInputVoltage(),
             std::clamp(m_rightGrbx.Get(), -1.0, 1.0) *
-                frc::RobotController::GetInputVoltage();
+                frc::RobotController::GetInputVoltage()};
     }
 
     Log(m_controller.GetReferences(), m_observer.Xhat(), m_u, y);
@@ -236,13 +236,12 @@ void Drivetrain::ControllerPeriodic() {
             m_drivetrainSim.GetHeading().Radians() - m_headingOffset});
 
         const auto& plant = DrivetrainController::GetPlant();
-        Eigen::Matrix<double, 2, 1> x;
-        x << m_drivetrainSim.GetLeftVelocity().value(),
-            m_drivetrainSim.GetRightVelocity().value();
-        Eigen::Matrix<double, 2, 1> u;
-        u << std::clamp(m_leftGrbx.Get(), -1.0, 1.0) * batteryVoltage,
-            std::clamp(m_rightGrbx.Get(), -1.0, 1.0) * batteryVoltage;
-        Eigen::Matrix<double, 2, 1> xdot = plant.A() * x + plant.B() * u;
+        Eigen::Vector<double, 2> x{m_drivetrainSim.GetLeftVelocity().value(),
+                                   m_drivetrainSim.GetRightVelocity().value()};
+        Eigen::Vector<double, 2> u{
+            std::clamp(m_leftGrbx.Get(), -1.0, 1.0) * batteryVoltage,
+            std::clamp(m_rightGrbx.Get(), -1.0, 1.0) * batteryVoltage};
+        Eigen::Vector<double, 2> xdot = plant.A() * x + plant.B() * u;
         m_imuSim.SetAccelX(
             -units::meters_per_second_squared_t{(xdot(0) + xdot(1)) / 2.0});
 
@@ -313,11 +312,11 @@ frc::TrajectoryConfig Drivetrain::MakeTrajectoryConfig(
 
 bool Drivetrain::AtGoal() const { return m_controller.AtGoal(); }
 
-const Eigen::Matrix<double, 7, 1>& Drivetrain::GetStates() const {
+const Eigen::Vector<double, 7>& Drivetrain::GetStates() const {
     return m_observer.Xhat();
 }
 
-const Eigen::Matrix<double, 2, 1>& Drivetrain::GetInputs() const {
+const Eigen::Vector<double, 2>& Drivetrain::GetInputs() const {
     return m_controller.GetInputs();
 }
 
@@ -383,10 +382,10 @@ void Drivetrain::TeleopPeriodic() {
 
     // Implicit model following
     // TODO: Velocities need filtering
-    Eigen::Matrix<double, 2, 1> u =
-        m_imf.Calculate(frc::MakeMatrix<2, 1>(GetLeftVelocity().value(),
-                                              GetRightVelocity().value()),
-                        frc::MakeMatrix<2, 1>(left * 12.0, right * 12.0));
+    Eigen::Vector<double, 2> u =
+        m_imf.Calculate(Eigen::Vector<double, 2>{GetLeftVelocity().value(),
+                                                 GetRightVelocity().value()},
+                        Eigen::Vector<double, 2>{left * 12.0, right * 12.0});
 
     m_leftGrbx.SetVoltage(units::volt_t{u(Input::kLeftVoltage)});
     m_rightGrbx.SetVoltage(units::volt_t{u(Input::kRightVoltage)});
@@ -412,10 +411,10 @@ void Drivetrain::TestPeriodic() {
 
     // Implicit model following
     // TODO: Velocities need filtering
-    Eigen::Matrix<double, 2, 1> u =
-        m_imf.Calculate(frc::MakeMatrix<2, 1>(GetLeftVelocity().value(),
-                                              GetRightVelocity().value()),
-                        frc::MakeMatrix<2, 1>(left * 12.0, right * 12.0));
+    Eigen::Vector<double, 2> u =
+        m_imf.Calculate(Eigen::Vector<double, 2>{GetLeftVelocity().value(),
+                                                 GetRightVelocity().value()},
+                        Eigen::Vector<double, 2>{left * 12.0, right * 12.0});
 
     m_leftGrbx.SetVoltage(units::volt_t{u(Input::kLeftVoltage)});
     m_rightGrbx.SetVoltage(units::volt_t{u(Input::kRightVoltage)});

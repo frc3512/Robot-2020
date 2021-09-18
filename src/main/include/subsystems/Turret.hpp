@@ -141,7 +141,7 @@ public:
     /**
      * Returns the turret state estimate.
      */
-    const Eigen::Matrix<double, 2, 1>& GetStates() const;
+    const Eigen::Vector<double, 2>& GetStates() const;
 
     void DisabledInit() override;
 
@@ -181,7 +181,7 @@ private:
         m_plant, {0.21745, 0.28726}, {0.01}, Constants::kControllerPeriod};
 
     TurretController m_controller;
-    Eigen::Matrix<double, 1, 1> m_u = Eigen::Matrix<double, 1, 1>::Zero();
+    Eigen::Vector<double, 1> m_u = Eigen::Vector<double, 1>::Zero();
 
     ADCInput m_ccwLimitSwitch{HWConfig::Turret::kCCWHallChannel};
     ADCInput m_cwLimitSwitch{HWConfig::Turret::kCWHallChannel};

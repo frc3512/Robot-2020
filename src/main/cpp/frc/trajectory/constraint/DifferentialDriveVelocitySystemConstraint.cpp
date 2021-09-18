@@ -20,9 +20,8 @@ DifferentialDriveVelocitySystemConstraint::
     : m_system(std::move(system)),
       m_kinematics(kinematics),
       m_maxVoltage(maxVoltage) {
-  Eigen::Matrix<double, 2, 1> u;
-  u << m_maxVoltage.value(), m_maxVoltage.value();
-  Eigen::Matrix<double, 2, 1> maxX =
+  Eigen::Vector<double, 2> u{m_maxVoltage.value(), m_maxVoltage.value()};
+  Eigen::Vector<double, 2> maxX =
       -m_system.A().householderQr().solve(m_system.B() * u);
   m_maxVelocity = units::meters_per_second_t{maxX(0)};
 }
@@ -34,8 +33,7 @@ DifferentialDriveVelocitySystemConstraint::MaxVelocity(
   auto [vl, vr] =
       m_kinematics.ToWheelSpeeds({velocity, 0_mps, velocity * curvature});
 
-  Eigen::Matrix<double, 2, 1> x;
-  x << vl.value(), vr.value();
+  Eigen::Vector<double, 2> x{vl.value(), vr.value()};
 
   // If either wheel velocity is greater than its maximum, normalize the wheel
   // speeds to within an achievable range while maintaining the curvature
@@ -53,20 +51,20 @@ DifferentialDriveVelocitySystemConstraint::MinMaxAcceleration(
   auto wheelSpeeds =
       m_kinematics.ToWheelSpeeds({speed, 0_mps, speed * curvature});
 
-  Eigen::Matrix<double, 2, 1> x;
-  x << wheelSpeeds.left.value(), wheelSpeeds.right.value();
+  Eigen::Vector<double, 2> x{wheelSpeeds.left.value(),
+                             wheelSpeeds.right.value()};
 
-  Eigen::Matrix<double, 2, 1> u;
-  Eigen::Matrix<double, 2, 1> xDot;
+  Eigen::Vector<double, 2> u;
+  Eigen::Vector<double, 2> xDot;
 
   // dx/dt for minimum u
-  u << -m_maxVoltage.value(), -m_maxVoltage.value();
+  u = Eigen::Vector<double, 2>{-m_maxVoltage.value(), -m_maxVoltage.value()};
   xDot = m_system.A() * x + m_system.B() * u;
   units::meters_per_second_squared_t minChassisAcceleration{
       (xDot(0) + xDot(1)) / 2.0};
 
   // dx/dt for maximum u
-  u << m_maxVoltage.value(), m_maxVoltage.value();
+  u = Eigen::Vector<double, 2>{m_maxVoltage.value(), m_maxVoltage.value()};
   xDot = m_system.A() * x + m_system.B() * u;
   units::meters_per_second_squared_t maxChassisAcceleration{
       (xDot(0) + xDot(1)) / 2.0};

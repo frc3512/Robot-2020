@@ -110,15 +110,14 @@ TEST_F(DrivetrainTest, CorrectsTowardGlobalY) {
     // Confirm error covariance is nonzero
     frc::sim::StepTiming(10_s);
 
-    Eigen::Matrix<double, 7, 1> x;
-    x << 5.0, 5.0, 1.0, 1.0, 1.0, 1.0, 1.0;
+    Eigen::Vector<double, 7> x{5.0, 5.0, 1.0, 1.0, 1.0, 1.0, 1.0};
 
-    Eigen::Matrix<double, 5, 1> localY =
+    Eigen::Vector<double, 5> localY =
         frc3512::DrivetrainController::LocalMeasurementModel(
-            x, Eigen::Matrix<double, 2, 1>::Zero());
-    Eigen::Matrix<double, 2, 1> globalY =
+            x, Eigen::Vector<double, 2>::Zero());
+    Eigen::Vector<double, 2> globalY =
         frc3512::DrivetrainController::GlobalMeasurementModel(
-            x, Eigen::Matrix<double, 2, 1>::Zero());
+            x, Eigen::Vector<double, 2>::Zero());
     auto globalTimestamp = frc::Timer::GetFPGATimestamp();
 
     // Add measurement noise
