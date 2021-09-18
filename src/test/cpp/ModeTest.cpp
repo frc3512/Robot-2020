@@ -10,7 +10,7 @@
 
 class ModeTest : public frc3512::SimulatorTest {};
 
-TEST_F(ModeTest, AutonToTeleopTest) {
+TEST_F(ModeTest, AutonToTeleop) {
     frc3512::Drivetrain drivetrain;
 
     frc3512::SubsystemBase::RunAllAutonomousInit();

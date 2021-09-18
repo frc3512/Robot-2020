@@ -1,4 +1,4 @@
-// Copyright (c) 2020 FRC Team 3512. All Rights Reserved.
+// Copyright (c) 2020-2021 FRC Team 3512. All Rights Reserved.
 
 #include "static_concurrent_queue.hpp"  // NOLINT(build/include_order)
 
@@ -13,7 +13,7 @@ static const std::array<double, 10> values = {
 static const std::array<double, 8> pushFrontOut = {
     {799.913, 421.125, 22.727, 445.697, 132.344, 716.126, 234.252, 342.657}};
 
-TEST(StaticConcurrentQueueTest, PushTest) {
+TEST(StaticConcurrentQueueTest, Push) {
     frc3512::static_concurrent_queue<double, 8> queue;
 
     for (auto& value : values) {
@@ -26,7 +26,7 @@ TEST(StaticConcurrentQueueTest, PushTest) {
     }
 }
 
-TEST(StaticConcurrentQueueTest, EmplaceTest) {
+TEST(StaticConcurrentQueueTest, Emplace) {
     frc3512::static_concurrent_queue<double, 8> queue;
 
     for (auto& value : values) {
@@ -39,7 +39,7 @@ TEST(StaticConcurrentQueueTest, EmplaceTest) {
     }
 }
 
-TEST(StaticConcurrentQueueTest, ResetTest) {
+TEST(StaticConcurrentQueueTest, Reset) {
     frc3512::static_concurrent_queue<double, 5> queue;
 
     for (size_t i = 1; i < 6; ++i) {

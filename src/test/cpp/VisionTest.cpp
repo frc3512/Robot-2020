@@ -23,7 +23,7 @@ public:
     frc3512::Vision vision{turret};
 };
 
-TEST_F(VisionTest, TestData) {
+TEST_F(VisionTest, GetData) {
     photonlib::PhotonCamera rpiCam{frc3512::Vision::kCameraName};
     const frc::Pose2d drivetrainPose{12.89_m, 2.41_m,
                                      units::radian_t{wpi::numbers::pi}};
