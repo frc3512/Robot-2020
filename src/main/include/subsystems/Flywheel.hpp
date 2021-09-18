@@ -181,7 +181,7 @@ private:
         Constants::kControllerPeriod};
 
     FlywheelController m_controller;
-    Eigen::Matrix<double, 1, 1> m_u = Eigen::Matrix<double, 1, 1>::Zero();
+    Eigen::Vector<double, 1> m_u = Eigen::Vector<double, 1>::Zero();
 
     bool m_moveAndShoot = true;
 

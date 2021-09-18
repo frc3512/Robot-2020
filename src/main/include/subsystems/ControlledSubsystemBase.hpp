@@ -137,10 +137,10 @@ public:
      * @param u The inputs for this timestep.
      * @param y The measurements for this timestep.
      */
-    void Log(const Eigen::Matrix<double, States, 1>& r,
-             const Eigen::Matrix<double, States, 1>& x,
-             const Eigen::Matrix<double, Inputs, 1>& u,
-             const Eigen::Matrix<double, Outputs, 1>& y) {
+    void Log(const Eigen::Vector<double, States>& r,
+             const Eigen::Vector<double, States>& x,
+             const Eigen::Vector<double, Inputs>& u,
+             const Eigen::Vector<double, Outputs>& y) {
         m_entryQueue.emplace(m_nowBegin, frc::Timer::GetFPGATimestamp(), r, x,
                              u, y);
         m_lastTime = m_nowBegin;
@@ -151,22 +151,19 @@ private:
         bool valid = false;
         units::second_t nowBegin = 0_s;
         units::second_t nowEnd = 0_s;
-        Eigen::Matrix<double, States, 1> r =
-            Eigen::Matrix<double, States, 1>::Zero();
-        Eigen::Matrix<double, States, 1> x =
-            Eigen::Matrix<double, States, 1>::Zero();
-        Eigen::Matrix<double, Inputs, 1> u =
-            Eigen::Matrix<double, Inputs, 1>::Zero();
-        Eigen::Matrix<double, Outputs, 1> y =
-            Eigen::Matrix<double, Outputs, 1>::Zero();
+        Eigen::Vector<double, States> r = Eigen::Vector<double, States>::Zero();
+        Eigen::Vector<double, States> x = Eigen::Vector<double, States>::Zero();
+        Eigen::Vector<double, Inputs> u = Eigen::Vector<double, Inputs>::Zero();
+        Eigen::Vector<double, Outputs> y =
+            Eigen::Vector<double, Outputs>::Zero();
 
         LogEntry() = default;
 
         LogEntry(units::second_t nowBegin, units::second_t nowEnd,
-                 const Eigen::Matrix<double, States, 1>& r,
-                 const Eigen::Matrix<double, States, 1>& x,
-                 const Eigen::Matrix<double, Inputs, 1>& u,
-                 const Eigen::Matrix<double, Outputs, 1>& y)
+                 const Eigen::Vector<double, States>& r,
+                 const Eigen::Vector<double, States>& x,
+                 const Eigen::Vector<double, Inputs>& u,
+                 const Eigen::Vector<double, Outputs>& y)
             : valid{true},
               nowBegin{nowBegin},
               nowEnd{nowEnd},

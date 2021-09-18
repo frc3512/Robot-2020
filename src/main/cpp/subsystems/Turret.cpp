@@ -63,13 +63,12 @@ void Turret::SetDirection(Direction direction) {
 }
 
 void Turret::Reset(units::radian_t initialHeading) {
-    Eigen::Matrix<double, 2, 1> xHat;
-    xHat << initialHeading.value(), 0.0;
+    Eigen::Vector<double, 2> xHat{initialHeading.value(), 0.0};
 
     m_observer.Reset();
     m_observer.SetXhat(xHat);
     m_controller.Reset(initialHeading);
-    m_u = Eigen::Matrix<double, 1, 1>::Zero();
+    m_u = Eigen::Vector<double, 1>::Zero();
 
     if constexpr (frc::RobotBase::IsSimulation()) {
         m_turretSim.SetState(xHat);
@@ -131,7 +130,7 @@ frc::Transform2d Turret::GetTurretInGlobalToDrivetrainInGlobal() {
         frc::Pose2d{}};
 }
 
-const Eigen::Matrix<double, 2, 1>& Turret::GetStates() const {
+const Eigen::Vector<double, 2>& Turret::GetStates() const {
     return m_observer.Xhat();
 }
 
@@ -199,8 +198,7 @@ void Turret::ControllerPeriodic() {
     m_controller.SetFlywheelReferences(
         m_flywheel.GetReferenceForPose(m_drivetrain.GetPose()));
 
-    Eigen::Matrix<double, 1, 1> y;
-    y << GetAngle().value();
+    Eigen::Vector<double, 1> y{GetAngle().value()};
     m_observer.Correct(m_controller.GetInputs(), y);
 
     auto visionData = visionQueue.pop();
@@ -221,8 +219,8 @@ void Turret::ControllerPeriodic() {
     Log(m_controller.GetReferences(), m_observer.Xhat(), m_u, y);
 
     if constexpr (frc::RobotBase::IsSimulation()) {
-        m_turretSim.SetInput(frc::MakeMatrix<1, 1>(
-            m_motor.Get() * frc::RobotController::GetInputVoltage()));
+        m_turretSim.SetInput(Eigen::Vector<double, 1>{
+            m_motor.Get() * frc::RobotController::GetInputVoltage()});
 
         m_turretSim.Update(GetDt());
 

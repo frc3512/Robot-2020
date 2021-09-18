@@ -110,8 +110,8 @@ public:
      *
      * @param x The current state x.
      */
-    Eigen::Matrix<double, 1, 1> Calculate(
-        const Eigen::Matrix<double, 1, 1>& x) override;
+    Eigen::Vector<double, 1> Calculate(
+        const Eigen::Vector<double, 1>& x) override;
 
     /**
      * Returns the flywheel plant.

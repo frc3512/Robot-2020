@@ -75,10 +75,10 @@ public:
      * @param u Input vector.
      * @param y Output vector.
      */
-    void Log(const Eigen::Matrix<double, States, 1>& r,
-             const Eigen::Matrix<double, States, 1>& x,
-             const Eigen::Matrix<double, Inputs, 1>& u,
-             const Eigen::Matrix<double, Outputs, 1>& y) {
+    void Log(const Eigen::Vector<double, States>& r,
+             const Eigen::Vector<double, States>& x,
+             const Eigen::Vector<double, Inputs>& u,
+             const Eigen::Vector<double, Outputs>& y) {
         for (int state = 0; state < States; ++state) {
             m_refEntries[state].SetDouble(r(state));
             m_stateEntries[state].SetDouble(x(state));

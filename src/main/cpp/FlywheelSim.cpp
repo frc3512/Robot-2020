@@ -15,10 +15,10 @@ FlywheelSim::FlywheelSim(const frc::LinearSystem<1, 1, 1>& plant,
     : frc::sim::LinearSystemSim<2, 1, 2>(
           [=] {
               return frc::LinearSystem<2, 1, 2>{
-                  frc::MakeMatrix<2, 2>(0.0, 1.0, 0.0, plant.A(0, 0)),
-                  frc::MakeMatrix<2, 1>(0.0, plant.B(0, 0)),
+                  Eigen::Matrix<double, 2, 2>{{0.0, 1.0}, {0.0, plant.A(0, 0)}},
+                  Eigen::Matrix<double, 2, 1>{0.0, plant.B(0, 0)},
                   Eigen::Matrix<double, 2, 2>::Identity(),
-                  frc::MakeMatrix<2, 1>(0.0, 0.0)};
+                  Eigen::Matrix<double, 2, 1>{0.0, 0.0}};
           }(),
           measurementStdDevs),
       m_gearbox(gearbox),
@@ -50,5 +50,5 @@ units::ampere_t FlywheelSim::GetCurrentDraw() const {
 }
 
 void FlywheelSim::SetInputVoltage(units::volt_t voltage) {
-    SetInput(frc::MakeMatrix<1, 1>(voltage.value()));
+    SetInput(Eigen::Vector<double, 1>{voltage.value()});
 }

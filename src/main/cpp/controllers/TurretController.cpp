@@ -37,7 +37,7 @@ void TurretController::SetGoal(units::radian_t angle,
 
 void TurretController::SetReferences(units::radian_t angle,
                                      units::radians_per_second_t velocity) {
-    m_nextR << angle.value(), velocity.value();
+    m_nextR = Eigen::Vector<double, 2>{angle.value(), velocity.value()};
 }
 
 bool TurretController::AtReferences() const { return m_atReferences; }
@@ -48,8 +48,7 @@ bool TurretController::AtGoal() const {
     return m_goal == ref && m_atReferences;
 }
 
-void TurretController::SetDrivetrainStates(
-    const Eigen::Matrix<double, 7, 1>& x) {
+void TurretController::SetDrivetrainStates(const Eigen::Vector<double, 7>& x) {
     using State = DrivetrainController::State;
 
     m_drivetrainNextPoseInGlobal =
@@ -80,18 +79,17 @@ TurretController::ControlMode TurretController::GetControlMode() const {
 }
 
 void TurretController::Reset(units::radian_t initialHeading) {
-    Eigen::Matrix<double, 2, 1> xHat;
-    xHat << initialHeading.value(), 0.0;
+    Eigen::Vector<double, 2> xHat{initialHeading.value(), 0.0};
 
     m_ff.Reset(xHat);
     m_r = xHat;
     m_nextR = xHat;
 
-    UpdateAtReferences(Eigen::Matrix<double, 2, 1>::Zero());
+    UpdateAtReferences(Eigen::Vector<double, 2>::Zero());
 }
 
-Eigen::Matrix<double, 1, 1> TurretController::Calculate(
-    const Eigen::Matrix<double, 2, 1>& x) {
+Eigen::Vector<double, 1> TurretController::Calculate(
+    const Eigen::Vector<double, 2>& x) {
     if (m_controlMode == ControlMode::kClosedLoop ||
         m_controlMode == ControlMode::kAutoAim ||
         m_controlMode == ControlMode::kVisionAim) {
@@ -158,20 +156,20 @@ Eigen::Matrix<double, 1, 1> TurretController::Calculate(
                           profiledReference.velocity);
         }
 
-        m_u << m_lqr.K() * (m_r - x) + m_ff.Calculate(m_nextR);
+        m_u = m_lqr.K() * (m_r - x) + m_ff.Calculate(m_nextR);
 
         units::radian_t heading{x(State::kAngle)};
         if (heading > kCCWLimit && m_u(Input::kVoltage) > 0.0) {
-            m_u << 0.0;
+            m_u = Eigen::Vector<double, 1>::Zero();
         } else if (heading < kCWLimit && m_u(Input::kVoltage) < 0.0) {
-            m_u << 0.0;
+            m_u = Eigen::Vector<double, 1>::Zero();
         }
 
         m_u = frc::DesaturateInputVector<1>(m_u, 12.0);
 
         UpdateAtReferences(m_nextR - x);
     } else {
-        m_u << 0.0;
+        m_u = Eigen::Vector<double, 1>::Zero();
     }
 
     m_r = m_nextR;
@@ -313,7 +311,7 @@ frc::Pose2d TurretController::DrivetrainToTurretInGlobal(
 }
 
 void TurretController::UpdateAtReferences(
-    const Eigen::Matrix<double, 2, 1>& error) {
+    const Eigen::Vector<double, 2>& error) {
     m_atReferences = units::math::abs(units::radian_t{error(State::kAngle)}) <
                          kAngleTolerance &&
                      units::math::abs(units::radians_per_second_t{error(

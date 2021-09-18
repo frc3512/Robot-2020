@@ -84,8 +84,8 @@ void Climber::RobotPeriodic() {
     }
 
     if constexpr (frc::RobotBase::IsSimulation()) {
-        m_elevatorSim.SetInput(frc::MakeMatrix<1, 1>(
-            -m_elevator.Get() * frc::RobotController::GetInputVoltage()));
+        m_elevatorSim.SetInput(Eigen::Vector<double, 1>{
+            -m_elevator.Get() * frc::RobotController::GetInputVoltage()});
 
         m_elevatorSim.Update(20_ms);
     }

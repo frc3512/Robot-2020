@@ -145,7 +145,7 @@ public:
     /**
      * Sets the current estimated global pose of the drivetrain.
      */
-    void SetDrivetrainStates(const Eigen::Matrix<double, 7, 1>& x);
+    void SetDrivetrainStates(const Eigen::Vector<double, 7>& x);
 
     /**
      * Sets the current flywheel angular velocity reference.
@@ -184,8 +184,8 @@ public:
      *
      * @param x The current state x.
      */
-    Eigen::Matrix<double, 1, 1> Calculate(
-        const Eigen::Matrix<double, 2, 1>& x) override;
+    Eigen::Vector<double, 1> Calculate(
+        const Eigen::Vector<double, 2>& x) override;
 
     /**
      * Returns the turret plant.
@@ -277,7 +277,7 @@ private:
      *
      * @param error The error vector.
      */
-    void UpdateAtReferences(const Eigen::Matrix<double, 2, 1>& error);
+    void UpdateAtReferences(const Eigen::Vector<double, 2>& error);
 };
 
 }  // namespace frc3512

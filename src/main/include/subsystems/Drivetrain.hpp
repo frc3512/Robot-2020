@@ -224,12 +224,12 @@ public:
     /**
      * Returns the drivetrain state estimate.
      */
-    const Eigen::Matrix<double, 7, 1>& GetStates() const;
+    const Eigen::Vector<double, 7>& GetStates() const;
 
     /**
      * Returns the drivetrain inputs.
      */
-    const Eigen::Matrix<double, 2, 1>& GetInputs() const;
+    const Eigen::Vector<double, 2>& GetInputs() const;
 
     /**
      * Returns current drawn in simulation.
@@ -317,7 +317,7 @@ private:
                                         frc::UnscentedKalmanFilter<7, 2, 5>>
         m_latencyComp;
     DrivetrainController m_controller;
-    Eigen::Matrix<double, 2, 1> m_u = Eigen::Matrix<double, 2, 1>::Zero();
+    Eigen::Vector<double, 2> m_u = Eigen::Vector<double, 2>::Zero();
 
     nt::NetworkTableEntry m_leftUltrasonicOutputEntry =
         NetworkTableUtil::MakeDoubleEntry(

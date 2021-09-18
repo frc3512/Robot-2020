@@ -65,10 +65,10 @@ public:
      * @param u    Input vector.
      * @param y    Output vector.
      */
-    void Log(units::second_t time, const Eigen::Matrix<double, States, 1>& r,
-             const Eigen::Matrix<double, States, 1>& x,
-             const Eigen::Matrix<double, Inputs, 1>& u,
-             const Eigen::Matrix<double, Outputs, 1>& y) {
+    void Log(units::second_t time, const Eigen::Vector<double, States>& r,
+             const Eigen::Vector<double, States>& x,
+             const Eigen::Vector<double, Inputs>& u,
+             const Eigen::Vector<double, Outputs>& y) {
         LogVector2WithTime<States, States>(m_stateLogger, time, r, x);
         LogVectorWithTime<Inputs>(m_inputLogger, time, u);
         LogVectorWithTime<Outputs>(m_outputLogger, time, y);
@@ -82,10 +82,10 @@ public:
      * @param u    Input vector.
      * @param y    Output vector.
      */
-    void Log(const Eigen::Matrix<double, States, 1>& r,
-             const Eigen::Matrix<double, States, 1>& x,
-             const Eigen::Matrix<double, Inputs, 1>& u,
-             const Eigen::Matrix<double, Outputs, 1>& y) {
+    void Log(const Eigen::Vector<double, States>& r,
+             const Eigen::Vector<double, States>& x,
+             const Eigen::Vector<double, Inputs>& u,
+             const Eigen::Vector<double, Outputs>& y) {
         LogVector2<States, States>(m_stateLogger, r, x);
         LogVector<Inputs>(m_inputLogger, u);
         LogVector<Outputs>(m_outputLogger, y);
@@ -187,13 +187,13 @@ private:
 
     template <int Rows, typename Indices = std::make_index_sequence<Rows>>
     void LogVector(frc::CSVLogFile& logger,
-                   const Eigen::Matrix<double, Rows, 1>& vec) {
+                   const Eigen::Vector<double, Rows>& vec) {
         return LogVectorImpl(logger, vec, Indices{});
     }
 
     template <int Rows, typename Indices = std::make_index_sequence<Rows>>
     void LogVectorWithTime(frc::CSVLogFile& logger, units::second_t time,
-                           const Eigen::Matrix<double, Rows, 1>& vec) {
+                           const Eigen::Vector<double, Rows>& vec) {
         return LogVectorWithTimeImpl(logger, time, vec, Indices{});
     }
 
@@ -201,8 +201,8 @@ private:
               typename Indices1 = std::make_index_sequence<Rows1>,
               typename Indices2 = std::make_index_sequence<Rows2>>
     void LogVector2(frc::CSVLogFile& logger,
-                    const Eigen::Matrix<double, Rows1, 1>& vec1,
-                    const Eigen::Matrix<double, Rows2, 1>& vec2) {
+                    const Eigen::Vector<double, Rows1>& vec1,
+                    const Eigen::Vector<double, Rows2>& vec2) {
         return LogVector2Impl(logger, vec1, Indices1{}, vec2, Indices2{});
     }
 
@@ -210,8 +210,8 @@ private:
               typename Indices1 = std::make_index_sequence<Rows1>,
               typename Indices2 = std::make_index_sequence<Rows2>>
     void LogVector2WithTime(frc::CSVLogFile& logger, units::second_t time,
-                            const Eigen::Matrix<double, Rows1, 1>& vec1,
-                            const Eigen::Matrix<double, Rows2, 1>& vec2) {
+                            const Eigen::Vector<double, Rows1>& vec1,
+                            const Eigen::Vector<double, Rows2>& vec2) {
         return LogVector2WithTimeImpl(logger, time, vec1, Indices1{}, vec2,
                                       Indices2{});
     }

@@ -42,15 +42,15 @@ TEST(DifferentialDriveVelocitySystemTest, DISABLED_Constraint) {
 
     auto [left, right] = kinematics.ToWheelSpeeds(chassisSpeeds);
 
-    auto x = frc::MakeMatrix<2, 1>(left.value(), right.value());
+    Eigen::Vector<double, 2> x{left.value(), right.value()};
 
     // Not really a strictly-correct test as we're using the chassis accel
     // instead of the wheel accel, but much easier than doing it "properly" and
     // a reasonable check anyway
-    auto xDot = frc::MakeMatrix<2, 1>(point.acceleration.value(),
-                                      point.acceleration.value());
+    Eigen::Vector<double, 2> xDot{point.acceleration.value(),
+                                  point.acceleration.value()};
 
-    Eigen::Matrix<double, 2, 1> u =
+    Eigen::Vector<double, 2> u =
         system.B().householderQr().solve(xDot - system.A() * x);
 
     EXPECT_GE(u(0), -kMaxVoltage.value() - 0.5);
