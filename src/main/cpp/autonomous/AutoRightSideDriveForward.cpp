@@ -21,6 +21,8 @@ void Robot::AutoRightSideDriveForward() {
     if (!m_autonChooser.Suspend([=] { return drivetrain.AtGoal(); })) {
         return;
     }
+
+    EXPECT_TRUE(turret.AtGoal());
 }
 
 }  // namespace frc3512

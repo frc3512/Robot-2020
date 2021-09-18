@@ -31,6 +31,8 @@ void Robot::AutoRightSideShootThree() {
     if (!m_autonChooser.Suspend([=] { return !IsShooting(); })) {
         return;
     }
+
+    EXPECT_TRUE(turret.AtGoal());
 }
 
 }  // namespace frc3512

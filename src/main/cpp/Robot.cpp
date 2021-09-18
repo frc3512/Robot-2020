@@ -359,7 +359,6 @@ void Robot::ExpectAutonomousEndConds() {
     if constexpr (IsSimulation()) {
         EXPECT_FALSE(m_autonChooser.IsSuspended())
             << "Autonomous mode didn't finish within the autonomous period";
-        EXPECT_TRUE(turret.AtGoal());
 
         EXPECT_TRUE(drivetrain.AtGoal());
 
@@ -372,7 +371,6 @@ void Robot::ExpectAutonomousEndConds() {
             0.0, 0.01);
 
         EXPECT_EQ(flywheel.GetGoal(), 0_rad_per_s);
-        EXPECT_TRUE(turret.AtGoal());
     }
 }
 

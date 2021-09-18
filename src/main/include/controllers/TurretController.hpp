@@ -50,9 +50,12 @@ public:
     /**
      * Gear ratio from encoder shaft to turret sprocket.
      *
+     * There's a 1:8 ratio from the encoder shaft to the motor shaft, 18 teeth
+     * on the motor sprocket, and 160 teeth on the turret sprocket.
+     *
      * See docs/turret-encoder-resolution.md for encoder gear ratio selection.
      */
-    static constexpr double kGearRatio = 18.0 / 160.0;
+    static constexpr double kGearRatio = 8.0 * 18.0 / 160.0;
 
     /// Turret angle per encoder revolution
     static constexpr double kDpR = kGearRatio * 2.0 * wpi::numbers::pi;
