@@ -4,10 +4,12 @@
 #include <vector>
 
 #include <fmt/format.h>
-#include <frc/Notifier.h>
 #include <frc/simulation/DriverStationSim.h>
+#include <frc/simulation/JoystickSim.h>
+#include <frc2/Timer.h>
 #include <gtest/gtest.h>
 
+#include "HWConfig.hpp"
 #include "Robot.hpp"
 #include "SimulatorTest.hpp"
 
@@ -151,4 +153,66 @@ TEST_F(RobotTest, CalculateDrivetrainInGlobal) {
     };
 
     testMeasurement(12.89_m, 2.41_m, units::radian_t{wpi::numbers::pi});
+}
+
+TEST_F(RobotTest, ClimberTurretCollisionAvoidance) {
+    frc2::Timer timer;
+    timer.Start();
+
+    frc::sim::JoystickSim appendageStick1{
+        frc3512::HWConfig::kAppendageStick1Port};
+
+    EXPECT_EQ(robot.turret.GetAngle(), 0_rad);
+
+    // Press the trigger button and ensure turret moves out of the way.
+    appendageStick1.SetRawButton(1, true);
+    appendageStick1.SetY(-1.0);
+    appendageStick1.NotifyNewData();
+    frc::sim::StepTiming(4_s);
+    EXPECT_NEAR_UNITS(robot.turret.GetAngle(),
+                      units::radian_t{wpi::numbers::pi / 2}, 0.1_rad);
+    EXPECT_NEAR_UNITS(robot.turret.GetMotorOutput(), 0_V, 0.1_V);
+
+    // Move climber into top limit
+    appendageStick1.SetRawButton(1, true);
+    appendageStick1.SetY(-1.0);
+    appendageStick1.NotifyNewData();
+    while (!robot.climber.HasPassedTopLimit()) {
+        frc::sim::StepTiming(20_ms);
+
+        ASSERT_LT(timer.Get(), 30_s)
+            << "Climber took too long to reach top limit";
+    }
+    appendageStick1.SetRawButton(1, false);
+    appendageStick1.SetY(0.0);
+    appendageStick1.NotifyNewData();
+    frc::sim::StepTiming(20_ms);
+
+    // Confirm turret can't move into the climber's space
+    robot.turret.SetGoal(0_rad, 0_rad_per_s);
+    frc::sim::StepTiming(4_s);
+    EXPECT_NEAR_UNITS(robot.turret.GetAngle(),
+                      frc3512::Turret::kCWLimitForClimbing, 0.1_rad);
+    EXPECT_NEAR_UNITS(robot.turret.GetMotorOutput(), 0_V, 0.1_V);
+
+    // Move climber down
+    appendageStick1.SetRawButton(1, true);
+    appendageStick1.SetY(1.0);
+    appendageStick1.NotifyNewData();
+    while (!robot.climber.HasPassedBottomLimit()) {
+        frc::sim::StepTiming(20_ms);
+
+        ASSERT_LT(timer.Get(), 30_s)
+            << "Climber took too long to reach bottom limit";
+    }
+    appendageStick1.SetRawButton(1, false);
+    appendageStick1.SetY(0.0);
+    appendageStick1.NotifyNewData();
+    frc::sim::StepTiming(20_ms);
+
+    // Confirm turret can move into climber's space when it's down
+    robot.turret.SetGoal(0_rad, 0_rad_per_s);
+    frc::sim::StepTiming(4_s);
+    EXPECT_NEAR_UNITS(robot.turret.GetAngle(), 0_rad, 0.1_rad);
+    EXPECT_NEAR_UNITS(robot.turret.GetMotorOutput(), 0_V, 0.1_V);
 }

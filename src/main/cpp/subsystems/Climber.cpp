@@ -100,30 +100,20 @@ void Climber::TeleopPeriodic() {
         SetTraverser(appendageStick2.GetX());
     }
 
-    bool readyToClimb;
-    if constexpr (frc::RobotBase::IsSimulation()) {
-        readyToClimb = appendageStick1.GetRawButton(1) &&
-                       std::abs(appendageStick1.GetY()) > 0.02;
-    } else {
-        readyToClimb =
-            m_debouncer.Calculate(appendageStick1.GetRawButton(1) &&
-                                  std::abs(appendageStick1.GetY()) > 0.02);
-    }
-
-    if (readyToClimb && !m_prevReadyToClimb) {
+    bool readyToClimb =
+        m_debouncer.Calculate(appendageStick1.GetRawButton(1) &&
+                              std::abs(appendageStick1.GetY()) > 0.02);
+    if (!m_prevReadyToClimb && readyToClimb) {
         // Move the turret out of the way of the climber and set new soft limit.
         // Also, disable auto-aim.
-        m_turret.SetControlMode(TurretController::ControlMode::kClosedLoop);
         m_turret.SetGoal(units::radian_t{wpi::numbers::pi / 2}, 0_rad_per_s);
+        m_turret.SetControlMode(TurretController::ControlMode::kClosedLoop);
         m_turret.SetCWLimit(Turret::kCWLimitForClimbing);
-    } else if (GetElevatorPosition() < 1.5_in) {
+    } else if (!readyToClimb && GetElevatorPosition() < 1.5_in) {
         // Let turret move full range again once climber is back down
         m_turret.SetCWLimit(TurretController::kCWLimit);
     }
-
-    if (readyToClimb != m_prevReadyToClimb) {
-        m_prevReadyToClimb = readyToClimb;
-    }
+    m_prevReadyToClimb = readyToClimb;
 
     // Make sure the turret is out of the way of the climber elevator before
     // moving it
