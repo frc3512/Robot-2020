@@ -56,7 +56,7 @@ TEST_F(CollisionAvoidanceTest, DISABLED_Avoidance) {
             << "Climber took too long to reach top limit";
     }
 
-    // Ensure turret can't move into the climber's space
+    // Confirm turret can't move into the climber's space
     turret.SetGoal(0_rad, 0_rad_per_s);
     frc::sim::StepTiming(500_ms);
     EXPECT_FALSE(turret.HasPassedCWLimit());
@@ -72,7 +72,7 @@ TEST_F(CollisionAvoidanceTest, DISABLED_Avoidance) {
             << "Climber took too long to reach bottom limit";
     }
 
-    // Ensure turret can move now
+    // Confirm turret can move now
     appendageStick1.SetY(0.0);
     appendageStick1.SetRawButton(1, false);
     appendageStick1.NotifyNewData();

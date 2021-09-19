@@ -138,11 +138,11 @@ TEST_F(RobotTest, CalculateDrivetrainInGlobal) {
 
         frc::sim::StepTiming(40_ms);
 
-        // Ensure the vision measurements were actually incorporated into the
+        // Confirm the vision measurements were actually incorporated into the
         // pose estimate
         EXPECT_EQ(robot.drivetrain.GetPoseMeasurementFaultCounter(), 0);
 
-        // Ensures the vision data is converted back to the same drivetrain pose
+        // Confirm the vision data is converted back to the same drivetrain pose
         // from which it was generated
         EXPECT_NEAR_UNITS(robot.drivetrain.GetPose().X(), x, 1e-5_m);
         EXPECT_NEAR_UNITS(robot.drivetrain.GetPose().Y(), y, 1e-5_m);

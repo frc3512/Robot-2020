@@ -107,7 +107,7 @@ TEST_F(DrivetrainTest, CorrectsTowardGlobalY) {
     drivetrain.AddTrajectory(frc::Pose2d(0_m, 0_m, 0_rad), {},
                              frc::Pose2d(4.8768_m, 2.7432_m, 0_rad));
 
-    // Ensure error covariance is nonzero
+    // Confirm error covariance is nonzero
     frc::sim::StepTiming(10_s);
 
     Eigen::Matrix<double, 7, 1> x;
