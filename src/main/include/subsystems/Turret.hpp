@@ -4,8 +4,6 @@
 
 #include <stdint.h>
 
-#include <optional>
-
 #include <frc/DigitalInput.h>
 #include <frc/DutyCycle.h>
 #include <frc/DutyCycleEncoder.h>
