@@ -13,6 +13,7 @@
 #include <frc/simulation/AnalogInputSim.h>
 #include <frc/simulation/DutyCycleEncoderSim.h>
 #include <frc/simulation/LinearSystemSim.h>
+#include <frc2/Timer.h>
 #include <networktables/NetworkTableEntry.h>
 #include <units/angle.h>
 #include <units/current.h>
@@ -25,6 +26,7 @@
 #include "controllers/TurretController.hpp"
 #include "rev/CANSparkMax.hpp"
 #include "subsystems/ControlledSubsystemBase.hpp"
+#include "subsystems/Vision.hpp"
 
 namespace frc3512 {
 
@@ -48,6 +50,12 @@ public:
     /// CW limit for turret that allows climber to move.
     static constexpr units::radian_t kCWLimitForClimbing{0.375 *
                                                          wpi::numbers::pi};
+
+    /**
+     * Producer-consumer queue for yaw measurement from Vision
+     * subsystem.
+     */
+    static_concurrent_queue<Vision::GlobalMeasurement, 8> visionQueue;
 
     /**
      * Constructs a Turret.
@@ -149,6 +157,7 @@ public:
     void TeleopInit() override {
         Enable();
         SetControlMode(TurretController::ControlMode::kClosedLoop);
+        // m_limitTimer.Start();
     }
 
     void TeleopPeriodic() override;
@@ -175,6 +184,9 @@ private:
     nt::NetworkTableEntry m_encoderEntry = NetworkTableUtil::MakeDoubleEntry(
         "Diagnostics/Turret/Duty Cycle Output");
 
+    nt::NetworkTableEntry m_controllerYawEntry =
+        NetworkTableUtil::MakeDoubleEntry("Diagnostics/Turret/Controller Yaw");
+
     frc::LinearSystem<2, 1, 1> m_plant{TurretController::GetPlant()};
     frc::KalmanFilter<2, 1, 1> m_observer{
         m_plant, {0.21745, 0.28726}, {0.01}, Constants::kControllerPeriod};
@@ -189,6 +201,8 @@ private:
     Flywheel& m_flywheel;
 
     frc::Transform2d cameraInGlobalToDrivetrainInGlobal;
+
+    frc2::Timer m_limitTimer;
 
     // Simulation variables
     frc::sim::LinearSystemSim<2, 1, 1> m_turretSim{m_controller.GetPlant(),

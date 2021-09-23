@@ -44,7 +44,9 @@ public:
         /// Closed loop without auto-aiming
         kClosedLoop,
         /// Closed loop with auto-aiming
-        kAutoAim
+        kAutoAim,
+        /// Closed loop with Vision data
+        kVisionAim
     };
 
     /**
@@ -158,6 +160,14 @@ public:
     void SetControlMode(ControlMode mode);
 
     /**
+     * Set yaw and timestamp of the vision measurment.
+     *
+     * @param yaw yaw measurement in radians from the vision subsystem.
+     * @param timestamp the corresponding timestamp for the yaw measurement.
+     */
+    void SetVisionMeasurements(units::radian_t yaw, units::second_t timestamp);
+
+    /**
      * Returns currently set control mode.
      */
     ControlMode GetControlMode() const;
@@ -247,6 +257,9 @@ private:
         m_plant, {0.01245, 0.109726}, {12.0}, Constants::kControllerPeriod};
     frc::LinearPlantInversionFeedforward<2, 1> m_ff{
         m_plant, Constants::kControllerPeriod};
+
+    units::radian_t m_visionYaw;
+    units::second_t m_timestamp;
 
     ControlMode m_controlMode = ControlMode::kManual;
 

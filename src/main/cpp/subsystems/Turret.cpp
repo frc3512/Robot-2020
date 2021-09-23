@@ -188,6 +188,13 @@ void Turret::ControllerPeriodic() {
     y << GetAngle().to<double>();
     m_observer.Correct(m_controller.GetInputs(), y);
 
+    auto visionData = visionQueue.pop();
+    if (visionData.has_value()) {
+        m_controller.SetVisionMeasurements(visionData.value().yaw,
+                                           visionData.value().timestamp);
+        m_controllerYawEntry.SetDouble(visionData.value().yaw.to<double>());
+    }
+
     m_u = m_controller.Calculate(m_observer.Xhat());
 
     // Set motor input

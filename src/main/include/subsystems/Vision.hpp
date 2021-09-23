@@ -53,6 +53,12 @@ public:
         frc::Pose2d drivetrainInGlobal;
         /// Timestamp at which the measurement was taken
         units::second_t timestamp;
+        /// Yaw reported by photonvision
+        units::radian_t yaw;
+        /// Pitch reported by photonvision
+        units::radian_t pitch;
+        /// Range from robot to target
+        units::meter_t range;
     };
 
     /**
@@ -105,12 +111,21 @@ public:
         const frc::Pose2d& drivetrainPose,
         const frc::Transform2d& turretInGlobalToDrivetrainInGlobal);
 
+    /**
+     * Returns whether or not a vision target is within the camera's field of view. 
+     */
+    bool IsTargetDetected() const;
+
     void SimulationInit() override;
 
     void RobotPeriodic() override;
 
 private:
     photonlib::PhotonCamera m_rpiCam{kCameraName};
+    units::degree_t m_pitch;
+    units::degree_t m_yaw;
+
+    bool m_isTargetDetected = false;
 
     std::mutex m_subsystemQueuesMutex;
 
@@ -123,6 +138,8 @@ private:
         "/Diagnostics/Vision/Turret pose");
     nt::NetworkTableEntry m_yawEntry =
         NetworkTableUtil::MakeDoubleEntry("/Diagnostics/Vision/Yaw");
+    nt::NetworkTableEntry m_rangeEntry =
+        NetworkTableUtil::MakeDoubleEntry("/Diagnostics/Vision/Range Estimate");
 
     // Simulation variables
     photonlib::SimVisionSystem m_simVision{kCameraName,

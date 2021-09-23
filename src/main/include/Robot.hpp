@@ -52,7 +52,12 @@ public:
     /**
      * States used for the multi-subsystem shooting procedure
      */
-    enum class ShootingState { kIdle, kStartFlywheel, kStartConveyor };
+    enum class ShootingState {
+        kIdle,
+        kFindTarget,
+        kStartFlywheel,
+        kStartConveyor
+    };
 
     /// Maximum time for which to run flywheel.
     static constexpr auto kMaxShootTimeout = 3_s;
@@ -315,6 +320,8 @@ private:
     units::second_t m_shootTimeout = kMaxShootTimeout;
     bool m_prevFlywheelAtGoal = false;
     frc2::Timer m_timer;
+
+    frc2::Timer m_visionTimer;
 
     nt::NetworkTableEntry m_LEDEntry =
         NetworkTableUtil::MakeBoolEntry("/photonvision/ledMode");

@@ -99,6 +99,8 @@ Robot::Robot() : frc::TimesliceRobot{2_ms, Constants::kControllerPeriod} {
     }
 
     vision.SubscribeToVisionData(drivetrain.visionQueue);
+    vision.SubscribeToVisionData(turret.visionQueue);
+    vision.SubscribeToVisionData(flywheel.visionQueue);
 
     // TIMESLICE ALLOCATION TABLE
     //
@@ -133,28 +135,51 @@ Robot::Robot() : frc::TimesliceRobot{2_ms, Constants::kControllerPeriod} {
         0.8_ms);
 }
 
-Robot::~Robot() { vision.UnsubscribeFromVisionData(drivetrain.visionQueue); }
+Robot::~Robot() {
+    vision.UnsubscribeFromVisionData(drivetrain.visionQueue);
+    vision.UnsubscribeFromVisionData(turret.visionQueue);
+    vision.UnsubscribeFromVisionData(flywheel.visionQueue);
+}
 
 void Robot::Shoot(int ballsToShoot) {
     if (m_state == ShootingState::kIdle) {
-        flywheel.SetGoalFromPose();
-        m_state = ShootingState::kStartFlywheel;
+        if (IsAutonomousEnabled()) {
+            flywheel.SetGoalFromPose();
+            m_state = ShootingState::kStartFlywheel;
+        } else {
+            m_visionTimer.Reset();
+            m_visionTimer.Start();
+            flywheel.SetMoveAndShoot(false);
+            vision.TurnLEDOn();
+            turret.SetControlMode(TurretController::ControlMode::kVisionAim);
+            m_state = ShootingState::kFindTarget;
+        }
         m_ballsToShoot = ballsToShoot;
         if (ballsToShoot != -1) {
             m_shootTimeout = 0.6_s * m_ballsToShoot;
         } else {
             m_shootTimeout = kMaxShootTimeout;
         }
+
         m_eventLogger.Log(
-            fmt::format("Called Robot::Shoot({})", m_ballsToShoot));
+            fmt::format("Called Robot::Shoot({}", m_ballsToShoot));
     }
 }
 
 void Robot::Shoot(units::radians_per_second_t radsToShoot, int ballsToShoot) {
     if (m_state == ShootingState::kIdle) {
-        flywheel.SetMoveAndShoot(false);
-        flywheel.SetGoal(radsToShoot);
-        m_state = ShootingState::kStartFlywheel;
+        if (IsAutonomousEnabled()) {
+            flywheel.SetGoalFromPose();
+            m_state = ShootingState::kStartFlywheel;
+        } else {
+            m_visionTimer.Reset();
+            m_visionTimer.Start();
+            flywheel.SetMoveAndShoot(false);
+            flywheel.SetGoal(radsToShoot);
+            vision.TurnLEDOn();
+            turret.SetControlMode(TurretController::ControlMode::kVisionAim);
+            m_state = ShootingState::kStartFlywheel;
+        }
         m_ballsToShoot = ballsToShoot;
         if (ballsToShoot != -1) {
             m_shootTimeout = 0.6_s * m_ballsToShoot;
@@ -234,7 +259,7 @@ void Robot::RobotPeriodic() {
         RunShooterSM();
     }
 
-    units::radian_t turretHeadingInGlobal{
+    /*units::radian_t turretHeadingInGlobal{
         turret.GetStates()(TurretController::State::kAngle) +
         drivetrain.GetStates()(DrivetrainController::State::kHeading)};
     if (!ds.IsDisabled() &&
@@ -243,7 +268,7 @@ void Robot::RobotPeriodic() {
         vision.TurnLEDOn();
     } else {
         vision.TurnLEDOff();
-    }
+    }*/
 
     auto batteryVoltage = frc::RobotController::GetInputVoltage();
     m_batteryLogger.Log(
@@ -297,6 +322,20 @@ void Robot::RunShooterSM() {
         case ShootingState::kIdle: {
             break;
         }
+        case ShootingState::kFindTarget: {
+            if (vision.IsTargetDetected()) {
+                m_visionTimer.Stop();
+                flywheel.SetGoalFromVision();
+                m_state = ShootingState::kStartFlywheel;
+            } else if (!vision.IsTargetDetected() &&
+                       m_visionTimer.HasElapsed(3_s)) {
+                m_visionTimer.Stop();
+                vision.TurnLEDOff();
+                fmt::print("Target not found!");
+                m_state = ShootingState::kIdle;
+            }
+            break;
+        }
         // Allow the flywheel to spin up to the correct angular velocity.
         case ShootingState::kStartFlywheel: {
             if (flywheel.AtGoal()) {
@@ -337,6 +376,8 @@ void Robot::RunShooterSM() {
             if (m_timer.HasElapsed(m_shootTimeout) &&
                 !intake.IsUpperSensorBlocked()) {
                 flywheel.SetGoal(0_rad_per_s);
+                vision.TurnLEDOff();
+                turret.SetGoal(0_rad, 0_rad_per_s);
                 m_timer.Stop();
                 m_state = ShootingState::kIdle;
             }
