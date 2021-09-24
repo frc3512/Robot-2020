@@ -10,13 +10,14 @@ namespace frc3512 {
 
 void Robot::AutoTargetZoneShootSix() {
     // Initial Pose - Right in line with the Target Zone
-    const frc::Pose2d kInitialPose{12.89_m, 2.41_m,
+    const frc::Pose2d kInitialPose{12_m, 2.5_m,
                                    units::radian_t{wpi::numbers::pi}};
     // Mid Pose - Right before first/closest ball in the Trench Run
-    const frc::Pose2d kMidPose{9.82_m + 0.5 * Drivetrain::kLength, 0.705_m,
+    const frc::Pose2d kMidPose{9.82_m + 0.5 * Drivetrain::kLength, 01.05_m,
                                units::radian_t{wpi::numbers::pi}};
     // End Pose - Third/Farthest ball in the Trench Run
-    const frc::Pose2d kEndPose{8_m, 0.71_m, units::radian_t{wpi::numbers::pi}};
+    const frc::Pose2d kEndPose{7.95_m, 01.05_m,
+                               units::radian_t{wpi::numbers::pi}};
 
     drivetrain.Reset(kInitialPose);
 
@@ -27,6 +28,8 @@ void Robot::AutoTargetZoneShootSix() {
             intakeSim.AddBall();
         }
     }
+
+    // Shoot our 3 preloaded balls
     Shoot(3);
 
     if (!m_autonChooser.Suspend([=] { return !IsShooting(); })) {

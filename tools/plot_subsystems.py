@@ -232,7 +232,7 @@ def main():
                 img = plt.imread("tools/images/2021-challenge-space.png")
                 ax.imshow(img, extent=[0, 9.144, 0, 4.572])
             else:
-                img = plt.imread("tools/images/2020-field-top.png")
+                img = plt.imread("tools/images/2021-field.png")
                 ax.imshow(img, extent=[0, 15.98295, 0, 8.21055])
 
     plt.show()

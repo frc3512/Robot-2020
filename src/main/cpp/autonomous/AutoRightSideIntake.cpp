@@ -10,10 +10,10 @@ namespace frc3512 {
 
 void Robot::AutoRightSideIntake() {
     // Initial Pose - Right in line with the three balls in the Trench Run
-    const frc::Pose2d kInitialPose{12.89_m, 0.71_m,
+    const frc::Pose2d kInitialPose{12_m, 1.05_m,
                                    units::radian_t{wpi::numbers::pi}};
     // End Pose - Second ball in the Trench Run
-    const frc::Pose2d kEndPose{8.906_m, 0.71_m,
+    const frc::Pose2d kEndPose{7.95_m, 1.05_m,
                                units::radian_t{wpi::numbers::pi}};
 
     drivetrain.Reset(kInitialPose);
