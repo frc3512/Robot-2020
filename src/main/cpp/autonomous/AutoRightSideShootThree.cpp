@@ -8,10 +8,10 @@ namespace frc3512 {
 
 void Robot::AutoRightSideShootThree() {
     // Initial Pose - Right in line with the three balls in the Trench Run
-    const frc::Pose2d kInitialPose{12.89_m, 0.71_m,
+    const frc::Pose2d kInitialPose{12_m, 1.05_m,
                                    units::radian_t{wpi::numbers::pi}};
     // Drive forward slightly
-    const frc::Pose2d kEndPose{12.89_m - 1.5 * Drivetrain::kLength, 0.71_m,
+    const frc::Pose2d kEndPose{12_m - 4.32 * Drivetrain::kLength, 1.05_m,
                                units::radian_t{wpi::numbers::pi}};
 
     drivetrain.Reset(kInitialPose);
@@ -26,6 +26,8 @@ void Robot::AutoRightSideShootThree() {
             intakeSim.AddBall();
         }
     }
+
+    // Shoot our 3 preloaded balls
     Shoot(3);
 
     if (!m_autonChooser.Suspend([=] { return !IsShooting(); })) {

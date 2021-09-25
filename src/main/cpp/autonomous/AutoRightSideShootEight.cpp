@@ -10,13 +10,16 @@ namespace frc3512 {
 
 void Robot::AutoRightSideShootEight() {
     // Initial Pose - Right in line with the three balls in the Trench Run
-    const frc::Pose2d kInitialPose{12.89_m, 0.71_m,
+    const frc::Pose2d kInitialPose{12_m, 1.05_m,
                                    units::radian_t{wpi::numbers::pi}};
-    // Mid Pose - Third/Farthest ball in the Trench Run
-    const frc::Pose2d kTrenchPose{8_m, 0.71_m,
+    // Third/Farthest ball in the Trench Run
+    const frc::Pose2d kTrenchPose{7.95_m, 1.05_m,
                                   units::radian_t{wpi::numbers::pi}};
-    // End Pose - Middle of two balls on right side of generator
-    const frc::Pose2d kGenPose{10.27_m, 2.63_m, 120_deg};
+    // Enters generator
+    const frc::Pose2d kGenPose{9.3_m, 3.5_m, 120_deg};
+
+    // End pose - In line with target
+    const frc::Pose2d kEnd{9.8_m, 2.50_m, units::radian_t{wpi::numbers::pi}};
 
     const units::meters_per_second_t kMaxV = 1.6_mps;
 
@@ -30,6 +33,7 @@ void Robot::AutoRightSideShootEight() {
         }
     }
 
+    // Shoot our 3 preloaded balls
     Shoot(3);
 
     if (!m_autonChooser.Suspend([=] { return !IsShooting(); })) {
@@ -77,7 +81,7 @@ void Robot::AutoRightSideShootEight() {
             frc::MaxVelocityConstraint{kMaxV}};
         auto config = drivetrain.MakeTrajectoryConfig();
         config.AddConstraint(regionConstraint);
-        drivetrain.AddTrajectory(kInitialPose, {}, kGenPose, config);
+        drivetrain.AddTrajectory({kInitialPose, kGenPose, kEnd}, config);
     }
 
     if (!m_autonChooser.Suspend([=] { return drivetrain.AtGoal(); })) {

@@ -8,9 +8,10 @@
 namespace frc3512 {
 
 void Robot::AutoTargetZoneShootThree() {
-    const frc::Pose2d kInitialPose{12.89_m, 2.41_m,
+    const frc::Pose2d kInitialPose{12_m, 1.05_m,
                                    units::radian_t{wpi::numbers::pi}};
-    const frc::Pose2d kEndPose{12.89_m - 1.5 * Drivetrain::kLength, 2.41_m,
+
+    const frc::Pose2d kEndPose{12_m - 4.31 * Drivetrain::kLength, 1.05_m,
                                units::radian_t{wpi::numbers::pi}};
 
     drivetrain.Reset(kInitialPose);
