@@ -23,7 +23,6 @@ void Robot::AutoLoadingZoneShootThree() {
     }
 
     // Shoot with 3 preloaded balls
-
     if constexpr (IsSimulation()) {
         for (int i = 0; i < 3; ++i) {
             intakeSim.AddBall();
