@@ -91,7 +91,7 @@ public:
     ~Robot();
 
     /**
-     * Start shooting.
+     * Start shooting with aiming based on turret pose.
      *
      * If the user provides a number of balls to shoot, the shooter will run
      * until it detects that many dips and recoveries after initially reaching
@@ -101,23 +101,20 @@ public:
      *
      * @param ballsToShoot Number of balls to shoot.
      */
-    void Shoot(int ballsToShoot = -1);
+    void ShootWithPose(int ballsToShoot = -1);
 
     /**
-     * Start shooting.
+     * Start shooting with computer vision aiming.
      *
      * If the user provides a number of balls to shoot, the shooter will run
      * until it detects that many dips and recoveries after initially reaching
      * the angular velocity goal. After that point, the flywheel and intake will
      * turn off. If no number is given, a timeout will be used to stop the
-     * flywheel instead. This time the number of radians the flywheel will speed
-     * up to will also be set by the user instead of being picked by the lookup
-     * table.
+     * flywheel instead.
      *
-     * @param radsToShoot radians the flywheel will shoot at.
      * @param ballsToShoot Number of balls to shoot.
      */
-    void Shoot(units::radians_per_second_t radsToShoot, int ballsToShoot = -1);
+    void ShootWithVision(int ballsToShoot = -1);
 
     /**
      * Returns true if currently shooting.
@@ -294,6 +291,25 @@ public:
      * Follow the "slalom" path defined in the 2021 At-Home Challenges manual.
      */
     void AutoNavSlalom();
+
+    /**
+     * Drive forward from the initiation line, shoot three preloaded power
+     * cells, and drive towards the Target.
+     */
+    void AutoShootThree();
+
+    /**
+     * Shoot three preloaded power cells from the initiation line in front of
+     * the allied trench run, intaking the three balls in that trench run,
+     * shooting them from within the trench run, then driving towards the
+     * generator to intake 2-3 balls, driving out of the generator, and then
+     * shooting from there.
+     *
+     * Currently, it is exceeding the 15 second autonomous period, but puts the
+     * drivers in a great spot to shoot the power cells we intaked during auton
+     * once teleop begins.
+     */
+    void AutoShootNine();
 
     /**
      * Sets the selected autonomous mode for testing purposes.

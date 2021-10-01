@@ -40,12 +40,10 @@ Flywheel::Flywheel(Drivetrain& drivetrain)
     m_rightGrbx.SetInverted(false);
 
     // Vision loses target past 295_in
-    m_table.Insert(125_in, 489_rad_per_s);
-    m_table.Insert(175_in, 501_rad_per_s);
-    m_table.Insert(200_in, 647_rad_per_s);
-    m_table.Insert(231_in, 659_rad_per_s);
-    m_table.Insert(312_in, 690_rad_per_s);
-    m_table.Insert(360_in, 759_rad_per_s);
+    m_table.Insert(125_in, 451_rad_per_s);
+    m_table.Insert(158_in, 475_rad_per_s);
+    m_table.Insert(206_in, 597_rad_per_s);
+    m_table.Insert(231_in, 682_rad_per_s);
 
     Reset();
     SetGoal(0_rad_per_s);
@@ -121,7 +119,8 @@ void Flywheel::RobotPeriodic() {
 
         m_testThrottle = appendageStick2.GetThrottle();
         auto manualRef = ThrottleToReference(m_testThrottle);
-        fmt::print("Manual angular velocity: {}\n", manualRef);
+        fmt::print("Manual angular velocity: {}\n",
+                   units::revolutions_per_minute_t{manualRef});
     }
 
     auto visionData = visionQueue.pop();

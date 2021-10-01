@@ -22,7 +22,7 @@ constexpr double kJoystickDeadband = 0.05;
  *
  * This enables IR\@H-specific autonomous modes and flywheel speed presets.
  */
-constexpr bool kAtHomeChallenge = true;
+constexpr bool kAtHomeChallenge = false;
 
 /// The period at which feedback controllers run
 constexpr units::second_t kControllerPeriod = 5_ms;
