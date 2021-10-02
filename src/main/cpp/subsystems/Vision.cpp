@@ -5,7 +5,6 @@
 #include <chrono>
 #include <vector>
 
-#include <fmt/format.h>
 #include <frc/DriverStation.h>
 #include <frc/Joystick.h>
 #include <frc/RobotBase.h>
@@ -121,10 +120,12 @@ void Vision::RobotPeriodic() {
         kCameraHeight, TargetModel::kCenter.Z(), kCameraPitch,
         units::degree_t{m_pitch});
 
-    std::scoped_lock lock{m_subsystemQueuesMutex};
-    for (auto& queue : m_subsystemQueues) {
-        queue->push({drivetrainInGlobal, timestamp, units::radian_t{m_yaw},
-                     units::radian_t{m_pitch}, range});
+    {
+        std::scoped_lock lock{m_subsystemQueuesMutex};
+        for (auto& queue : m_subsystemQueues) {
+            queue->push({drivetrainInGlobal, timestamp, units::radian_t{m_yaw},
+                         units::radian_t{m_pitch}, range});
+        }
     }
 
     m_rangeEntry.SetDouble(range.to<double>());
