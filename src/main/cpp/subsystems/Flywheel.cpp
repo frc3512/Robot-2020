@@ -39,12 +39,13 @@ Flywheel::Flywheel(Drivetrain& drivetrain)
     m_leftGrbx.SetInverted(false);
     m_rightGrbx.SetInverted(false);
 
-    m_table.Insert(125_in, 468_rad_per_s);
-    m_table.Insert(175_in, 480_rad_per_s);
-    m_table.Insert(200_in, 505_rad_per_s);
-    m_table.Insert(231_in, 508_rad_per_s);
-    m_table.Insert(312_in, 598_rad_per_s);
-    m_table.Insert(360_in, 708_rad_per_s);
+    // Vision loses target past 295_in
+    m_table.Insert(125_in, 489_rad_per_s);
+    m_table.Insert(175_in, 501_rad_per_s);
+    m_table.Insert(200_in, 647_rad_per_s);
+    m_table.Insert(231_in, 659_rad_per_s);
+    m_table.Insert(312_in, 690_rad_per_s);
+    m_table.Insert(360_in, 759_rad_per_s);
 
     Reset();
     SetGoal(0_rad_per_s);
@@ -80,6 +81,10 @@ void Flywheel::SetGoalFromPose() {
     }
 }
 
+void Flywheel::SetGoalFromVision() {
+    SetGoal(GetReferenceForRange(m_distanceToTarget));
+}
+
 bool Flywheel::IsOn() const { return GetGoal() > 0_rad_per_s; }
 
 bool Flywheel::IsReady() { return GetGoal() > 0_rad_per_s && AtGoal(); }
@@ -105,6 +110,11 @@ units::radians_per_second_t Flywheel::GetReferenceForPose(
         TargetModel::kTargetPoseInGlobal.Translation())];
 }
 
+units::radians_per_second_t Flywheel::GetReferenceForRange(
+    units::meter_t range) const {
+    return m_table[range];
+}
+
 void Flywheel::RobotPeriodic() {
     if (frc::DriverStation::GetInstance().IsTest()) {
         static frc::Joystick appendageStick2{HWConfig::kAppendageStick2Port};
@@ -112,6 +122,12 @@ void Flywheel::RobotPeriodic() {
         m_testThrottle = appendageStick2.GetThrottle();
         auto manualRef = ThrottleToReference(m_testThrottle);
         fmt::print("Manual angular velocity: {}\n", manualRef);
+    }
+
+    auto visionData = visionQueue.pop();
+    if (visionData.has_value()) {
+        const auto& measurement = visionData.value();
+        m_distanceToTarget = measurement.range;
     }
 }
 

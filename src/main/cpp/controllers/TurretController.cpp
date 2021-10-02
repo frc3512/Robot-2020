@@ -65,6 +65,12 @@ void TurretController::SetFlywheelReferences(units::radians_per_second_t r) {
     m_flywheelAngularVelocityRef = r;
 }
 
+void TurretController::SetVisionMeasurements(units::radian_t yaw,
+                                             units::second_t timestamp) {
+    m_visionYaw = yaw;
+    m_timestamp = timestamp;
+}
+
 void TurretController::SetControlMode(ControlMode mode) {
     m_controlMode = mode;
 }
@@ -87,7 +93,8 @@ void TurretController::Reset(units::radian_t initialHeading) {
 Eigen::Matrix<double, 1, 1> TurretController::Calculate(
     const Eigen::Matrix<double, 2, 1>& x) {
     if (m_controlMode == ControlMode::kClosedLoop ||
-        m_controlMode == ControlMode::kAutoAim) {
+        m_controlMode == ControlMode::kAutoAim ||
+        m_controlMode == ControlMode::kVisionAim) {
         if (m_controlMode == ControlMode::kAutoAim) {
             // Calculate next drivetrain and turret pose in global frame
             auto turretNextPoseInGlobal =
@@ -131,7 +138,14 @@ Eigen::Matrix<double, 1, 1> TurretController::Calculate(
             // auto-aiming.
             SetGoal(turretDesiredHeadingInTurret, turretDesiredAngularVelocity);
             SetReferences(m_goal.position, m_goal.velocity);
-        } else if (m_controlMode == ControlMode::kClosedLoop) {
+        } else if (m_controlMode == ControlMode::kClosedLoop ||
+                   m_controlMode == ControlMode::kVisionAim) {
+            if (m_controlMode == ControlMode::kVisionAim) {
+                SetGoal(-m_visionYaw + units::radian_t{x(State::kAngle)},
+                        0_rad_per_s);
+                SetControlMode(ControlMode::kClosedLoop);
+            }
+
             // Calculate profiled references to the goal
             frc::TrapezoidProfile<units::radian>::State references = {
                 units::radian_t{m_nextR(State::kAngle)},
