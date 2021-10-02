@@ -11,7 +11,6 @@
 #include <frc/util/Color.h>
 #include <networktables/NetworkTableEntry.h>
 #include <networktables/NetworkTableInstance.h>
-#include <rev/ColorSensorV3.h>
 #include <units/length.h>
 #include <units/voltage.h>
 
@@ -19,7 +18,6 @@
 #include "NetworkTableUtil.hpp"
 #include "rev/CANEncoder.hpp"
 #include "rev/CANSparkMax.hpp"
-#include "rev/ColorMatch.hpp"
 #include "subsystems/SubsystemBase.hpp"
 
 namespace frc3512 {
@@ -100,8 +98,6 @@ private:
 
     ControlPanelState m_state = ControlPanelState::kInit;
     frc::Servo m_colorSensorArm{HWConfig::Climber::kColorSensorArmServoChannel};
-    rev::ColorSensorV3 m_colorSensor{frc::I2C::Port::kMXP};
-    rev::ColorMatch m_matcher;
     frc::Color m_currentColor;
     frc::Color m_startColor;
     frc::Color m_prevColor;

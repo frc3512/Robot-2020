@@ -25,11 +25,6 @@ Climber::Climber(Turret& turret) : m_turret{turret} {
     m_elevator.SetSmartCurrentLimit(40);
     SetCANSparkMaxBusUsage(m_traverser, Usage::kMinimal);
     m_traverser.SetSmartCurrentLimit(40);
-
-    m_matcher.AddColorMatch(kRedTarget);
-    m_matcher.AddColorMatch(kBlueTarget);
-    m_matcher.AddColorMatch(kGreenTarget);
-    m_matcher.AddColorMatch(kYellowTarget);
 }
 
 units::meter_t Climber::GetElevatorPosition() {
@@ -59,21 +54,6 @@ units::volt_t Climber::GetElevatorMotorOutput() const {
 void Climber::RobotPeriodic() {
     m_elevatorEncoderEntry.SetDouble(GetElevatorPosition().to<double>());
     m_changedColorNumEntry.SetDouble(m_changedColorCount);
-
-    m_currentColor =
-        m_matcher.MatchClosestColor(m_colorSensor.GetColor(), m_confidence);
-
-    if (m_currentColor == kRedTarget) {
-        m_colorSensorOutputEntry.SetString("Red");
-    } else if (m_currentColor == kBlueTarget) {
-        m_colorSensorOutputEntry.SetString("Blue");
-    } else if (m_currentColor == kYellowTarget) {
-        m_colorSensorOutputEntry.SetString("Yellow");
-    } else if (m_currentColor == kGreenTarget) {
-        m_colorSensorOutputEntry.SetString("Green");
-    } else {
-        m_colorSensorOutputEntry.SetString("No Color");
-    }
 
     if (m_state == ControlPanelState::kInit) {
         m_colorStateMachineEntry.SetString("Init");
