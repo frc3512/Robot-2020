@@ -62,8 +62,7 @@ public:
     /// Maximum time for which to run flywheel.
     static constexpr auto kMaxShootTimeout = 3_s;
 
-    // The order the subsystems are initialized determines the in which order
-    // the controllers are run.
+    // The subsystem initialization order determines the controller run order.
 
     /// Drivetrain subsystem.
     Drivetrain drivetrain;
