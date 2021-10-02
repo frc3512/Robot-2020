@@ -182,11 +182,8 @@ void Climber::SetTraverser(double speed) {
 }
 
 void Climber::SetElevator(double speed) {
-    if (speed > 0.02 && !HasPassedTopLimit()) {
-        // Unlock climber if it's being commanded to move
-        m_pancake.Set(true);
-        m_elevator.Set(-speed);
-    } else if (speed < -0.02 && !HasPassedBottomLimit()) {
+    if ((speed > 0.02 && !HasPassedTopLimit()) ||
+        (speed < -0.02 && !HasPassedBottomLimit())) {
         // Unlock climber if it's being commanded to move
         m_pancake.Set(true);
         m_elevator.Set(-speed);
