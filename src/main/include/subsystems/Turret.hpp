@@ -13,7 +13,6 @@
 #include <frc/simulation/AnalogInputSim.h>
 #include <frc/simulation/DutyCycleEncoderSim.h>
 #include <frc/simulation/LinearSystemSim.h>
-#include <frc2/Timer.h>
 #include <networktables/NetworkTableEntry.h>
 #include <units/angle.h>
 #include <units/current.h>
@@ -157,7 +156,6 @@ public:
     void TeleopInit() override {
         Enable();
         SetControlMode(TurretController::ControlMode::kClosedLoop);
-        // m_limitTimer.Start();
     }
 
     void TeleopPeriodic() override;
@@ -201,8 +199,6 @@ private:
     Flywheel& m_flywheel;
 
     frc::Transform2d cameraInGlobalToDrivetrainInGlobal;
-
-    frc2::Timer m_limitTimer;
 
     // Simulation variables
     frc::sim::LinearSystemSim<2, 1, 1> m_turretSim{m_controller.GetPlant(),

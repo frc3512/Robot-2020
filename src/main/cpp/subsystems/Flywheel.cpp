@@ -111,7 +111,7 @@ units::radians_per_second_t Flywheel::GetReferenceForPose(
 }
 
 units::radians_per_second_t Flywheel::GetReferenceForRange(
-    const units::meter_t& range) const {
+    units::meter_t range) const {
     return m_table[range];
 }
 

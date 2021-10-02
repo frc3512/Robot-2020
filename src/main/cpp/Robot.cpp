@@ -162,7 +162,7 @@ void Robot::Shoot(int ballsToShoot) {
         }
 
         m_eventLogger.Log(
-            fmt::format("Called Robot::Shoot({}", m_ballsToShoot));
+            fmt::format("Called Robot::Shoot({})", m_ballsToShoot));
     }
 }
 
@@ -259,7 +259,10 @@ void Robot::RobotPeriodic() {
         RunShooterSM();
     }
 
-    /*units::radian_t turretHeadingInGlobal{
+// Sets camera's leds on when "facing" the target. Global measurements are
+// off during testing and would shut off leds in unwanted situations.
+#if 0
+    units::radian_t turretHeadingInGlobal{
         turret.GetStates()(TurretController::State::kAngle) +
         drivetrain.GetStates()(DrivetrainController::State::kHeading)};
     if (!ds.IsDisabled() &&
@@ -268,7 +271,8 @@ void Robot::RobotPeriodic() {
         vision.TurnLEDOn();
     } else {
         vision.TurnLEDOff();
-    }*/
+    }
+#endif
 
     auto batteryVoltage = frc::RobotController::GetInputVoltage();
     m_batteryLogger.Log(
@@ -331,7 +335,7 @@ void Robot::RunShooterSM() {
                        m_visionTimer.HasElapsed(3_s)) {
                 m_visionTimer.Stop();
                 vision.TurnLEDOff();
-                fmt::print("Target not found!");
+                fmt::print(stderr, "Target not found!\n");
                 m_state = ShootingState::kIdle;
             }
             break;

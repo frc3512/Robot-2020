@@ -29,9 +29,7 @@ frc::Transform2d operator+(const frc::Transform2d& first,
         frc::Pose2d{}, frc::Pose2d{}.TransformBy(first).TransformBy(second)};
 }
 
-Vision::Vision(Turret& turret) : m_turret(turret) {
-    fmt::print("Target Height: {}", TargetModel::kCenter.Z().to<double>());
-}
+Vision::Vision(Turret& turret) : m_turret(turret) {}
 
 void Vision::TurnLEDOn() { m_rpiCam.SetLEDMode(photonlib::LEDMode::kOn); }
 
@@ -119,9 +117,9 @@ void Vision::RobotPeriodic() {
 
     m_yawEntry.SetDouble(units::radian_t{m_yaw}.to<double>());
 
-    units::meter_t range = (photonlib::PhotonUtils::CalculateDistanceToTarget(
+    units::meter_t range = photonlib::PhotonUtils::CalculateDistanceToTarget(
         kCameraHeight, TargetModel::kCenter.Z(), kCameraPitch,
-        units::degree_t{m_pitch}));
+        units::degree_t{m_pitch});
 
     std::scoped_lock lock{m_subsystemQueuesMutex};
     for (auto& queue : m_subsystemQueues) {

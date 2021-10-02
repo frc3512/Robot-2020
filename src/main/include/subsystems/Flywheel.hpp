@@ -39,7 +39,6 @@ class Drivetrain;
  */
 class Flywheel : public ControlledSubsystemBase<1, 1, 1> {
 public:
-
     /**
      * Producer-consumer queue for global pose measurements from Vision
      * subsystem.
@@ -103,9 +102,9 @@ public:
     void SetGoalFromPose();
 
     /**
-     * Takes range measurement from vision subsystem. Range measurement is flat distance
-     * from front of target to face of camera. Sets angular velocity goal determined 
-     * by the lookup table.  
+     * Takes range measurement from vision subsystem. Range measurement is flat
+     * distance from front of target to face of camera. Sets angular velocity
+     * goal determined by the lookup table.
      */
     void SetGoalFromVision();
 
@@ -139,10 +138,10 @@ public:
 
     /**
      * Returns angular velocity reference that will hit the target at a given
-     * range measurement from vision. 
+     * range measurement from vision.
      */
     units::radians_per_second_t GetReferenceForRange(
-        const units::meter_t& range) const;
+        units::meter_t range) const;
 
     void DisabledInit() override { Disable(); }
 

@@ -112,7 +112,8 @@ public:
         const frc::Transform2d& turretInGlobalToDrivetrainInGlobal);
 
     /**
-     * Returns whether or not a vision target is within the camera's field of view. 
+     * Returns whether or not a vision target is within the camera's field of
+     * view.
      */
     bool IsTargetDetected() const;
 
