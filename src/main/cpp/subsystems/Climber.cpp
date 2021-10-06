@@ -134,8 +134,10 @@ void Climber::TeleopPeriodic() {
         m_state = ControlPanelState::kRotateWheel;
         m_prevColor = m_currentColor;
         m_startColor = m_currentColor;
+        m_colorSensorArm.Set(0.5);
     } else if (appendageStick1.GetRawButtonPressed(9)) {
         m_state = ControlPanelState::kStopOnColor;
+        m_colorSensorArm.Set(0.5);
     }
 
     RunControlPanelSM();
@@ -220,6 +222,7 @@ void Climber::RunControlPanelSM() {
         // 7 times, 3.5 rotations have occurred.
         if (m_changedColorCount >= 7) {
             SetTraverser(0.0);
+            m_colorSensorArm.Set(0.0);
             m_changedColorCount = 0;
             m_state = ControlPanelState::kInit;
         }
@@ -242,6 +245,7 @@ void Climber::RunControlPanelSM() {
             (desiredColor == 'B' && m_currentColor == kRedTarget) ||
             (desiredColor == 'G' && m_currentColor == kYellowTarget)) {
             SetTraverser(0.0);
+            m_colorSensorArm.Set(0.0);
             m_state = ControlPanelState::kInit;
         }
     }
