@@ -3,6 +3,7 @@
 #pragma once
 
 #include <string>
+#include <string_view>
 #include <vector>
 
 #include <frc/TimesliceRobot.h>
@@ -300,7 +301,7 @@ public:
      * @param name The autonomous mode's name passed to
      *             AutonomousChooser::AddAutonomous().
      */
-    void SelectAutonomous(wpi::StringRef name);
+    void SelectAutonomous(std::string_view name);
 
     /**
      * Returns the names of autonomous modes to test.

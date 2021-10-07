@@ -2,7 +2,6 @@
 
 #include "AutonomousChooser.hpp"
 
-#include <algorithm>
 #include <stdexcept>
 
 #include <fmt/core.h>
@@ -15,15 +14,15 @@
 
 namespace frc3512 {
 
-AutonomousChooser::AutonomousChooser(wpi::StringRef name,
+AutonomousChooser::AutonomousChooser(std::string_view name,
                                      std::function<void()> func,
                                      units::second_t duration) {
     m_defaultChoice = name;
-    m_choices[name] = {func, duration};
+    m_choices.try_emplace(std::string{name}, func, duration);
     m_names.emplace_back(name);
 
     m_selectedChoice = name;
-    m_selectedAuton = &m_choices[name];
+    m_selectedAuton = &m_choices.find(name)->second;
 
     frc::SmartDashboard::PutData("Autonomous modes", this);
 
@@ -49,25 +48,25 @@ AutonomousChooser::~AutonomousChooser() {
     m_selectedEntry.RemoveListener(m_selectedListenerHandle);
 }
 
-void AutonomousChooser::AddAutonomous(wpi::StringRef name,
+void AutonomousChooser::AddAutonomous(std::string_view name,
                                       std::function<void()> func,
                                       units::second_t duration) {
-    m_choices[name] = {func, duration};
+    m_choices.try_emplace(std::string{name}, func, duration);
     m_names.emplace_back(name);
-
-    // Unlike std::map, wpi::StringMap elements are not sorted
-    std::sort(m_names.begin(), m_names.end());
 
     m_optionsEntry.SetStringArray(m_names);
 }
 
-void AutonomousChooser::SelectAutonomous(wpi::StringRef name) {
+void AutonomousChooser::SelectAutonomous(std::string_view name) {
     {
         std::scoped_lock lock{m_selectionMutex};
         m_selectedChoice = name;
-        m_selectedAuton = &m_choices[m_selectedChoice];
+        auto it = m_choices.find(m_selectedChoice);
+        if (it != m_choices.end()) {
+            m_selectedAuton = &it->second;
+        }
     }
-    m_selectedEntry.SetString(name);
+    m_selectedEntry.SetString(std::string{name});
 }
 
 units::second_t AutonomousChooser::SelectedAutonomousDuration() const {
@@ -119,7 +118,10 @@ void AutonomousChooser::AwaitAutonomous() {
     {
         std::scoped_lock lock{m_selectionMutex};
         fmt::print("{} autonomous\n", m_selectedChoice);
-        m_selectedAuton = &m_choices[m_selectedChoice];
+        auto it = m_choices.find(m_selectedChoice);
+        if (it != m_choices.end()) {
+            m_selectedAuton = &it->second;
+        }
     }
 
     m_resumedAuton = true;

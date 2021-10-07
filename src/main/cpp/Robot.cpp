@@ -392,7 +392,7 @@ void Robot::RunShooterSM() {
     m_prevFlywheelAtGoal = flywheel.AtGoal();
 }
 
-void Robot::SelectAutonomous(wpi::StringRef name) {
+void Robot::SelectAutonomous(std::string_view name) {
     m_autonChooser.SelectAutonomous(name);
 }
 

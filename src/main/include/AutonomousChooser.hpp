@@ -3,7 +3,9 @@
 #pragma once
 
 #include <functional>
+#include <map>
 #include <string>
+#include <string_view>
 #include <thread>
 #include <vector>
 
@@ -11,8 +13,6 @@
 #include <frc/smartdashboard/SendableBuilder.h>
 #include <networktables/NetworkTableEntry.h>
 #include <units/time.h>
-#include <wpi/StringMap.h>
-#include <wpi/StringRef.h>
 #include <wpi/condition_variable.h>
 #include <wpi/mutex.h>
 
@@ -34,7 +34,7 @@ public:
      * @param func     Autonomous mode function.
      * @param duration Duration of the autonomous mode to enforce in unit tests.
      */
-    AutonomousChooser(wpi::StringRef name, std::function<void()> func,
+    AutonomousChooser(std::string_view name, std::function<void()> func,
                       units::second_t duration = 15_s);
 
     ~AutonomousChooser() override;
@@ -46,7 +46,7 @@ public:
      * @param func     Autonomous mode function.
      * @param duration Duration of the autonomous mode to enforce in unit tests.
      */
-    void AddAutonomous(wpi::StringRef name, std::function<void()> func,
+    void AddAutonomous(std::string_view name, std::function<void()> func,
                        units::second_t duration = 15_s);
 
     /**
@@ -54,7 +54,7 @@ public:
      *
      * @param name Name of autonomous mode.
      */
-    void SelectAutonomous(wpi::StringRef name);
+    void SelectAutonomous(std::string_view name);
 
     /**
      * Returns the selected autonomous mode's expected duration.
@@ -153,6 +153,14 @@ private:
     struct AutonomousMode {
         std::function<void()> func = [] {};
         units::second_t duration = 15_s;
+
+        AutonomousMode() = default;
+        AutonomousMode(std::function<void()> func, units::second_t duration)
+            : func{func}, duration{duration} {}
+        AutonomousMode(const AutonomousMode&) = default;
+        AutonomousMode& operator=(const AutonomousMode&) = default;
+        AutonomousMode(AutonomousMode&&) = default;
+        AutonomousMode& operator=(AutonomousMode&&) = default;
     };
 
     std::thread m_autonThread;
@@ -173,7 +181,7 @@ private:
     mutable wpi::mutex m_selectionMutex;
     std::string m_defaultChoice;
     std::string m_selectedChoice;
-    wpi::StringMap<AutonomousMode> m_choices;
+    std::map<std::string, AutonomousMode, std::less<>> m_choices;
     std::vector<std::string> m_names;
     AutonomousMode* m_selectedAuton;
 
