@@ -416,6 +416,8 @@ void Robot::ExpectAutonomousEndConds() {
             0.0, 0.01);
 
         EXPECT_EQ(flywheel.GetGoal(), 0_rad_per_s);
+
+        EXPECT_EQ(intakeSim.NumberOfBalls(), 0u);
     }
 }
 
