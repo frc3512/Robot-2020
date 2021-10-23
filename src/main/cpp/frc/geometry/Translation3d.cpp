@@ -56,9 +56,9 @@ Translation3d& Translation3d::operator/=(double scalar) {
 }
 
 void frc::to_json(wpi::json& json, const Translation3d& translation) {
-  json = wpi::json{{"x", translation.X().to<double>()},
-                   {"y", translation.Y().to<double>()},
-                   {"z", translation.Z().to<double>()}};
+  json = wpi::json{{"x", translation.X().value()},
+                   {"y", translation.Y().value()},
+                   {"z", translation.Z().value()}};
 }
 
 void frc::from_json(const wpi::json& json, Translation3d& translation) {

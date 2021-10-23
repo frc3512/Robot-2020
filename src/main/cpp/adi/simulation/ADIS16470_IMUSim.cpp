@@ -15,19 +15,19 @@ ADIS16470_IMUSim::ADIS16470_IMUSim(const frc::ADIS16470_IMU& imu) {
 }
 
 void ADIS16470_IMUSim::SetAngle(units::degree_t angle) {
-    m_simAngle.Set(angle.to<double>());
+    m_simAngle.Set(angle.value());
 }
 
 void ADIS16470_IMUSim::SetRate(units::degrees_per_second_t rate) {
-    m_simRate.Set(rate.to<double>());
+    m_simRate.Set(rate.value());
 }
 
 void ADIS16470_IMUSim::SetAccelInstantX(
     units::meters_per_second_squared_t accel) {
-    m_simAccelX.Set(accel.to<double>() / 9.81);
+    m_simAccelX.Set(accel.value() / 9.81);
 }
 
 void ADIS16470_IMUSim::SetAccelInstantY(
     units::meters_per_second_squared_t accel) {
-    m_simAccelY.Set(accel.to<double>() / 9.81);
+    m_simAccelY.Set(accel.value() / 9.81);
 }

@@ -216,9 +216,8 @@ private:
 
             m_timingLogger.Log(
                 entry.nowBegin - frc::CSVLogFile::GetStartTime(),
-                units::millisecond_t{entry.nowEnd - entry.nowBegin}
-                    .to<double>(),
-                units::millisecond_t{m_dt}.to<double>());
+                units::millisecond_t{entry.nowEnd - entry.nowBegin}.value(),
+                units::millisecond_t{m_dt}.value());
             m_lastTime = m_nowBegin;
         }
     }

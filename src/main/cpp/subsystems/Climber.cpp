@@ -57,7 +57,7 @@ units::volt_t Climber::GetElevatorMotorOutput() const {
 }
 
 void Climber::RobotPeriodic() {
-    m_elevatorEncoderEntry.SetDouble(GetElevatorPosition().to<double>());
+    m_elevatorEncoderEntry.SetDouble(GetElevatorPosition().value());
     m_changedColorNumEntry.SetDouble(m_changedColorCount);
 
     m_currentColor =

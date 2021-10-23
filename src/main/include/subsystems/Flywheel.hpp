@@ -177,7 +177,7 @@ private:
     frc::KalmanFilter<1, 1, 1> m_observer{
         m_plant,
         {200.0},
-        {FlywheelController::kDpP / Constants::kControllerPeriod.to<double>()},
+        {FlywheelController::kDpP / Constants::kControllerPeriod.value()},
         Constants::kControllerPeriod};
 
     FlywheelController m_controller;

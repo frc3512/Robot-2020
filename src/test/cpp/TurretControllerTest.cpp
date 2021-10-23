@@ -78,9 +78,9 @@ void VerifyHeadingAdjustment(units::meters_per_second_t drivetrainSpeed,
     auto targetDisplacement = kTargetPosition - turretPosition;
 
     // Compare cos and sin components separately to handle wraparound
-    frc::Rotation2d sumRotation{sum.X().to<double>(), sum.Y().to<double>()};
-    frc::Rotation2d displacementRotation{targetDisplacement.X().to<double>(),
-                                         targetDisplacement.Y().to<double>()};
+    frc::Rotation2d sumRotation{sum.X().value(), sum.Y().value()};
+    frc::Rotation2d displacementRotation{targetDisplacement.X().value(),
+                                         targetDisplacement.Y().value()};
     EXPECT_NEAR(sumRotation.Cos(), displacementRotation.Cos(), 1e-6);
     EXPECT_NEAR(sumRotation.Sin(), displacementRotation.Sin(), 1e-6);
 }
@@ -100,7 +100,7 @@ TEST_F(TurretControllerTest, ProperDistanceFromTarget) {
     frc::sim::StepTiming(frc3512::Constants::kControllerPeriod);
 
     Eigen::Matrix<double, 7, 1> drivetrainXhat;
-    drivetrainXhat << kDrivetrainX.to<double>(), kDrivetrainY.to<double>(),
+    drivetrainXhat << kDrivetrainX.value(), kDrivetrainY.value(),
         wpi::numbers::pi, 0, 0, 0, 0;
 
     controller.SetDrivetrainStates(drivetrainXhat);

@@ -105,16 +105,15 @@ void Vision::RobotPeriodic() {
         cameraInGlobal.TransformBy(kCameraInGlobalToTurretInGlobal)
             .TransformBy(m_turret.GetTurretInGlobalToDrivetrainInGlobal());
 
-    std::array<double, 3> pose{
-        drivetrainInGlobal.X().to<double>(),
-        drivetrainInGlobal.Y().to<double>(),
-        drivetrainInGlobal.Rotation().Radians().to<double>()};
+    std::array<double, 3> pose{drivetrainInGlobal.X().value(),
+                               drivetrainInGlobal.Y().value(),
+                               drivetrainInGlobal.Rotation().Radians().value()};
     m_poseEntry.SetDoubleArray(pose);
 
     m_pitch = units::degree_t{target.GetPitch()};
     m_yaw = units::degree_t{target.GetYaw()};
 
-    m_yawEntry.SetDouble(units::radian_t{m_yaw}.to<double>());
+    m_yawEntry.SetDouble(units::radian_t{m_yaw}.value());
 
     units::meter_t range = photonlib::PhotonUtils::CalculateDistanceToTarget(
         kCameraHeight, TargetModel::kCenter.Z(), kCameraPitch,
@@ -128,5 +127,5 @@ void Vision::RobotPeriodic() {
         }
     }
 
-    m_rangeEntry.SetDouble(range.to<double>());
+    m_rangeEntry.SetDouble(range.value());
 }

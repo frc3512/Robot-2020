@@ -154,7 +154,7 @@ void Flywheel::ControllerPeriodic() {
                                                    (m_time - m_lastTime));
 
     Eigen::Matrix<double, 1, 1> y;
-    y << GetAngularVelocity().to<double>();
+    y << GetAngularVelocity().value();
     m_observer.Correct(m_controller.GetInputs(), y);
     m_u = m_controller.Calculate(m_observer.Xhat());
     SetVoltage(units::volt_t{m_u(Input::kVoltage)});
@@ -170,9 +170,9 @@ void Flywheel::ControllerPeriodic() {
             voltage += FlywheelController::kS;
         }
 
-        m_flywheelSim.SetInput(frc::MakeMatrix<1, 1>(voltage.to<double>()));
+        m_flywheelSim.SetInput(frc::MakeMatrix<1, 1>(voltage.value()));
         m_flywheelSim.Update(GetDt());
-        m_encoderSim.SetDistance(m_flywheelSim.GetAngle().to<double>());
+        m_encoderSim.SetDistance(m_flywheelSim.GetAngle().value());
     }
 
     m_lastAngle = m_angle;
@@ -181,7 +181,7 @@ void Flywheel::ControllerPeriodic() {
 
 void Flywheel::SetSimAngularVelocity(units::radians_per_second_t velocity) {
     m_flywheelSim.SetState(frc::MakeMatrix<2, 1>(
-        m_flywheelSim.GetAngle().to<double>(), velocity.to<double>()));
+        m_flywheelSim.GetAngle().value(), velocity.value()));
 }
 
 void Flywheel::SetVoltage(units::volt_t voltage) {

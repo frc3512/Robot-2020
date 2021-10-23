@@ -37,7 +37,7 @@ void TurretController::SetGoal(units::radian_t angle,
 
 void TurretController::SetReferences(units::radian_t angle,
                                      units::radians_per_second_t velocity) {
-    m_nextR << angle.to<double>(), velocity.to<double>();
+    m_nextR << angle.value(), velocity.value();
 }
 
 bool TurretController::AtReferences() const { return m_atReferences; }
@@ -81,7 +81,7 @@ TurretController::ControlMode TurretController::GetControlMode() const {
 
 void TurretController::Reset(units::radian_t initialHeading) {
     Eigen::Matrix<double, 2, 1> xHat;
-    xHat << initialHeading.to<double>(), 0.0;
+    xHat << initialHeading.value(), 0.0;
 
     m_ff.Reset(xHat);
     m_r = xHat;
@@ -275,8 +275,8 @@ units::radians_per_second_t TurretController::CalculateAngularVelocity(
     frc::Velocity2d v, frc::Translation2d r) {
     // No Translation2d::operator* exists that takes a 1/s and gives a
     // Velocity2d.
-    frc::Translation2d vVec{units::meter_t{v.X().to<double>()},
-                            units::meter_t{v.Y().to<double>()}};
+    frc::Translation2d vVec{units::meter_t{v.X().value()},
+                            units::meter_t{v.Y().value()}};
 
     // We want the angular velocity around the target. We know:
     //
@@ -299,8 +299,8 @@ units::radians_per_second_t TurretController::CalculateAngularVelocity(
     // |w| = (<-r.y, r.x> / |r|^2 . v)
     // |w| = (<-r.y, r.x> / (r . r) . v)    (4)
     return units::radians_per_second_t{
-        Dot(frc::Translation2d{-r.Y(), r.X()} / Dot(r, r).to<double>(), vVec)
-            .to<double>()};
+        Dot(frc::Translation2d{-r.Y(), r.X()} / Dot(r, r).value(), vVec)
+            .value()};
 }
 
 frc::Pose2d TurretController::DrivetrainToTurretInGlobal(

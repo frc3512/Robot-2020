@@ -26,8 +26,8 @@ DrivetrainController::DrivetrainController() {
 
     Eigen::Matrix<double, 7, 1> x = Eigen::Matrix<double, 7, 1>::Zero();
     for (auto velocity = -kMaxV; velocity < kMaxV; velocity += 0.01_mps) {
-        x(State::kLeftVelocity) = velocity.to<double>();
-        x(State::kRightVelocity) = velocity.to<double>();
+        x(State::kLeftVelocity) = velocity.value();
+        x(State::kRightVelocity) = velocity.value();
         m_table.Insert(velocity, ControllerGainForState(x));
     }
 
@@ -88,9 +88,9 @@ bool DrivetrainController::AtGoal() const {
 
 void DrivetrainController::Reset(const frc::Pose2d& initialPose) {
     Eigen::Matrix<double, 7, 1> xHat;
-    xHat(0) = initialPose.X().to<double>();
-    xHat(1) = initialPose.Y().to<double>();
-    xHat(2) = initialPose.Rotation().Radians().to<double>();
+    xHat(0) = initialPose.X().value();
+    xHat(1) = initialPose.Y().value();
+    xHat(2) = initialPose.Rotation().Radians().value();
     xHat.block<4, 1>(3, 0).setZero();
 
     m_ff.Reset(xHat);
@@ -111,9 +111,9 @@ Eigen::Matrix<double, 2, 1> DrivetrainController::Calculate(
         auto [vlRef, vrRef] =
             ToWheelVelocities(ref.velocity, ref.curvature, kWidth);
 
-        m_nextR << ref.pose.X().to<double>(), ref.pose.Y().to<double>(),
-            ref.pose.Rotation().Radians().to<double>(), vlRef.to<double>(),
-            vrRef.to<double>(), 0, 0;
+        m_nextR << ref.pose.X().value(), ref.pose.Y().value(),
+            ref.pose.Rotation().Radians().value(), vlRef.value(), vrRef.value(),
+            0, 0;
 
         Eigen::Matrix<double, 2, 1> u_fb = Controller(x, m_r);
         u_fb = frc::NormalizeInputVector<2>(u_fb, 12.0);
@@ -123,8 +123,7 @@ Eigen::Matrix<double, 2, 1> DrivetrainController::Calculate(
         Eigen::Matrix<double, 5, 1> error =
             m_nextR.block<5, 1>(0, 0) - x.block<5, 1>(0, 0);
         error(State::kHeading) =
-            frc::AngleModulus(units::radian_t{error(State::kHeading)})
-                .to<double>();
+            frc::AngleModulus(units::radian_t{error(State::kHeading)}).value();
         UpdateAtReferences(error);
 
         m_r = m_nextR;
@@ -198,7 +197,7 @@ Eigen::Matrix<double, 2, 1> DrivetrainController::Controller(
     Eigen::Matrix<double, 5, 1> error =
         r.block<5, 1>(0, 0) - x.block<5, 1>(0, 0);
     error(State::kHeading) =
-        frc::AngleModulus(units::radian_t{error(State::kHeading)}).to<double>();
+        frc::AngleModulus(units::radian_t{error(State::kHeading)}).value();
     return K * inRobotFrame * error;
 }
 
@@ -218,8 +217,8 @@ Eigen::Matrix<double, 7, 1> DrivetrainController::Dynamics(
     Eigen::Matrix<double, 7, 1> xdot;
     xdot(0) = v * std::cos(x(State::kHeading));
     xdot(1) = v * std::sin(x(State::kHeading));
-    xdot(2) = ((x(State::kRightVelocity) - x(State::kLeftVelocity)) / kWidth)
-                  .to<double>();
+    xdot(2) =
+        ((x(State::kRightVelocity) - x(State::kLeftVelocity)) / kWidth).value();
     xdot.block<4, 1>(3, 0) = A * x.block<4, 1>(3, 0) + B * u;
     return xdot;
 }
@@ -230,7 +229,7 @@ Eigen::Matrix<double, 5, 5> DrivetrainController::JacobianX(
     return frc::MakeMatrix<5, 5>(
         0.0, 0.0, 0.0, 0.5, 0.5,
         0.0, 0.0, (x(State::kLeftVelocity) + x(State::kRightVelocity)) / 2.0, 0.0, 0.0,
-        0.0, 0.0, 0.0, -1.0 / kWidth.to<double>(), 1.0 / kWidth.to<double>(),
+        0.0, 0.0, 0.0, -1.0 / kWidth.value(), 1.0 / kWidth.value(),
         0.0, 0.0, 0.0, kPlant.A(0, 0), kPlant.A(0, 1),
         0.0, 0.0, 0.0, kPlant.A(1, 0), kPlant.A(1, 1));
     // clang-format on
@@ -261,7 +260,7 @@ Eigen::Matrix<double, 5, 1> DrivetrainController::LocalMeasurementModel(
         (xdot(0) + xdot(1)) / 2.0,
         (x(State::kRightVelocity) * x(State::kRightVelocity) -
          x(State::kLeftVelocity) * x(State::kLeftVelocity)) /
-            (2.0 * kWidth.to<double>());
+            (2.0 * kWidth.value());
     return y;
 }
 

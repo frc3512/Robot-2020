@@ -81,8 +81,7 @@ Velocity2d& Velocity2d::operator/=(double scalar) {
 }
 
 void frc::to_json(wpi::json& json, const Velocity2d& velocity) {
-  json = wpi::json{{"x", velocity.X().to<double>()},
-                   {"y", velocity.Y().to<double>()}};
+  json = wpi::json{{"x", velocity.X().value()}, {"y", velocity.Y().value()}};
 }
 
 void frc::from_json(const wpi::json& json, Velocity2d& velocity) {

@@ -10,11 +10,11 @@ using namespace frc3512;
 FlywheelController::FlywheelController() { Reset(); }
 
 void FlywheelController::SetGoal(units::radians_per_second_t angularVelocity) {
-    if (m_nextR(0) == angularVelocity.to<double>()) {
+    if (m_nextR(0) == angularVelocity.value()) {
         return;
     }
 
-    m_nextR << angularVelocity.to<double>();
+    m_nextR << angularVelocity.value();
     m_atGoal = false;
 }
 
@@ -37,7 +37,7 @@ Eigen::Matrix<double, 1, 1> FlywheelController::Calculate(
         m_u << 0.0;
     } else {
         m_u = m_lqr.Calculate(x, m_r) + m_ff.Calculate(m_nextR) +
-              frc::MakeMatrix<1, 1>(kS.to<double>());
+              frc::MakeMatrix<1, 1>(kS.value());
     }
 
     m_u = frc::NormalizeInputVector<1>(m_u, 12.0);

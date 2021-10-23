@@ -60,7 +60,7 @@ public:
 
     /// Drivetrain distance per encoder pulse.
     static constexpr double kDpP =
-        (2.0 * wpi::numbers::pi * kWheelRadius.to<double>()) * kDriveGearRatio /
+        (2.0 * wpi::numbers::pi * kWheelRadius.value()) * kDriveGearRatio /
         2048.0;
 
     /// Drivetrain chassis width.

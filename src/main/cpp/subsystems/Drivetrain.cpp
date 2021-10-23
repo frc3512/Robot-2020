@@ -136,9 +136,9 @@ void Drivetrain::Reset(const frc::Pose2d& initialPose) {
     m_headingOffset = initialPose.Rotation().Radians();
 
     Eigen::Matrix<double, 7, 1> xHat;
-    xHat(State::kX) = initialPose.X().to<double>();
-    xHat(State::kY) = initialPose.Y().to<double>();
-    xHat(State::kHeading) = initialPose.Rotation().Radians().to<double>();
+    xHat(State::kX) = initialPose.X().value();
+    xHat(State::kY) = initialPose.Y().value();
+    xHat(State::kHeading) = initialPose.Rotation().Radians().value();
     xHat.block<4, 1>(3, 0).setZero();
     m_observer.SetXhat(xHat);
 
@@ -151,7 +151,7 @@ void Drivetrain::Reset(const frc::Pose2d& initialPose) {
 void Drivetrain::CorrectWithGlobalOutputs(units::meter_t x, units::meter_t y,
                                           units::second_t timestamp) {
     Eigen::Matrix<double, 2, 1> globalY;
-    globalY << x.to<double>(), y.to<double>();
+    globalY << x.value(), y.value();
     m_latencyComp.ApplyPastMeasurement<2>(
         &m_observer, Constants::kControllerPeriod, globalY,
         [&](const Eigen::Matrix<double, 2, 1>& u,
@@ -170,9 +170,9 @@ void Drivetrain::ControllerPeriodic() {
     m_observer.Predict(m_u, GetDt());
 
     Eigen::Matrix<double, 5, 1> y;
-    y << frc::AngleModulus(GetAngle()).to<double>(),
-        GetLeftPosition().to<double>(), GetRightPosition().to<double>(),
-        GetAccelerationX().to<double>(), GetAccelerationY().to<double>();
+    y << frc::AngleModulus(GetAngle()).value(), GetLeftPosition().value(),
+        GetRightPosition().value(), GetAccelerationX().value(),
+        GetAccelerationY().value();
     m_latencyComp.AddObserverState(m_observer, m_controller.GetInputs(), y,
                                    frc2::Timer::GetFPGATimestamp());
     m_observer.Correct(m_controller.GetInputs(), y);
@@ -229,17 +229,16 @@ void Drivetrain::ControllerPeriodic() {
 
         m_drivetrainSim.Update(GetDt());
 
-        m_leftEncoderSim.SetDistance(
-            m_drivetrainSim.GetLeftPosition().to<double>());
+        m_leftEncoderSim.SetDistance(m_drivetrainSim.GetLeftPosition().value());
         m_rightEncoderSim.SetDistance(
-            m_drivetrainSim.GetRightPosition().to<double>());
+            m_drivetrainSim.GetRightPosition().value());
         m_imuSim.SetAngle(units::degree_t{
             m_drivetrainSim.GetHeading().Radians() - m_headingOffset});
 
         const auto& plant = DrivetrainController::GetPlant();
         Eigen::Matrix<double, 2, 1> x;
-        x << m_drivetrainSim.GetLeftVelocity().to<double>(),
-            m_drivetrainSim.GetRightVelocity().to<double>();
+        x << m_drivetrainSim.GetLeftVelocity().value(),
+            m_drivetrainSim.GetRightVelocity().value();
         Eigen::Matrix<double, 2, 1> u;
         u << std::clamp(m_leftGrbx.Get(), -1.0, 1.0) * batteryVoltage,
             std::clamp(m_rightGrbx.Get(), -1.0, 1.0) * batteryVoltage;
@@ -266,10 +265,9 @@ void Drivetrain::RobotPeriodic() {
 
     auto& ds = frc::DriverStation::GetInstance();
     if (ds.IsDisabled() || !ds.IsFMSAttached()) {
-        m_leftUltrasonicOutputEntry.SetDouble(
-            m_leftUltrasonicDistance.to<double>());
+        m_leftUltrasonicOutputEntry.SetDouble(m_leftUltrasonicDistance.value());
         m_rightUltrasonicOutputEntry.SetDouble(
-            m_rightUltrasonicDistance.to<double>());
+            m_rightUltrasonicDistance.value());
     }
 
     if constexpr (frc::RobotBase::IsSimulation()) {
@@ -383,8 +381,8 @@ void Drivetrain::TeleopPeriodic() {
     // Implicit model following
     // TODO: Velocities need filtering
     Eigen::Matrix<double, 2, 1> u =
-        m_imf.Calculate(frc::MakeMatrix<2, 1>(GetLeftVelocity().to<double>(),
-                                              GetRightVelocity().to<double>()),
+        m_imf.Calculate(frc::MakeMatrix<2, 1>(GetLeftVelocity().value(),
+                                              GetRightVelocity().value()),
                         frc::MakeMatrix<2, 1>(left * 12.0, right * 12.0));
 
     m_leftGrbx.SetVoltage(units::volt_t{u(Input::kLeftVoltage)});
@@ -409,8 +407,8 @@ void Drivetrain::TestPeriodic() {
     // Implicit model following
     // TODO: Velocities need filtering
     Eigen::Matrix<double, 2, 1> u =
-        m_imf.Calculate(frc::MakeMatrix<2, 1>(GetLeftVelocity().to<double>(),
-                                              GetRightVelocity().to<double>()),
+        m_imf.Calculate(frc::MakeMatrix<2, 1>(GetLeftVelocity().value(),
+                                              GetRightVelocity().value()),
                         frc::MakeMatrix<2, 1>(left * 12.0, right * 12.0));
 
     m_leftGrbx.SetVoltage(units::volt_t{u(Input::kLeftVoltage)});

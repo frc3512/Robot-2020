@@ -64,7 +64,7 @@ void Turret::SetDirection(Direction direction) {
 
 void Turret::Reset(units::radian_t initialHeading) {
     Eigen::Matrix<double, 2, 1> xHat;
-    xHat << initialHeading.to<double>(), 0.0;
+    xHat << initialHeading.value(), 0.0;
 
     m_observer.Reset();
     m_observer.SetXhat(xHat);
@@ -185,14 +185,14 @@ void Turret::ControllerPeriodic() {
         m_flywheel.GetReferenceForPose(m_drivetrain.GetPose()));
 
     Eigen::Matrix<double, 1, 1> y;
-    y << GetAngle().to<double>();
+    y << GetAngle().value();
     m_observer.Correct(m_controller.GetInputs(), y);
 
     auto visionData = visionQueue.pop();
     if (visionData.has_value()) {
         m_controller.SetVisionMeasurements(visionData.value().yaw,
                                            visionData.value().timestamp);
-        m_controllerYawEntry.SetDouble(visionData.value().yaw.to<double>());
+        m_controllerYawEntry.SetDouble(visionData.value().yaw.value());
     }
 
     m_u = m_controller.Calculate(m_observer.Xhat());
@@ -242,5 +242,5 @@ void Turret::SetVoltage(units::volt_t voltage) {
 double Turret::HeadingToEncoderDistance(units::radian_t heading) {
     // heading = GetDistance() - kOffset
     // GetDistance() = heading + kOffset
-    return (heading + kOffset).to<double>();
+    return (heading + kOffset).value();
 }

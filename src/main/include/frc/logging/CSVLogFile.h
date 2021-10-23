@@ -84,7 +84,7 @@ class CSVLogFile {
    */
   template <typename Value, typename... Values>
   void Log(units::second_t time, Value value, Values... values) {
-    m_logFile << time.to<double>() << ',';
+    m_logFile << time.value() << ',';
     LogValues(value, values...);
   }
 
