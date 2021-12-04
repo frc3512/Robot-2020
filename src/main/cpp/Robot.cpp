@@ -271,9 +271,6 @@ void Robot::SimulationPeriodic() {
     vision.UpdateVisionMeasurementsSim(
         drivetrain.GetSimPose(),
         turret.GetTurretInGlobalToDrivetrainInGlobal());
-
-    frc::sim::RoboRioSim::SetVInVoltage(frc::sim::BatterySim::Calculate(
-        {drivetrain.GetCurrentDraw(), flywheel.GetCurrentDraw()}));
 }
 
 void Robot::DisabledPeriodic() { SubsystemBase::RunAllDisabledPeriodic(); }
