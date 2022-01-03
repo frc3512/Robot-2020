@@ -1,4 +1,4 @@
-// Copyright (c) 2016-2021 FRC Team 3512. All Rights Reserved.
+// Copyright (c) FRC Team 3512. All Rights Reserved.
 
 #include "subsystems/Flywheel.hpp"
 

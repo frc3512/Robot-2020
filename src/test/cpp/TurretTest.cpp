@@ -1,4 +1,4 @@
-// Copyright (c) 2019-2021 FRC Team 3512. All Rights Reserved.
+// Copyright (c) FRC Team 3512. All Rights Reserved.
 
 #include <frc/Notifier.h>
 #include <frc/simulation/JoystickSim.h>

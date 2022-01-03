@@ -1,4 +1,4 @@
-// Copyright (c) 2021 FRC Team 3512. All Rights Reserved.
+// Copyright (c) FRC Team 3512. All Rights Reserved.
 
 #include <adi/ADIS16470_IMU.h>
 #include <adi/simulation/ADIS16470_IMUSim.h>
