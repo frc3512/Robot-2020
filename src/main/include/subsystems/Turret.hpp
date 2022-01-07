@@ -143,20 +143,11 @@ public:
      */
     const Eigen::Matrix<double, 2, 1>& GetStates() const;
 
-    void DisabledInit() override {
-        Disable();
-        SetControlMode(TurretController::ControlMode::kManual);
-    }
+    void DisabledInit() override;
 
-    void AutonomousInit() override {
-        Enable();
-        SetControlMode(TurretController::ControlMode::kAutoAim);
-    }
+    void AutonomousInit() override;
 
-    void TeleopInit() override {
-        Enable();
-        SetControlMode(TurretController::ControlMode::kClosedLoop);
-    }
+    void TeleopInit() override;
 
     void TeleopPeriodic() override;
 

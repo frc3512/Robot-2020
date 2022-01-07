@@ -135,6 +135,21 @@ const Eigen::Matrix<double, 2, 1>& Turret::GetStates() const {
     return m_observer.Xhat();
 }
 
+void Turret::DisabledInit() {
+    Disable();
+    SetControlMode(TurretController::ControlMode::kManual);
+}
+
+void Turret::AutonomousInit() {
+    Enable();
+    SetControlMode(TurretController::ControlMode::kAutoAim);
+}
+
+void Turret::TeleopInit() {
+    Enable();
+    SetControlMode(TurretController::ControlMode::kClosedLoop);
+}
+
 void Turret::TeleopPeriodic() {
     static frc::Joystick appendageStick1{HWConfig::kAppendageStick1Port};
 
