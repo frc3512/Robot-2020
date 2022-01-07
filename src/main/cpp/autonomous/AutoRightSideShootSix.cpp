@@ -35,7 +35,7 @@ void Robot::AutoRightSideShootSix() {
             intakeSim.AddBall();
         }
     }
-    Shoot(3);
+    ShootWithVision(3);
 
     if (!m_autonChooser.Suspend([=] { return !IsShooting(); })) {
         return;
@@ -67,6 +67,7 @@ void Robot::AutoRightSideShootSix() {
     // Drive back
     {
         auto config = Drivetrain::MakeTrajectoryConfig();
+        config.AddConstraint(regionConstraint);
         config.SetReversed(true);
         drivetrain.AddTrajectory({kEndPose, kMidPose}, config);
     }
@@ -80,15 +81,13 @@ void Robot::AutoRightSideShootSix() {
             intakeSim.AddBall();
         }
     }
-    Shoot(3);
+    ShootWithVision(3);
 
     if (!m_autonChooser.Suspend([=] { return !IsShooting(); })) {
         return;
     }
 
     intake.Stop();
-
-    EXPECT_TRUE(turret.AtGoal());
 }
 
 }  // namespace frc3512

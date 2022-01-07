@@ -18,9 +18,6 @@ void Robot::AutoRightSideShootEight() {
     // Enters generator
     const frc::Pose2d kGenPose{9.3_m, 3.5_m, 120_deg};
 
-    // End pose - In line with target
-    const frc::Pose2d kEnd{9.8_m, 2.50_m, units::radian_t{wpi::numbers::pi}};
-
     const units::meters_per_second_t kMaxV = 1.6_mps;
 
     drivetrain.Reset(kInitialPose);
@@ -34,7 +31,7 @@ void Robot::AutoRightSideShootEight() {
     }
 
     // Shoot our 3 preloaded balls
-    Shoot(3);
+    ShootWithPose(3);
 
     if (!m_autonChooser.Suspend([=] { return !IsShooting(); })) {
         return;
@@ -81,7 +78,8 @@ void Robot::AutoRightSideShootEight() {
             frc::MaxVelocityConstraint{kMaxV}};
         auto config = drivetrain.MakeTrajectoryConfig();
         config.AddConstraint(regionConstraint);
-        drivetrain.AddTrajectory({kInitialPose, kGenPose, kEnd}, config);
+        drivetrain.AddTrajectory({kInitialPose, kGenPose}, config);
+        drivetrain.AddTrajectory({kGenPose, kTrenchPose, kInitialPose}, config);
     }
 
     if (!m_autonChooser.Suspend([=] { return drivetrain.AtGoal(); })) {
@@ -94,7 +92,7 @@ void Robot::AutoRightSideShootEight() {
         }
     }
 
-    Shoot(5);
+    ShootWithPose(5);
 
     if (!m_autonChooser.Suspend([=] { return !IsShooting(); })) {
         return;

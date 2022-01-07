@@ -30,7 +30,7 @@ void Robot::AutoTargetZoneShootSix() {
     }
 
     // Shoot our 3 preloaded balls
-    Shoot(3);
+    ShootWithPose(3);
 
     if (!m_autonChooser.Suspend([=] { return !IsShooting(); })) {
         return;
@@ -78,7 +78,7 @@ void Robot::AutoTargetZoneShootSix() {
             intakeSim.AddBall();
         }
     }
-    Shoot(3);
+    ShootWithPose(3);
 
     if (!m_autonChooser.Suspend([=] { return !IsShooting(); })) {
         return;

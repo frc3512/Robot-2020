@@ -258,8 +258,8 @@ private:
     frc::LinearPlantInversionFeedforward<2, 1> m_ff{
         m_plant, Constants::kControllerPeriod};
 
-    units::radian_t m_visionYaw;
-    units::second_t m_timestamp;
+    units::radian_t m_visionYaw = 0_rad;
+    units::second_t m_timestamp = 0_s;
 
     ControlMode m_controlMode = ControlMode::kManual;
 

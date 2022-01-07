@@ -65,29 +65,37 @@ Robot::Robot() : frc::TimesliceRobot{2_ms, Constants::kControllerPeriod} {
     // dashboard plots
     SetNetworkTablesFlushEnabled(true);
 
-    m_autonChooser.AddAutonomous("Left Side Intake",
-                                 [=] { AutoLeftSideIntake(); });
-    m_autonChooser.AddAutonomous("Left Side Shoot Ten",
-                                 [=] { AutoLeftSideShootTen(); });
-    m_autonChooser.AddAutonomous("Loading Zone Drive Forward",
-                                 [=] { AutoLoadingZoneDriveForward(); });
-    m_autonChooser.AddAutonomous("Loading Zone Shoot Three",
-                                 [=] { AutoLoadingZoneShootThree(); });
-    m_autonChooser.AddAutonomous("Target Zone Shoot Three",
-                                 [=] { AutoTargetZoneShootThree(); });
-    m_autonChooser.AddAutonomous("Target Zone Shoot Six",
-                                 [=] { AutoTargetZoneShootSix(); });
-    m_autonChooser.AddAutonomous("Right Side Drive Forward",
+    if constexpr (IsSimulation()) {
+        m_autonChooser.AddAutonomous("Left Side Intake",
+                                     [=] { AutoLeftSideIntake(); });
+        m_autonChooser.AddAutonomous(
+            "Left Side Shoot Ten", [=] { AutoLeftSideShootTen(); }, 30_s);
+        m_autonChooser.AddAutonomous("Loading Zone Drive Forward",
+                                     [=] { AutoLoadingZoneDriveForward(); });
+        m_autonChooser.AddAutonomous("Loading Zone Shoot Three",
+                                     [=] { AutoLoadingZoneShootThree(); });
+        m_autonChooser.AddAutonomous("Target Zone Shoot Three",
+                                     [=] { AutoTargetZoneShootThree(); });
+        m_autonChooser.AddAutonomous("Target Zone Shoot Six",
+                                     [=] { AutoTargetZoneShootSix(); });
+        m_autonChooser.AddAutonomous("Right Side Intake",
+                                     [=] { AutoRightSideIntake(); });
+        m_autonChooser.AddAutonomous("Right Side Shoot Three",
+                                     [=] { AutoRightSideShootThree(); });
+        m_autonChooser.AddAutonomous("Right Side Shoot Eight",
+                                     [=] { AutoRightSideShootEight(); });
+    }
+
+    // 2021 offseason autonomous modes
+    m_autonChooser.AddAutonomous("Drive Forward",
                                  [=] { AutoRightSideDriveForward(); });
-    m_autonChooser.AddAutonomous("Right Side Intake",
-                                 [=] { AutoRightSideIntake(); });
-    m_autonChooser.AddAutonomous("Right Side Shoot Three",
-                                 [=] { AutoRightSideShootThree(); });
-    m_autonChooser.AddAutonomous("Right Side Shoot Six",
-                                 [=] { AutoRightSideShootSix(); });
-    m_autonChooser.AddAutonomous("Right Side Shoot Eight",
-                                 [=] { AutoRightSideShootEight(); });
-    if constexpr (Constants::kAtHomeChallenge) {
+    m_autonChooser.AddAutonomous("Shoot Six", [=] { AutoRightSideShootSix(); });
+    m_autonChooser.AddAutonomous("Shoot Three", [=] { AutoShootThree(); });
+    // Shoot Nine takes so long due to shooting at the end
+    m_autonChooser.AddAutonomous(
+        "Shoot Nine", [=] { AutoShootNine(); }, 30_s);
+
+    if constexpr (IsSimulation() || Constants::kAtHomeChallenge) {
         m_autonChooser.AddAutonomous(
             "AutoNav Bounce", [=] { AutoNavBounce(); }, 30_s);
         m_autonChooser.AddAutonomous(
@@ -141,19 +149,11 @@ Robot::~Robot() {
     vision.UnsubscribeFromVisionData(flywheel.visionQueue);
 }
 
-void Robot::Shoot(int ballsToShoot) {
+void Robot::ShootWithPose(int ballsToShoot) {
     if (m_state == ShootingState::kIdle) {
-        if (IsAutonomousEnabled()) {
-            flywheel.SetGoalFromPose();
-            m_state = ShootingState::kStartFlywheel;
-        } else {
-            m_visionTimer.Reset();
-            m_visionTimer.Start();
-            flywheel.SetMoveAndShoot(false);
-            vision.TurnLEDOn();
-            turret.SetControlMode(TurretController::ControlMode::kVisionAim);
-            m_state = ShootingState::kFindTarget;
-        }
+        flywheel.SetGoalFromPose();
+        m_state = ShootingState::kStartFlywheel;
+
         m_ballsToShoot = ballsToShoot;
         if (ballsToShoot != -1) {
             m_shootTimeout = 0.6_s * m_ballsToShoot;
@@ -166,26 +166,21 @@ void Robot::Shoot(int ballsToShoot) {
     }
 }
 
-void Robot::Shoot(units::radians_per_second_t radsToShoot, int ballsToShoot) {
+void Robot::ShootWithVision(int ballsToShoot) {
     if (m_state == ShootingState::kIdle) {
-        if (IsAutonomousEnabled()) {
-            flywheel.SetGoalFromPose();
-            m_state = ShootingState::kStartFlywheel;
-        } else {
-            m_visionTimer.Reset();
-            m_visionTimer.Start();
-            flywheel.SetMoveAndShoot(false);
-            flywheel.SetGoal(radsToShoot);
-            vision.TurnLEDOn();
-            turret.SetControlMode(TurretController::ControlMode::kVisionAim);
-            m_state = ShootingState::kStartFlywheel;
-        }
+        m_visionTimer.Reset();
+        m_visionTimer.Start();
+        flywheel.SetMoveAndShoot(false);
+        vision.TurnLEDOn();
+        m_state = ShootingState::kFindTarget;
+
         m_ballsToShoot = ballsToShoot;
         if (ballsToShoot != -1) {
             m_shootTimeout = 0.6_s * m_ballsToShoot;
         } else {
             m_shootTimeout = kMaxShootTimeout;
         }
+
         m_eventLogger.Log(
             fmt::format("Called Robot::Shoot({})", m_ballsToShoot));
     }
@@ -235,25 +230,7 @@ void Robot::RobotPeriodic() {
 
     if (IsOperatorControlEnabled() || IsTest()) {
         if (appendageStick2.GetRawButtonPressed(1)) {
-            Shoot();
-        }
-        if constexpr (Constants::kAtHomeChallenge) {
-            if (appendageStick2.GetRawButtonPressed(7)) {
-                // Shoot from 5.91667 feet away
-                Shoot(764_rad_per_s);
-            }
-            if (appendageStick2.GetRawButtonPressed(8)) {
-                // Shoot from 10 feet away
-                Shoot(436_rad_per_s);
-            }
-            if (appendageStick2.GetRawButtonPressed(10)) {
-                // Shoot from 15 feet away
-                Shoot(474_rad_per_s);
-            }
-            if (appendageStick2.GetRawButtonPressed(12)) {
-                // Shoot from 20 feet away
-                Shoot(498_rad_per_s);
-            }
+            ShootWithVision();
         }
 
         RunShooterSM();
@@ -328,8 +305,14 @@ void Robot::RunShooterSM() {
         }
         case ShootingState::kFindTarget: {
             if (vision.IsTargetDetected()) {
+                turret.SetControlMode(
+                    TurretController::ControlMode::kVisionAim);
                 m_visionTimer.Stop();
-                flywheel.SetGoalFromVision();
+                if (frc::DriverStation::GetInstance().IsTest()) {
+                    flywheel.SetGoalFromPose();
+                } else {
+                    flywheel.SetGoalFromVision();
+                }
                 m_state = ShootingState::kStartFlywheel;
             } else if (!vision.IsTargetDetected() &&
                        m_visionTimer.HasElapsed(3_s)) {

@@ -83,7 +83,7 @@ void Intake::RobotPeriodic() {
     if (m_flywheel.IsOn() || IsLowerSensorBlocked()) {
         if (m_flywheel.IsReady() ||
             (!IsUpperSensorBlocked() && IsLowerSensorBlocked())) {
-            SetFunnel(0.4);
+            SetFunnel(0.8);
         } else {
             SetFunnel(0.0);
         }
@@ -92,9 +92,9 @@ void Intake::RobotPeriodic() {
         if (frc::DriverStation::GetInstance().IsOperatorControlEnabled() ||
             frc::DriverStation::GetInstance().IsTest()) {
             if (appendageStick2.GetRawButton(4)) {
-                SetFunnel(0.4);
+                SetFunnel(0.8);
             } else if (appendageStick2.GetRawButton(6)) {
-                SetFunnel(-0.4);
+                SetFunnel(-0.8);
             } else {
                 SetFunnel(0.0);
             }
@@ -119,9 +119,9 @@ void Intake::RobotPeriodic() {
 
 void Intake::SetArmMotor(ArmMotorDirection direction) {
     if (direction == ArmMotorDirection::kIntake) {
-        m_armMotor.Set(-0.5);
+        m_armMotor.Set(-0.8);
     } else if (direction == ArmMotorDirection::kOuttake) {
-        m_armMotor.Set(0.5);
+        m_armMotor.Set(0.8);
     } else {
         m_armMotor.Set(0.0);
     }

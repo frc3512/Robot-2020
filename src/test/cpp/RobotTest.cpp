@@ -72,7 +72,7 @@ TEST_F(RobotTest, DISABLED_ShootTimeout) {
                 robot.intakeSim.AddBall();
             }
 
-            robot.Shoot(ballsToShoot);
+            robot.ShootWithPose(ballsToShoot);
 
             // Wait for flywheel to reach initial goal before starting timeout
             while (!robot.FlywheelAtGoal()) {
@@ -103,7 +103,7 @@ TEST_F(RobotTest, DISABLED_ShootNoTimeout) {
             robot.intakeSim.AddBall();
         }
 
-        robot.Shoot(ballsToShoot);
+        robot.ShootWithPose(ballsToShoot);
 
         // Wait for flywheel to reach initial goal before starting timeout
         while (!robot.FlywheelAtGoal()) {
