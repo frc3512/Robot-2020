@@ -4,7 +4,6 @@
 
 #include <frc/controller/LinearPlantInversionFeedforward.h>
 #include <frc/controller/LinearQuadraticRegulator.h>
-#include <frc/estimator/KalmanFilter.h>
 #include <frc/system/LinearSystem.h>
 #include <units/angular_acceleration.h>
 #include <units/angular_velocity.h>
