@@ -82,8 +82,8 @@ Robot::Robot() : frc::TimesliceRobot{2_ms, Constants::kControllerPeriod} {
                                      [=] { AutoRightSideIntake(); });
         m_autonChooser.AddAutonomous("Right Side Shoot Three",
                                      [=] { AutoRightSideShootThree(); });
-        m_autonChooser.AddAutonomous("Right Side Shoot Eight",
-                                     [=] { AutoRightSideShootEight(); });
+        m_autonChooser.AddAutonomous(
+            "Right Side Shoot Eight", [=] { AutoRightSideShootEight(); }, 18_s);
     }
 
     // 2021 offseason autonomous modes

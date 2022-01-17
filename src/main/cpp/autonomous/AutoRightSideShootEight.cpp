@@ -18,7 +18,10 @@ void Robot::AutoRightSideShootEight() {
     // Enters generator
     const frc::Pose2d kGenPose{9.3_m, 3.5_m, 120_deg};
 
-    const units::meters_per_second_t kMaxV = 1.6_mps;
+    // Exits generator so truss isn't in the way
+    const frc::Pose2d kEndPose{10_m, 2_m, 120_deg};
+
+    constexpr auto kMaxV = 1.6_mps;
 
     drivetrain.Reset(kInitialPose);
 
@@ -79,7 +82,10 @@ void Robot::AutoRightSideShootEight() {
         auto config = drivetrain.MakeTrajectoryConfig();
         config.AddConstraint(regionConstraint);
         drivetrain.AddTrajectory({kInitialPose, kGenPose}, config);
-        drivetrain.AddTrajectory({kGenPose, kTrenchPose, kInitialPose}, config);
+
+        // Exits generator so truss isn't in the way
+        config.SetReversed(true);
+        drivetrain.AddTrajectory({kGenPose, kEndPose}, config);
     }
 
     if (!m_autonChooser.Suspend([=] { return drivetrain.AtGoal(); })) {
