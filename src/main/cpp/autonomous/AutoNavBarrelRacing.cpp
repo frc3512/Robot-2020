@@ -53,12 +53,13 @@ void Robot::AutoNavBarrelRacing() {
     turret.SetControlMode(TurretController::ControlMode::kManual);
     drivetrain.Reset(kInitialPose);
 
-    auto config1 =
-        drivetrain.MakeTrajectoryConfig(0_mps, DrivetrainController::kMaxV);
-    auto config2 = drivetrain.MakeTrajectoryConfig(DrivetrainController::kMaxV,
-                                                   DrivetrainController::kMaxV);
-    auto config3 =
-        drivetrain.MakeTrajectoryConfig(DrivetrainController::kMaxV, 0_mps);
+    auto config1 = drivetrain.MakeTrajectoryConfig(
+        0_mps, DrivetrainTrajectoryController::kMaxV);
+    auto config2 =
+        drivetrain.MakeTrajectoryConfig(DrivetrainTrajectoryController::kMaxV,
+                                        DrivetrainTrajectoryController::kMaxV);
+    auto config3 = drivetrain.MakeTrajectoryConfig(
+        DrivetrainTrajectoryController::kMaxV, 0_mps);
 
     drivetrain.AddTrajectory({kInitialPose, kD5Entrance, kD5Loop1}, config1);
     drivetrain.AddTrajectory(kD5Loop1, {kD5Loop2, kD5Loop3}, kB8Entrance,

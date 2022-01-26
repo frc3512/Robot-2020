@@ -204,6 +204,11 @@ public:
     void AutoNoOp();
 
     /**
+     * Turns the drivetrain in place, testing out the new controller
+     */
+    void AutoTurnInPlace();
+
+    /**
      * Shoot three power cells from the initiation line in front of the opposing
      * trench run and intake two balls in the trench run.
      */

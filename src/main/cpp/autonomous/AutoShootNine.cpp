@@ -100,7 +100,7 @@ void Robot::AutoShootNine() {
 
     {
         auto config = Drivetrain::MakeTrajectoryConfig(
-            0_mps, DrivetrainController::kMaxV);
+            0_mps, DrivetrainTrajectoryController::kMaxV);
         drivetrain.AddTrajectory(kEndTrenchShoot, {}, kShootToGenPose, config);
     }
 
@@ -110,7 +110,7 @@ void Robot::AutoShootNine() {
 
     {
         auto config = Drivetrain::MakeTrajectoryConfig(
-            DrivetrainController::kMaxV, 0_mps);
+            DrivetrainTrajectoryController::kMaxV, 0_mps);
         config.AddConstraint(secondRegionConstraint);
         drivetrain.AddTrajectory({kShootToGenPose, kGenPose}, config);
     }

@@ -7,7 +7,7 @@
 #include <frc/system/plant/LinearSystemId.h>
 
 #include "TargetModel.hpp"
-#include "controllers/DrivetrainController.hpp"
+#include "controllers/DrivetrainTrajectoryController.hpp"
 
 using namespace frc3512;
 
@@ -49,7 +49,7 @@ bool TurretController::AtGoal() const {
 }
 
 void TurretController::SetDrivetrainStates(const Eigen::Vector<double, 7>& x) {
-    using State = DrivetrainController::State;
+    using State = DrivetrainTrajectoryController::State;
 
     m_drivetrainNextPoseInGlobal =
         frc::Pose2d(units::meter_t{x(State::kX)}, units::meter_t{x(State::kY)},
@@ -115,7 +115,7 @@ Eigen::Vector<double, 1> TurretController::Calculate(
                 (m_drivetrainLeftVelocity + m_drivetrainRightVelocity) / 2.0;
             units::radians_per_second_t drivetrainW =
                 (m_drivetrainRightVelocity - m_drivetrainLeftVelocity) /
-                DrivetrainController::kWidth * 1_rad;
+                DrivetrainTrajectoryController::kWidth * 1_rad;
             frc::Velocity2d drivetrainVelocityInGlobal{
                 drivetrainV, m_drivetrainNextPoseInGlobal.Rotation()};
 

@@ -22,7 +22,7 @@ const Eigen::Matrix<double, 2, 2> Drivetrain::kGlobalR =
     frc::MakeCovMatrix(0.2, 0.2);
 
 const frc::LinearSystem<2, 2, 2> Drivetrain::kPlant{
-    DrivetrainController::GetPlant()};
+    DrivetrainTrajectoryController::GetPlant()};
 
 Drivetrain::Drivetrain()
     : ControlledSubsystemBase(
@@ -61,8 +61,8 @@ Drivetrain::Drivetrain()
 
     m_leftEncoder.SetReverseDirection(false);
     m_rightEncoder.SetReverseDirection(true);
-    m_leftEncoder.SetDistancePerPulse(DrivetrainController::kDpP);
-    m_rightEncoder.SetDistancePerPulse(DrivetrainController::kDpP);
+    m_leftEncoder.SetDistancePerPulse(DrivetrainTrajectoryController::kDpP);
+    m_rightEncoder.SetDistancePerPulse(DrivetrainTrajectoryController::kDpP);
 
     // Reset the pose estimate to the field's bottom-left corner with the turret
     // facing in the target's general direction. This is relatively close to the
@@ -73,19 +73,19 @@ Drivetrain::Drivetrain()
 }
 
 frc::Pose2d Drivetrain::GetReferencePose() const {
-    const auto& x = m_controller.GetReferences();
+    const auto& x = m_trajectoryController.GetReferences();
     return frc::Pose2d{
-        units::meter_t{x(DrivetrainController::State::kX)},
-        units::meter_t{x(DrivetrainController::State::kY)},
-        units::radian_t{x(DrivetrainController::State::kHeading)}};
+        units::meter_t{x(DrivetrainTrajectoryController::State::kX)},
+        units::meter_t{x(DrivetrainTrajectoryController::State::kY)},
+        units::radian_t{x(DrivetrainTrajectoryController::State::kHeading)}};
 }
 
 frc::Pose2d Drivetrain::GetPose() const {
     const auto& x = m_observer.Xhat();
     return frc::Pose2d{
-        units::meter_t{x(DrivetrainController::State::kX)},
-        units::meter_t{x(DrivetrainController::State::kY)},
-        units::radian_t{x(DrivetrainController::State::kHeading)}};
+        units::meter_t{x(DrivetrainTrajectoryController::State::kX)},
+        units::meter_t{x(DrivetrainTrajectoryController::State::kY)},
+        units::radian_t{x(DrivetrainTrajectoryController::State::kHeading)}};
 }
 
 units::meter_t Drivetrain::GetLeftUltrasonicDistance() const {
@@ -128,7 +128,7 @@ void Drivetrain::Reset(const frc::Pose2d& initialPose) {
     using State = frc::sim::DifferentialDrivetrainSim::State;
 
     m_observer.Reset();
-    m_controller.Reset(initialPose);
+    m_trajectoryController.Reset(initialPose);
     m_u = Eigen::Vector<double, 2>::Zero();
     m_leftEncoder.Reset();
     m_rightEncoder.Reset();
@@ -156,13 +156,18 @@ void Drivetrain::CorrectWithGlobalOutputs(units::meter_t x, units::meter_t y,
         [&](const Eigen::Vector<double, 2>& u,
             const Eigen::Vector<double, 2>& y) {
             m_observer.Correct<2>(
-                u, y, &DrivetrainController::GlobalMeasurementModel, kGlobalR);
+                u, y, &DrivetrainTrajectoryController::GlobalMeasurementModel,
+                kGlobalR);
         },
         timestamp);
 }
 
+void Drivetrain::TurnDrivetrainInPlace(units::radian_t goalHeading) {
+    m_turningController.SetHeadingGoal(goalHeading);
+}
+
 void Drivetrain::ControllerPeriodic() {
-    using Input = DrivetrainController::Input;
+    using Input = DrivetrainTrajectoryController::Input;
 
     UpdateDt();
 
@@ -172,9 +177,10 @@ void Drivetrain::ControllerPeriodic() {
         frc::AngleModulus(GetAngle()).value(), GetLeftPosition().value(),
         GetRightPosition().value(), GetAccelerationX().value(),
         GetAccelerationY().value()};
-    m_latencyComp.AddObserverState(m_observer, m_controller.GetInputs(), y,
+    m_latencyComp.AddObserverState(m_observer,
+                                   m_trajectoryController.GetInputs(), y,
                                    frc::Timer::GetFPGATimestamp());
-    m_observer.Correct(m_controller.GetInputs(), y);
+    m_observer.Correct(m_trajectoryController.GetInputs(), y);
 
     auto visionData = visionQueue.pop();
     while (visionData.has_value()) {
@@ -194,10 +200,20 @@ void Drivetrain::ControllerPeriodic() {
         visionData = visionQueue.pop();
     }
 
-    if (m_controller.HaveTrajectory()) {
-        m_u = m_controller.Calculate(m_observer.Xhat());
+    if (m_trajectoryController.HaveTrajectory()) {
+        m_u = m_trajectoryController.Calculate(m_observer.Xhat());
 
         if (!AtGoal()) {
+            m_leftGrbx.SetVoltage(units::volt_t{m_u(Input::kLeftVoltage)});
+            m_rightGrbx.SetVoltage(units::volt_t{m_u(Input::kRightVoltage)});
+        } else {
+            m_leftGrbx.SetVoltage(0_V);
+            m_rightGrbx.SetVoltage(0_V);
+        }
+    } else if (m_turningController.HaveHeadingGoal()) {
+        m_u = m_turningController.Calculate(m_observer.Xhat());
+
+        if (!AtHeading()) {
             m_leftGrbx.SetVoltage(units::volt_t{m_u(Input::kLeftVoltage)});
             m_rightGrbx.SetVoltage(units::volt_t{m_u(Input::kRightVoltage)});
         } else {
@@ -207,7 +223,7 @@ void Drivetrain::ControllerPeriodic() {
     } else {
         // Update previous u stored in the controller. We don't care what the
         // return value is.
-        static_cast<void>(m_controller.Calculate(m_observer.Xhat()));
+        static_cast<void>(m_trajectoryController.Calculate(m_observer.Xhat()));
 
         // Run observer predict with inputs from teleop
         m_u = Eigen::Vector<double, 2>{
@@ -217,7 +233,7 @@ void Drivetrain::ControllerPeriodic() {
                 frc::RobotController::GetInputVoltage()};
     }
 
-    Log(m_controller.GetReferences(), m_observer.Xhat(), m_u, y);
+    Log(m_trajectoryController.GetReferences(), m_observer.Xhat(), m_u, y);
 
     if constexpr (frc::RobotBase::IsSimulation()) {
         auto batteryVoltage = frc::RobotController::GetInputVoltage();
@@ -235,7 +251,7 @@ void Drivetrain::ControllerPeriodic() {
         m_imuSim.SetGyroAngleZ(units::degree_t{
             m_drivetrainSim.GetHeading().Radians() - m_headingOffset});
 
-        const auto& plant = DrivetrainController::GetPlant();
+        const auto& plant = DrivetrainTrajectoryController::GetPlant();
         Eigen::Vector<double, 2> x{m_drivetrainSim.GetLeftVelocity().value(),
                                    m_drivetrainSim.GetRightVelocity().value()};
         Eigen::Vector<double, 2> u{
@@ -249,7 +265,7 @@ void Drivetrain::ControllerPeriodic() {
         units::meters_per_second_t rightVelocity{x(1)};
         m_imuSim.SetAccelY(
             -((rightVelocity * rightVelocity) - (leftVelocity * leftVelocity)) /
-            (2.0 * DrivetrainController::kWidth));
+            (2.0 * DrivetrainTrajectoryController::kWidth));
 
         m_field.SetRobotPose(m_drivetrainSim.GetPose());
     }
@@ -267,6 +283,8 @@ void Drivetrain::RobotPeriodic() {
         m_leftUltrasonicOutputEntry.SetDouble(m_leftUltrasonicDistance.value());
         m_rightUltrasonicOutputEntry.SetDouble(
             m_rightUltrasonicDistance.value());
+        m_headingGoalEntry.SetBoolean(AtHeading());
+        m_hasHeadingGoalEntry.SetBoolean(m_turningController.HaveHeadingGoal());
     }
 
     if constexpr (frc::RobotBase::IsSimulation()) {
@@ -274,50 +292,54 @@ void Drivetrain::RobotPeriodic() {
             units::volt_t{m_leftUltrasonicSim.GetVoltage()} * 1_m / 1_V);
         m_rightUltrasonicDistance = m_rightDistanceFilter.Calculate(
             units::volt_t{m_rightUltrasonicSim.GetVoltage()} * 1_m / 1_V);
+        m_headingGoalEntry.SetBoolean(AtHeading());
+        m_hasHeadingGoalEntry.SetBoolean(m_turningController.HaveHeadingGoal());
     }
 }
 
 void Drivetrain::AddTrajectory(const frc::Pose2d& start,
                                const std::vector<frc::Translation2d>& interior,
                                const frc::Pose2d& end) {
-    m_controller.AddTrajectory(start, interior, end);
+    m_trajectoryController.AddTrajectory(start, interior, end);
 }
 
 void Drivetrain::AddTrajectory(const frc::Pose2d& start,
                                const std::vector<frc::Translation2d>& interior,
                                const frc::Pose2d& end,
                                const frc::TrajectoryConfig& config) {
-    m_controller.AddTrajectory(start, interior, end, config);
+    m_trajectoryController.AddTrajectory(start, interior, end, config);
 }
 
 void Drivetrain::AddTrajectory(const std::vector<frc::Pose2d>& waypoints) {
-    m_controller.AddTrajectory(waypoints);
+    m_trajectoryController.AddTrajectory(waypoints);
 }
 
 void Drivetrain::AddTrajectory(const std::vector<frc::Pose2d>& waypoints,
                                const frc::TrajectoryConfig& config) {
-    m_controller.AddTrajectory(waypoints, config);
+    m_trajectoryController.AddTrajectory(waypoints, config);
 }
 
 frc::TrajectoryConfig Drivetrain::MakeTrajectoryConfig() {
-    return DrivetrainController::MakeTrajectoryConfig();
+    return DrivetrainTrajectoryController::MakeTrajectoryConfig();
 }
 
 frc::TrajectoryConfig Drivetrain::MakeTrajectoryConfig(
     units::meters_per_second_t startVelocity,
     units::meters_per_second_t endVelocity) {
-    return DrivetrainController::MakeTrajectoryConfig(startVelocity,
-                                                      endVelocity);
+    return DrivetrainTrajectoryController::MakeTrajectoryConfig(startVelocity,
+                                                                endVelocity);
 }
 
-bool Drivetrain::AtGoal() const { return m_controller.AtGoal(); }
+bool Drivetrain::AtGoal() const { return m_trajectoryController.AtGoal(); }
+
+bool Drivetrain::AtHeading() const { return m_turningController.AtHeading(); }
 
 const Eigen::Vector<double, 7>& Drivetrain::GetStates() const {
     return m_observer.Xhat();
 }
 
 const Eigen::Vector<double, 2>& Drivetrain::GetInputs() const {
-    return m_controller.GetInputs();
+    return m_trajectoryController.GetInputs();
 }
 
 units::ampere_t Drivetrain::GetCurrentDraw() const {
@@ -346,7 +368,10 @@ void Drivetrain::TeleopInit() {
     // If the robot was disabled while still following a trajectory in
     // autonomous, it will continue to do so in teleop. This aborts any
     // trajectories so teleop driving can occur.
-    m_controller.AbortTrajectories();
+    m_trajectoryController.AbortTrajectories();
+
+    // Aborts the turning action so teleop driving can occur.
+    m_turningController.AbortTurnInPlace();
 
     Enable();
 }
@@ -357,13 +382,16 @@ void Drivetrain::TestInit() {
     // If the robot was disabled while still following a trajectory in
     // autonomous, it will continue to do so in teleop. This aborts any
     // trajectories so teleop driving can occur.
-    m_controller.AbortTrajectories();
+    m_trajectoryController.AbortTrajectories();
+
+    // Aborts the turning action so teleop driving can occur.
+    m_turningController.AbortTurnInPlace();
 
     Enable();
 }
 
 void Drivetrain::TeleopPeriodic() {
-    using Input = DrivetrainController::Input;
+    using Input = DrivetrainTrajectoryController::Input;
 
     static frc::Joystick driveStick1{HWConfig::kDriveStick1Port};
     static frc::Joystick driveStick2{HWConfig::kDriveStick2Port};
@@ -392,7 +420,7 @@ void Drivetrain::TeleopPeriodic() {
 }
 
 void Drivetrain::TestPeriodic() {
-    using Input = DrivetrainController::Input;
+    using Input = DrivetrainTrajectoryController::Input;
 
     static frc::Joystick driveStick1{HWConfig::kDriveStick1Port};
     static frc::Joystick driveStick2{HWConfig::kDriveStick2Port};

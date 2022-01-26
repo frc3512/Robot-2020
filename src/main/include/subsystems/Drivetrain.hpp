@@ -35,7 +35,8 @@
 #include "Constants.hpp"
 #include "HWConfig.hpp"
 #include "NetworkTableUtil.hpp"
-#include "controllers/DrivetrainController.hpp"
+#include "controllers/DrivetrainTrajectoryController.hpp"
+#include "controllers/DrivetrainTurningController.hpp"
 #include "controllers/ImplicitModelFollower.hpp"
 #include "static_concurrent_queue.hpp"
 #include "subsystems/ControlledSubsystemBase.hpp"
@@ -138,6 +139,12 @@ public:
      */
     void CorrectWithGlobalOutputs(units::meter_t x, units::meter_t y,
                                   units::second_t timestamp);
+    /**
+     * Turn the drivetrain to a specific angle
+     *
+     * @param goalHeading   Heading you want to set the goal for
+     */
+    void TurnDrivetrainInPlace(units::radian_t goalHeading);
 
     /**
      * Adds a trajectory with the given waypoints.
@@ -222,6 +229,11 @@ public:
     bool AtGoal() const;
 
     /**
+     * Returns whether the drivetrain controller is at the goal heading.
+     */
+    bool AtHeading() const;
+
+    /**
      * Returns the drivetrain state estimate.
      */
     const Eigen::Vector<double, 7>& GetStates() const;
@@ -303,8 +315,8 @@ private:
     units::radian_t m_headingOffset = 0_rad;
 
     frc::UnscentedKalmanFilter<7, 2, 5> m_observer{
-        DrivetrainController::Dynamics,
-        DrivetrainController::LocalMeasurementModel,
+        DrivetrainTrajectoryController::Dynamics,
+        DrivetrainTrajectoryController::LocalMeasurementModel,
         {0.002, 0.002, 0.0001, 1.5, 1.5, 0.5, 0.5},
         {0.0001, 0.005, 0.005, 7.0, 7.0},
         frc::AngleMean<7, 7>(2),
@@ -316,7 +328,9 @@ private:
     frc::KalmanFilterLatencyCompensator<7, 2, 5,
                                         frc::UnscentedKalmanFilter<7, 2, 5>>
         m_latencyComp;
-    DrivetrainController m_controller;
+
+    DrivetrainTrajectoryController m_trajectoryController;
+    DrivetrainTurningController m_turningController;
     Eigen::Vector<double, 2> m_u = Eigen::Vector<double, 2>::Zero();
 
     nt::NetworkTableEntry m_leftUltrasonicOutputEntry =
@@ -327,12 +341,19 @@ private:
         NetworkTableUtil::MakeDoubleEntry(
             "/Diagnostics/Drivetrain/Outputs/Right Ultrasonic Output");
 
+    nt::NetworkTableEntry m_headingGoalEntry = NetworkTableUtil::MakeBoolEntry(
+        "/Diagnostics/Drivetrain/Outputs/Goal Heading Achieved");
+
+    nt::NetworkTableEntry m_hasHeadingGoalEntry =
+        NetworkTableUtil::MakeBoolEntry(
+            "/Diagnostics/Drivetrain/Outputs/Has New Goal Heading");
+
     frc::LinearSystem<2, 2, 2> m_imfRef =
         frc::LinearSystemId::IdentifyDrivetrainSystem(
-            DrivetrainController::kLinearV,
-            DrivetrainController::kLinearA * 5.0,
-            DrivetrainController::kAngularV,
-            DrivetrainController::kAngularA * 2.0);
+            DrivetrainTrajectoryController::kLinearV,
+            DrivetrainTrajectoryController::kLinearA * 5.0,
+            DrivetrainTrajectoryController::kAngularV,
+            DrivetrainTrajectoryController::kAngularA * 2.0);
     ImplicitModelFollower<2, 2> m_imf{
         kPlant, m_imfRef, {0.01, 0.01}, {8.0, 8.0}, 20_ms};
 
@@ -342,9 +363,10 @@ private:
 
     // Simulation variables
     frc::sim::DifferentialDrivetrainSim m_drivetrainSim{
-        DrivetrainController::GetPlant(), DrivetrainController::kWidth,
-        frc::DCMotor::NEO(2), DrivetrainController::kDriveGearRatio,
-        DrivetrainController::kWheelRadius};
+        DrivetrainTrajectoryController::GetPlant(),
+        DrivetrainTrajectoryController::kWidth, frc::DCMotor::NEO(2),
+        DrivetrainTrajectoryController::kDriveGearRatio,
+        DrivetrainTrajectoryController::kWheelRadius};
     frc::sim::EncoderSim m_leftEncoderSim{m_leftEncoder};
     frc::sim::EncoderSim m_rightEncoderSim{m_rightEncoder};
     frc::sim::ADIS16470_IMUSim m_imuSim{m_imu};

@@ -113,10 +113,10 @@ TEST_F(DrivetrainTest, CorrectsTowardGlobalY) {
     Eigen::Vector<double, 7> x{5.0, 5.0, 1.0, 1.0, 1.0, 1.0, 1.0};
 
     Eigen::Vector<double, 5> localY =
-        frc3512::DrivetrainController::LocalMeasurementModel(
+        frc3512::DrivetrainTrajectoryController::LocalMeasurementModel(
             x, Eigen::Vector<double, 2>::Zero());
     Eigen::Vector<double, 2> globalY =
-        frc3512::DrivetrainController::GlobalMeasurementModel(
+        frc3512::DrivetrainTrajectoryController::GlobalMeasurementModel(
             x, Eigen::Vector<double, 2>::Zero());
     auto globalTimestamp = frc::Timer::GetFPGATimestamp();
 
@@ -126,8 +126,8 @@ TEST_F(DrivetrainTest, CorrectsTowardGlobalY) {
         globalY += frc::MakeWhiteNoiseVector(0.05, 0.05);
     }
 
-    using State = frc3512::DrivetrainController::State;
-    using GlobalOutput = frc3512::DrivetrainController::GlobalOutput;
+    using State = frc3512::DrivetrainTrajectoryController::State;
+    using GlobalOutput = frc3512::DrivetrainTrajectoryController::GlobalOutput;
 
     auto xHat = drivetrain.GetStates();
     double xDiff1 = std::abs(xHat(State::kX) - x(State::kX));

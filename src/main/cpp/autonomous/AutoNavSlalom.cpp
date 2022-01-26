@@ -7,7 +7,7 @@
 
 namespace frc3512 {
 void Robot::AutoNavSlalom() {
-    auto kMaxV = DrivetrainController::kMaxV * 0.3;
+    auto kMaxV = DrivetrainTrajectoryController::kMaxV * 0.3;
 
     // Initial Pose - Right against the Start Zone border
     const frc::Pose2d kInitialPose{1.08_m, 0.6_m, units::radian_t{0}};

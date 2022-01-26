@@ -95,6 +95,8 @@ Robot::Robot() : frc::TimesliceRobot{2_ms, Constants::kControllerPeriod} {
     m_autonChooser.AddAutonomous(
         "Shoot Nine", [=] { AutoShootNine(); }, 30_s);
 
+    m_autonChooser.AddAutonomous("Turn-In-Place", [=] { AutoTurnInPlace(); });
+
     if constexpr (IsSimulation() || Constants::kAtHomeChallenge) {
         m_autonChooser.AddAutonomous(
             "AutoNav Bounce", [=] { AutoNavBounce(); }, 30_s);
@@ -239,7 +241,7 @@ void Robot::RobotPeriodic() {
 #if 0
     units::radian_t turretHeadingInGlobal{
         turret.GetStates()(TurretController::State::kAngle) +
-        drivetrain.GetStates()(DrivetrainController::State::kHeading)};
+        drivetrain.GetStates()(DrivetrainTrajectoryController::State::kHeading)};
     if (!frc::DriverStation::IsDisabled() &&
         ((turretHeadingInGlobal < 45_deg && turretHeadingInGlobal > -45_deg) ||
          m_LEDEntry.GetBoolean(false))) {
@@ -388,12 +390,12 @@ void Robot::ExpectAutonomousEndConds() {
         EXPECT_TRUE(drivetrain.AtGoal());
 
         // Verify left/right wheel velocities are close to zero
-        EXPECT_NEAR(
-            drivetrain.GetStates()(DrivetrainController::State::kLeftVelocity),
-            0.0, 0.01);
-        EXPECT_NEAR(
-            drivetrain.GetStates()(DrivetrainController::State::kRightVelocity),
-            0.0, 0.01);
+        EXPECT_NEAR(drivetrain.GetStates()(
+                        DrivetrainTrajectoryController::State::kLeftVelocity),
+                    0.0, 0.01);
+        EXPECT_NEAR(drivetrain.GetStates()(
+                        DrivetrainTrajectoryController::State::kRightVelocity),
+                    0.0, 0.01);
 
         EXPECT_EQ(flywheel.GetGoal(), 0_rad_per_s);
 

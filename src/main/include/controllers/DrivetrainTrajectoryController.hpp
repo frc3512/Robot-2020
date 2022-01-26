@@ -29,7 +29,7 @@
 namespace frc3512 {
 
 /**
- * The drivetrain controller.
+ * The drivetrain trajectory controller.
  *
  * The drivetrain uses a linear time-varying LQR for feedback control. Since the
  * model is control-affine (the dynamics are nonlinear, but the control inputs
@@ -50,7 +50,7 @@ namespace frc3512 {
  * See section 9.6 in Controls Engineering in FRC for a derivation of the
  * control law we used shown in theorem 9.6.3.
  */
-class DrivetrainController : public ControllerBase<7, 2, 4> {
+class DrivetrainTrajectoryController : public ControllerBase<7, 2, 4> {
 public:
     /// The wheel radius.
     static constexpr units::meter_t kWheelRadius = 3.05_in;
@@ -171,19 +171,20 @@ public:
     };
 
     /**
-     * Constructs a drivetrain controller.
+     * Constructs a drivetrain trajectory controller.
      */
-    DrivetrainController();
+    DrivetrainTrajectoryController();
 
     /**
      * Move constructor.
      */
-    DrivetrainController(DrivetrainController&&) = default;
+    DrivetrainTrajectoryController(DrivetrainTrajectoryController&&) = default;
 
     /**
      * Move assignment operator.
      */
-    DrivetrainController& operator=(DrivetrainController&&) = default;
+    DrivetrainTrajectoryController& operator=(
+        DrivetrainTrajectoryController&&) = default;
 
     /**
      * Adds a trajectory with the given waypoints.

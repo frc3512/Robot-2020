@@ -9,7 +9,7 @@ namespace frc3512 {
 void Robot::AutoNavBounce() {
     const auto kMarkerOffset = -Drivetrain::kLength / 16.0;
 
-    const auto kMaxV = DrivetrainController::kMaxV * 0.35;
+    const auto kMaxV = DrivetrainTrajectoryController::kMaxV * 0.35;
 
     // Initial Pose - right up against the Start zone border.
     const frc::Pose2d kInitialPose{1.076_m, 2.276_m, units::radian_t{0}};
