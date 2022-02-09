@@ -13,13 +13,11 @@ FlywheelSim::FlywheelSim(const frc::LinearSystem<1, 1, 1>& plant,
                          const frc::DCMotor& gearbox, double gearing,
                          const std::array<double, 2>& measurementStdDevs)
     : frc::sim::LinearSystemSim<2, 1, 2>(
-          [=] {
-              return frc::LinearSystem<2, 1, 2>{
-                  Eigen::Matrix<double, 2, 2>{{0.0, 1.0}, {0.0, plant.A(0, 0)}},
-                  Eigen::Matrix<double, 2, 1>{0.0, plant.B(0, 0)},
-                  Eigen::Matrix<double, 2, 2>::Identity(),
-                  Eigen::Matrix<double, 2, 1>{0.0, 0.0}};
-          }(),
+          frc::LinearSystem<2, 1, 2>{
+              Eigen::Matrix<double, 2, 2>{{0.0, 1.0}, {0.0, plant.A(0, 0)}},
+              Eigen::Matrix<double, 2, 1>{0.0, plant.B(0, 0)},
+              Eigen::Matrix<double, 2, 2>::Identity(),
+              Eigen::Matrix<double, 2, 1>{0.0, 0.0}},
           measurementStdDevs),
       m_gearbox(gearbox),
       m_gearing(gearing) {}
