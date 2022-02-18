@@ -50,7 +50,9 @@ Velocity2d& Velocity2d::operator-=(const Velocity2d& other) {
   return *this;
 }
 
-Velocity2d Velocity2d::operator-() const { return {-m_x, -m_y}; }
+Velocity2d Velocity2d::operator-() const {
+  return {-m_x, -m_y};
+}
 
 Velocity2d Velocity2d::operator*(double scalar) const {
   return {scalar * m_x, scalar * m_y};

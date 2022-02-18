@@ -71,4 +71,6 @@ std::string LogFile::CreateFilename(std::time_t time) const {
   }
 }
 
-void LogFile::Flush() { m_file.flush(); }
+void LogFile::Flush() {
+  m_file.flush();
+}
