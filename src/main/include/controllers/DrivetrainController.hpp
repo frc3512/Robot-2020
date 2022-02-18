@@ -8,22 +8,17 @@
 
 #include <frc/Timer.h>
 #include <frc/controller/ControlAffinePlantInversionFeedforward.h>
+#include <frc/controller/LTVDiffDriveController.h>
 #include <frc/geometry/Pose2d.h>
 #include <frc/system/LinearSystem.h>
 #include <frc/trajectory/Trajectory.h>
 #include <frc/trajectory/TrajectoryConfig.h>
-#include <units/angle.h>
-#include <units/angular_acceleration.h>
-#include <units/angular_velocity.h>
 #include <units/curvature.h>
 #include <units/length.h>
-#include <units/time.h>
 #include <units/velocity.h>
-#include <units/voltage.h>
 #include <wpi/numbers>
 
 #include "Constants.hpp"
-#include "LerpTable.hpp"
 #include "controllers/ControllerBase.hpp"
 
 namespace frc3512 {
@@ -275,23 +270,6 @@ public:
         units::meters_per_second_t endVelocity);
 
     /**
-     * Returns the linear time-varying controller gain for the given state.
-     *
-     * @param x The state vector.
-     */
-    Eigen::Matrix<double, 2, 5> ControllerGainForState(
-        const Eigen::Vector<double, 7>& x);
-
-    /**
-     * The linear time-varying control law.
-     *
-     * @param x The state vector.
-     * @param r The reference vector.
-     */
-    Eigen::Vector<double, 2> Controller(const Eigen::Vector<double, 7>& x,
-                                        const Eigen::Vector<double, 7>& r);
-
-    /**
      * The drivetrain system dynamics.
      *
      * @param x The state vector.
@@ -299,24 +277,6 @@ public:
      */
     static Eigen::Vector<double, 7> Dynamics(const Eigen::Vector<double, 7>& x,
                                              const Eigen::Vector<double, 2>& u);
-
-    /**
-     * Returns the Jacobian of the pose and velocity dynamics with respect to
-     * the state vector.
-     *
-     * @param x The state vector.
-     */
-    static Eigen::Matrix<double, 5, 5> JacobianX(
-        const Eigen::Vector<double, 7>& x);
-
-    /**
-     * Returns the Jacobian of the pose and velocity dynamics with respect to
-     * the input vector.
-     *
-     * @param u The input vector.
-     */
-    static Eigen::Matrix<double, 5, 2> JacobianU(
-        const Eigen::Vector<double, 2>& u);
 
     /**
      * Returns the local measurements that correspond to the given state and
@@ -339,37 +299,23 @@ public:
         const Eigen::Vector<double, 7>& x, const Eigen::Vector<double, 2>& u);
 
 private:
-    static constexpr double kPositionTolerance = 0.5;  // meters
-    static constexpr double kVelocityTolerance = 2.0;  // meters/second
-    static constexpr double kAngleTolerance = 0.52;    // radians
+    static constexpr auto kPositionTolerance = 0.5_m;
+    static constexpr auto kVelocityTolerance = 2_mps;
+    static constexpr auto kAngleTolerance = 0.52_rad;
 
     static const frc::LinearSystem<2, 2, 2> kPlant;
 
     frc::ControlAffinePlantInversionFeedforward<7, 2> m_ff{
         Dynamics, Constants::kControllerPeriod};
-
-    Eigen::Matrix<double, 5, 5> m_A;
-    Eigen::Matrix<double, 5, 2> m_B;
-    Eigen::Matrix<double, 5, 5> m_Q =
-        frc::MakeCostMatrix(0.0625, 0.125, 2.5, 0.95, 0.95);
-    Eigen::Matrix<double, 2, 2> m_R = frc::MakeCostMatrix(12.0, 12.0);
-
-    // LUT from drivetrain linear velocity to LQR gain
-    LerpTable<units::meters_per_second_t, Eigen::Matrix<double, 2, 5>> m_table;
+    frc::LTVDiffDriveController m_fb{kPlant,
+                                     kWidth,
+                                     {0.0625, 0.125, 2.5, 0.95, 0.95},
+                                     {12.0, 12.0},
+                                     Constants::kControllerPeriod};
 
     frc::Trajectory m_trajectory;
     frc::Pose2d m_goal;
     frc::Timer m_trajectoryTimeElapsed;
-
-    bool m_atReferences = false;
-
-    /**
-     * Update "at references" flag based on next reference and current state
-     * estimate.
-     *
-     * @param error The error vector.
-     */
-    void UpdateAtReferences(const Eigen::Vector<double, 5>& error);
 
     /**
      * Converts velocity and curvature of drivetrain into left and right wheel
