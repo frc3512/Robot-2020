@@ -5,7 +5,6 @@
 #include <algorithm>
 #include <cmath>
 
-#include <frc/fmt/Eigen.h>
 #include <frc/kinematics/DifferentialDriveKinematics.h>
 #include <frc/system/plant/LinearSystemId.h>
 #include <frc/trajectory/TrajectoryGenerator.h>
