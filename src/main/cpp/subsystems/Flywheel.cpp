@@ -122,10 +122,8 @@ void Flywheel::RobotPeriodic() {
                    units::revolutions_per_minute_t{manualRef});
     }
 
-    auto visionData = visionQueue.pop();
-    if (visionData.has_value()) {
-        const auto& measurement = visionData.value();
-        m_distanceToTarget = measurement.range;
+    while (visionQueue.size() > 0) {
+        m_distanceToTarget = visionQueue.pop_front().range;
     }
 }
 

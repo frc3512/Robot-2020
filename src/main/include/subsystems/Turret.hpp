@@ -18,6 +18,7 @@
 #include <units/angle.h>
 #include <units/current.h>
 #include <units/voltage.h>
+#include <wpi/static_circular_buffer.h>
 
 #include "ADCInput.hpp"
 #include "Constants.hpp"
@@ -54,7 +55,7 @@ public:
      * Producer-consumer queue for yaw measurement from Vision
      * subsystem.
      */
-    static_concurrent_queue<Vision::GlobalMeasurement, 8> visionQueue;
+    wpi::static_circular_buffer<Vision::GlobalMeasurement, 8> visionQueue;
 
     /**
      * Constructs a Turret.

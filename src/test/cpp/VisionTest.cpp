@@ -72,8 +72,7 @@ TEST_F(VisionTest, QueueData) {
 
     const frc::Pose2d drivetrainPose{12.89_m, 2.41_m,
                                      units::radian_t{wpi::numbers::pi}};
-    frc3512::static_concurrent_queue<frc3512::Vision::GlobalMeasurement, 8>
-        queue;
+    wpi::static_circular_buffer<frc3512::Vision::GlobalMeasurement, 8> queue;
 
     vision.SubscribeToVisionData(queue);
     vision.UpdateVisionMeasurementsSim(
@@ -86,7 +85,7 @@ TEST_F(VisionTest, QueueData) {
     nt::NetworkTableInstance::GetDefault().Flush();
     std::this_thread::sleep_for(std::chrono::milliseconds(50));
 
-    ASSERT_TRUE(queue.pop().has_value());
+    ASSERT_GT(queue.size(), 0u);
 
     vision.UnsubscribeFromVisionData(queue);
 }

@@ -176,9 +176,8 @@ void Drivetrain::ControllerPeriodic() {
                                    frc::Timer::GetFPGATimestamp());
     m_observer.Correct(m_controller.GetInputs(), y);
 
-    auto visionData = visionQueue.pop();
-    while (visionData.has_value()) {
-        const auto& measurement = visionData.value();
+    while (visionQueue.size() > 0) {
+        auto measurement = visionQueue.pop_front();
 
         // If pose measurement is too far away from the state estimate, discard
         // it and increment the fault counter
@@ -190,8 +189,6 @@ void Drivetrain::ControllerPeriodic() {
         } else {
             m_poseMeasurementFaultCounter++;
         }
-
-        visionData = visionQueue.pop();
     }
 
     if (m_controller.HaveTrajectory()) {

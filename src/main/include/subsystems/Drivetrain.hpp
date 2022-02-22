@@ -31,13 +31,13 @@
 #include <units/length.h>
 #include <units/time.h>
 #include <units/velocity.h>
+#include <wpi/static_circular_buffer.h>
 
 #include "Constants.hpp"
 #include "HWConfig.hpp"
 #include "NetworkTableUtil.hpp"
 #include "controllers/DrivetrainController.hpp"
 #include "controllers/ImplicitModelFollower.hpp"
-#include "static_concurrent_queue.hpp"
 #include "subsystems/ControlledSubsystemBase.hpp"
 #include "subsystems/Vision.hpp"
 
@@ -62,7 +62,7 @@ public:
      * Producer-consumer queue for global pose measurements from Vision
      * subsystem.
      */
-    static_concurrent_queue<Vision::GlobalMeasurement, 8> visionQueue;
+    wpi::static_circular_buffer<Vision::GlobalMeasurement, 8> visionQueue;
 
     Drivetrain();
 

@@ -18,6 +18,7 @@
 #include <units/current.h>
 #include <units/length.h>
 #include <units/voltage.h>
+#include <wpi/static_circular_buffer.h>
 
 #include "Constants.hpp"
 #include "FlywheelSim.hpp"
@@ -43,7 +44,7 @@ public:
      * Producer-consumer queue for global pose measurements from Vision
      * subsystem.
      */
-    static_concurrent_queue<Vision::GlobalMeasurement, 8> visionQueue;
+    wpi::static_circular_buffer<Vision::GlobalMeasurement, 8> visionQueue;
 
     /**
      * Constructs a Flywheel.

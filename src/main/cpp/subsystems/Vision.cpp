@@ -2,17 +2,10 @@
 
 #include "subsystems/Vision.hpp"
 
-#include <chrono>
-#include <vector>
-
 #include <frc/DriverStation.h>
 #include <frc/Joystick.h>
-#include <frc/RobotBase.h>
 #include <frc/Timer.h>
-#include <frc/geometry/Pose2d.h>
-#include <frc/geometry/Transform2d.h>
 #include <photonlib/PhotonUtils.h>
-#include <units/angle.h>
 
 #include "TargetModel.hpp"
 #include "subsystems/Turret.hpp"
@@ -33,14 +26,12 @@ bool Vision::IsLEDOn() const {
 }
 
 void Vision::SubscribeToVisionData(
-    frc3512::static_concurrent_queue<GlobalMeasurement, 8>& queue) {
-    std::scoped_lock lock{m_subsystemQueuesMutex};
+    wpi::static_circular_buffer<GlobalMeasurement, 8>& queue) {
     m_subsystemQueues.push_back(&queue);
 }
 
 void Vision::UnsubscribeFromVisionData(
-    frc3512::static_concurrent_queue<GlobalMeasurement, 8>& queue) {
-    std::scoped_lock lock{m_subsystemQueuesMutex};
+    wpi::static_circular_buffer<GlobalMeasurement, 8>& queue) {
     m_subsystemQueues.erase(
         std::remove(m_subsystemQueues.begin(), m_subsystemQueues.end(), &queue),
         m_subsystemQueues.end());
@@ -112,12 +103,9 @@ void Vision::RobotPeriodic() {
         kCameraHeight, TargetModel::kCenter.Z(), kCameraPitch,
         units::degree_t{m_pitch});
 
-    {
-        std::scoped_lock lock{m_subsystemQueuesMutex};
-        for (auto& queue : m_subsystemQueues) {
-            queue->push({drivetrainInGlobal, timestamp, units::radian_t{m_yaw},
-                         units::radian_t{m_pitch}, range});
-        }
+    for (auto& queue : m_subsystemQueues) {
+        queue->push_back({drivetrainInGlobal, timestamp, units::radian_t{m_yaw},
+                          units::radian_t{m_pitch}, range});
     }
 
     m_rangeEntry.SetDouble(range.value());

@@ -11,12 +11,14 @@
 #include <networktables/NetworkTableInstance.h>
 #include <photonlib/PhotonCamera.h>
 #include <photonlib/SimVisionSystem.h>
+#include <units/angle.h>
+#include <units/length.h>
 #include <units/time.h>
+#include <wpi/static_circular_buffer.h>
 
 #include "Constants.hpp"
 #include "NetworkTableUtil.hpp"
 #include "TargetModel.hpp"
-#include "static_concurrent_queue.hpp"
 #include "subsystems/SubsystemBase.hpp"
 
 namespace frc3512 {
@@ -89,7 +91,7 @@ public:
      * @param queue Queue to subscribe.
      */
     void SubscribeToVisionData(
-        frc3512::static_concurrent_queue<GlobalMeasurement, 8>& queue);
+        wpi::static_circular_buffer<GlobalMeasurement, 8>& queue);
 
     /**
      * Unsubscribe a subsystem from vision data.
@@ -97,7 +99,7 @@ public:
      * @param queue Queue to unsubscribe.
      */
     void UnsubscribeFromVisionData(
-        frc3512::static_concurrent_queue<GlobalMeasurement, 8>& queue);
+        wpi::static_circular_buffer<GlobalMeasurement, 8>& queue);
 
     /**
      * Updates vision sim data with new pose and camera transformation
@@ -128,9 +130,7 @@ private:
 
     bool m_isTargetDetected = false;
 
-    std::mutex m_subsystemQueuesMutex;
-
-    std::vector<frc3512::static_concurrent_queue<GlobalMeasurement, 8>*>
+    std::vector<wpi::static_circular_buffer<GlobalMeasurement, 8>*>
         m_subsystemQueues;
 
     Turret& m_turret;
