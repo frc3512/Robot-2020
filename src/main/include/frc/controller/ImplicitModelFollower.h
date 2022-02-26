@@ -54,7 +54,7 @@ class ImplicitModelFollower {
   ImplicitModelFollower(const Eigen::Matrix<double, States, States>& A,
                         const Eigen::Matrix<double, States, Inputs>& B,
                         const Eigen::Matrix<double, States, States>& Aref,
-                        const Eigen::Matrix<double, States, States>& Bref,
+                        const Eigen::Matrix<double, States, Inputs>& Bref,
                         units::second_t dt) {
     // Discretize real dynamics
     Eigen::Matrix<double, States, States> discA;
