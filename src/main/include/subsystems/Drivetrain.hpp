@@ -8,6 +8,7 @@
 #include <frc/ADIS16470_IMU.h>
 #include <frc/AnalogInput.h>
 #include <frc/Encoder.h>
+#include <frc/controller/ImplicitModelFollower.h>
 #include <frc/estimator/AngleStatistics.h>
 #include <frc/estimator/KalmanFilterLatencyCompensator.h>
 #include <frc/estimator/UnscentedKalmanFilter.h>
@@ -37,7 +38,6 @@
 #include "HWConfig.hpp"
 #include "NetworkTableUtil.hpp"
 #include "controllers/DrivetrainController.hpp"
-#include "controllers/ImplicitModelFollower.hpp"
 #include "subsystems/ControlledSubsystemBase.hpp"
 #include "subsystems/Vision.hpp"
 
@@ -333,8 +333,7 @@ private:
             DrivetrainController::kLinearA * 5.0,
             DrivetrainController::kAngularV,
             DrivetrainController::kAngularA * 2.0);
-    ImplicitModelFollower<2, 2> m_imf{
-        kPlant, m_imfRef, {0.01, 0.01}, {8.0, 8.0}, 20_ms};
+    frc::ImplicitModelFollower<2, 2> m_imf{kPlant, m_imfRef, 20_ms};
 
     int m_poseMeasurementFaultCounter = 0;
     nt::NetworkTableEntry m_poseMeasurementFaultEntry =
