@@ -128,7 +128,7 @@ class ImplicitModelFollower {
   Eigen::Vector<double, Inputs> m_u;
 
   // State space conversion gain
-  Eigen::Matrix<double, States, States> m_A;
+  Eigen::Matrix<double, Inputs, States> m_A;
 
   // Input space conversion gain
   Eigen::Matrix<double, Inputs, Inputs> m_B;
