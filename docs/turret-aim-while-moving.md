@@ -12,14 +12,15 @@ sin B = a x c / (|a| |c|)
 sin C = a x b / (|a| |b|)
 ```
 
-Let g subscript refer to the goal, b subscript refer to the ball, t be the time
-of flight of the ball, x be a position vector, v be a velocity vector, and s be
-a speed (norm of the velocity vector).
+Let g subscript refer to the goal, d subscript refer to the drivetrain, b
+subscript refer to the ball, t be the time of flight of the ball, x be a
+position vector, v be a velocity vector, and s be a speed (norm of the velocity
+vector).
 
 Instead of viewing it as the drivetrain moving and target being stationary, view
 it as the target moving and the drivetrain being stationary. Then the only
 velocities that matter are the ball and the target where the drivetrain position
-is just the starting point. Therefore, v_g = -v_r.
+is just the starting point. Therefore, v_g = -v_d.
 
 ```
        s_g t
@@ -61,7 +62,7 @@ sin C = (x_g - x_b) x v_g / (s_g |x_g - x_b|) * s_g / s_b
 sin C = (x_g - x_b) x v_g / (|x_g - x_b| s_b)
 ```
 ```
-θ_t in global frame with no movement = atan2(x_g.y - x_r.y, x_g.x - x_r.x)
-θ_t in drivetrain frame = θ_t in global - θ_r
+θ_t in global frame with no movement = atan2(x_g.y - x_d.y, x_g.x - x_d.x)
+θ_t in drivetrain frame = θ_t in global - θ_d
 θ_t adjustment = C
 ```
