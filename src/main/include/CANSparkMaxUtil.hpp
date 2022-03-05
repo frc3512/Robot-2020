@@ -19,7 +19,9 @@ enum class Usage { kAll, kPositionOnly, kVelocityOnly, kMinimal };
  * @param motor The motor to adjust the status frame periods on.
  * @param usage The status frame feedack to enable. kAll is the default
  *              when a CANSparkMax is constructed.
+ * @param enableFollowing Whether to enable motor following.
  */
-void SetCANSparkMaxBusUsage(rev::CANSparkMax& motor, Usage usage);
+void SetCANSparkMaxBusUsage(rev::CANSparkMax& motor, Usage usage,
+                            bool enableFollowing = false);
 
 }  // namespace frc3512
