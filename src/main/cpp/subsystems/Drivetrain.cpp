@@ -227,8 +227,10 @@ void Drivetrain::ControllerPeriodic() {
         m_drivetrainSim.Update(GetDt());
 
         m_leftEncoderSim.SetDistance(m_drivetrainSim.GetLeftPosition().value());
+        m_leftEncoderSim.SetRate(m_drivetrainSim.GetLeftVelocity().value());
         m_rightEncoderSim.SetDistance(
             m_drivetrainSim.GetRightPosition().value());
+        m_rightEncoderSim.SetRate(m_drivetrainSim.GetLeftVelocity().value());
         m_imuSim.SetGyroAngleZ(units::degree_t{
             m_drivetrainSim.GetHeading().Radians() - m_headingOffset});
 
