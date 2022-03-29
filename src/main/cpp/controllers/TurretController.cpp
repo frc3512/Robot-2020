@@ -271,34 +271,17 @@ units::radian_t TurretController::CalculateHeadingAdjustment(
 
 units::radians_per_second_t TurretController::CalculateAngularVelocity(
     frc::Velocity2d v, frc::Translation2d r) {
-    // No Translation2d::operator* exists that takes a 1/s and gives a
-    // Velocity2d.
-    frc::Translation2d vVec{units::meter_t{v.X().value()},
-                            units::meter_t{v.Y().value()}};
-
-    // We want the angular velocity around the target. We know:
+    // We want the angular velocity around the target. This is equivalent to the
+    // change in heading to the target over change in time.
     //
-    // 1) velocity vector of the turret in the global frame
-    // 2) displacement vector from the target to the turret
+    //   ω = d/dt tan⁻¹(r.y / r.x)
     //
-    // v = w x r where v is the velocity vector, w is the angular velocity
-    // vector, and r is the displacement vector from the center of rotation.
+    // where r is the vector from the turret to the target.
     //
-    // |w| = |v_perp| / |r| where v_perp is the component of v perpendicular to
-    // the displacement vector. This can be obtained via
+    //   ω = r x dr/dt / ‖r‖²
     //
-    // |w| = |v_perp| / |r|                 (1)
-    //
-    // |v_perp| = r_perp / |r| . v          (2)
-    // r_perp = <-r.y, r.x>                 (3)
-    //
-    // |w| = (r_perp / |r| . v) / |r|
-    // |w| = (<-r.y, r.x> / |r| . v) / |r|
-    // |w| = (<-r.y, r.x> / |r|^2 . v)
-    // |w| = (<-r.y, r.x> / (r . r) . v)    (4)
-    return units::radians_per_second_t{
-        Dot(frc::Translation2d{-r.Y(), r.X()} / Dot(r, r).value(), vVec)
-            .value()};
+    // where dr/dt is the velocity vector of the turret in the global frame.
+    return units::radians_per_second_t{Cross(r, v) / Dot(r, r) * 1_rad};
 }
 
 frc::Pose2d TurretController::DrivetrainToTurretInGlobal(
